@@ -36,7 +36,7 @@
 \begin{document}
 
 % paragraph spacing -- should be rubber length
-%\setlength{\parskip}{1.5ex plus 0.5ex minus 0.5ex}
+%\setlength{\parskip}{\baselineskip}
 % paragraph indention for the first line
 %\setlength{\parindent}{0em}
 
@@ -66,13 +66,17 @@ multi-pipe software are justified, and a full software stack for
 graphics clusters is outlined.
 }
 \vfill
-\begin{tabularx}{.85\columnwidth}{|l|l|X|}
+{\center\begin{tabularx}{.88\textwidth}{|l|l|X|}
 \hline
 \bf Version & \bf Date & \bf Changes \\
 \hline
+0.5.1       & July 5, 2006   & Added link to latest version\\
 0.5         & May 19, 2006   & Initial Version\\
 \hline
-\end{tabularx}
+\multicolumn{3}{c}{\footnotesize Latest version at 
+  \htmladdnormallink{http://www.equalizergraphics.com/documents/ParallelRenderingSystems.pdf}
+  {http://www.equalizergraphics.com/documents/ParallelRenderingSystems.pdf}}\\
+\end{tabularx}}
 \clearpage
 \pagenumbering{arabic}
 
