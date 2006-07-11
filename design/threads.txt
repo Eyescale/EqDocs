@@ -5,18 +5,19 @@
  Application (app) Thread
 
   The app thread is the main execution thread of an Equalizer
-  application, typically the one started from main. It drives the
+  application, typically the one running main(). It drives the
   application's rendering. The app thread of the server handles blocking
   requests, i.e. all requests which require further network
-  communication. The app thread of a render node currently nothing.
+  communication. The app thread of a render node does currently nothing.
 
 
  Receiver (recv) Thread
 
-  Each Equalizer node has a recv thread, created during eq::init. It
-  listens on all connections and reads the data into packets. The
-  packets are dispatched to the command handler functions. The command
-  handler functions in the receiver thread should never block.
+  Each Equalizer network node has a recv thread, created during
+  eq::init(). It listens on all connections and reads the data into
+  packets. The packets are dispatched to the command handler
+  functions. The command handler functions in the receiver thread should
+  never block.
 
 
  Node Thread
@@ -29,7 +30,7 @@
 
  Pipe Thread(s)
 
-  All commands for a pipe and its siblings are executed in a separate
-  thread for optimal performance. The commands are dispatched from
-  the receiver thread to the node thread using a fifo. Therefore, the
-  node thread may block its execution.
+  All commands for a pipe and its siblings (windows, channels) are
+  executed in a separate thread for optimal performance. The commands
+  are dispatched from the receiver thread to the node thread using a
+  fifo. Therefore, the pipe thread may block its execution.

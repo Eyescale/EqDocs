@@ -2,6 +2,9 @@
                        Decomposition in Equalizer
                        ==========================
 
+                       Author: eilemann@gmail.com
+                       Date:   11. July 2006
+
 Background
 ----------
 
@@ -18,7 +21,7 @@ Requirements
 
  The following decomposition modes have to be supported:
 
-  [?] SYNC mode where all children are synchronized for SwapBuffers
+  [x] Sync mode where all children are synchronized for SwapBuffers
   [x] 2D or screen-space partioning of the destination view 
   [x] DB or database partioning of the destination view 
   [x] Eye decomposition for stereo rendering
@@ -47,7 +50,7 @@ Requirements
   [x] Assembly on the CPU or GPU (default)
   [x] Configuration of the parts of the framebuffer to be transported
       (color, depth, ...)
-  [?] Configuration of the format, type and means used to read and write
+  [x] Configuration of the format, type and means used to read and write
       the data. Format/type are the OpenGL format and type. Means can
       be: read/draw pixels, texture transfers, framebuffer attachments,
       copy pixels, ...
@@ -80,49 +83,49 @@ Implementation
 
      compound // part rendered by second channel
      {
-         channel "buffer"
+         channel  "buffer"
          viewport [ .5 0 .5 1 ]
          
-         render {} // vp is inherited from compound, i.e., restricted already
-         output {} // full frame wrt compound vp, default name
+         outputframe {}
      }
-
-     render // part rendered by dest channel, could be done in a compound
+     compound // part rendered by dest channel
      {
+         task     [ CULL DRAW ]
          viewport [ 0 0 .5 1 ] // restrict vp to half
      }
-     input { frame "frame.buffer" }
+
+     inputframe { name "frame.buffer" }
  }
 
- The cull task, queues, DPlex and subpixel decomposition are only described
- in parts below. They will be designed further and implemented
- later. Stencil images will be implemented later.
+ Each compound executes the tasks in the order they appear below. DRAW
+ tasks are only executed on leaf compounds. The following tasks are possible:
 
- The following tasks are possible:
-
-  - render: shortcut for clear-cull-draw. A default queue named 
-    queue-<channelName> is defined as output for cull and input for draw.
-    cull has the default queue 'queue-config' defined as input. (see
-    below for input and output). The expansion to clear-cull-draw is
-    done by the loader. The output routines may flatten clear-cull-draw
-    to render.
-  - clear: clears the frame buffer. Uses eye and viewport attributes (see
-    below for attributes)
-  - cull: Performs view frustum culling. Uses eye, viewport and range
-    attributes. Can have multiple input and output queues.
+  - CLEAR: clears the frame buffer. Uses eye and viewport (see below for
+    attributes)
+  - CULL: Performs view frustum culling. Uses eye, viewport, range,
+    input queues and output queues.
+    Q: Default input/output queue?
     Q: Other culls, e.g., occlusion?
-  - draw: Performs rendering. Uses eye, viewport and range
-    attributes. Can have multiple input queues.
-  - gather: Performs recomposition. Uses eye and viewport attributes. Can
-    have multiple input and output frames. By default, the task executes
-    the input and output operations unordered and potentially
-    pipelined or executed in parallel. Overlapping frames with color and
-    depth images use by default a z-based assembly. Overlapping frames
-    with alpha color data use by default an unordered blending
-    assembly. Otherwise a tile-based assembly is used. Ordering or CPU
-    compositing is application-specific, and has to be implemented by
-    the application by using a custom callback.
-  - swap: Is implicitely the last task on all double-buffered
+  - DRAW: Performs rendering. Uses eye, viewport, range and input
+    queues.
+    Q: Default input queue?
+  - <compounds>: This is not a task. The tasks for the direct child
+    compounds are executed after CULL (DRAW is not executed on non-leaf
+    compounds).
+  - READBACK: Reads framebuffer contents. Uses eye, viewport and output
+    frames. By default, the task executes the readback unordered and
+    potentially pipelined or in parallel.
+  - ASSEMBLE: Assembles input frames. Uses input frames. Derives eye and
+    viewport from output frames associated with input frames. By
+    default, the task executes the assembly unordered and potentially
+    pipelined or in parallel. Frames with COLOR and DEPTH images use by
+    default a z-based assembly.
+    ? Overlapping frames with alpha color data use by default an
+    unordered blending assembly. Otherwise a tile-based assembly is
+    used. ?
+    Ordering or CPU compositing is application-specific, and has to be
+    implemented by the application by using a custom callback.
+  - SWAP: Is implicitely the last task on all double-buffered
     _windows_. Will not be exposed in the API and config file atm.
 
    Attributes
@@ -131,6 +134,9 @@ Implementation
     defined by the parent. If they are defined, they are often expressed
     relative to the parent. The following attributes are defined:
 
+     - task: non-inherited bitwise combination of tasks (see
+       above). DRAW is executed only on leaf compounds. Defaults to
+       [ CLEAR CULL DRAW ASSEMBLE READBACK ]
      - viewport: 2D fractional viewport wrt to the parent in screen
        space. Default is [0 0 1 1], i.e., the full viewport.
      - range: 1D, application-dependent range of the data to be
@@ -146,11 +152,13 @@ Implementation
        smaller than period.
      - format: Bitwise combination of color, depth and stencil. Defines
        which images are read during output. Default is color.
-     - (color,depth,stencil)x(format,type): Format and type (as in
-       OpenGL) to be used for reading or writing the corresponding
-       images. Default is hardware-dependent, typically
-       GL_RGBA/GL_UNSIGNED_INT, GL_DEPTH_COMPONENT/GL_FLOAT,
-       GL_STENCIL_INDEX/???
+     - attributes {
+           (color,depth,stencil)x(format,type): Format and type (as in
+               OpenGL) to be used for reading or writing the corresponding
+               images. Default is hardware-dependent, typically
+               GL_RGBA/GL_UNSIGNED_INT, GL_DEPTH_COMPONENT/GL_FLOAT,
+               GL_STENCIL_INDEX/???
+       }
 
    Input and Output
 
@@ -163,7 +171,15 @@ Implementation
     corresponding output frame viewport. The eye attributes from the
     output frame are used.
 
-    TODO: Queues and culling semantics, when designing cull API.
+    TODO: Queues and culling semantics
+
+
+ Restrictions
+ ------------
+
+   The cull task, queues, DPlex and subpixel decomposition are not fully
+   described. They will be designed further and implemented
+   later. Stencil images will be implemented later.
 
 
  File Format
@@ -174,26 +190,37 @@ Implementation
        channel "channel-name"
        <frustum-spec>
        format [ COLOR DEPTH STENCIL ]
+       task   [ CLEAR CULL DRAW (compounds) ASSEMBLE READBACK ]
 
+       attributes
+       {
+           color, depth, stencil
+           {
+               format <GL_enum>
+               type   <GL_enum>
+           }
+       }
        viewport [ x y w h ]
        range    [ start end ]
-       eye      [ cyclop left right ]
+       eye      [ CYCLOP LEFT RIGHT ]
        period   <int>
        phase    <int>
 
-       frame    "frame-name"
-       queue    "queue-name"   
+       (inputframe|outputframe) // 0-n times, executed after draw, first input
+       {
+           format [ COLOR DEPTH STENCIL ]
+           name    "frame-name" // defaults to "frame.<channel-name>"
+           viewport [ x y w h ]
+           eye      [ cyclop left right ]
+       }
 
-       task     (compound|render|clear|cull|draw|input|output)
-                // Note: compound is task to parallelize as much as possible
-       <task> { ... } // e.g., compound { task <task> ... }
-       ...
-       <task> { ... }
+       (inputqueue|outputqueue)    {...}
+       swapbarrier  { name "barrier-name" } // last task per compound
    }
        
-================================================================================
-                                Examples
-================================================================================
+========================================================================
+                          Example Config Files
+========================================================================
 
    2-channel DB compound:
 
@@ -204,14 +231,16 @@ Implementation
         compound {
             channel "buffer"
             range [ 0 .5 ]
-            render {}
-            output {}
+            outputframe {}
         }
-
-        render { range [ .5 1 ] }
-        input { frame "frame.buffer" }
+        compound
+        {
+            task [ CULL DRAW ]
+            range [ .5 1 ] 
+        }
+        inputframe { name "frame.buffer" }
     }
---------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
    2-channel 2D ASYNC compound, latency should be >=1 :
 
@@ -221,14 +250,30 @@ Implementation
         compound {
             channel "buffer"
             viewport [ 0 0 .5 1 ]
-            render {}
-            output {}
+            outputframe {}
         }
 
-        input { frame "frame.buffer" }
-        render { viewport [ .5 0 .5 1 ] }
+        compound { task [ ASSEMBLE ]  inputframe { name "frame.buffer" }}
+        compound { task [ CULL DRAW ] viewport [ .5 0 .5 1 ] }
     }
---------------------------------------------------------------------------------
+------------------------------------------------------------------------
+   
+   2-channel SYNC compound:
+
+    compound {
+        compound {
+            channel "channel1"
+            wall {}
+            swapbarrier { name "barrier" }
+        }
+        compound {
+            channel "channel2"
+            wall {}
+            swapbarrier { name "barrier" }
+        }
+    }
+
+------------------------------------------------------------------------
    
    2:3-channel DPlex compound:
 
@@ -240,124 +285,148 @@ Implementation
             period 2
             phase  0
 
-            render {}
-            output {}
+            outputframe {}
         }
         compound {
             channel "buffer2"
             period 2
             phase  1
 
-            render {}
-            output {}
+            outputframe {}
         }
 
         compound {
-            input { frame "frame.buffer1" }
-            input { frame "frame.buffer2" }
+            task  [ ASSEMBLE ]
+            inputframe { frame "frame.buffer1" }
+            inputframe { frame "frame.buffer2" }
         }
     }
---------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
    3-channel DB compound, direct send assembly
 
     compound {
-        channel "destination"
+        channel "dest"
         format [ COLOR DEPTH ]
         
         compound {
             channel "buffer1"
             range [ 0 .3333 ]
-            render {}
+
             compound {
-                output { viewport [ 0 0   1 .33 ] frame "frame1.buffer1" }
-                output { viewport [ 0 .33 1 .33 ] frame "frame2.buffer1" }
-                input { frame "frame2.buffer2" }
-                input { frame "frame2.destination" }
+                task [ READBACK ]
+                outputframe { viewport [ 0 0   1 .33 ] frame "frame1.buffer1" }
+                outputframe { viewport [ 0 .33 1 .33 ] frame "frame2.buffer1" }
             }
-            output { viewport [ 0 .66 1 .34 ] frame "frame.buffer1" }
+            inputframe { frame "frame2.buffer2" }
+            inputframe { frame "frame2.dest" }
+            outputframe { format [ COLOR ] viewport [ 0 .66 1 .34 ] }
         }
         compound {
             channel "buffer2"
             range [ .3333 .6666 ]
-            render {}
+
             compound {
-                output { viewport [0  0   1 .33 ] frame "frame1.buffer2" }
-                output { viewport [0  .66 1 .34 ] frame "frame2.buffer2" }
-                input { frame "frame2.buffer1" }
-                input { frame "frame1.destination" }
+                task [ READBACK ]
+                outputframe { viewport [0  0   1 .33 ] frame "frame1.buffer2" }
+                outputframe { viewport [0  .66 1 .34 ] frame "frame2.buffer2" }
             }
-            output { viewport [ 0 .33 1 .33 ] frame "frame.buffer2" }
+            inputframe { frame "frame2.buffer1" }
+            inputframe { frame "frame1.dest" }
+            outputframe { format [ COLOR ] viewport [ 0 .33 1 .33 ] }
         }
         compound {
-            channel "destination"
-            range [ .6666 1 ]
-            render {}
+            channel "dest"
+            task    [ CULL DRAW ]
+            range   [ .6666 1 ]
+
             compound {
-                output { viewport [ 0 .33 1 .33 ] frame "frame1.destination" }
-                output { viewport [ 0 .66 1 .34 ] frame "frame2.destination" }
-                input { frame "frame1.buffer1" }
-                input { frame "frame1.buffer2" }
+                task [ READBACK ]
+                outputframe { viewport [ 0 .33 1 .33 ] frame "frame1.dest" }
+                outputframe { viewport [ 0 .66 1 .34 ] frame "frame2.dest" }
             }
         }
 
-        compound { 
-            input { frame "frame.buffer1" }
-            input { frame "frame.buffer2" }
-        }
+        inputframe { frame "frame1.buffer1" }
+        inputframe { frame "frame1.buffer2" }
+        inputframe { frame "frame.buffer1" }
+        inputframe { frame "frame.buffer2" }
     }
---------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
    4-channel DB compound, binary swap assembly
 
     compound {
-        channel "destination"
+        channel "dest"
         format [ COLOR DEPTH ]
         
         compound {
             channel "buffer1"
             range [ 0 .25 ]
-            render {}
-            output { viewport [ 0 0 1 .5 ] frame "frame1.buffer1" } 
-            input{ frame "frame1.buffer2" }
-            output { viewport [ 0 .5 1 .25 ] frame "frame2.buffer1" } 
-            input{ frame "frame2.buffer3" }
-            output { viewport [ 0 .75 1 .25 ] frame "frame.buffer1" } 
+
+            compound {
+                task [ READBACK ]
+                outputframe { viewport [ 0 0 1 .5 ] frame "frame1.buffer1" } 
+            }
+            compound {
+                task [ ASSEMBLE READBACK ]
+                inputframe{ frame "frame1.buffer2" }
+                outputframe { viewport [ 0 .5 1 .25 ] frame "frame2.buffer1" }
+            }
+            inputframe{ frame "frame2.buffer3" }
+            outputframe { format [ COLOR ] viewport [ 0 .75 1 .25 ] } 
         }
         compound {
             channel "buffer2"
             range [ .25 .5 ]
-            render {}
-            output { viewport [ .5 0 .5 1 ] frame "frame1.buffer2" } 
-            input{ frame "frame1.buffer1" }
-            output { viewport [ 0 0 1 .25 ] frame "frame2.buffer2" } 
-            input{ frame "frame2.destination" }
-            output { viewport [ 0 .25 1 .25 ] frame "frame.buffer2" }
+
+            compound {
+                task [ READBACK ]
+                outputframe { viewport [ .5 0 .5 1 ] frame "frame1.buffer2" } 
+            }
+            compound {
+                task [ ASSEMBLE READBACK ]
+                inputframe{ frame "frame1.buffer1" }
+                outputframe { viewport [ 0 0 1 .25 ] frame "frame2.buffer2" } 
+            }
+            inputframe{ frame "frame2.dest" }
+            outputframe { format [ COLOR ] viewport [ 0 .25 1 .25 ] }
         }
         compound {
             channel "buffer3"
             range [ .5 .75 ]
-            render {}
-            output { viewport [ 0 0 1 .5 ] frame "frame1.buffer3" } 
-            input{ frame "frame1.destination" }
-            output { viewport [ 0 .75 1 .25 ] frame "frame2.buffer3" } 
-            input{ frame "frame2.buffer1" }
-            output { viewport [ 0 .5 1 .25 ] frame "frame.buffer3" }
+
+            compound {
+                task [ READBACK ]
+                outputframe { viewport [ 0 0 1 .5 ] frame "frame1.buffer3" } 
+            }
+            compound {
+                task [ ASSEMBLE READBACK ]
+                inputframe{ frame "frame1.dest" }
+                outputframe { viewport [ 0 .75 1 .25 ] frame "frame2.buffer3" }
+            }
+            inputframe{ frame "frame2.buffer1" }
+            outputframe { format [ COLOR ] viewport [ 0 .5 1 .25 ] }
             
         }
         compound {
-            channel "destination"
+            channel "dest"
+            task    [ CULL DRAW ]
             range [ .75 1 ]
-            render {}
-            output { viewport [ .5 0 .5 1 ] frame "frame1.destination" } 
-            input{ frame "frame1.buffer2" }
-            output { viewport [ 0 .25 1 .25 ] frame "frame2.destination" } 
-            input{ frame "frame2.buffer2" }
+
+            compound {
+                task [ READBACK ]
+                outputframe { viewport [ .5 0 .5 1 ] frame "frame1.dest" } 
+            }
+            compound {
+                task [ ASSEMBLE READBACK ]
+                inputframe{ frame "frame1.buffer2" }
+                outputframe { viewport [ 0 .25 1 .25 ] frame "frame2.dest" } 
+            }
         }
 
-        compound { 
-            input { frame "frame.buffer1" }
-            input { frame "frame.buffer2" }
-            input { frame "frame.buffer3" }
-        }
+        inputframe { frame "frame2.buffer2" }
+        inputframe { frame "frame.buffer1" }
+        inputframe { frame "frame.buffer2" }
+        inputframe { frame "frame.buffer3" }
     }
