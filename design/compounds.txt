@@ -163,13 +163,19 @@ Implementation
    Input and Output
 
     Certain tasks generate input and output. Right now, this can be
-    queues for culling and frames for gathering.
+    queues for culling and frames for gathering. The top-most compound
+    has a factory for creating frames and queues by name. IO entities
+    can therefore not be shared between disjunct compound
+    trees. Compound trees can be joined by a common parent compound, if
+    entities are to be shared.
 
     Output frames use viewport, eye, period and phase attributes, which
-    are relative to the compound viewport. Input frames use the
-    viewport, period and phase attributes, which are relative to the
-    corresponding output frame viewport. The eye attributes from the
-    output frame are used.
+    are relative to the compound attributes. Using the same output frame
+    multiple times is currently undefined.
+
+    Input frames use the viewport, eye, period and phase attributes, which
+    are relative to the corresponding output frame attributes. The same
+    input frame can be used multiple times.
 
     TODO: Queues and culling semantics
 
@@ -179,7 +185,8 @@ Implementation
 
    The cull task, queues, DPlex and subpixel decomposition are not fully
    described. They will be designed further and implemented
-   later. Stencil images will be implemented later.
+   later. Stencil images will be implemented later. The behaviour of
+   using the same output frame multiple times is currently undefined.
 
 
  File Format
@@ -189,8 +196,8 @@ Implementation
    {
        channel "channel-name"
        <frustum-spec>
-       format [ COLOR DEPTH STENCIL ]
-       task   [ CLEAR CULL DRAW (compounds) ASSEMBLE READBACK ]
+       format  [ COLOR DEPTH STENCIL ]
+       task    [ CLEAR CULL DRAW (compounds) ASSEMBLE READBACK ]
 
        attributes
        {
@@ -206,12 +213,12 @@ Implementation
        period   <int>
        phase    <int>
 
-       (inputframe|outputframe) // 0-n times, executed after draw, first input
+       (inputframe|outputframe) // 0-n times
        {
-           format [ COLOR DEPTH STENCIL ]
-           name    "frame-name" // defaults to "frame.<channel-name>"
+           format   [ COLOR DEPTH STENCIL ]
+           name     "frame-name" // defaults to "frame.<channel-name>"
            viewport [ x y w h ]
-           eye      [ cyclop left right ]
+           eye      [ CYCLOP LEFT RIGHT ]
        }
 
        (inputqueue|outputqueue)    {...}
