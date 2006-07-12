@@ -13,7 +13,8 @@ Background
  a mode describing the decomposition algorithm, and various flags to
  modify it. Each compound has a channel, on which the rendering is
  executed. Compounds form a tree. The top-most compound's channel
- defines the view to be rendered by all children.
+ defines the view to be rendered by all children. Equalizer has to
+ provide at least the same functionality.
 
 
 Requirements
@@ -26,7 +27,8 @@ Requirements
   [x] DB or database partioning of the destination view 
   [x] Eye decomposition for stereo rendering
   [x] DPlex or time-space decomposition
-  [?] Subpixel decompositions (FSAA, DOF)
+  [x] Subpixel decompositions (FSAA, DOF)
+  [x] Cull or task compounds 
 
  The following recomposition modes have to be supported:
 
@@ -206,14 +208,20 @@ Implementation
                format <GL_enum>
                type   <GL_enum>
            }
+           hints
+           {
+               adaptive  <bool>
+               decompose "<split-string>" // set during init, used by adaptive
+           }
        }
        viewport [ x y w h ]
        range    [ start end ]
        eye      [ CYCLOP LEFT RIGHT ]
        period   <int>
        phase    <int>
+       jitter   [ x y | auto ]
 
-       (inputframe|outputframe) // 0-n times
+       (outputframe|inputframe) // later [<task>] ?
        {
            format   [ COLOR DEPTH STENCIL ]
            name     "frame-name" // defaults to "frame.<channel-name>"
@@ -221,7 +229,7 @@ Implementation
            eye      [ CYCLOP LEFT RIGHT ]
        }
 
-       (inputqueue|outputqueue)    {...}
+       (outputqueue|inputqueue)[CULL|DRAW]    {...}
        swapbarrier  { name "barrier-name" } // last task per compound
    }
        
@@ -303,9 +311,29 @@ Implementation
         }
 
         compound {
-            task  [ ASSEMBLE ]
-            inputframe { frame "frame.buffer1" }
-            inputframe { frame "frame.buffer2" }
+            task [ ASSEMBLE ]
+            inputframe { name "frame.buffer1" }
+            inputframe { name "frame.buffer2" }
+        }
+    }
+------------------------------------------------------------------------
+
+   1:2-channel CULL compound
+
+    compound {
+        channel "destination"
+        wall{}
+        
+        compound {
+            task    [ CULL ]
+            channel "cull-channel"
+
+            inputqueue[CULL] { name "queue.config" }
+            outputqueue[CULL] {}
+        }
+        compound {
+            task [ CLEAR DRAW ]
+            inputqueue[DRAW] { "queue.cull-channel" }
         }
     }
 ------------------------------------------------------------------------
@@ -322,11 +350,11 @@ Implementation
 
             compound {
                 task [ READBACK ]
-                outputframe { viewport [ 0 0   1 .33 ] frame "frame1.buffer1" }
-                outputframe { viewport [ 0 .33 1 .33 ] frame "frame2.buffer1" }
+                outputframe{ viewport [ 0 0   1 .33 ] name "frame1.buffer1"}
+                outputframe{ viewport [ 0 .33 1 .33 ] name "frame2.buffer1"}
             }
-            inputframe { frame "frame2.buffer2" }
-            inputframe { frame "frame2.dest" }
+            inputframe { name "frame2.buffer2" }
+            inputframe { name "frame2.dest" }
             outputframe { format [ COLOR ] viewport [ 0 .66 1 .34 ] }
         }
         compound {
@@ -335,11 +363,11 @@ Implementation
 
             compound {
                 task [ READBACK ]
-                outputframe { viewport [0  0   1 .33 ] frame "frame1.buffer2" }
-                outputframe { viewport [0  .66 1 .34 ] frame "frame2.buffer2" }
+                outputframe{ viewport [0  0   1 .33 ] name "frame1.buffer2"}
+                outputframe{ viewport [0  .66 1 .34 ] name "frame2.buffer2"}
             }
-            inputframe { frame "frame2.buffer1" }
-            inputframe { frame "frame1.dest" }
+            inputframe { name "frame2.buffer1" }
+            inputframe { name "frame1.dest" }
             outputframe { format [ COLOR ] viewport [ 0 .33 1 .33 ] }
         }
         compound {
@@ -349,15 +377,15 @@ Implementation
 
             compound {
                 task [ READBACK ]
-                outputframe { viewport [ 0 .33 1 .33 ] frame "frame1.dest" }
-                outputframe { viewport [ 0 .66 1 .34 ] frame "frame2.dest" }
+                outputframe { viewport [ 0 .33 1 .33 ] name "frame1.dest" }
+                outputframe { viewport [ 0 .66 1 .34 ] name "frame2.dest" }
             }
         }
 
-        inputframe { frame "frame1.buffer1" }
-        inputframe { frame "frame1.buffer2" }
-        inputframe { frame "frame.buffer1" }
-        inputframe { frame "frame.buffer2" }
+        inputframe { name "frame1.buffer1" }
+        inputframe { name "frame1.buffer2" }
+        inputframe { name "frame.buffer1" }
+        inputframe { name "frame.buffer2" }
     }
 ------------------------------------------------------------------------
 
@@ -373,14 +401,14 @@ Implementation
 
             compound {
                 task [ READBACK ]
-                outputframe { viewport [ 0 0 1 .5 ] frame "frame1.buffer1" } 
+                outputframe { viewport [ 0 0 1 .5 ] name "frame1.buffer1" } 
             }
             compound {
                 task [ ASSEMBLE READBACK ]
-                inputframe{ frame "frame1.buffer2" }
-                outputframe { viewport [ 0 .5 1 .25 ] frame "frame2.buffer1" }
+                inputframe { name "frame1.buffer2" }
+                outputframe { viewport [ 0 .5 1 .25 ] name "frame2.buffer1"}
             }
-            inputframe{ frame "frame2.buffer3" }
+            inputframe { name "frame2.buffer3" }
             outputframe { format [ COLOR ] viewport [ 0 .75 1 .25 ] } 
         }
         compound {
@@ -389,14 +417,14 @@ Implementation
 
             compound {
                 task [ READBACK ]
-                outputframe { viewport [ .5 0 .5 1 ] frame "frame1.buffer2" } 
+                outputframe { viewport [ .5 0 .5 1 ] name "frame1.buffer2" }
             }
             compound {
                 task [ ASSEMBLE READBACK ]
-                inputframe{ frame "frame1.buffer1" }
-                outputframe { viewport [ 0 0 1 .25 ] frame "frame2.buffer2" } 
+                inputframe { name "frame1.buffer1" }
+                outputframe { viewport [ 0 0 1 .25 ] name "frame2.buffer2" }
             }
-            inputframe{ frame "frame2.dest" }
+            inputframe { name "frame2.dest" }
             outputframe { format [ COLOR ] viewport [ 0 .25 1 .25 ] }
         }
         compound {
@@ -405,14 +433,17 @@ Implementation
 
             compound {
                 task [ READBACK ]
-                outputframe { viewport [ 0 0 1 .5 ] frame "frame1.buffer3" } 
+                outputframe { viewport [ 0 0 1 .5 ] name "frame1.buffer3" } 
             }
             compound {
                 task [ ASSEMBLE READBACK ]
-                inputframe{ frame "frame1.dest" }
-                outputframe { viewport [ 0 .75 1 .25 ] frame "frame2.buffer3" }
+                inputframe { name "frame1.dest" }
+                outputframe {
+                    viewport [ 0 .75 1 .25 ] 
+                    name "frame2.buffer3"
+                }
             }
-            inputframe{ frame "frame2.buffer1" }
+            inputframe { name "frame2.buffer1" }
             outputframe { format [ COLOR ] viewport [ 0 .5 1 .25 ] }
             
         }
@@ -423,17 +454,59 @@ Implementation
 
             compound {
                 task [ READBACK ]
-                outputframe { viewport [ .5 0 .5 1 ] frame "frame1.dest" } 
+                outputframe { viewport [ .5 0 .5 1 ] name "frame1.dest" } 
             }
             compound {
                 task [ ASSEMBLE READBACK ]
-                inputframe{ frame "frame1.buffer2" }
-                outputframe { viewport [ 0 .25 1 .25 ] frame "frame2.dest" } 
+                inputframe { name "frame1.buffer2" }
+                outputframe { viewport [ 0 .25 1 .25 ] name "frame2.dest" } 
             }
         }
 
-        inputframe { frame "frame2.buffer2" }
-        inputframe { frame "frame.buffer1" }
-        inputframe { frame "frame.buffer2" }
-        inputframe { frame "frame.buffer3" }
+        inputframe { name "frame2.buffer2" }
+        inputframe { name "frame.buffer1" }
+        inputframe { name "frame.buffer2" }
+        inputframe { name "frame.buffer3" }
+    }
+------------------------------------------------------------------------
+
+   2-channel 2D cross-balanced compound:
+
+    compound {
+        compound {
+            channel "channel1"
+            wall {}
+
+            compound {
+                channel "buffer-channel2"
+                viewport [ ?? ]
+                outputframe {}
+            }
+            compound
+            {
+                task [ CULL DRAW ]
+                viewport [ 1-?? ] 
+            }
+            inputframe { name "frame.buffer-channel2" }
+
+            swapbarrier { name "barrier" }
+        }
+        compound {
+            channel "channel2"
+            wall {}
+
+            compound {
+                channel "buffer-channel1"
+                viewport [ ?? ]
+                outputframe {}
+            }
+            compound
+            {
+                task [ CULL DRAW ]
+                viewport [ 1-?? ] 
+            }
+            inputframe { name "frame.buffer-channel1" }
+
+            swapbarrier { name "barrier" }
+        }
     }
