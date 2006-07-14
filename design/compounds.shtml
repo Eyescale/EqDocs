@@ -1,0 +1,538 @@
+
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Compounds
+
+#include "header.shtml"
+
+<h2>Rendering Decomposition and Recomposition in Equalizer</h2>
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+</p>
+
+<h3>Background</h3>
+<p>
+ OpenGL Multipipe SDK (MPK) used the concept of compounds to describe
+ the decomposition and recomposition of the rendering. The compound had
+ a mode describing the decomposition algorithm, and various flags to
+ modify it. Each compound has a channel, on which the rendering is
+ executed. Compounds form a tree. The root compound's channel
+ defines the view to be rendered by all children. Equalizer has to
+ provide at least the same functionality.
+</p>
+
+<h3>Requirements</h3>
+<p>
+ The following decomposition modes have to be supported:
+ <ul>
+  <li>Sync mode where all children are synchronized for SwapBuffers</li>
+  <li>2D or screen-space partioning of the destination view</li>
+  <li>DB or database partioning of the destination view</li>
+  <li>Eye decomposition for stereo rendering</li>
+  <li>DPlex or time-space decomposition</li>
+  <li>Subpixel decompositions (FSAA, DOF)</li>
+  <li>Cull or task compounds</li>
+ </ul>
+</p><p>
+ The following recomposition modes have to be supported:
+ <ul>
+  <li>Tile-based recomposition, typically used by 2D, Eye and DPlex
+      decompositions</li>
+  <li>Z-based recomposition, typically used by DB decompositions
+      (polygonal data)</li>
+  <li>Ordered alpha-based blending recomposition, typically used by DB
+      decompositions (volume data)</li>
+  <li>Unordered alpha-based blending recomposition, typically used by
+      subpixel decompositions</li>
+  <li>HW-based recompositions, typically used by 2D, subpixel, eye and
+      DPlex decompositions. [open]</li>
+ </ul>
+</p><p>
+ The following optimisation have to be possible:
+ <ul>
+  <li>Parallelization of the recomposition step, typically across all
+      source channels, easily configurable.</li>
+  <li>Automatic per-frame adjustments of the decomposition for loadbalancing 
+      [open]</li>
+  <li>Assembly before and after rendering for transport optimisations</li>
+  <li>Assembly on the CPU or GPU (default)</li>
+  <li>Configuration of the parts of the framebuffer to be transported
+      (color, depth, ...)</li>
+  <li>Configuration of the format, type and means used to read and write
+      the data. Format/type are the OpenGL format and type. Means can
+      be: read/draw pixels, texture transfers, framebuffer attachments,
+      copy pixels, ...</li>
+  <li>Cross channel loadbalancing [open]</li>
+ </ul>
+</p>
+
+<h3>Glossary</h3>
+<p>
+ <ul>
+  <li>compound: an ordered collection of tasks for a channel. Can have
+      compound children.</li>
+  <li>frame: a collection of images belonging to the same framebuffer (as
+      in OpenGL)</li>
+  <li>image: a 2D array of pixels with a type and format, typically
+      originating from the color, depth, or stencil buffer.</li>
+  <li>channel: A viewport on a drawable, the basic rendering unit in 
+      Equalizer.</li>
+ </ul>
+</p>
+
+<h3>Specification</h3>
+<p>
+ Equalizer uses a compound tree, similar to MPK. In contrast to MPK, the
+ decomposition and recomposition is not described using flags. Instead,
+ the rendering tasks are directly described for each compound. By
+ combining the right tasks, the same functionality as in MPK can be
+ achieved. The following config file illustrates the equivalent of a MPK
+ 2-channel 2D compound:
+ <pre>
+ compound
+ {
+     channel "destination"
+     wall {} // Frustum descriptions in Equalizer are on the compound
+
+     compound // part rendered by second channel
+     {
+         channel  "buffer"
+         viewport [ .5 0 .5 1 ]
+         
+         outputframe {}
+     }
+     compound // part rendered by dest channel
+     {
+         task     [ CULL DRAW ]
+         viewport [ 0 0 .5 1 ] // restrict vp to half
+     }
+
+     inputframe "frame.buffer" {}
+ }
+ </pre>
+ </p><p>
+ Each compound executes the tasks in the order they appear below. DRAW
+ tasks are only executed on leaf compounds. The following tasks are possible:
+ <ul>
+  <li>CLEAR: clears the frame buffer. Uses eye and viewport (see below for
+     attributes)</li>
+  <li>CULL: Performs view frustum culling. Uses eye, viewport, range,
+     input queues and output queues.<br/>
+     Q: Default input/output queue?<br/>
+     Q: Other culls, e.g., occlusion?</li>
+  <li>DRAW: Performs rendering. Uses eye, viewport, range and input
+     queues.<br/>
+     Q: Default input queue?</li>
+  <li>compounds: This is not a task. The tasks for the direct child
+     compounds are executed after CULL (DRAW is not executed on non-leaf
+     compounds).</li>
+  <li>READBACK: Reads framebuffer contents. Uses eye, viewport and output
+     frames. By default, the task executes the readback unordered and
+     potentially pipelined or in parallel.</li>
+  <li>ASSEMBLE: Assembles input frames. Uses input frames. Derives eye and
+     viewport from output frames associated with input frames. By
+     default, the task executes the assembly unordered and potentially
+     pipelined or in parallel. Frames with COLOR and DEPTH images use by
+     default a z-based assembly.<br/>
+     Overlapping frames with alpha color data use by default an
+     unordered blending assembly. Otherwise a tile-based assembly is
+     used. [open]<br/>
+     Ordering or CPU compositing is application-specific, and has to be
+     implemented by the application by using a custom callback.</li>
+  <li>SWAP: Is implicitely the last task on all double-buffered
+     _windows_. Will not be exposed in the API and config file atm.</li>
+ </ul>
+ </p>
+ 
+  <h4>Attributes</h4>
+  <p>
+   Attributes are inherited, that is, if they are not defined they are
+   defined by the parent. If they are defined, they are often expressed
+   relative to the parent. The following attributes are defined:
+   <ul>
+    <li>task: non-inherited bitwise combination of tasks (see
+        above). DRAW is executed only on leaf compounds. Defaults to
+        [ CLEAR CULL DRAW ASSEMBLE READBACK ]</li>
+    <li>viewport: 2D fractional viewport wrt to the parent in screen
+        space. Default is [0 0 1 1], i.e., the full viewport.</li>
+    <li>range: 1D, application-dependent range of the data to be
+        rendered. Relative to the parent's range. Default is [0 1], i.e.,
+        the full database range.</li>
+    <li>eye: Bitwise combination of the eye views (and quad-stereo
+        buffer) to be rendered. Absolute, but inherited. Initially, left,
+        right and cyclop are defined. Support for autostereo displays may
+        introduce new 'eyes' and/or attributes. Default is cyclop.</li>
+    <li>period/phase: Frames to be rendered (DPlex). Absolute, but
+        inherited. Default is period 1, phase 0. All channels on the same
+        pipe should/must(?) have the same period and phase. Phase must be
+        smaller than period.</li>
+    <li>format: Bitwise combination of color, depth and stencil. Defines
+        which images are read during output. Default is color.</li>
+    <li>attributes: (color,depth,stencil)x(format,type): Format and type (as in
+        OpenGL) to be used for reading or writing the corresponding
+        images. Default is hardware-dependent, typically
+        (GL_RGBA GL_UNSIGNED_INT), (GL_DEPTH_COMPONENT GL_FLOAT),
+        (GL_STENCIL_INDEX ???)</li>
+   </ul>
+  </p>
+  
+  <h4>Input and Output</h4>
+  <p>
+   Certain tasks generate input and output. Right now, this can be
+   queues for culling and frames for gathering. The root compound
+   has a factory for creating frames and queues by name. IO entities
+   can therefore not be shared between disjunct compound
+   trees. Compound trees can be joined by a common parent compound, if
+   entities are to be shared.
+  </p><p>
+   Output frames use viewport, eye, period and phase attributes, which
+   are relative to the compound attributes. Using the same output frame
+   multiple times is currently undefined.
+  </p><p>
+   Input frames use the viewport, eye, period and phase attributes, which
+   are relative to the corresponding output frame attributes. The same
+   input frame can be used multiple times.
+  </p><p>
+   TODO: Queues and culling semantics
+  </p>
+
+  <h4>Images</h4>
+  <p>
+    <img src="documents/design/frames.png" 
+         alt="UML diagram of compound frames"/>
+  </p><p>
+   Images are maintained on the root compound of the tree. The input
+   and output frames share a frame buffer, which in turn holds the
+   color, depth and stencil images. The frame buffer has a ready lock,
+   which is used to signal the frames availability to the consumer, the
+   assemble callback. The frame holds the frame attributes. An output
+   frame sets its attributes on the frame buffer when the frame is set
+   ready by the producer, the readback callback.
+  </p>
+
+ <h3>Restrictions</h3>
+ <p>
+  The cull task, queues, DPlex and subpixel decomposition are not fully
+  described. They will be designed further and implemented
+  later. Stencil images will be implemented later. The behaviour of
+  using the same output frame multiple times is currently undefined.
+ </p>
+
+ <h3>File Format</h3>
+ <p><pre>
+.  compound
+.  {
+.      channel "channel-name"
+.      task    [ CLEAR CULL DRAW (compounds) ASSEMBLE READBACK ]
+.      <frustum-spec>
+       format  [ COLOR DEPTH STENCIL ]
+
+       attributes
+       {
+           color, depth, stencil
+           {
+               format <GL_enum>
+               type   <GL_enum>
+           }
+           hints
+           {
+               adaptive  <bool>
+               decompose "<split-string>" // set during init, used by adaptive
+           }
+       }
+.      viewport [ x y w h ]
+.      range    [ start end ]
+       eye      [ CYCLOP LEFT RIGHT ]
+       period   <int>
+       phase    <int>
+       jitter   [ x y | auto ]
+
+       // later ..frame[<task>] ?, // name default "frame.<channel-name>"
+       (outputframe|inputframe) "frame-name"
+       {
+           format   [ COLOR DEPTH STENCIL ]
+           viewport [ x y w h ]
+           eye      [ CYCLOP LEFT RIGHT ]
+       }
+
+       (outputqueue|inputqueue)[CULL|DRAW]  "queue-name"  {...}
+       swapbarrier "barrier-name" {} // name default "barrier.<channel-name>"
+.  }
+ </pre></p>
+       
+<h2>Example Config Files</h2>
+<p><pre>
+   2-channel DB compound:
+
+    compound {
+        channel "destination"
+        format [ COLOR DEPTH ]
+        
+        compound {
+            channel "buffer"
+            range [ 0 .5 ]
+            outputframe {}
+        }
+        compound
+        {
+            task [ CULL DRAW ]
+            range [ .5 1 ] 
+        }
+        inputframe "frame.buffer" {}
+    }
+------------------------------------------------------------------------
+
+   2-channel 2D ASYNC compound, latency should be >=1 :
+
+    compound {
+        channel "destination"
+        
+        compound {
+            channel "buffer"
+            viewport [ 0 0 .5 1 ]
+            outputframe {}
+        }
+
+        compound { task [ ASSEMBLE ]  inputframe "frame.buffer" {}}
+        compound { task [ CULL DRAW ] viewport [ .5 0 .5 1 ] }
+    }
+------------------------------------------------------------------------
+   
+   2-channel SYNC compound:
+
+    compound {
+        compound {
+            channel "channel1"
+            wall {}
+            swapbarrier "barrier" {}
+        }
+        compound {
+            channel "channel2"
+            wall {}
+            swapbarrier "barrier" {}
+        }
+    }
+
+------------------------------------------------------------------------
+   
+   2:3-channel DPlex compound:
+
+    compound {
+        channel "destination"
+        
+        compound {
+            channel "buffer1"
+            period 2
+            phase  0
+
+            outputframe {}
+        }
+        compound {
+            channel "buffer2"
+            period 2
+            phase  1
+
+            outputframe {}
+        }
+
+        compound {
+            task [ ASSEMBLE ]
+            inputframe "frame.buffer1" {}
+            inputframe "frame.buffer2" {}
+        }
+    }
+------------------------------------------------------------------------
+
+   1:2-channel CULL compound
+
+    compound {
+        channel "destination"
+        wall{}
+        
+        compound {
+            task    [ CULL ]
+            channel "cull-channel"
+
+            inputqueue[CULL] "queue.config" {}
+            outputqueue[CULL] {}
+        }
+        compound {
+            task [ CLEAR DRAW ]
+            inputqueue[DRAW] "queue.cull-channel" {}
+        }
+    }
+------------------------------------------------------------------------
+
+   3-channel DB compound, direct send assembly
+
+    compound {
+        channel "dest"
+        format [ COLOR DEPTH ]
+        
+        compound {
+            channel "buffer1"
+            range [ 0 .3333 ]
+
+            compound {
+                task [ READBACK ]
+                outputframe "frame1.buffer1" { viewport [ 0 0   1 .33 ] }
+                outputframe "frame2.buffer1" { viewport [ 0 .33 1 .33 ] }
+            }
+            inputframe "frame2.buffer2" {}
+            inputframe "frame2.dest" {}
+            outputframe { format [ COLOR ] viewport [ 0 .66 1 .34 ] }
+        }
+        compound {
+            channel "buffer2"
+            range [ .3333 .6666 ]
+
+            compound {
+                task [ READBACK ]
+                outputframe  "frame1.buffer2" { viewport [0  0   1 .33 ] }
+                outputframe  "frame2.buffer2" { viewport [0  .66 1 .34 ] }
+            }
+            inputframe "frame2.buffer1" {}
+            inputframe "frame1.dest" {}
+            outputframe { format [ COLOR ] viewport [ 0 .33 1 .33 ] }
+        }
+        compound {
+            channel "dest"
+            task    [ CULL DRAW ]
+            range   [ .6666 1 ]
+
+            compound {
+                task [ READBACK ]
+                outputframe  "frame1.dest" { viewport [ 0 .33 1 .33 ] }
+                outputframe  "frame2.dest" { viewport [ 0 .66 1 .34 ] }
+            }
+        }
+
+        inputframe "frame1.buffer1" {}
+        inputframe "frame1.buffer2" {}
+        inputframe "frame.buffer1" {}
+        inputframe "frame.buffer2" {}
+    }
+------------------------------------------------------------------------
+
+   4-channel DB compound, binary swap assembly
+
+    compound {
+        channel "dest"
+        format [ COLOR DEPTH ]
+        
+        compound {
+            channel "buffer1"
+            range [ 0 .25 ]
+
+            compound {
+                task [ READBACK ]
+                outputframe "frame1.buffer1" { viewport [ 0 0 1 .5 ] } 
+            }
+            compound {
+                task [ ASSEMBLE READBACK ]
+                inputframe "frame1.buffer2" {}
+                outputframe "frame2.buffer1" { viewport [ 0 .5 1 .25 ] }
+            }
+            inputframe "frame2.buffer3" {}
+            outputframe { format [ COLOR ] viewport [ 0 .75 1 .25 ] } 
+        }
+        compound {
+            channel "buffer2"
+            range [ .25 .5 ]
+
+            compound {
+                task [ READBACK ]
+                outputframe "frame1.buffer2" { viewport [ .5 0 .5 1 ] }
+            }
+            compound {
+                task [ ASSEMBLE READBACK ]
+                inputframe { name "frame1.buffer1" }
+                outputframe "frame2.buffer2" { viewport [ 0 0 1 .25 ] }
+            }
+            inputframe "frame2.dest" {}
+            outputframe { format [ COLOR ] viewport [ 0 .25 1 .25 ] }
+        }
+        compound {
+            channel "buffer3"
+            range [ .5 .75 ]
+
+            compound {
+                task [ READBACK ]
+                outputframe "frame1.buffer3" { viewport [ 0 0 1 .5 ] } 
+            }
+            compound {
+                task [ ASSEMBLE READBACK ]
+                inputframe "frame1.dest" {}
+                outputframe "frame2.buffer3" { viewport [ 0 .75 1 .25 ] }
+            }
+            inputframe "frame2.buffer1" {}
+            outputframe { format [ COLOR ] viewport [ 0 .5 1 .25 ] }
+            
+        }
+        compound {
+            channel "dest"
+            task    [ CULL DRAW ]
+            range [ .75 1 ]
+
+            compound {
+                task [ READBACK ]
+                outputframe "frame1.dest" { viewport [ .5 0 .5 1 ] } 
+            }
+            compound {
+                task [ ASSEMBLE READBACK ]
+                inputframe "frame1.buffer2" {}
+                outputframe "frame2.dest" { viewport [ 0 .25 1 .25 ] } 
+            }
+        }
+
+        inputframe "frame2.buffer2" {}
+        inputframe "frame.buffer1" {}
+        inputframe "frame.buffer2" {}
+        inputframe "frame.buffer3" {}
+    }
+------------------------------------------------------------------------
+
+   2-channel 2D cross-balanced compound:
+
+    compound {
+        compound {
+            channel "channel1"
+            wall {}
+
+            compound {
+                channel "buffer-channel2"
+                viewport [ ?? ]
+                outputframe {}
+            }
+            compound
+            {
+                task [ CULL DRAW ]
+                viewport [ 1-?? ] 
+            }
+            inputframe "frame.buffer-channel2" {}
+
+            swapbarrier "barrier" {}
+        }
+        compound {
+            channel "channel2"
+            wall {}
+
+            compound {
+                channel "buffer-channel1"
+                viewport [ ?? ]
+                outputframe {}
+            }
+            compound
+            {
+                task [ CULL DRAW ]
+                viewport [ 1-?? ] 
+            }
+            inputframe "frame.buffer-channel1" {}
+
+            swapbarrier "barrier" {}
+        }
+    }
+</pre></p>
+
+#include "footer.shtml"
