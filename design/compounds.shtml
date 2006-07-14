@@ -2,7 +2,7 @@
 #define S_DOCUMENTATION
 #define S_DOCUMENTATION_DEVELOPER
 #define PAGE Documentation
-#define SUBPAGE Compounds
+#define SUBPAGE Developers: Compounds
 
 #include "header.shtml"
 
@@ -11,6 +11,22 @@
 Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
+<ul>
+  <li><a href="documents/design/compounds.html#Background">Background</a></li>
+  <li><a href="documents/design/compounds.html#Requirements">Requirements</a></li>
+  <li><a href="documents/design/compounds.html#Glossary">Glossary</a></li>
+  <li><a href="documents/design/compounds.html#Specification">Specification</a></li>
+  <ul>
+    <li><a href="documents/design/compounds.html#Attributes">Attributes</a></li>
+    <li><a href="documents/design/compounds.html#IO">Input and Output</a></li>
+    <li><a href="documents/design/compounds.html#Images">Images</a></li>
+  </ul>
+  <li><a href="documents/design/compounds.html#Restrictions">Restrictions</a></li>
+  <li><a href="documents/design/compounds.html#FileFormat">File Format</a></li>
+  <li><a href="documents/design/compounds.html#Examples">Config File Examples</a></li>
+</ul>
+
+<a name="Background"/>
 <h3>Background</h3>
 <p>
  OpenGL Multipipe SDK (MPK) used the concept of compounds to describe
@@ -22,6 +38,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
  provide at least the same functionality.
 </p>
 
+<a name="Requirements"/>
 <h3>Requirements</h3>
 <p>
  The following decomposition modes have to be supported:
@@ -67,6 +84,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
  </ul>
 </p>
 
+<a name="Glossary"/>
 <h3>Glossary</h3>
 <p>
  <ul>
@@ -81,6 +99,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
  </ul>
 </p>
 
+<a name="Specification"/>
 <h3>Specification</h3>
 <p>
  Equalizer uses a compound tree, similar to MPK. In contrast to MPK, the
@@ -108,7 +127,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
          viewport [ 0 0 .5 1 ] // restrict vp to half
      }
 
-     inputframe "frame.buffer" {}
+     inputframe { name "frame.buffer" }
  }
  </pre>
  </p><p>
@@ -141,10 +160,12 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
      Ordering or CPU compositing is application-specific, and has to be
      implemented by the application by using a custom callback.</li>
   <li>SWAP: Is implicitely the last task on all double-buffered
-     _windows_. Will not be exposed in the API and config file atm.</li>
+     <em>windows</em>. This task will not be exposed in the API and config file
+     right now.</li>
  </ul>
  </p>
  
+  <a name="Attributes"/>
   <h4>Attributes</h4>
   <p>
    Attributes are inherited, that is, if they are not defined they are
@@ -177,14 +198,16 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
    </ul>
   </p>
   
+  <a name="IO"/>
   <h4>Input and Output</h4>
   <p>
    Certain tasks generate input and output. Right now, this can be
-   queues for culling and frames for gathering. The root compound
-   has a factory for creating frames and queues by name. IO entities
-   can therefore not be shared between disjunct compound
-   trees. Compound trees can be joined by a common parent compound, if
-   entities are to be shared.
+   queues for culling and frames for gathering. During compound initialisation,
+   input and output objects with the same name are connected. IO entities
+   can therefore not be shared between disjunct compound trees. Compound trees
+   can be joined by a common parent compound, if entities are to be shared.
+   FrameBuffers and Images are disposed during compound exit. The default names
+   are set during the adding, when the object's name is empty.
   </p><p>
    Output frames use viewport, eye, period and phase attributes, which
    are relative to the compound attributes. Using the same output frame
@@ -192,25 +215,35 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   </p><p>
    Input frames use the viewport, eye, period and phase attributes, which
    are relative to the corresponding output frame attributes. The same
-   input frame can be used multiple times.
+   input frame can be used multiple times. Deadlocks are not checked and can
+   occur when output and input frames are used inappropriately.
   </p><p>
    TODO: Queues and culling semantics
+  </p><p>
+   Swap barriers synchronize the compound's window before the execution
+   of <em>eq::Window::swap</em>. If a swap barrier is
+   set, <em>eq::Window::finish</em> is called before the barrier is entered. By
+   default, this function calls <em>glFinish</em> to ensure the immediate
+   execution of the swapbuffer command after the barrier is left. Deadlocks are
+   not checked and can occur if multiple swap barriers are used inappropriately.
   </p>
 
+  <a name="Images"/>
   <h4>Images</h4>
   <p>
     <img src="documents/design/frames.png" 
          alt="UML diagram of compound frames"/>
   </p><p>
-   Images are maintained on the root compound of the tree. The input
-   and output frames share a frame buffer, which in turn holds the
-   color, depth and stencil images. The frame buffer has a ready lock,
-   which is used to signal the frames availability to the consumer, the
-   assemble callback. The frame holds the frame attributes. An output
-   frame sets its attributes on the frame buffer when the frame is set
-   ready by the producer, the readback callback.
+   Frame buffers are set up and connected to the input and output frames during
+   compound init. The input and output frames share a frame buffer, which in
+   turn holds the color, depth and stencil images. The frame buffer versioning
+   is used to signal the frames availability to the consumer, the assemble
+   callback. The frame holds the frame attributes. An output frame sets its
+   attributes on the frame buffer when the frame is commited (set ready) by the
+   producer, the readback callback.
   </p>
 
+ <a name="Restrictions"/>
  <h3>Restrictions</h3>
  <p>
   The cull task, queues, DPlex and subpixel decomposition are not fully
@@ -219,48 +252,55 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   using the same output frame multiple times is currently undefined.
  </p>
 
+ <a name="FileFormat"/>
  <h3>File Format</h3>
  <p><pre>
-.  compound
-.  {
-.      channel "channel-name"
-.      task    [ CLEAR CULL DRAW (compounds) ASSEMBLE READBACK ]
-.      <frustum-spec>
+   compound
+   {
+       channel "channel-name"
+       task    [ CLEAR CULL DRAW ASSEMBLE READBACK ]
+       [frustum-spec]
        format  [ COLOR DEPTH STENCIL ]
 
        attributes
        {
            color, depth, stencil
            {
-               format <GL_enum>
-               type   <GL_enum>
+               format [GL_enum]
+               type   [GL_enum]
            }
            hints
            {
-               adaptive  <bool>
-               decompose "<split-string>" // set during init, used by adaptive
+               adaptive  [bool]
+               decompose "split-string" // set during init, used by adaptive
            }
        }
-.      viewport [ x y w h ]
-.      range    [ start end ]
+       viewport [ x y w h ]
+       range    [ start end ]
        eye      [ CYCLOP LEFT RIGHT ]
-       period   <int>
-       phase    <int>
+       period   [int]
+       phase    [int]
        jitter   [ x y | auto ]
 
-       // later ..frame[<task>] ?, // name default "frame.<channel-name>"
-       (outputframe|inputframe) "frame-name"
+       // later ..frame[task] ?
+       (outputframe|inputframe) 
        {
+           name     "frame-name"  // name default "frame.channel-name"
            format   [ COLOR DEPTH STENCIL ]
            viewport [ x y w h ]
            eye      [ CYCLOP LEFT RIGHT ]
        }
 
-       (outputqueue|inputqueue)[CULL|DRAW]  "queue-name"  {...}
-       swapbarrier "barrier-name" {} // name default "barrier.<channel-name>"
-.  }
+       (outputqueue|inputqueue)[CULL|DRAW] { name "queue-name" TBD }
+       swapbarrier 
+       { 
+           name "barrier-name" // default "barrier.rootCompound-name"
+           // later: period, phase
+       }
+   }
  </pre></p>
        
+<a name="Examples"/>
 <h2>Example Config Files</h2>
 <p><pre>
    2-channel DB compound:
@@ -279,7 +319,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             task [ CULL DRAW ]
             range [ .5 1 ] 
         }
-        inputframe "frame.buffer" {}
+        inputframe { name "frame.buffer" }
     }
 ------------------------------------------------------------------------
 
@@ -294,7 +334,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             outputframe {}
         }
 
-        compound { task [ ASSEMBLE ]  inputframe "frame.buffer" {}}
+        compound { task [ ASSEMBLE ]  inputframe { name "frame.buffer" }}
         compound { task [ CULL DRAW ] viewport [ .5 0 .5 1 ] }
     }
 ------------------------------------------------------------------------
@@ -305,12 +345,12 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         compound {
             channel "channel1"
             wall {}
-            swapbarrier "barrier" {}
+            swapbarrier {}
         }
         compound {
             channel "channel2"
             wall {}
-            swapbarrier "barrier" {}
+            swapbarrier {}
         }
     }
 
@@ -338,8 +378,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
         compound {
             task [ ASSEMBLE ]
-            inputframe "frame.buffer1" {}
-            inputframe "frame.buffer2" {}
+            inputframe { name "frame.buffer1" }
+            inputframe { name "frame.buffer2" }
         }
     }
 ------------------------------------------------------------------------
@@ -354,12 +394,12 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             task    [ CULL ]
             channel "cull-channel"
 
-            inputqueue[CULL] "queue.config" {}
+            inputqueue[CULL] { name "queue.config" }
             outputqueue[CULL] {}
         }
         compound {
             task [ CLEAR DRAW ]
-            inputqueue[DRAW] "queue.cull-channel" {}
+            inputqueue[DRAW] { name "queue.cull-channel" }
         }
     }
 ------------------------------------------------------------------------
@@ -376,11 +416,11 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
             compound {
                 task [ READBACK ]
-                outputframe "frame1.buffer1" { viewport [ 0 0   1 .33 ] }
-                outputframe "frame2.buffer1" { viewport [ 0 .33 1 .33 ] }
+                outputframe { name "frame1.buffer1" viewport [ 0 0   1 .33 ] }
+                outputframe { name "frame2.buffer1" viewport [ 0 .33 1 .33 ] }
             }
-            inputframe "frame2.buffer2" {}
-            inputframe "frame2.dest" {}
+            inputframe { name "frame2.buffer2" }
+            inputframe { name "frame2.dest" }
             outputframe { format [ COLOR ] viewport [ 0 .66 1 .34 ] }
         }
         compound {
@@ -389,11 +429,11 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
             compound {
                 task [ READBACK ]
-                outputframe  "frame1.buffer2" { viewport [0  0   1 .33 ] }
-                outputframe  "frame2.buffer2" { viewport [0  .66 1 .34 ] }
+                outputframe { name "frame1.buffer2" viewport [0  0   1 .33 ] }
+                outputframe { name "frame2.buffer2" viewport [0  .66 1 .34 ] }
             }
-            inputframe "frame2.buffer1" {}
-            inputframe "frame1.dest" {}
+            inputframe { name "frame2.buffer1" }
+            inputframe { name "frame1.dest" }
             outputframe { format [ COLOR ] viewport [ 0 .33 1 .33 ] }
         }
         compound {
@@ -403,15 +443,15 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
             compound {
                 task [ READBACK ]
-                outputframe  "frame1.dest" { viewport [ 0 .33 1 .33 ] }
-                outputframe  "frame2.dest" { viewport [ 0 .66 1 .34 ] }
+                outputframe { name "frame1.dest" viewport [ 0 .33 1 .33 ] }
+                outputframe { name "frame2.dest" viewport [ 0 .66 1 .34 ] }
             }
         }
 
-        inputframe "frame1.buffer1" {}
-        inputframe "frame1.buffer2" {}
-        inputframe "frame.buffer1" {}
-        inputframe "frame.buffer2" {}
+        inputframe { name "frame1.buffer1" }
+        inputframe { name "frame1.buffer2" }
+        inputframe { name "frame.buffer1" }
+        inputframe { name "frame.buffer2" }
     }
 ------------------------------------------------------------------------
 
@@ -427,14 +467,14 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
             compound {
                 task [ READBACK ]
-                outputframe "frame1.buffer1" { viewport [ 0 0 1 .5 ] } 
+                outputframe { name "frame1.buffer1" viewport [ 0 0 1 .5 ] } 
             }
             compound {
                 task [ ASSEMBLE READBACK ]
-                inputframe "frame1.buffer2" {}
-                outputframe "frame2.buffer1" { viewport [ 0 .5 1 .25 ] }
+                inputframe { name "frame1.buffer2" }
+                outputframe { name "frame2.buffer1" viewport [ 0 .5 1 .25 ] }
             }
-            inputframe "frame2.buffer3" {}
+            inputframe { name "frame2.buffer3" }
             outputframe { format [ COLOR ] viewport [ 0 .75 1 .25 ] } 
         }
         compound {
@@ -443,14 +483,14 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
             compound {
                 task [ READBACK ]
-                outputframe "frame1.buffer2" { viewport [ .5 0 .5 1 ] }
+                outputframe { name "frame1.buffer2" viewport [ .5 0 .5 1 ] }
             }
             compound {
                 task [ ASSEMBLE READBACK ]
                 inputframe { name "frame1.buffer1" }
-                outputframe "frame2.buffer2" { viewport [ 0 0 1 .25 ] }
+                outputframe { name "frame2.buffer2" viewport [ 0 0 1 .25 ] }
             }
-            inputframe "frame2.dest" {}
+            inputframe { name "frame2.dest" }
             outputframe { format [ COLOR ] viewport [ 0 .25 1 .25 ] }
         }
         compound {
@@ -459,14 +499,14 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
             compound {
                 task [ READBACK ]
-                outputframe "frame1.buffer3" { viewport [ 0 0 1 .5 ] } 
+                outputframe { name "frame1.buffer3" viewport [ 0 0 1 .5 ] } 
             }
             compound {
                 task [ ASSEMBLE READBACK ]
-                inputframe "frame1.dest" {}
-                outputframe "frame2.buffer3" { viewport [ 0 .75 1 .25 ] }
+                inputframe { name "frame1.dest" }
+                outputframe { name "frame2.buffer3" viewport [ 0 .75 1 .25 ] }
             }
-            inputframe "frame2.buffer1" {}
+            inputframe { name "frame2.buffer1" {}
             outputframe { format [ COLOR ] viewport [ 0 .5 1 .25 ] }
             
         }
@@ -477,19 +517,19 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
             compound {
                 task [ READBACK ]
-                outputframe "frame1.dest" { viewport [ .5 0 .5 1 ] } 
+                outputframe { name "frame1.dest" viewport [ .5 0 .5 1 ] } 
             }
             compound {
                 task [ ASSEMBLE READBACK ]
-                inputframe "frame1.buffer2" {}
-                outputframe "frame2.dest" { viewport [ 0 .25 1 .25 ] } 
+                inputframe { name "frame1.buffer2" }
+                outputframe { name "frame2.dest" viewport [ 0 .25 1 .25 ] } 
             }
         }
 
-        inputframe "frame2.buffer2" {}
-        inputframe "frame.buffer1" {}
-        inputframe "frame.buffer2" {}
-        inputframe "frame.buffer3" {}
+        inputframe { name "frame2.buffer2" }
+        inputframe { name "frame.buffer1" }
+        inputframe { name "frame.buffer2" }
+        inputframe { name "frame.buffer3" }
     }
 ------------------------------------------------------------------------
 
@@ -510,9 +550,9 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
                 task [ CULL DRAW ]
                 viewport [ 1-?? ] 
             }
-            inputframe "frame.buffer-channel2" {}
+            inputframe { name "frame.buffer-channel2" }
 
-            swapbarrier "barrier" {}
+            swapbarrier {}
         }
         compound {
             channel "channel2"
@@ -528,9 +568,9 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
                 task [ CULL DRAW ]
                 viewport [ 1-?? ] 
             }
-            inputframe "frame.buffer-channel1" {}
+            inputframe { name "frame.buffer-channel1" }
 
-            swapbarrier "barrier" {}
+            swapbarrier {}
         }
     }
 </pre></p>
