@@ -1,0 +1,98 @@
+
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developers: Node Failures
+
+#include "header.shtml"
+
+<h2>Node Failure Handling</h2>
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+UNFINISHED DRAFT
+</p>
+
+<h3>Background</h3>
+<p>
+Image Generators in the VizSim market often use a stateless protocol to
+drive the individual rendering channels. IG nodes render
+continously, while state changes are broadcasted over the network. In
+this mode of operation, individual nodes can fail without any influence
+on the running session.
+</p><p>
+Equalizer on the other hand is currently designed to be completely
+frame driven, that is, any node failure will result in a failure of the
+whole config. The purpose of this document is to explore ways to make
+Equalizer more suitable for the use in Image Generators, and more resilient
+against failures in general.
+</p>
+
+<h3>Launching</h3>
+<p>
+IG nodes are automatically started when the operating system starts. They
+connect to the master node to receive the initial state, start rendering and
+receiving network commands for state updates.
+</p>
+<p>
+Equalizer nodes are connected using a session and node identifier, which
+is generated dynamically during config initialisation. One node can be
+used in different configurations simultaneously, in which case each
+instance has its own session and node identifier. A node is uniquely
+identifiable by the session identifier and the node IP. The session
+identifier is not known beforehand, but it is known by the application
+and the server.
+</p>
+
+<h3>Runtime Failures</h3>
+<p>
+Runtime Failures and launch failures are handled in the same way. The
+node is considered to be offline, and can therefore not produce any
+output frames or participate in a barrier. This might cause the config
+to be partially unfunctional, but this is unavoidable.
+</p><p>
+Relaunching a node?
+</p>
+
+<h3>State Updates</h3>
+<p>
+State updates are implementable using distributed objects. Each change
+is submitted using a commit. New objects can be made known to the IG
+nodes using a command packet.
+</p>
+
+<h3>Specification</h3>
+<p>
+Equalizer needs a predetermined identification method to allow render nodes to
+launch autonomously. Possible identification attributes are the node's IP
+address and the application name. This is still not unique, but the server can
+prioritize one config over another, if both configs use the same node for the
+same application. Additionally, the config name or identifier can be present
+when the node is connecting to the server. The server will have a best-fit
+strategy to assign a connecting render node to a running config.
+<pre>
+  struct NodeConnectData
+  {
+      // IP is implicit
+      string   appName;
+      string   configName;
+      uint32_t configID;
+  };
+</pre>
+</p><p>
+The initial state of nodes in a configuration is offline. By default, Equalizer
+will launch them and wait a given time for them to connect. When connected, a
+node becomes available. A node failure during runtime brings the node and all
+its resources into the offline state again. For connecting and disconnecting
+nodes, the application receives an event to be able to act accordingly, for
+example by relaunching a node.
+</p>
+
+<h3>Frameless Rendering</h3>
+<p>
+Frameless rendering refers in this context to the mode where the IG nodes
+continously render by themselves. The global state is asynchronously
+updated by the IG nodes, and the nodes may render at different frame
+rates, depending on the scenery and hardware.
+</p>
+
+#include "footer.shtml"
