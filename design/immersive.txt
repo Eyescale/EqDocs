@@ -1,0 +1,48 @@
+
+                  Stereo and Headtracking in Equalizer
+
+
+ Input:
+  - Head position and orientation (hpr) OR origin->head matrix
+    o head matrix = head pos * rot(head, yAxis) * rot(pitch, xAxis) *
+                    rot(roll, zAxis)
+    o eye position = head matrix * (+-eyeOffset, 0, 0)
+  - Eye offset
+
+ Output
+  - Frustum and head transform
+    o see Compound::_computeFrustum()
+      + transform eye position into screen space
+      + compute frustum corners from frustum size and eye position
+      + compute transformation of frustum ( -trans(eye) * origin->frustum xfm)
+
+
+ Tracking API
+
+   class Config
+   {
+       void setHeadPosition( const float pos[3] );
+       void setHeadOrientation( const float hpr[3] );
+   };
+
+   main
+   {
+        Tracker tracker;
+        if( !tracker.init( "/dev/ttyS0" )
+         ...
+   }
+
+   class Tracker
+   {
+   public:
+       bool init( const std::string& port );
+       
+       bool update();
+       const float* getPosition();
+       const float* getOrientation();
+
+   private:
+       int   _fd;
+       float _pos[3];
+       float _hpr[3];
+   };
