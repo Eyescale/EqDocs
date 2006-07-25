@@ -29,7 +29,12 @@
    {
         Tracker tracker;
         if( !tracker.init( "/dev/ttyS0" )
-         ...
+        ...
+        while( true )
+        {
+            const float* hpr = tracker.getOrientation();
+            ...
+        }
    }
 
    class Tracker
@@ -38,8 +43,8 @@
        bool init( const std::string& port );
        
        bool update();
-       const float* getPosition();
-       const float* getOrientation();
+       const float* getPosition() const;
+       const float* getOrientation() const;
 
    private:
        int   _fd;
