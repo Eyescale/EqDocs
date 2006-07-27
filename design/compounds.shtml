@@ -12,8 +12,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
 <ul>
   <li><a href="documents/design/compounds.html#Background">Background</a></li>
-  <li><a href="documents/design/compounds.html#Requirements">Requirements</a></li>
   <li><a href="documents/design/compounds.html#Glossary">Glossary</a></li>
+  <li><a href="documents/design/compounds.html#Requirements">Requirements</a></li>
   <li><a href="documents/design/compounds.html#Specification">Specification</a></li>
   <ul>
     <li><a href="documents/design/compounds.html#Attributes">Attributes</a></li>
@@ -35,6 +35,21 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
  executed. Compounds form a tree. The root compound's channel
  defines the view to be rendered by all children. Equalizer has to
  provide at least the same functionality.
+</p>
+
+<a name="Glossary"/>
+<h3>Glossary</h3>
+<p>
+ <ul>
+  <li>compound: an ordered collection of tasks for a channel. Can have
+      compound children.</li>
+  <li>frame: a collection of images belonging to the same framebuffer (as
+      in OpenGL)</li>
+  <li>image: a 2D array of pixels with a type and format, typically
+      originating from the color, depth, or stencil buffer.</li>
+  <li>channel: A viewport on a drawable, the basic rendering unit in 
+      Equalizer.</li>
+ </ul>
 </p>
 
 <a name="Requirements"/>
@@ -80,21 +95,6 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
       be: read/draw pixels, texture transfers, framebuffer attachments,
       copy pixels, ...</li>
   <li>Cross channel loadbalancing [open]</li>
- </ul>
-</p>
-
-<a name="Glossary"/>
-<h3>Glossary</h3>
-<p>
- <ul>
-  <li>compound: an ordered collection of tasks for a channel. Can have
-      compound children.</li>
-  <li>frame: a collection of images belonging to the same framebuffer (as
-      in OpenGL)</li>
-  <li>image: a 2D array of pixels with a type and format, typically
-      originating from the color, depth, or stencil buffer.</li>
-  <li>channel: A viewport on a drawable, the basic rendering unit in 
-      Equalizer.</li>
  </ul>
 </p>
 
@@ -229,18 +229,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
   <a name="Images"/>
   <h4>Images</h4>
-  <p>
-    <img src="documents/design/frames.png" 
-         alt="UML diagram of compound frames"/>
-  </p><p>
-   Frame buffers are set up and connected to the input and output frames during
-   compound init. The input and output frames share a frame buffer, which in
-   turn holds the color, depth and stencil images. The frame buffer versioning
-   is used to signal the frames availability to the consumer, the assemble
-   callback. The frame holds the frame attributes. An output frame sets its
-   attributes on the frame buffer when the frame is commited (set ready) by the
-   producer, the readback callback.
-  </p>
+  Outsourced to a separate <a href="documents/design/frames.html">frames
+  specification</a> document.
 
  <a name="Restrictions"/>
  <h3>Restrictions</h3>

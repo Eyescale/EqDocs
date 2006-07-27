@@ -1,0 +1,118 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developers: Frames
+
+#include "header.shtml"
+
+<h2>Compound Frame Handling</h2>
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+</p>
+
+<ul>
+  <li><a href="documents/design/frames.html#Background">Background</a></li>
+  <li><a href="documents/design/frames.html#Overview">Overview</a></li>
+  <li><a href="documents/design/frames.html#Requirements">Requirements</a></li>
+  <li><a href="documents/design/frames.html#Implementation">Implementation</a></li>
+  <li><a href="documents/design/frames.html#Restrictions">Restrictions</a></li>
+  <li><a href="documents/design/frames.html#FileFormat">File Format</a></li>
+</ul>
+
+<a name="Background"/>
+<h3>Background</h3>
+<p>
+  Frames are used by <a href="documents/design/compounds.html">compounds</a>
+  during the recomposition phase. This document discusses the implementation
+  details of this part of the compound spec.
+</p>
+
+<a name="Overview"/>
+<h3>Overview</h3>
+<p>
+  <img src="documents/design/frames.png" 
+       alt="UML diagram of compound frames"/>
+</p><p>
+  Frames can be input frames or output frames. Output frames produce the data
+  consumed by input frames. The common link between the output and input
+  frames is the frame buffer. A frame buffer holds the data, which is
+  organized into a set of images for each (OpenGL) framebuffer attachment -
+  color, depth and stencil. Each image represents a 2D array of
+  pixels. Typically one image per type is used.
+</p><p>
+  A frame has a format, which defines which components of the framebuffer are to
+  be read back (output frame) or assembled (input frames). It has a viewport,
+  which defines the fractional portion of the channel has to be read back
+  (output) or which fractional portion of the corresponding output frame (input
+  frames) has to be assembled.
+</p>
+  
+
+<a name="Requirements"/>
+<h3>Requirements</h3>
+<p>
+ Frames are used in the following way:
+ <ul>
+  <li>Output images for one output frame are produced by a single node.</li>
+  <li>Output images are send to multiple nodes, where the input images are.</li>
+  <li>The input frame format may be a subset of the output frame
+    format. Consequently, the node producing the output images only sends images
+    to nodes if the input frame format matches.</li>
+  <li>Same optimisation for other attributes, i.e., viewport, eye(?)</li>
+  <li>Frames and images are relatively static during rendering. The objects
+    should be reused from (config) frame to frame to avoid costly network
+    instanciation.</li>
+  <li>
+ </ul>
+</p>
+
+<a name="Implementation"/>
+<h3>Implementation</h3>
+<p>
+  On the server:
+  <pre>
+    Compound::update
+        prepare output frames (tree traversal)
+           allocate frame buffer
+           set current data (viewport, format, eye, ...)
+           commit frame buffer (new version)
+        prepare input frames            
+
+    Compound::updateChannel (per-channel task generation)
+        send readback tasks for all output frames
+        foreach output frame
+            foreach input frame for output frame
+                if applicable (filter: format, vp, eye, already send to node)
+                    send transmit task [frame id and version, format, vp, eye]
+  </pre>
+
+  On the "output" node:
+  <pre>
+    readback task:
+        do readback
+
+    transmit task:
+        foreach matching image
+        transmit image
+    transmit 'ready'
+  </pre>
+    
+  output node: 
+    - read back data
+    - transmit data [may be empty due to ROI]
+  input node:
+    - assemble data [blocks on receive data]
+</p>
+
+<a name="Restrictions"/>
+<h3>Restrictions</h3>
+<p>
+</p>
+
+<a name="FileFormat"/>
+<h3>File Format</h3>
+ <p>
+   See <a href="documents/design/compounds.html#FileFormat">compound spec</a>.
+ </p>
+       
+#include "footer.shtml"
