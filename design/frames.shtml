@@ -71,17 +71,44 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 <a name="Implementation"/>
 <h3>Implementation</h3>
 <p>
+  The implementation should execute as follows:
+  <pre>
+    [readback callback]
+    foreach frame                                (needs frames + attributes)
+        foreach type
+            start readback of image[s]
+    foreach image in readback
+        sync readback of image
+        send image to all 'input' nodes          (needs destinations)
+    foreach frame
+        send frame ready to all 'input' nodes    (needs destinations)
+
+    [assemble callback]
+    (background receiving in recv thread)
+    foreach frame
+        sync frame ready
+        start draw frame
+    foreach frame
+        sync draw frame (maybe omit or defer until frame is reused?)
+  </pre>
+</p><p>
+  Images have to be pushed by the output node for optimal performance. The
+  subscriber model of versioned objects does not work for this purpose, since
+  the frame input and output relations may change every frame, due to load
+  balancing, DPlex mode or other per-frame compound changes. Furthermore, the
+  number of images per frame can vary.
+</p><p>
   On the server:
   <pre>
     Compound::update
         prepare output frames (tree traversal)
            allocate and register frame buffer
-           set current data (viewport, format, eye, ...)
-           commit frame buffer (new version)
+           set current frame data (viewport, format, eye, ...)
+           commit frame buffer (new version set on frame)
            commit frame
         prepare input frames (2nd tree traversal)     
-           set frame buffer from output frame
            set current data (viewport, format, eye, ...)
+           set frame buffer id and version from output frame
            commit frame
 
     Compound::updateChannel (per-channel task generation)
@@ -95,7 +122,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             foreach input frame for output frame
                 if applicable (filter: format, vp, eye, already send to node)
                     send transmit task
-                        [ output frame buffer id and version ]
+                        [ output frame buffer id and version, attrs ]
         send assemble task
             foreach input frame
                 add input frame 
@@ -117,11 +144,12 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   <pre>
     assemble task
         foreach input frame
-            set frame buffer to not ready
+            sync to version
+             -> unset frame buffer ready
             release old images
             set frame buffer 'version' to config frame number
-                moves queues images to current images
-                unblocks if current 'version' is ready
+                moves queued images to current images
+                set ready if current 'version'
         call assemble()
             sync frame[s]
             assemble frame[s]
@@ -133,6 +161,34 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             else if( frame buffer version == image version )
                 add image to current images
             else ASSERT since not reachable
+        receive ready
+            ???
+  </pre>
+</p>
+
+<a name="Restrictions"/>
+<h3>API</h3>
+<p>
+  Incomplete pseudocode of the API, look at the implementation for full
+  details.
+  <pre>
+    class FrameBuffer
+    {
+        void addImage( Image::Type type, Image* image );
+        // corresponding getters
+    };
+
+    class Image
+    {
+        enum Type
+        {
+            TYPE_COLOR   = GL_COLOR_BUFFER_BIT
+            TYPE_DEPTH   = GL_DEPTH_BUFFER_BIT,
+            TYPE_STENCIL = GL_STENCIL_BUFFER_BIT
+        };
+        void startReadback( format, type, x, y, w, h );
+        void syncReadback();
+    };
   </pre>
 </p>
 
