@@ -54,7 +54,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
  Frames are used in the following way:
  <ul>
   <li>Output images for one output frame are produced by a single node.</li>
-  <li>Output images are send to multiple nodes, where the input images are.</li>
+  <li>Output images are send to multiple nodes, where the input frames are.</li>
   <li>The input frame format may be a subset of the output frame
     format. Consequently, the node producing the output images only sends images
     to nodes if the input frame format matches.</li>
@@ -62,6 +62,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   <li>Frames and images are relatively static during rendering. The objects
     should be reused from (config) frame to frame to avoid costly network
     instanciation.</li>
+  <li>It must be possible to select a ready frame from a list of input frames,
+    to allow early assembly when using multiple input frames.</li>
   <li>
  </ul>
 </p>
@@ -73,17 +75,30 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   <pre>
     Compound::update
         prepare output frames (tree traversal)
-           allocate frame buffer
+           allocate and register frame buffer
            set current data (viewport, format, eye, ...)
            commit frame buffer (new version)
-        prepare input frames            
+           commit frame
+        prepare input frames (2nd tree traversal)     
+           set frame buffer from output frame
+           set current data (viewport, format, eye, ...)
+           commit frame
 
     Compound::updateChannel (per-channel task generation)
-        send readback tasks for all output frames
+        foreach output frame
+            if applicable (filter: format, vp, eye, already send to node)
+                send readback task
+                    [ output frame id and version ]
+                      -> holds frame buffer id and version
+                        -> holds frame number
         foreach output frame
             foreach input frame for output frame
                 if applicable (filter: format, vp, eye, already send to node)
-                    send transmit task [frame id and version, format, vp, eye]
+                    send transmit task
+                        [ output frame buffer id and version ]
+        send assemble task
+            foreach input frame
+                add input frame 
   </pre>
 
   On the "output" node:
@@ -92,16 +107,33 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         do readback
 
     transmit task:
-        foreach matching image
-        transmit image
-    transmit 'ready'
+        FrameBuffer: 
+            foreach matching image
+                transmit image packet [ frame number, type, vp, data ]
+            transmit frame buffer ready [ frame number ]
   </pre>
     
-  output node: 
-    - read back data
-    - transmit data [may be empty due to ROI]
-  input node:
-    - assemble data [blocks on receive data]
+  On the "input" node:
+  <pre>
+    assemble task
+        foreach input frame
+            set frame buffer to not ready
+            release old images
+            set frame buffer 'version' to config frame number
+                moves queues images to current images
+                unblocks if current 'version' is ready
+        call assemble()
+            sync frame[s]
+            assemble frame[s]
+    [recv thread]
+        receive input image
+            save into recycled Image object
+            if( frame buffer version < image version )
+                queue image
+            else if( frame buffer version == image version )
+                add image to current images
+            else ASSERT since not reachable
+  </pre>
 </p>
 
 <a name="Restrictions"/>
