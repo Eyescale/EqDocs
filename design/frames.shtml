@@ -15,6 +15,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   <li><a href="documents/design/frames.html#Overview">Overview</a></li>
   <li><a href="documents/design/frames.html#Requirements">Requirements</a></li>
   <li><a href="documents/design/frames.html#Implementation">Implementation</a></li>
+  <li><a href="documents/design/frames.html#Issues">Open Issues</a></li>
   <li><a href="documents/design/frames.html#Restrictions">Restrictions</a></li>
   <li><a href="documents/design/frames.html#FileFormat">File Format</a></li>
 </ul>
@@ -38,9 +39,11 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   frames is the frame buffer. A frame buffer holds the data, which is
   organized into a set of images for each (OpenGL) framebuffer attachment -
   color, depth and stencil. Each image represents a 2D array of
-  pixels. Typically one image per type is used.
+  pixels. The default implementation uses at most one image per type is
+  used. The application can implement a custom readback producing multiple
+  images per type, in order to further minimize the amount of pixel data.
 </p><p>
-  A frame has a format, which defines which components of the framebuffer are to
+  A frame has a format, which defines the components of the framebuffer to
   be read back (output frame) or assembled (input frames). It has a viewport,
   which defines the fractional portion of the channel has to be read back
   (output) or which fractional portion of the corresponding output frame (input
@@ -54,17 +57,26 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
  Frames are used in the following way:
  <ul>
   <li>Output images for one output frame are produced by a single node.</li>
-  <li>Output images are send to multiple nodes, where the input frames are.</li>
+  <li>Images are send from the 'output' node to multiple 'input' nodes</li>
   <li>The input frame format may be a subset of the output frame
     format. Consequently, the node producing the output images only sends images
     to nodes if the input frame format matches.</li>
   <li>Same optimisation for other attributes, i.e., viewport, eye(?)</li>
   <li>Frames and images are relatively static during rendering. The objects
     should be reused from (config) frame to frame to avoid costly network
-    instanciation.</li>
+    instanciation and reallocation.</li>
+ </ul>
+</p>
+<p>
+ The following features must be implementable:
+ <ul>
   <li>It must be possible to select a ready frame from a list of input frames,
     to allow early assembly when using multiple input frames.</li>
-  <li>
+  <li>Different readback mechanisms: readPixels, FBO, hardware
+    framegrabbers</li>
+  <li>Different assemble mechanisms</li>
+  <li>On-GPU storage if input and output frame are on the same pipe, using
+    textures or FBO's</li>
  </ul>
 </p>
 
@@ -74,37 +86,50 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   The implementation should execute as follows:
   <pre>
     [readback callback]
-    foreach frame                                (needs frames + attributes)
+    foreach frame
         foreach type
             start readback of image[s]
-    foreach image in readback
+    foreach image of frame
         sync readback of image
-        send image to all 'input' nodes          (needs destinations)
+        send image to all 'input' nodes
+          Note: multiple consumers on a node should receive only one update
     foreach frame
-        send frame ready to all 'input' nodes    (needs destinations)
+        send frame ready to all 'input' nodes
 
     [assemble callback]
     (background receiving in recv thread)
     foreach frame
-        sync frame ready
+        sync frame ready .OR. select ready frame from frame list
         start draw frame
     foreach frame
         sync draw frame (maybe omit or defer until frame is reused?)
   </pre>
 </p><p>
+  Use monitor to determine readyness of frame buffer.
+</p><p>
+  Q: scope of frames, images when using multiple pipes per node.
+  A: SCOPE_THREAD for frames to reference correct frame buffer for each thread.
+     SCOPE_NODE for frame buffer with merged data of all input frames on node.
+</p><p>
+  Q: latency
+  A: New frame buffer for each config frame (and recycle once obsolete)
+</p><p>
   Images have to be pushed by the output node for optimal performance. The
   subscriber model of versioned objects does not work for this purpose, since
   the frame input and output relations may change every frame, due to load
-  balancing, DPlex mode or other per-frame compound changes. Furthermore, the
+  balancing, DPlex phase or other per-frame compound changes. Furthermore, the
   number of images per frame can vary.
 </p><p>
   On the server:
   <pre>
     Compound::update
         prepare output frames (tree traversal)
+           recycle old frame buffers
            allocate and register frame buffer
-           set current frame data (viewport, format, eye, ...)
-           commit frame buffer (new version set on frame)
+           set frame buffer data (output frame data, frame number)
+           commit frame buffer (new version)
+           set frame data (frame buffer id and version, 
+                           viewport, format, eye, ...)
            commit frame
         prepare input frames (2nd tree traversal)     
            set current data (viewport, format, eye, ...)
@@ -116,26 +141,30 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             if applicable (filter: format, vp, eye, already send to node)
                 send readback task
                     [ output frame id and version ]
-                      -> holds frame buffer id and version
-                        -> holds frame number
+                      -> holds frame buffer id and version -> holds frame number
         foreach output frame
-            foreach input frame for output frame
+            foreach input frame of output frame
                 if applicable (filter: format, vp, eye, already send to node)
                     send transmit task
-                        [ output frame buffer id and version, attrs ]
-        send assemble task
-            foreach input frame
-                add input frame 
+                        [ output frame id and version, attrs ]
+        foreach input frame
+            if applicable (filter: format, vp, eye, already send to node)
+                add to assemble task frames
+                    [ input frame id and version ]
+                      -> holds frame buffer id and version -> holds frame number
+        if assemble task frame list not empty
+            send assemble task containing frame list
   </pre>
 
   On the "output" node:
   <pre>
     readback task:
-        do readback
+        start readback
 
     transmit task:
-        FrameBuffer: 
+        send by the output frame's FrameBuffer:
             foreach matching image
+                sync readback
                 transmit image packet [ frame number, type, vp, data ]
             transmit frame buffer ready [ frame number ]
   </pre>
@@ -192,9 +221,20 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   </pre>
 </p>
 
+<a name="Issues"/>
+<h3>Open Issues</h3>
+<p>
+  Send optimisation for partial input frames, select ready frames from list for
+  early assembly,
+</p>
+
 <a name="Restrictions"/>
 <h3>Restrictions</h3>
 <p>
+  Only full images are sent to the nodes. If the input frame specifies a
+  non-full viewport (which is relative to the output frame), the amount of data
+  send will not be optimized at the moment. The same applies to the other
+  attributes (format, eye, etc.).
 </p>
 
 <a name="FileFormat"/>
