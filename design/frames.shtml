@@ -107,9 +107,11 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p><p>
   Use monitor to determine readyness of frame buffer.
 </p><p>
-  Q: scope of frames, images when using multiple pipes per node.
+  Q: scope of frames and images when using multiple pipes per node.
   A: SCOPE_THREAD for frames to reference correct frame buffer for each thread.
-     SCOPE_NODE for frame buffer with merged data of all input frames on node.
+     SCOPE_NODE for frame buffer, with merged data of all input frames on node.
+     Images are not distributed objects. They are managed directly by the
+     framebuffer and the data is distributed using command packets.
 </p><p>
   Q: latency
   A: New frame buffer for each config frame (and recycle once obsolete)
@@ -123,10 +125,10 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   On the server:
   <pre>
     Compound::update
-        prepare output frames (tree traversal)
-           recycle old frame buffers
-           allocate and register frame buffer
-           set frame buffer data (output frame data, frame number)
+        prepare output frames (1st tree traversal)
+           release old frame buffers based on frame number
+           recycle new frame buffer
+           set frame buffer data (output frame data)
            commit frame buffer (new version)
            set frame data (frame buffer id and version, 
                            viewport, format, eye, ...)
@@ -142,9 +144,10 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
                 send readback task
                     [ output frame id and version ]
                       -> holds frame buffer id and version -> holds frame number
-        foreach output frame
+        foreach not-filtered output frame
             foreach input frame of output frame
                 if applicable (filter: format, vp, eye, already send to node)
+                filter duplicate nodes
                     send transmit task
                         [ output frame id and version, attrs ]
         foreach input frame
@@ -165,7 +168,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         send by the output frame's FrameBuffer:
             foreach matching image
                 sync readback
-                transmit image packet [ frame number, type, vp, data ]
+                transmit image packet [ frame buffer version, type, vp, data ]
             transmit frame buffer ready [ frame number ]
   </pre>
     
@@ -173,38 +176,40 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   <pre>
     assemble task
         foreach input frame
-            sync to version
-             -> unset frame buffer ready
-            release old images
-            set frame buffer 'version' to config frame number
-                moves queued images to current images
-                set ready if current 'version'
+            sync to frame version
         call assemble()
             sync frame[s]
+                wait for frame buffer images to reach version
             assemble frame[s]
     [recv thread]
         receive input image
-            save into recycled Image object
-            if( frame buffer version < image version )
-                queue image
-            else if( frame buffer version == image version )
-                add image to current images
-            else ASSERT since not reachable
+            if version of images older than received image
+                release images
+                set version of images to received version
+            save image into recycled Image object
         receive ready
-            ???
+            set image ready version
   </pre>
 </p>
 
-<a name="Restrictions"/>
-<h3>API</h3>
+<h4>API</h4>
 <p>
   Incomplete pseudocode of the API, look at the implementation for full
-  details.
+  details. A object of a given type has a different implementation on the
+  server-side and client-side which share the same distributed data.
   <pre>
+    class Frame
+    {
+        uint32_t frameBufferID;
+        uint32_t frameBufferVersion;
+    }
     class FrameBuffer
     {
         void addImage( Image::Type type, Image* image );
         // corresponding getters
+
+        uint32_t        _versionImages;
+        eqBase::Monitor _versionReady;
     };
 
     class Image
