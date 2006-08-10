@@ -3,18 +3,20 @@
 
 
  Input:
-  - Head position and orientation (hpr) OR origin->head matrix
-    o head matrix = head pos * rot(head, yAxis) * rot(pitch, xAxis) *
-                    rot(roll, zAxis)
-    o eye position = head matrix * (+-eyeOffset, 0, 0)
+  - in eqs::Config::_beginFrame()
+    _updateHead()
+     o sync head matrix
+     o float _eyePosition[3] = head matrix * (+-eyeOffset, 0, 0)
+  - add eqs::Config::getEyePosition()
   - Eye offset
 
  Output
   - Frustum and head transform
     o see Compound::_computeFrustum()
+      + get config eye position
       + transform eye position into screen space
       + compute frustum corners from frustum size and eye position
-      + compute transformation of frustum ( -trans(eye) * origin->frustum xfm)
+      + compute transformation of frustum ( -trans(eye) * origin->frustum xfm )
 
 
  Tracking API
