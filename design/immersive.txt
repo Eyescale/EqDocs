@@ -6,7 +6,7 @@
   - in eqs::Config::_beginFrame()
     _updateHead()
      o sync head matrix
-     o float _eyePosition[3] = head matrix * (+-eyeOffset, 0, 0)
+     o float _eyePosition[3] = head matrix * (+-eyeOffset, 0, 0, 1)
   - add eqs::Config::getEyePosition()
   - Eye offset
 
