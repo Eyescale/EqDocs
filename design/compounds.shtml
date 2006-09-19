@@ -172,8 +172,9 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
    relative to the parent. The following attributes are defined:
    <ul>
     <li>task: non-inherited bitwise combination of tasks (see
-        above). DRAW is executed only on leaf compounds. Defaults to
-        [ CLEAR CULL DRAW ASSEMBLE READBACK ]</li>
+        above). DRAW is executed only on leaf compounds.Defaults to
+        [ CLEAR CULL DRAW ASSEMBLE READBACK ]<br>
+        Q: CULL not default for non-leaf compounds?</li>
     <li>viewport: 2D fractional viewport wrt to the parent in screen
         space. Default is [0 0 1 1], i.e., the full viewport.</li>
     <li>range: 1D, application-dependent range of the data to be
