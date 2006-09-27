@@ -21,10 +21,20 @@
 
  Tracking API
 
+   in server/config.cpp
+   
    class Config
    {
-       void setHeadPosition( const float pos[3] );
-       void setHeadOrientation( const float hpr[3] );
+   private:
+       Matrix4f _headMatrix;
+   }
+
+
+
+   class Config
+   {
+       void setHeadMatrix( const Matrix& matrix );
+           send head matrix to server
    };
 
    main
@@ -35,6 +45,10 @@
         while( true )
         {
             const float* hpr = tracker.getOrientation();
+            Matrix4f headMatrix; 
+            headMatrix.rotate( hpr[0], 0, 1, 0 );
+            ...
+            config->setHeadMatrix( headMatrix );
             ...
         }
    }

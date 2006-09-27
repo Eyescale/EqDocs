@@ -194,7 +194,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         OpenGL) to be used for reading or writing the corresponding
         images. Default is hardware-dependent, typically
         (GL_RGBA GL_UNSIGNED_INT), (GL_DEPTH_COMPONENT GL_FLOAT),
-        (GL_STENCIL_INDEX ???)</li>
+        (GL_STENCIL_INDEX ?)</li>
    </ul>
   </p>
   
@@ -206,8 +206,15 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
    input and output objects with the same name are connected. IO entities
    can therefore not be shared between disjunct compound trees. Compound trees
    can be joined by a common parent compound, if entities are to be shared.
-   FrameBuffers and Images are disposed during compound exit. The default names
-   are set during the adding, when the object's name is empty.
+   Cached FrameBuffers and Images are disposed during compound exit.
+  </p><p>
+   The default names are set during the adding of the object to the compound,
+   if the object's name is empty. The default name
+   for frames is 'frame.[compound-name]' if the compound has a name, otherwise
+   'frame.[channel-name]'. If neither has a name, the parent are tried until a
+   name is found. If no name is found, the default name is 'frame'. For swap
+   barriers, the default name is 'barrier.[root-compound-name]',
+   'barrier.[root-channel-name]' or 'barrier'.
   </p><p>
    Output frames use viewport, eye, period and phase attributes, which
    are relative to the compound attributes. Using the same output frame
@@ -275,7 +282,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
        // later ..frame[task] ?
        (outputframe|inputframe) 
        {
-           name     "frame-name"  // name default "frame.channel-name"
+           name     "frame-name"  // default see 'Input and Output'
            format   [ COLOR DEPTH STENCIL ]
            viewport [ x y w h ]
            eye      [ CYCLOP LEFT RIGHT ]
@@ -284,7 +291,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
        (outputqueue|inputqueue)[CULL|DRAW] { name "queue-name" TBD }
        swapbarrier 
        { 
-           name "barrier-name" // default "barrier.rootCompound-name"
+           name "barrier-name" // default see 'Input and Output'
            // later: period, phase
        }
    }

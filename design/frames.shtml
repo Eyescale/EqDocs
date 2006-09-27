@@ -141,10 +141,12 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
     Compound::updateChannel (per-channel task generation)
         foreach output frame
             if applicable (filter: format, vp, eye, already send to node)
-                send readback task
-                    [ output frame id and version ]
-                      -> holds frame buffer id and version -> holds frame number
-        foreach not-filtered output frame
+                add to output frame list
+        if output frame list not empty
+            send readback task w/ output frame list
+                [ output frame id and version ]
+                  -> holds frame buffer id and version -> holds frame number
+        foreach frame in output frame list
             foreach input frame of output frame
                 if applicable (filter: format, vp, eye, already send to node)
                 filter duplicate nodes
