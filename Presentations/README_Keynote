@@ -1,0 +1,11 @@
+
+Keynote 3.0.1 blows away .svn directories when saving a
+presentation. As a workaround, save the svn state before editing:
+
+ find *.key -type d -name .svn | xargs tar cvf svn_state.tar
+
+Before checkin, restore the state:
+
+ tar xvf svn_state.tar
+
+And then use 'svn st' and 'svn add' to add any new files in your presentation.
