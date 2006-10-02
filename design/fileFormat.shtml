@@ -31,6 +31,7 @@ global
      EQ_CONNECTION_TCPIP_PORT      unsigned
      EQ_CONNECTION_LAUNCH_TIMEOUT  unsigned
      EQ_CONNECTION_LAUNCH_COMMAND  string
+     EQ_WINDOW_IATTR_HINTS_STEREO  off | on | auto
 }
 server
 {
@@ -53,6 +54,13 @@ server
                 viewport [ viewport ] // default: autodetect
                 window
                 {
+                    attributes
+                    {
+                        hints
+                        {
+                            stereo   off | on | auto
+                        }
+                    }
                     name     string
                     viewport [ viewport ] // wrt pipe, default full screen
                     channel // 1-n times
@@ -71,6 +79,7 @@ server
             format   [ COLOR DEPTH ]         // default COLOR
             viewport [ viewport ]            // wrt parent compound, sort-first
             range    [ float float ]         // DB-range for sort-last
+            eye      [ CYCLOP LEFT RIGHT ]   // monoscopic or stereo view
             wall                             // frustum description
             {
                 bottom_left  [ float float float ]
