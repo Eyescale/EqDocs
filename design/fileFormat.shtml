@@ -27,11 +27,16 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 global
 {
      EQ_CONNECTION_TYPE            TCPIP  // others (IB, MYRI, ...) later
-     EQ_CONNECTION_HOSTNAME        string
-     EQ_CONNECTION_TCPIP_PORT      unsigned
-     EQ_CONNECTION_LAUNCH_TIMEOUT  unsigned
-     EQ_CONNECTION_LAUNCH_COMMAND  string
-     EQ_WINDOW_IATTR_HINTS_STEREO  off | on | auto
+     EQ_CONNECTION_HOSTNAME              string
+     EQ_CONNECTION_TCPIP_PORT            unsigned
+     EQ_CONNECTION_LAUNCH_TIMEOUT        unsigned
+     EQ_CONNECTION_LAUNCH_COMMAND        string
+     EQ_WINDOW_IATTR_HINTS_STEREO        off | on | auto
+     EQ_WINDOW_IATTR_HINTS_DOUBLEBUFFER  off | on | auto
+     EQ_WINDOW_IATTR_PLANES_COLOR        unsigned
+     EQ_WINDOW_IATTR_PLANES_ALPHA        unsigned
+     EQ_WINDOW_IATTR_PLANES_DEPTH        unsigned
+     EQ_WINDOW_IATTR_PLANES_STENCIL      unsigned
 }
 server
 {
@@ -58,7 +63,15 @@ server
                     {
                         hints
                         {
-                            stereo   off | on | auto
+                            stereo         off | on | auto
+                            doublebuffer   off | on | auto
+                        }
+                        planes
+                        {
+                            color     unsigned
+                            alpha     unsigned
+                            depth     unsigned
+                            stencil   unsigned
                         }
                     }
                     name     string
