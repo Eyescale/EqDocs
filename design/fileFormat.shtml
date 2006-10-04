@@ -26,7 +26,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
  <p><pre>
 global
 {
-     EQ_CONNECTION_TYPE            TCPIP  // others (IB, MYRI, ...) later
+     EQ_CONNECTION_TYPE                  TCPIP  // others (IB, MYRI, ...) later
      EQ_CONNECTION_HOSTNAME              string
      EQ_CONNECTION_TCPIP_PORT            unsigned
      EQ_CONNECTION_LAUNCH_TIMEOUT        unsigned
@@ -37,12 +37,17 @@ global
      EQ_WINDOW_IATTR_PLANES_ALPHA        unsigned
      EQ_WINDOW_IATTR_PLANES_DEPTH        unsigned
      EQ_WINDOW_IATTR_PLANES_STENCIL      unsigned
+     EQ_CONFIG_FATTR_EYE_BASE            float
 }
 server
 {
     config // 1-n times, currently only the first one is used by the server
     {
         latency int    // # of frames nodes may fall behind application
+        attributes
+        {
+             eye_base float // distance between eyes
+        }
         (node|appNode) // 1-n times, a system in the cluster
                        // appNode launches render thread within app process
         {
