@@ -30,6 +30,57 @@
 	<key>GraphicsList</key>
 	<array>
 		<dict>
+			<key>Bounds</key>
+			<string>{{325.984, 85.0394}, {269.291, 113.386}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>ID</key>
+			<integer>143</integer>
+			<key>Shape</key>
+			<string>Rectangle</string>
+			<key>Style</key>
+			<dict>
+				<key>fill</key>
+				<dict>
+					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>0.5</string>
+						<key>g</key>
+						<string>0.9</string>
+						<key>r</key>
+						<string>1</string>
+					</dict>
+				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>0.2</string>
+						<key>g</key>
+						<string>0.6</string>
+						<key>r</key>
+						<string>0.6</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>Text</key>
+			<dict>
+				<key>Align</key>
+				<integer>0</integer>
+				<key>Text</key>
+				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf410
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
+
+\f0\fs24 \cf0 Buffer PVP is area within src channel\
+Frame offset is position wrt window\
+Buffer offset is position wrt dst channel}</string>
+			</dict>
+		</dict>
+		<dict>
 			<key>Class</key>
 			<string>LineGraphic</string>
 			<key>Head</key>
@@ -41,8 +92,8 @@
 			<integer>142</integer>
 			<key>Points</key>
 			<array>
-				<string>{298.138, 340.157}</string>
-				<string>{311.311, 340.157}</string>
+				<string>{298.138, 340.158}</string>
+				<string>{311.311, 340.158}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -72,8 +123,8 @@
 			<integer>141</integer>
 			<key>Points</key>
 			<array>
-				<string>{142.232, 340.157}</string>
-				<string>{155.406, 340.157}</string>
+				<string>{142.232, 340.158}</string>
+				<string>{155.406, 340.158}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -191,7 +242,7 @@ offset = output frame dest offset}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
 \fs18 \cf0 \
-buffer size = output frame size}</string>
+pvp = output frame pvp}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -239,13 +290,12 @@ buffer size = output frame size}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs24 \cf0 viewport wrt compound:\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
-
-\fs18 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
-\cf0 size = vp * compound inherit pvp\
+
+\fs18 \cf0 \
+size = vp * compound inherit pvp\
 offset = frame vp * pvp[2,3] OR dest offset \
-\cf0 dest offset = vp * compound inherit pvp\
+dest offset = vp * compound inherit pvp\
 }</string>
 			</dict>
 		</dict>
@@ -1720,7 +1770,7 @@ testReady}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2006-09-27 09:37:00 +0200</string>
+	<string>2006-10-05 13:27:02 +0200</string>
 	<key>Modifier</key>
 	<string>eilemann</string>
 	<key>NotesVisible</key>
