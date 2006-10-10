@@ -107,13 +107,13 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p><p>
   Use monitor to determine readyness of frame buffer.
 </p><p>
-  Q: scope of frames and images when using multiple pipes per node.
+  Q: scope of frames and images when using multiple pipes per node.<br>
   A: SCOPE_THREAD for frames to reference correct frame buffer for each thread.
      SCOPE_NODE for frame buffer, with merged data of all input frames on node.
      Images are not distributed objects. They are managed directly by the
      framebuffer and the data is distributed using command packets.
 </p><p>
-  Q: latency
+  Q: latency<br>
   A: New frame buffer for each config frame (and recycle once obsolete)
 </p><p>
   Images have to be pushed by the output node for optimal performance. The
@@ -140,7 +140,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
     Compound::updateChannel (per-channel task generation)
         foreach output frame
-            if applicable (filter: format, vp, eye, already send to node)
+            if applicable (filter: format, vp, eye)
                 add to output frame list
         if output frame list not empty
             send readback task w/ output frame list
@@ -148,7 +148,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
                   -> holds frame buffer id and version -> holds frame number
         foreach frame in output frame list
             foreach input frame of output frame
-                if applicable (filter: format, vp, eye, already send to node)
+                if applicable (filter: format, vp, eye)
                 filter duplicate nodes
                     send transmit task
                         [ output frame id and version, attrs ]
