@@ -27,6 +27,40 @@
 	<array>
 		<dict>
 			<key>Bounds</key>
+			<string>{{297, 135}, {90, 18}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>FontInfo</key>
+			<dict>
+				<key>Font</key>
+				<string>Helvetica</string>
+				<key>Size</key>
+				<real>13</real>
+			</dict>
+			<key>ID</key>
+			<integer>247</integer>
+			<key>Magnets</key>
+			<array>
+				<string>{0, 1}</string>
+				<string>{0, -1}</string>
+				<string>{1, 0}</string>
+				<string>{-1, 0}</string>
+			</array>
+			<key>Shape</key>
+			<string>Rectangle</string>
+			<key>Text</key>
+			<dict>
+				<key>Text</key>
+				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf410
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
+
+\f0\fs26 \cf0 init data}</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Bounds</key>
 			<string>{{287.941, 377.215}, {25, 16}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
@@ -161,11 +195,11 @@
 					<key>Color</key>
 					<dict>
 						<key>b</key>
-						<string>0.184314</string>
+						<string>0.4</string>
 						<key>g</key>
-						<string>0.576471</string>
+						<string>0.305882</string>
 						<key>r</key>
-						<string>0.752941</string>
+						<string>0.207843</string>
 					</dict>
 				</dict>
 			</dict>
@@ -219,11 +253,11 @@
 					<key>Color</key>
 					<dict>
 						<key>b</key>
-						<string>0.184314</string>
+						<string>0.290196</string>
 						<key>g</key>
-						<string>0.576471</string>
+						<string>0.27451</string>
 						<key>r</key>
-						<string>0.752941</string>
+						<string>0.54902</string>
 					</dict>
 				</dict>
 			</dict>
@@ -298,7 +332,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{519.683, 245.175}, {46, 16}}</string>
+			<string>{{519.682, 245.175}, {46, 16}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -388,11 +422,11 @@
 					<key>Color</key>
 					<dict>
 						<key>b</key>
-						<string>0.184314</string>
+						<string>0.4</string>
 						<key>g</key>
-						<string>0.576471</string>
+						<string>0.305882</string>
 						<key>r</key>
-						<string>0.752941</string>
+						<string>0.207843</string>
 					</dict>
 				</dict>
 			</dict>
@@ -654,7 +688,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{626.592, 423.811}, {25, 16}}</string>
+			<string>{{626.591, 423.811}, {25, 16}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -1188,11 +1222,11 @@
 					<key>Color</key>
 					<dict>
 						<key>b</key>
-						<string>0.184314</string>
+						<string>0.290196</string>
 						<key>g</key>
-						<string>0.576471</string>
+						<string>0.27451</string>
 						<key>r</key>
-						<string>0.752941</string>
+						<string>0.54902</string>
 					</dict>
 				</dict>
 			</dict>
@@ -1354,7 +1388,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{467.254, 458.37}, {31, 16}}</string>
+			<string>{{467.253, 458.37}, {31, 16}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -1409,7 +1443,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{593.257, 458.374}, {31, 16}}</string>
+			<string>{{593.256, 458.374}, {31, 16}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -1731,8 +1765,8 @@
 			<integer>197</integer>
 			<key>Points</key>
 			<array>
-				<string>{595.295, 257}</string>
-				<string>{595.295, 193.125}</string>
+				<string>{595.294, 257}</string>
+				<string>{595.294, 193.125}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -2079,7 +2113,7 @@
 			<integer>190</integer>
 			<key>Points</key>
 			<array>
-				<string>{469.233, 185}</string>
+				<string>{469.232, 185}</string>
 				<string>{469.232, 135}</string>
 			</array>
 			<key>Style</key>
@@ -2126,7 +2160,7 @@
 			<key>Points</key>
 			<array>
 				<string>{343.232, 378}</string>
-				<string>{343.294, 175.125}</string>
+				<string>{343.293, 175.125}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -2361,7 +2395,7 @@
 			<integer>184</integer>
 			<key>Points</key>
 			<array>
-				<string>{595.294, 265.125}</string>
+				<string>{595.293, 265.125}</string>
 				<string>{595.232, 477}</string>
 			</array>
 			<key>Style</key>
@@ -2907,11 +2941,11 @@
 					<key>Color</key>
 					<dict>
 						<key>b</key>
-						<string>0.184314</string>
+						<string>0.4</string>
 						<key>g</key>
-						<string>0.576471</string>
+						<string>0.305882</string>
 						<key>r</key>
-						<string>0.752941</string>
+						<string>0.207843</string>
 					</dict>
 				</dict>
 			</dict>
@@ -2920,10 +2954,10 @@
 				<key>Text</key>
 				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf410
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
-{\colortbl;\red255\green255\blue255;\red255\green255\blue255;}
+{\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
 
-\f0\fs26 \cf2 swap}</string>
+\f0\fs26 \cf1 swap}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -2965,11 +2999,11 @@
 					<key>Color</key>
 					<dict>
 						<key>b</key>
-						<string>0.184314</string>
+						<string>0.290196</string>
 						<key>g</key>
-						<string>0.576471</string>
+						<string>0.27451</string>
 						<key>r</key>
-						<string>0.752941</string>
+						<string>0.54902</string>
 					</dict>
 				</dict>
 			</dict>
@@ -2978,10 +3012,10 @@
 				<key>Text</key>
 				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf410
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
-{\colortbl;\red255\green255\blue255;\red255\green255\blue255;}
+{\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
 
-\f0\fs26 \cf2 draw}</string>
+\f0\fs26 \cf1 draw}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -3036,10 +3070,10 @@
 				<key>Text</key>
 				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf410
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
-{\colortbl;\red255\green255\blue255;\red255\green255\blue255;}
+{\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
 
-\f0\fs26 \cf2 clear}</string>
+\f0\fs26 \cf1 clear}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -3384,7 +3418,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2006-10-05 08:47:22 +0200</string>
+	<string>2006-10-06 11:53:17 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
