@@ -8,4 +8,9 @@ Before checkin, restore the state:
 
  tar xvf svn_state.tar
 
-And then use 'svn st' and 'svn add' to add any new files in your presentation.
+And then use 'svn st' and 'svn add' to add and delete files in your
+presentation:
+
+ svn st *.key | grep '^\!' | awk '{print "svn delete \"" $2 "\"";}' > svn_changes
+ svn st *.key | grep '^\?' | awk '{print "svn add \"" $2 "\"";}' >> svn_changes
+ cat svn_changes
