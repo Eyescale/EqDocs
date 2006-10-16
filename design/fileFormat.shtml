@@ -38,6 +38,8 @@ global
      EQ_WINDOW_IATTR_PLANES_DEPTH        unsigned
      EQ_WINDOW_IATTR_PLANES_STENCIL      unsigned
      EQ_CONFIG_FATTR_EYE_BASE            float
+     EQ_WINDOW_IATTR_HINTS_FULLSCREEN    off | on | auto
+     EQ_WINDOW_IATTR_HINTS_DECORATION    off | on | auto
 }
 server
 {
@@ -61,6 +63,7 @@ server
             pipe // 1-n times
             {
                 display  unsigned     // display/graphics card number
+                screen   unsigned     // screen number
                 viewport [ viewport ] // default: autodetect
                 window
                 {
@@ -70,6 +73,8 @@ server
                         {
                             stereo         off | on | auto
                             doublebuffer   off | on | auto
+                            decoration     off | on | auto
+                            fullscreen     off | on | auto
                         }
                         planes
                         {
