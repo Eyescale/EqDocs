@@ -33,7 +33,84 @@
 			<key>AllowConnections</key>
 			<string>NO</string>
 			<key>Bounds</key>
-			<string>{{283.465, 566.929}, {269.291, 14.1732}}</string>
+			<string>{{297.638, 184.252}, {240.945, 14.1732}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>HFlip</key>
+			<string>YES</string>
+			<key>ID</key>
+			<integer>815</integer>
+			<key>Shape</key>
+			<string>Rectangle</string>
+			<key>Style</key>
+			<dict>
+				<key>fill</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>CornerRadius</key>
+					<real>4</real>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+			</dict>
+			<key>Text</key>
+			<dict>
+				<key>Pad</key>
+				<integer>0</integer>
+				<key>Text</key>
+				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf410
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa40\qc\pardirnatural
+
+\f0\fs20 \cf0 \expnd0\expndtw0\kerning0
+Sponsored by:}</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Bounds</key>
+			<string>{{340.157, 212.598}, {155.905, 73.2756}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>ID</key>
+			<integer>814</integer>
+			<key>ImageID</key>
+			<integer>28</integer>
+			<key>Shape</key>
+			<string>Rectangle</string>
+			<key>Style</key>
+			<dict>
+				<key>fill</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+			</dict>
+		</dict>
+		<dict>
+			<key>AllowConnections</key>
+			<string>NO</string>
+			<key>Bounds</key>
+			<string>{{283.465, 552.756}, {269.291, 28.3463}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FontInfo</key>
@@ -74,7 +151,8 @@
 \deftab720
 \pard\pardeftab720\qc
 
-\f0\fs12 \cf0 \'a9 2006 Stefan Eilemann. All information provided is subject to change without notice.}</string>
+\f0\fs12 \cf0 &lt;%ModificationDate%&gt;\
+\'a9 2006 Stefan Eilemann. All information provided is subject to change without notice.}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -984,14 +1062,14 @@
 \deftab720
 \pard\pardeftab720\sa320\qj
 
-\f0\fs20 \cf0 Equalizer is an open source programming interface and resource management system for scalable graphics applications. An Equalizer application can run unmodified on any visualization system, from a singlepipe workstation to large scale graphics clusters and shared memory visualization systems. Equalizer is build from ground up as a parallel, scalable programming interface solving the problems common to any multipipe application.}</string>
+\f0\fs20 \cf0 Equalizer is an open source programming interface and resource management system for scalable graphics applications. An Equalizer application can run unmodified on any visualization system, from a singlepipe workstation to large scale graphics clusters and shared memory visualization systems. The foundation of Equalizer is a parallel, scalable programming interface which solves the problems common to any multipipe application.}</string>
 			</dict>
 		</dict>
 		<dict>
 			<key>AllowConnections</key>
 			<string>NO</string>
 			<key>Bounds</key>
-			<string>{{297.638, 510.236}, {240.945, 56.6929}}</string>
+			<string>{{297.638, 496.063}, {240.945, 56.6929}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
@@ -1616,7 +1694,7 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 			<array>
 				<string>{767.856, 346.827}</string>
 				<string>{751.181, 340.157}</string>
-				<string>{693.775, 301.182}</string>
+				<string>{693.775, 301.181}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -1755,9 +1833,9 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 			<integer>806</integer>
 			<key>Points</key>
 			<array>
-				<string>{772.883, 371.692}</string>
+				<string>{772.882, 371.692}</string>
 				<string>{751.181, 354.331}</string>
-				<string>{694.488, 308.84}</string>
+				<string>{694.488, 308.839}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -1856,7 +1934,7 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 				<string>{624.335, 315.354}</string>
 				<string>{595.276, 297.638}</string>
 				<string>{609.449, 240.945}</string>
-				<string>{644.882, 226.772}</string>
+				<string>{644.882, 226.771}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -1919,7 +1997,7 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 				<string>{624.335, 287.008}</string>
 				<string>{609.449, 269.291}</string>
 				<string>{737.008, 255.118}</string>
-				<string>{758.268, 226.772}</string>
+				<string>{758.267, 226.771}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -2098,9 +2176,10 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 	<key>HPages</key>
 	<integer>1</integer>
 	<key>ImageCounter</key>
-	<integer>28</integer>
+	<integer>29</integer>
 	<key>ImageLinkBack</key>
 	<array>
+		<dict/>
 		<dict/>
 		<dict/>
 		<dict/>
@@ -2115,6 +2194,7 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 	</array>
 	<key>ImageList</key>
 	<array>
+		<string>image28.pdf</string>
 		<string>image3.pdf</string>
 		<string>image9.png</string>
 		<string>image8.png</string>
@@ -2225,7 +2305,7 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2006-10-20 12:00:14 +0200</string>
+	<string>2006-10-23 11:24:31 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -2300,17 +2380,17 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 		<key>DrawerWidth</key>
 		<real>209</real>
 		<key>FitInWindow</key>
-		<false/>
+		<true/>
 		<key>Frame</key>
-		<string>{{328, 111}, {1121, 713}}</string>
+		<string>{{272, 112}, {962, 766}}</string>
 		<key>ShowRuler</key>
 		<false/>
 		<key>ShowStatusBar</key>
 		<true/>
 		<key>VisibleRegion</key>
-		<string>{{-151, -26}, {1139.18, 634.021}}</string>
+		<string>{{0, -3.00003}, {836.22, 589.857}}</string>
 		<key>Zoom</key>
-		<string>1</string>
+		<string>1.167502</string>
 	</dict>
 </dict>
 </plist>
