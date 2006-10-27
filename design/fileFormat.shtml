@@ -11,16 +11,19 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <p>
- The configuration file format for the Equalizer server is described below. The
- directory <code>src/examples/configs</code> does contain some example
- configuration files. The file format is not described in detail here,
- please refer to the individual feature specifications for additions and
- changes to the file format. The actual implementation may differ slightly from
- this specification, but we try to keep it up to date. The loader implementation
- is the reference for the file format, look
- at <code>src/server/loader.y</code>, if reading yacc-code is an option.
+  The configuration file format for the Equalizer server is described below. The
+  directory <code>src/examples/configs</code> does contain some example
+  configuration files. The file format is not described in detail here,
+  please refer to the individual feature specifications for additions and
+  changes to the file format. The actual implementation may differ slightly from
+  this specification, but we try to keep it up to date. The loader
+  implementation is the reference for the file format, look
+  at <code>src/server/loader.y</code>, if you speak lex/yacc.
 </p>
 <p>
+  All Equalizer units are in meters. This applies currently to the wall
+  coordinates and the eye base, as well as the head matrix supplied
+  programmatically.
 </p>
 
  <p><pre>
@@ -62,8 +65,8 @@ server
             }
             pipe // 1-n times
             {
-                display  unsigned     // display/graphics card number
-                screen   unsigned     // screen number
+                display  unsigned     // X server number or ignored
+                screen   unsigned     // graphics adapter number
                 viewport [ viewport ] // default: autodetect
                 window
                 {
