@@ -1,0 +1,100 @@
+
+#define S_RELNOTES
+#define PAGE Release Notes Version 0.1.0
+
+#include "header.shtml"
+
+<h2>Release Notes for Equalizer 0.1.0</h2>
+<p>
+  Welcome to Equalizer 0.1.0, a framework for the development and
+  deployment of scalable multipipe applications based on C++ and OpenGL.
+</p>
+
+<h3>Features</h3>
+<p>
+  Equalizer 0.1.0 is the first official release of this framework. It is
+  intended as an early preview and evaluation snapshot for application
+  developers and other interested parties. A detailed feature list can be found
+  in the new features section below. The major features of Equalizer are:
+</p>
+
+<ul>
+  <li><b>Runtime Configurability:</b> An Equalizer application can run on any
+    configuration, from laptops to large scale visualization clusters, without
+    recompilation. The runtime configuration is externalized from the
+    application to a systemwide resource server.</li>
+  <li><b>Distributed Execution:</b> Equalizer applications can be written to
+    support cluster-based execution. The task of distributing the application
+    data is facilitated by support for versioned, distributed objects.</li>
+  <li><b>Support for Stereo and Immersive Environments:</b> Equalizer supports
+    both active and passive stereo rendering, as well as the head tracking
+    needed for immersive installations.</li>
+</ul>
+
+<h3>New in this release</h3>
+
+<h4>New Features</h4>
+<ul>
+  <li>Support for parallel rendering on distributed memory and shared memory
+    systems</li>
+  <li>Support for active and passive stereo rendering</li>
+  <li>Support for scalable passive stereo rendering using two threads and two
+    GPU's</li>
+  <li>Support for head tracking</li>
+  <li>Software-based swapbarrier support for synchronization of multipipe
+    display systems</li>
+  <li>Platform support as listed below</li>
+</ul>
+<h4>Bug Fixes</h4>
+<p>
+  Being the first version, there are no bug fixes from the previous release.
+</p>
+<h4>New Documentation</h4>
+<p>
+  Documentation for this initial release is described below.
+</p>
+<h3>Supported Platforms</h3>
+<p>
+  The platforms supported below are the primary development platforms. Equalizer
+  is designed to run on a variety of platforms, but the initial support is
+  limited.
+</p>
+<h4>Operating System Support</h4>
+<ul>
+  <li><b>Linux:</b> SuSE 10.1 (x86_64, i386), SLES 10.0 (ia64), Ubuntu 6.06
+    (i386)</li>
+  <li><b>Mac OS X:</b> 10.4 (PowerPC, i386)</li>
+</ul>
+<h4>Window System Support</h4>
+<ul>
+  <li><b>X11:</b> Full support for all implemented features, including event
+    handling</li>
+  <li><b>CGL:</b> Preliminary fullscreen support, no event handling support</li>
+</ul>
+<h3>Documentation</h3>
+<p>
+  Equalizer does not yet have a formal Users or Programmers Guide. The shipped
+  <code>eqPly</code> example provides a reference for developing or porting
+  applications. The <a href="doc_developer.html">Developer Documentation</a>
+  provides further design documents for specific features. The source code is
+  another option for further information.
+</p>
+<h3>Support</h3>
+<p>
+  Technical questions can be posted to the 
+  <a href="http://www.equalizergraphics.com/cgi-bin/mailman/listinfo/eq-dev">
+    Developer Mailing List</a>, or directly to
+  <a href="mailto:info@equalizergraphics.com?subject=Equalizer%20question">
+    info@equalizergraphics.com</a>.
+</p><p>
+  Commercial support, as well as software development and porting services are
+  available. Please contact 
+  <a href="mailto:info@equalizergraphics.com?subject=Equalizer%20support">
+    info@equalizergraphics.com</a> for
+  further information.
+</p>
+
+#include "footer.shtml"
+
+
+
