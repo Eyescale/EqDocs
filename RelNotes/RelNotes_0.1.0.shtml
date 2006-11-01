@@ -1,6 +1,8 @@
 
-#define S_RELNOTES
-#define PAGE Release Notes Version 0.1
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_RELNOTES
+#define PAGE Release Notes
+#define SUBPAGE Version 0.1
 
 #include "header.shtml"
 
@@ -9,9 +11,8 @@
   Welcome to Equalizer 0.1, a framework for the development and
   deployment of scalable multipipe applications, based on C++ and OpenGL.
 </p><p>
-  Equalizer 0.1 is the first official release. It is intended as an early
-  preview and evaluation snapshot for application developers and other
-  interested parties.
+  Equalizer 0.1 is the first official release. It is intended as preview and
+  evaluation snapshot for application developers and early adopters.
 </p>
 
 <h3>Features</h3>
