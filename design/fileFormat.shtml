@@ -34,13 +34,13 @@ global
      EQ_CONNECTION_TCPIP_PORT            unsigned
      EQ_CONNECTION_LAUNCH_TIMEOUT        unsigned
      EQ_CONNECTION_LAUNCH_COMMAND        string
+     EQ_CONFIG_FATTR_EYE_BASE            float
      EQ_WINDOW_IATTR_HINTS_STEREO        off | on | auto
      EQ_WINDOW_IATTR_HINTS_DOUBLEBUFFER  off | on | auto
      EQ_WINDOW_IATTR_PLANES_COLOR        unsigned
      EQ_WINDOW_IATTR_PLANES_ALPHA        unsigned
      EQ_WINDOW_IATTR_PLANES_DEPTH        unsigned
      EQ_WINDOW_IATTR_PLANES_STENCIL      unsigned
-     EQ_CONFIG_FATTR_EYE_BASE            float
      EQ_WINDOW_IATTR_HINTS_FULLSCREEN    off | on | auto
      EQ_WINDOW_IATTR_HINTS_DECORATION    off | on | auto
 }
