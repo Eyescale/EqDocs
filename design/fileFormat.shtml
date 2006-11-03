@@ -25,6 +25,14 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   coordinates and the eye base, as well as the head matrix supplied
   programmatically.
 </p>
+<p>
+  Global values have useful default parameters, which can be overriden with
+  environment variables of the same name. For enumeration values,
+  e.g. <code>EQ_WINDOW_IATTR_PLANES_COLOR</code>, the corresponding integer
+  value has to be used. The global values in the config file override these
+  defaults, and are in turn overriden by the corresponding attributes sections
+  of the associated entities.
+</p>
 
  <p><pre>
 global
