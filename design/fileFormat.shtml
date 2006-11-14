@@ -18,7 +18,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   changes to the file format. The actual implementation may differ slightly from
   this specification, but we try to keep it up to date. The loader
   implementation is the reference for the file format, look
-  at <code>src/server/loader.y</code>, if you speak lex/yacc.
+  at <code>src/server/loader.y</code>, if you understand lex/yacc code.
 </p>
 <p>
   All Equalizer units are in meters. This applies currently to the wall
