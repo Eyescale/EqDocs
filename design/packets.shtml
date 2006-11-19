@@ -39,16 +39,27 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   connects, he calls <code>handleConnect</code>, which accepts the connection,
   creates a new Node and adds this connected node to the set of
   connections. Nodes send each other <code>Packet</code>s. The receiving node
-  reads the packet from the connection and calls <code>dispatchPacket</code>.
+  reads the packet from the connection and calls <code>dispatchCommand</code>.
+</p>
+<h3>Commands</h3>
+<p>
+  Packets read by the node are wrapped in a <code>Command</code>, which holds
+  the packet and node. The <code>Command</code> manages the ownership of the
+  packet and provides convenience functions to access the packet. The ownership
+  management is a lightweight mechanism similar to reference counting, except
+  that the allocated packet can be transferred from one command to another,
+  which is used when the packets are not handled immediately (see redispatch and
+  push cases below). This mechanism allows reuse of handled commands, and avoids
+  copies when the command will be handled later.
 </p>
 <h3>The eqNet Base Class</h3>
 <p>
   <code>eqNet::Base</code> provides packet dispatching using a command handler
   table. During construction, sub classes provide command handlers for each
   command using <code>registerCommand</code>. The method
-  <code>handleCommand</code> calls the registered command handler for the
+  <code>invokeCommand</code> calls the registered command handler for the
   provided packet. The command handler may return one of the following command
-  result codes, which is returned by <code>handleCommand</code>:
+  result codes, which is returned by <code>invokeCommand</code>:
   <dl>
     <dt>COMMAND_HANDLED</dt><dd>The command was handled correctly.</dd>
     <dt>COMMAND_REDISPATCH</dt><dd>The command can not be handled at the moment,
@@ -66,7 +77,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 <h3>Node Packet Dispatch</h3>
 <p>
   Depending on the packet's data type, <code>dispatchPacket</code> decides how
-  the packet is handled. For node packets, <code>handleCommand</code> is
+  the packet is handled. For node packets, <code>invokeCommand</code> is
   called. The result is handled accordingly, that is, COMMAND_REDISPATCH causes
   the packet to be added to the list of redispatch packets, and for COMMAND_PUSH
   and COMMAND_PUSH_FRONT <code>pushCommand</code> or
@@ -74,9 +85,9 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   <code>Session</code> and <code>Object</code> packets, 
   <code>Session::dispatchPacket</code> is invoked. The session is identified by
   the sessionID contained in the <code>SessionPacket</code>. For all other data
-  types, <code>handlePacket</code> is called.
+  types, <code>handleCommand</code> is called.
 </p><p>
-  Any command handler called directly or indirectly
+  <B>Note:</b> Any command handler called directly or indirectly
   from <code>dispatchPacket</code> is not allowed to block, since it is executed
   from within the receiver thread and would therefore block the packet handling.
 </p>
@@ -84,9 +95,9 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 <p>
   The <code>Session</code> inherits, like the node, from 
   <code>eqNet::Base</code>. The session dispatch works similar to the node
-  dispatch. For session packets, <code>handleCommand</code> is called, and the
+  dispatch. For session packets, <code>invokeCommand</code> is called, and the
   result is returned to the node, which handles it accordingly. For object
-  packets, <code>Object::handleCommand</code> is called and the result is
+  packets, <code>Object::invokeCommand</code> is called and the result is
   returned. The object is retrieved using the objectID, and possibly instanceID,
   contained in the <code>ObjectPacket</code>.
 </p>
@@ -94,7 +105,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 <p>
   Several commands for Equalizer entities, for example window initialisation
   requests, have to be handled by another thread. A
-  thread-safe <code>RequestQueue</code> is used to transfer the packet from the
+  thread-safe <code>CommandQueue</code> is used to transfer the packet from the
   receiver to the consumer thread. This is either done by a special command
   handler, or by overriding <code>Node::pushCommand</code>
   or <code>Node::pushCommandFront</code>, depending on the object, command and
