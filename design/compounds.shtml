@@ -45,8 +45,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
       compound children.</li>
   <li>frame: a collection of images belonging to the same framebuffer (as
       in OpenGL)</li>
-  <li>image: a 2D array of pixels with a type and format, typically
-      originating from the color, depth, or stencil buffer.</li>
+  <li>image: a set of 2D arrays of pixels with a type and format, corresponding
+    to the color, depth, or stencil framebuffer.</li>
   <li>channel: A viewport on a drawable, the basic rendering unit in 
       Equalizer.</li>
  </ul>
@@ -188,7 +188,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         inherited. Default is period 1, phase 0. All channels on the same
         pipe should/must(?) have the same period and phase. Phase must be
         smaller than period.</li>
-    <li>format: Bitwise combination of color, depth and stencil. Defines
+    <li>buffer: Bitwise combination of color, depth and stencil. Defines
         which images are read during output. Default is color.</li>
     <li>attributes: (color,depth,stencil)x(format,type): Format and type (as in
         OpenGL) to be used for reading or writing the corresponding
@@ -206,7 +206,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
    input and output objects with the same name are connected. IO entities
    can therefore not be shared between disjunct compound trees. Compound trees
    can be joined by a common parent compound, if entities are to be shared.
-   Cached FrameBuffers and Images are disposed during compound exit.
+   Cached FrameDatas and Images are disposed during compound exit.
   </p><p>
    The default names are set during the adding of the object to the compound,
    if the object's name is empty. The default name
@@ -257,7 +257,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
        channel "channel-name"
        task    [ CLEAR CULL DRAW ASSEMBLE READBACK ]
        [frustum-spec]
-       format  [ COLOR DEPTH STENCIL ]
+       buffer  [ COLOR DEPTH STENCIL ]
 
        attributes
        {
@@ -283,7 +283,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
        (outputframe|inputframe) 
        {
            name     "frame-name"  // default see 'Input and Output'
-           format   [ COLOR DEPTH STENCIL ]
+           buffer   [ COLOR DEPTH STENCIL ]
            viewport [ x y w h ]
            eye      [ CYCLOP LEFT RIGHT ]
        }
@@ -304,7 +304,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
     compound {
         channel "destination"
-        format [ COLOR DEPTH ]
+        buffer [ COLOR DEPTH ]
         
         compound {
             channel "buffer"
@@ -405,7 +405,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
     compound {
         channel "dest"
-        format [ COLOR DEPTH ]
+        buffer [ COLOR DEPTH ]
         
         compound {
             channel "buffer1"
@@ -418,7 +418,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             }
             inputframe { name "frame2.buffer2" }
             inputframe { name "frame2.dest" }
-            outputframe { format [ COLOR ] viewport [ 0 .66 1 .34 ] }
+            outputframe { buffer [ COLOR ] viewport [ 0 .66 1 .34 ] }
         }
         compound {
             channel "buffer2"
@@ -431,7 +431,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             }
             inputframe { name "frame2.buffer1" }
             inputframe { name "frame1.dest" }
-            outputframe { format [ COLOR ] viewport [ 0 .33 1 .33 ] }
+            outputframe { buffer [ COLOR ] viewport [ 0 .33 1 .33 ] }
         }
         compound {
             channel "dest"
@@ -456,7 +456,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
     compound {
         channel "dest"
-        format [ COLOR DEPTH ]
+        buffer [ COLOR DEPTH ]
         
         compound {
             channel "buffer1"
@@ -472,7 +472,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
                 outputframe { name "frame2.buffer1" viewport [ 0 .5 1 .25 ] }
             }
             inputframe { name "frame2.buffer3" }
-            outputframe { format [ COLOR ] viewport [ 0 .75 1 .25 ] } 
+            outputframe { buffer [ COLOR ] viewport [ 0 .75 1 .25 ] } 
         }
         compound {
             channel "buffer2"
@@ -488,7 +488,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
                 outputframe { name "frame2.buffer2" viewport [ 0 0 1 .25 ] }
             }
             inputframe { name "frame2.dest" }
-            outputframe { format [ COLOR ] viewport [ 0 .25 1 .25 ] }
+            outputframe { buffer [ COLOR ] viewport [ 0 .25 1 .25 ] }
         }
         compound {
             channel "buffer3"
@@ -504,7 +504,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
                 outputframe { name "frame2.buffer3" viewport [ 0 .75 1 .25 ] }
             }
             inputframe { name "frame2.buffer1" {}
-            outputframe { format [ COLOR ] viewport [ 0 .5 1 .25 ] }
+            outputframe { buffer [ COLOR ] viewport [ 0 .5 1 .25 ] }
             
         }
         compound {
@@ -573,3 +573,4 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </pre></p>
 
 #include "footer.shtml"
+<!-- $Id:$ -->

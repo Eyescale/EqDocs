@@ -110,7 +110,7 @@ server
             name     string
             channel  string   // where the compound's tasks are executed
             task     [ CLEAR DRAW READBACK ] // ASSEMBLE CULL later
-            format   [ COLOR DEPTH ]         // default COLOR
+            buffer   [ COLOR DEPTH ]         // default COLOR
             viewport [ viewport ]            // wrt parent compound, sort-first
             range    [ float float ]         // DB-range for sort-last
             eye      [ CYCLOP LEFT RIGHT ]   // monoscopic or stereo view
@@ -141,3 +141,4 @@ server
  </pre></p>
 
 #include "footer.shtml"
+<!-- $Id:$ -->
