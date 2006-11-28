@@ -145,9 +145,6 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   <li>compounds: This is not a task. The tasks for the direct child
      compounds are executed after CULL (DRAW is not executed on non-leaf
      compounds).</li>
-  <li>READBACK: Reads framebuffer contents. Uses eye, viewport and output
-     frames. By default, the task executes the readback unordered and
-     potentially pipelined or in parallel.</li>
   <li>ASSEMBLE: Assembles input frames. Uses input frames. Derives eye and
      viewport from output frames associated with input frames. By
      default, the task executes the assembly unordered and potentially
@@ -158,6 +155,9 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
      used. [open]<br/>
      Ordering or CPU compositing is application-specific, and has to be
      implemented by the application by using a custom callback.</li>
+  <li>READBACK: Reads framebuffer contents. Uses eye, viewport and output
+     frames. By default, the task executes the readback unordered and
+     potentially pipelined or in parallel.</li>
   <li>SWAP: Is implicitely the last task on all double-buffered
      <em>windows</em>. This task will not be exposed in the API and config file
      right now.</li>
@@ -172,29 +172,30 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
    relative to the parent. The following attributes are defined:
    <ul>
     <li>task: non-inherited bitwise combination of tasks (see
-        above). DRAW is executed only on leaf compounds.Defaults to
-        [ CLEAR CULL DRAW ASSEMBLE READBACK ]<br>
-        Q: CULL not default for non-leaf compounds?</li>
+      above). DRAW is executed only on leaf compounds.Defaults to
+      [ CLEAR CULL DRAW ASSEMBLE READBACK ] for leaf compounds, and to
+      [ ASSEMBLE READBACK ] non-leaf compounds.<br>
+      Q: CULL not default for non-leaf compounds?</li>
     <li>viewport: 2D fractional viewport wrt to the parent in screen
-        space. Default is [0 0 1 1], i.e., the full viewport.</li>
+      space. Default is [0 0 1 1], i.e., the full viewport.</li>
     <li>range: 1D, application-dependent range of the data to be
-        rendered. Relative to the parent's range. Default is [0 1], i.e.,
-        the full database range.</li>
+      rendered. Relative to the parent's range. Default is [0 1], i.e.,
+      the full database range.</li>
     <li>eye: Bitwise combination of the eye views (and quad-stereo
-        buffer) to be rendered. Absolute, but inherited. Initially, left,
-        right and cyclop are defined. Support for autostereo displays may
-        introduce new 'eyes' and/or attributes. Default is cyclop.</li>
+      buffer) to be rendered. Absolute, but inherited. Initially, left,
+      right and cyclop are defined. Support for autostereo displays may
+      introduce new 'eyes' and/or attributes. Default is cyclop.</li>
     <li>period/phase: Frames to be rendered (DPlex). Absolute, but
-        inherited. Default is period 1, phase 0. All channels on the same
-        pipe should/must(?) have the same period and phase. Phase must be
-        smaller than period.</li>
+      inherited. Default is period 1, phase 0. All channels on the same
+      pipe should/must(?) have the same period and phase. Phase must be
+      smaller than period.</li>
     <li>buffer: Bitwise combination of color, depth and stencil. Defines
-        which images are read during output. Default is color.</li>
+      which images are read during output. Default is color.</li>
     <li>attributes: (color,depth,stencil)x(format,type): Format and type (as in
-        OpenGL) to be used for reading or writing the corresponding
-        images. Default is hardware-dependent, typically
-        (GL_RGBA GL_UNSIGNED_INT), (GL_DEPTH_COMPONENT GL_FLOAT),
-        (GL_STENCIL_INDEX ?)</li>
+      OpenGL) to be used for reading or writing the corresponding
+      images. Default is hardware-dependent, typically
+      (GL_RGBA GL_UNSIGNED_INT), (GL_DEPTH_COMPONENT GL_FLOAT),
+      (GL_STENCIL_INDEX ?)</li>
    </ul>
   </p>
   
@@ -409,10 +410,9 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         
         compound {
             channel "buffer1"
-            range [ 0 .3333 ]
 
             compound {
-                task [ READBACK ]
+                range [ 0 .3333 ]
                 outputframe { name "frame1.buffer1" viewport [ 0 0   1 .33 ] }
                 outputframe { name "frame2.buffer1" viewport [ 0 .33 1 .33 ] }
             }
@@ -422,10 +422,9 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         }
         compound {
             channel "buffer2"
-            range [ .3333 .6666 ]
 
             compound {
-                task [ READBACK ]
+                range [ .3333 .6666 ]
                 outputframe { name "frame1.buffer2" viewport [0  0   1 .33 ] }
                 outputframe { name "frame2.buffer2" viewport [0  .66 1 .34 ] }
             }
@@ -435,14 +434,10 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         }
         compound {
             channel "dest"
-            task    [ CULL DRAW ]
             range   [ .6666 1 ]
 
-            compound {
-                task [ READBACK ]
-                outputframe { name "frame1.dest" viewport [ 0 .33 1 .33 ] }
-                outputframe { name "frame2.dest" viewport [ 0 .66 1 .34 ] }
-            }
+            outputframe { name "frame1.dest" viewport [ 0 .33 1 .33 ] }
+            outputframe { name "frame2.dest" viewport [ 0 .66 1 .34 ] }
         }
 
         inputframe { name "frame1.buffer1" }
@@ -463,7 +458,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             range [ 0 .25 ]
 
             compound {
-                task [ READBACK ]
+                task [ CLEAR DRAW READBACK ]
                 outputframe { name "frame1.buffer1" viewport [ 0 0 1 .5 ] } 
             }
             compound {
@@ -479,7 +474,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             range [ .25 .5 ]
 
             compound {
-                task [ READBACK ]
+                task [ CLEAR DRAW READBACK ]
                 outputframe { name "frame1.buffer2" viewport [ .5 0 .5 1 ] }
             }
             compound {
@@ -495,7 +490,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             range [ .5 .75 ]
 
             compound {
-                task [ READBACK ]
+                task [ CLEAR DRAW READBACK ]
                 outputframe { name "frame1.buffer3" viewport [ 0 0 1 .5 ] } 
             }
             compound {
@@ -509,11 +504,10 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         }
         compound {
             channel "dest"
-            task    [ CULL DRAW ]
             range [ .75 1 ]
 
             compound {
-                task [ READBACK ]
+                task [ CLEAR DRAW READBACK ]
                 outputframe { name "frame1.dest" viewport [ .5 0 .5 1 ] } 
             }
             compound {
@@ -573,4 +567,4 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </pre></p>
 
 #include "footer.shtml"
-<!-- $Id:$ -->
+<!-- $Id$ -->
