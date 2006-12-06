@@ -43,14 +43,15 @@ global
      EQ_CONNECTION_IATTR_TCPIP_PORT      unsigned
      EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT  unsigned
      EQ_CONFIG_FATTR_EYE_BASE            float
-     EQ_WINDOW_IATTR_HINTS_STEREO        off | on | auto
-     EQ_WINDOW_IATTR_HINTS_DOUBLEBUFFER  off | on | auto
+     EQ_WINDOW_IATTR_HINT_STEREO         off | on | auto
+     EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER   off | on | auto
+     EQ_WINDOW_IATTR_HINT_DECORATION     off | on
+     EQ_WINDOW_IATTR_HINT_FULLSCREEN     off | on
      EQ_WINDOW_IATTR_PLANES_COLOR        unsigned
      EQ_WINDOW_IATTR_PLANES_ALPHA        unsigned
      EQ_WINDOW_IATTR_PLANES_DEPTH        unsigned
      EQ_WINDOW_IATTR_PLANES_STENCIL      unsigned
-     EQ_WINDOW_IATTR_HINTS_FULLSCREEN    off | on | auto
-     EQ_WINDOW_IATTR_HINTS_DECORATION    off | on | auto
+     EQ_CHANNEL_IATTR_HINT_STATISTICS    off | fastest [on] | nicest
 }
 server
 {
@@ -61,8 +62,9 @@ server
         {
              eye_base float // distance between eyes
         }
+
         (node|appNode) // 1-n times, a system in the cluster
-                       // appNode launches render thread within app process
+                       // 0|1 appNode: launches render thread within app process
         {
             connection // 0-n times, possible connections to this node
             {
@@ -78,29 +80,29 @@ server
                 viewport [ viewport ] // default: autodetect
                 window
                 {
-                    attributes
-                    {
-                        hints
-                        {
-                            stereo         off | on | auto
-                            doublebuffer   off | on | auto
-                            decoration     off | on | auto
-                            fullscreen     off | on | auto
-                        }
-                        planes
-                        {
-                            color     unsigned
-                            alpha     unsigned
-                            depth     unsigned
-                            stencil   unsigned
-                        }
-                    }
                     name     string
                     viewport [ viewport ] // wrt pipe, default full screen
+
+                    attributes
+                    {
+                        hint_stereo         off | on | auto
+                        hint_doublebuffer   off | on | auto
+                        hint_decoration     off | on | auto
+                        hint_fullscreen     off | on | auto
+                        planes_color        unsigned
+                        planes_alpha        unsigned
+                        planes_depth        unsigned
+                        planes_stencil      unsigned
+                    }
                     channel // 1-n times
                     {
                         name     string
                         viewport [ viewport ] //wrt window, default full window
+
+                        attributes
+                        {
+                            hint_statistics     off | fastest [on] | nicest
+                        }
                     }
                 }
             }
@@ -141,4 +143,4 @@ server
  </pre></p>
 
 #include "footer.shtml"
-<!-- $Id:$ -->
+<!-- $Id$ -->

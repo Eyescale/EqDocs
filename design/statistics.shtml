@@ -1,0 +1,88 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developers: Statistics
+
+#include "header.shtml"
+
+<h2>Statistics Interface</h2>
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+</p>
+
+<p>
+  This document describes the first evolution of the statistics interface. With
+  new requirements, for example load balancing, this interface will evolve much
+  further.
+</p>
+
+<h3>Specification</h3>
+<p>
+  Statistics are measured per frame. A new statistics clock is started with the
+  receiption of the pipe update packet by the receiver thread, so that all node
+  clocks start at approximately the same time. At this time the pipe thread may
+  be rendering another frame, hence a per-frame clock is used.
+</p>
+<p>
+  Statistics are enabled per entity using an attribute hint. The hint determines
+  how precise the gathered statistics are. When set to fastest, the per-frame
+  clock is sampled at the appropriate times. When set to nicest, all OpenGL
+  commands will be finished before sampling certain events, which incurs a
+  performance penalty. The default setting is fastest. The gathered events are
+  pushed to the pipe's event queue. The pipe sends all gathered
+  events to the server as part of the frame sync reply packet, clears the events
+  and recycles the clock. At the time of writing, only channel events are
+  implemented.
+</p>
+
+<h3>File Format</h3>
+<p><pre>
+global
+{
+     EQ_CHANNEL_IATTR_HINTS_STATISTICS    off | fastest [on] | nicest
+}
+channel
+{
+    attributes
+    {
+        hints
+        {
+            statistics     off | fastest [on] | nicest
+        }
+    }
+}
+</pre></p>
+
+<h3>Programming Interface</h3>
+<h4>New Types</h4>
+<p><pre>
+struct StatEvent 
+{
+public:
+    enum Type
+    {
+        CHANNEL_CLEAR,
+        CHANNEL_DRAW,
+        CHANNEL_ASSEMBLE,
+        CHANNEL_READBACK,
+        CHANNEL_TRANSMIT,
+        CHANNEL_COMPRESS,
+        TYPE_ALL          // must be last
+    };
+
+    Type     type;
+    uint32_t objectType;
+    uint32_t objectID;
+    float    startTime;
+    float    endTime;
+};
+</pre></p>
+
+<h4>New Functions</h4>
+<p><pre>
+float Pipe::getFrameTime() const;
+void  Pipe::addStatEvent( const StatEvent& event );
+</pre></p>
+
+#include "footer.shtml"
+<!-- $Id$ -->
