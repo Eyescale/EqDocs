@@ -18,10 +18,11 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
 <h3>Specification</h3>
 <p>
-  Statistics are measured per frame. A new statistics clock is started with the
-  receiption of the pipe update packet by the receiver thread, so that all node
-  clocks start at approximately the same time. At this time the pipe thread may
-  be rendering another frame, hence a per-frame clock is used.
+  Statistics are measured per frame, in milliseconds since the frame started. A
+  new statistics clock is started with the receiption of the pipe update packet
+  by the receiver thread, so that all node clocks start at approximately the
+  same time. At this time the pipe thread may be rendering another frame, hence
+  one clock per frame is used.
 </p>
 <p>
   Statistics are enabled per entity using an attribute hint. The hint determines

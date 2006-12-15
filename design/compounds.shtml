@@ -179,7 +179,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
    relative to the parent. The following attributes are defined:
    <ul>
     <li>task: non-inherited bitwise combination of tasks (see
-      above). DRAW is executed only on leaf compounds.Defaults to
+      above). DRAW is executed only on leaf compounds. Defaults to
       [ CLEAR CULL DRAW ASSEMBLE READBACK ] for leaf compounds, and to
       [ ASSEMBLE READBACK ] non-leaf compounds.<br>
       Q: CULL not default for non-leaf compounds?</li>

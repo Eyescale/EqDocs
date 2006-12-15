@@ -1,0 +1,109 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_RELNOTES
+#define PAGE Release Notes
+#define SUBPAGE Version 0.2
+
+#include "header.shtml"
+
+<h2>Release Notes for Equalizer 0.2</h2>
+<p>
+  Welcome to Equalizer 0.2, a framework for the development and
+  deployment of scalable multipipe applications, based on C++ and
+  OpenGL. The major new feature in Equalizer 0.2 is support for scalable
+  rendering.
+</p><p>
+  Equalizer 0.2 is a beta release, and therefore intended as preview and
+  evaluation snapshot for application developers and early adopters.
+</p>
+
+<h3>Features</h3>
+<p>
+  Equalizer provides the following major features to facilitate the development
+  and deployment of multipipe applications:
+</p>
+<ul>
+  <li><b>Runtime Configurability:</b> An Equalizer application can run on any
+    configuration, from laptops to large scale visualization clusters, without
+    recompilation. The runtime configuration is externalized from the
+    application to a systemwide resource server.</li>
+  <li><b>Runtime Scalability:</b> An Equalizer application can use multiple
+    CPU's, GPU's and computers to scale the rendering performance of a single
+    view.</li>
+  <li><b>Distributed Execution:</b> Equalizer applications can be written to
+    support cluster-based execution. The task of distributing the application
+    data is facilitated by support for versioned, distributed objects.</li>
+  <li><b>Support for Stereo and Immersive Environments:</b> Equalizer supports
+    both active and passive stereo rendering, as well as the head tracking
+    needed for immersive installations.</li>
+</ul>
+
+<h3>New in this release</h3>
+<p>
+  The following features, bug fixes and documentation changes where introduced
+  in this release:
+</p>
+<h4>New Features</h4>
+<ul>
+  <li>Sort-first, sort-last and eye-pass task decomposition.</li>
+  <li>Tile-based reassembly for sort-first and eye-pass recomposition.</li>
+  <li>Flexible recomposition engine for parallel compositing,
+    including, but not limited to, direct send and binary swap.</li>
+  <li>Fast image compression for network transfers based on a modified RLE
+    algorithm.</li>
+  <li>Z-based compositing of polygonal data and support for ordered alpha-based
+    compositing of volumetric data</li>
+  <li>Initial implementation of a statistics API.</li>
+</ul>
+<h4>Bug Fixes</h4>
+<p>
+  Equalizer 0.2 includes various minor bugfixes over the previous release.
+</p>
+<h4>New Documentation</h4>
+<p>
+<ul>
+  <li><a href="documents/design/statistics.html">Statistics 
+      specification</a></li>
+</ul>
+</p>
+<h3>Supported Platforms</h3>
+<p>
+  The platforms supported below are the primary development platforms. Equalizer
+  is designed to run on a variety of platforms, including all Unix variants and
+  the Windows operating system. Equalizer 0.2 supports:
+</p>
+<h4>Operating System Support</h4>
+<ul>
+  <li><b>Linux:</b> SuSE Linux 10 (x86_64, i386), SLES 9.0 (ia64), Ubuntu 6.06
+    (i386)</li>
+  <li><b>Mac OS X:</b> 10.4 (PowerPC, i386)</li>
+</ul>
+<h4>Window System Support</h4>
+<ul>
+  <li><b>X11:</b> Full support for all implemented features.</li>
+  <li><b>CGL:</b> Preliminary fullscreen support, no event handling support</li>
+</ul>
+<h3>Documentation</h3>
+<p>
+  Equalizer does not yet have a formal Users or Programmers Guide. The shipped
+  <code>eqPly</code> example provides a reference for developing or porting
+  applications. The <a href="doc_developer.html">Developer Documentation</a>
+  on the website provides further design documents for specific features. The
+  source code is a last resort for information.
+</p>
+<h3>Support</h3>
+<p>
+  Technical questions can be posted to the 
+  <a href="http://www.equalizergraphics.com/cgi-bin/mailman/listinfo/eq-dev">
+    Developer Mailing List</a>, or directly to
+  <a href="mailto:info@equalizergraphics.com?subject=Equalizer%20question">
+    info@equalizergraphics.com</a>.
+</p><p>
+  Commercial support, feature requests, as well as software development and
+  porting services are available. Please contact
+  <a href="mailto:info@equalizergraphics.com?subject=Equalizer%20support">
+    info@equalizergraphics.com</a> for
+  further information.
+</p>
+
+#include "footer.shtml"
+<!-- $Id: RelNotes_0.2.0.shtml 573 2006-11-23 18:35:22Z eile $ -->
