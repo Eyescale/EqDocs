@@ -1,0 +1,75 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE Compound Load Balancing
+
+#include "header.shtml"
+
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+</p>
+
+<p>
+</p>
+
+<h3>Specification</h3>
+<p>
+  Use rendering times from last finished frame.
+</p><p>
+  Only one of viewport or range can be balanced.
+</p><p>
+  Load-balance a) equal distribution or b) equal finish of all children? 
+  b) seems to be the right goal.
+</p><p> 
+  Assume frame will take the same time as the last finished frame, i.e. 
+  sum( channel end time - channel start time ).
+</p><p>
+  If some use fixed viewport or range, auto applies to minimal rectangular area
+  of one sub-range which covers all 'free' areas. Note that this can cause
+  unnecessary overlap. Maybe not in first version.
+</p><p>
+  Generate 2D load grid. Data per cell: viewport, load per square unit. Split
+  existing cells as necessary when adding new, overlapping data. Cells are never
+  overlapping. Default cell has full(-fixed) viewport with load 0.
+</p><p>
+  Each channel has a time budget for the next frame. Time budget is derived from
+  the frame time and the 'early finished time' of this channel. 
+  T_c = T_c_early + T_remaining/n_channels
+  T_remaining = max( 0, T_frame - sum( T_c_early )
+</p><p>
+  Load-balancing approach is:
+  Compute total work = sum( cell vp * load ). If total work is 0 set all cell's
+  load to 1 and recompute (initial state).
+  Normalize load so total work = frame time, i.e. each cell's load is now
+  estimated time needed to render the cell.
+  Generate/get two-dimensional kd-split-tree of all children. Tree node content
+  is T_node = T_node_left + T_node_right for non-leafs or T_node = T_c for
+  leafs.
+  Find split position of node by iterating over cell list, where sum(
+  load cell ) == T_node. Generate two new cell lists for left and right subtree
+  while finding the position. Repeat until leaf reached. Compute VP/range for
+  each leaf from cell list of leaf node.
+</p>
+
+<h3>File Format</h3>
+<p><pre>
+compound
+{
+    split    split-spec ?
+    viewport [ (x y w h) | auto ]
+    range    [ (x y w h) | auto ]
+}
+</pre></p>
+
+<h3>Programming Interface</h3>
+<h4>New Types</h4>
+<p><pre>
+</pre></p>
+
+<h4>New Functions</h4>
+<p><pre>
+</pre></p>
+
+#include "footer.shtml"
+<!-- $Id$ -->

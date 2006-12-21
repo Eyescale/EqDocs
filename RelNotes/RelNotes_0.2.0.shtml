@@ -1,11 +1,10 @@
 #define S_DOCUMENTATION
 #define S_DOCUMENTATION_RELNOTES
 #define PAGE Release Notes
-#define SUBPAGE Version 0.2
+#define SUBPAGE Release Notes for Equalizer 0.2
 
 #include "header.shtml"
 
-<h2>Release Notes for Equalizer 0.2</h2>
 <p>
   Welcome to Equalizer 0.2, a framework for the development and
   deployment of scalable multipipe applications, based on C++ and
@@ -44,14 +43,16 @@
 </p>
 <h4>New Features</h4>
 <ul>
-  <li>Sort-first, sort-last and eye-pass task decomposition.</li>
+  <li>Sort-first (2D), sort-last (DB) and eye task decomposition.</li>
   <li>Tile-based reassembly for sort-first and eye-pass recomposition.</li>
   <li>Flexible recomposition engine for parallel compositing,
-    including, but not limited to, direct send and binary swap.</li>
+    including, but not limited to, direct send and binary swap sort-last
+    compositing.</li>
   <li>Fast image compression for network transfers based on a modified RLE
     algorithm.</li>
-  <li>Z-based compositing of polygonal data and support for ordered alpha-based
-    compositing of volumetric data</li>
+  <li>Z-based sort-last compositing of polygonal data.</li>
+  <li>Support for ordered alpha-based compositing of volumetric data.</li>
+  <li>Support for dynamic near/far planes.</li>
   <li>Initial implementation of a statistics API.</li>
 </ul>
 <h4>Bug Fixes</h4>

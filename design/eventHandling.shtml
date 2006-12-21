@@ -1,11 +1,11 @@
 #define S_DOCUMENTATION
 #define S_DOCUMENTATION_DEVELOPER
 #define PAGE Documentation
-#define SUBPAGE Developers: Event Handling
+#define SUBPAGE Developer
+#define TITLE Event Handling
 
 #include "header.shtml"
 
-<h2>Event Handling</h2>
 <p>
 Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
@@ -47,4 +47,4 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 #include "footer.shtml"
-<!-- $Id:$ -->
+<!-- $Id$ -->

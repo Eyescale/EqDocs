@@ -1,11 +1,10 @@
 #define S_DOCUMENTATION
 #define S_DOCUMENTATION_RELNOTES
 #define PAGE Release Notes
-#define SUBPAGE Version 0.1
+#define SUBPAGE Release Notes for Equalizer 0.1
 
 #include "header.shtml"
 
-<h2>Release Notes for Equalizer 0.1</h2>
 <p>
   Welcome to Equalizer 0.1, a framework for the development and
   deployment of scalable multipipe applications, based on C++ and OpenGL.
@@ -99,4 +98,4 @@
 </p>
 
 #include "footer.shtml"
-<!-- $Id:$ -->
+<!-- $Id$ -->
