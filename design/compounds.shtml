@@ -208,6 +208,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   
   <a name="IO"/>
   <h4>Input and Output</h4>
+  <a name="swapbarrier"></a>
   <p>
    Certain tasks generate input and output. Right now, this can be
    queues for culling and frames for gathering. During compound initialisation,
