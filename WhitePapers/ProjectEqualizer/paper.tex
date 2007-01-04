@@ -54,7 +54,7 @@ Equalizer is a project to develop software to simplify the creation of scalable
 graphics applications and to improve the usability of multipipe
 visualization systems. The main components of Equalizer are a resource
 server, which controls the visualization system's configuration, a
-client side library for the development of scalable graphics software, a
+client-side library for the development of scalable graphics software, a
 transparent software layer to execute unmodified applications alongside
 with scalable applications, as well as remote visualization
 capabilities. Equalizer is designed to support all kinds of
@@ -78,6 +78,7 @@ looking for contributions or founding for several components of Equalizer.
 \hline
 \bf Version & \bf Date & \bf Changes \\
 \hline
+0.3         & January 4, 2007 & update status wrt 0.2 release, some rewording\\
 0.2         & October 5, 2006 & update status\\
 0.1         & July 5, 2006    & initial draft\\
 \hline
@@ -94,14 +95,15 @@ approaches to parallel rendering. Transparent solutions offer an easy
 solution for applications which cannot or need not to be modified, but
 are limited in performance and compatibility. Distributed
 scene graphs offer better performance, but require the application
-to use a certain scene graph. The third approach, a parallel rendering
-framework offers a generic API for the development of parallel, scalable
-graphics applications.
+to use a certain scene graph and are therefore relatively invasive. The
+third approach, a parallel rendering framework offers a minimally
+invasive approach for the development of parallel, scalable graphics
+applications.
 
 Today we have satisfying, though often proprietary, solutions for the
 transparent approach\footnote{e.g., Chromium from Stanford University,
 VGP from ModViz, SVN from IBM}. Distributed scene graphs are beginning
-to emerge\footnote{e.g., ScaleViz from Mercury Computer Systems} as
+to emerge\footnote{e.g., OpenSG, ScaleViz from Mercury Computer Systems} as
 well. There is currently no general programming framework to create
 parallel graphics applications. Furthermore, all existing solutions are
 'islands', that is, they are configured separately and do possibly
@@ -133,7 +135,9 @@ cluster or a multipipe shared memory visualization server.
 \subsection{Development Model}
 
 The Equalizer development is conducted in an open way. It is licensed
-under the LGPL open source license. Contributing parties, such as
+under the LGPL open source license, allowing the creation of commercial
+and open source applications using the framework, while ensuring a
+healthy community around the project. Contributing parties, such as
 hardware vendors, software developers and end users, have the following
 benefits from contributing to the project:
 
@@ -157,7 +161,7 @@ benefits from contributing to the project:
   automatically.
 \item[Reduced Development Risk] The open source license of Equalizer is
   the guarantee for software developers that the product will be
-  available indefinitely. Critical features or bugs, in case they are
+  available 'forever'. Critical features or bugs, in the event that they are
   not addressed by the maintainers, can still be addressed internally.
 \end{description}
 
@@ -166,13 +170,14 @@ benefits from contributing to the project:
 The programming framework is the main contribution of the
 Equalizer project. It addresses common problems when creating parallel
 graphics applications, and thus facilitates the development of scalable
-multipipe rendering software. It addresses the process creation and
-synchronization, rendering task distribution, data transport, and the
-composition of the rendering results. The software developer plugs the
-application's rendering code into the framework. The Equalizer server
-deploys this rendering code according to the system's configuration and
-load. The programming framework is the client library to the Equalizer
-server, as well as the header files for this library.
+multipipe rendering software. Equalizer provides functionality in the
+area of process creation and synchronization, rendering task
+distribution, data transport, as well as the composition of the
+rendering results. The software developer plugs the application's
+rendering code into the framework. The Equalizer server deploys this
+rendering code according to the system's configuration and load. The
+programming framework is the client library to the Equalizer server, as
+well as the header files for this library.
 
 \subsection{Resource Management System}
 
@@ -233,17 +238,21 @@ can provide excellent performance.
 \section{Milestones}
 
 Much of the development of Equalizer is driven by the actual need of the
-users, which are at the moment the software developers. 
+users, which are at the moment the software developers. A current
+feature list can be found in \cite{Features}.
 
 Currently, the programming framework is usable for the development of
 commercial multipipe applications by an experienced OpenGL
-programmer. By the end of 2006, we will have implemented the core
-scalable rendering engine to show the benefits of scalable rendering on
-commodity graphics clusters.
+programmer. Version 0.2 added support for scalable rendering to show the
+benefits of scalable rendering on commodity graphics clusters and shared
+memory systems.
 
-The transparent layer will be developed in 2007. The founding for this
-effort is currently investigated. Interested parties are strongly
-encouraged to contact us with proposals.
+For 2007, the main areas we plan to address are the extension of the
+resource server for multi-application usage, general reliability and
+performance improvements, a Windows port, as well as the integration of
+a transparent layer. The founding for this effort is currently
+investigated. Interested parties are strongly encouraged to contact us
+with proposals.
 
 \subsection{Programming Framework}
 The core part of the Equalizer project is the programming framework and
@@ -251,7 +260,8 @@ resource server. Naturally, these two components are the first major
 milestone. Currently, they are usable to start the development of
 parallel graphics applications. Right now Equalizer supports multipipe
 rendering for display walls and immersive virtual reality installations,
-including stereo and head tracking.
+including stereo and head tracking, as well as a wide range of scalable
+rendering features.
 
 \subsection{Transparent Layer}
 The transparent layer is an important component, since it lowers the
