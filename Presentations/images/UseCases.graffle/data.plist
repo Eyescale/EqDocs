@@ -30,6 +30,36 @@
 	<key>GraphicsList</key>
 	<array>
 		<dict>
+			<key>Bounds</key>
+			<string>{{1729.14, 297.642}, {99.2102, 85.0371}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>ID</key>
+			<integer>667</integer>
+			<key>ImageID</key>
+			<integer>7</integer>
+			<key>Magnets</key>
+			<array>
+				<string>{0, 1}</string>
+				<string>{0, -1}</string>
+			</array>
+			<key>Shape</key>
+			<string>Rectangle</string>
+			<key>Style</key>
+			<dict>
+				<key>fill</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+			</dict>
+		</dict>
+		<dict>
 			<key>AllowLabelDrop</key>
 			<false/>
 			<key>Class</key>
@@ -88,7 +118,7 @@
 			<real>-1</real>
 			<key>Points</key>
 			<array>
-				<string>{710.23, 1268.5}</string>
+				<string>{710.23, 1268.51}</string>
 				<string>{680.314, 1417.32}</string>
 				<string>{347.244, 1374.8}</string>
 			</array>
@@ -205,7 +235,7 @@
 			<real>-1</real>
 			<key>Points</key>
 			<array>
-				<string>{710.23, 1225.98}</string>
+				<string>{710.23, 1225.99}</string>
 				<string>{680.314, 1077.17}</string>
 				<string>{347.244, 1119.69}</string>
 			</array>
@@ -968,9 +998,7 @@
 			<key>ID</key>
 			<integer>679</integer>
 			<key>ImageID</key>
-			<integer>15</integer>
-			<key>ManualSizeImage</key>
-			<string>YES</string>
+			<integer>39</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -992,9 +1020,7 @@
 			<key>ID</key>
 			<integer>678</integer>
 			<key>ImageID</key>
-			<integer>16</integer>
-			<key>ManualSizeImage</key>
-			<string>YES</string>
+			<integer>41</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -1162,9 +1188,7 @@
 			<key>ID</key>
 			<integer>676</integer>
 			<key>ImageID</key>
-			<integer>18</integer>
-			<key>ManualSizeImage</key>
-			<string>YES</string>
+			<integer>38</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -1465,43 +1489,13 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{1729.14, 297.642}, {99.2102, 85.0371}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>ID</key>
-			<integer>667</integer>
-			<key>ImageID</key>
-			<integer>7</integer>
-			<key>Magnets</key>
-			<array>
-				<string>{0, 1}</string>
-				<string>{0, -1}</string>
-			</array>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-		</dict>
-		<dict>
-			<key>Bounds</key>
 			<string>{{1729.14, 297.642}, {99.2102, 70.8645}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
 			<integer>666</integer>
 			<key>ImageID</key>
-			<integer>14</integer>
+			<integer>42</integer>
 			<key>Magnets</key>
 			<array>
 				<string>{0, 1}</string>
@@ -2573,7 +2567,7 @@
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>773</integer>
+					<integer>804</integer>
 					<key>ImageID</key>
 					<integer>7</integer>
 					<key>Magnets</key>
@@ -2608,7 +2602,7 @@
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>774</integer>
+					<integer>805</integer>
 					<key>ImageID</key>
 					<integer>19</integer>
 					<key>Magnets</key>
@@ -2658,7 +2652,7 @@
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>775</integer>
+					<integer>806</integer>
 					<key>ImageID</key>
 					<integer>19</integer>
 					<key>Magnets</key>
@@ -2708,7 +2702,7 @@
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>776</integer>
+					<integer>807</integer>
 					<key>ImageID</key>
 					<integer>19</integer>
 					<key>Magnets</key>
@@ -2758,7 +2752,7 @@
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>777</integer>
+					<integer>808</integer>
 					<key>ImageID</key>
 					<integer>19</integer>
 					<key>Magnets</key>
@@ -2808,9 +2802,9 @@
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>778</integer>
+					<integer>809</integer>
 					<key>ImageID</key>
-					<integer>14</integer>
+					<integer>47</integer>
 					<key>Magnets</key>
 					<array>
 						<string>{0, 1}</string>
@@ -2845,9 +2839,9 @@
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>779</integer>
+					<integer>810</integer>
 					<key>ImageID</key>
-					<integer>15</integer>
+					<integer>45</integer>
 					<key>Magnets</key>
 					<array>
 						<string>{0, 1}</string>
@@ -2872,9 +2866,9 @@
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>780</integer>
+					<integer>811</integer>
 					<key>ImageID</key>
-					<integer>16</integer>
+					<integer>46</integer>
 					<key>Magnets</key>
 					<array>
 						<string>{0, 1}</string>
@@ -2899,9 +2893,9 @@
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>781</integer>
+					<integer>812</integer>
 					<key>ImageID</key>
-					<integer>17</integer>
+					<integer>43</integer>
 					<key>Magnets</key>
 					<array>
 						<string>{0, 1}</string>
@@ -2926,9 +2920,9 @@
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>782</integer>
+					<integer>813</integer>
 					<key>ImageID</key>
-					<integer>18</integer>
+					<integer>44</integer>
 					<key>Magnets</key>
 					<array>
 						<string>{0, 1}</string>
@@ -2955,12 +2949,12 @@
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
-						<integer>777</integer>
+						<integer>808</integer>
 						<key>Info</key>
 						<integer>2</integer>
 					</dict>
 					<key>ID</key>
-					<integer>783</integer>
+					<integer>814</integer>
 					<key>Points</key>
 					<array>
 						<string>{1629.92, 1186.88}</string>
@@ -2981,7 +2975,7 @@
 					<key>Tail</key>
 					<dict>
 						<key>ID</key>
-						<integer>780</integer>
+						<integer>811</integer>
 						<key>Info</key>
 						<integer>1</integer>
 					</dict>
@@ -2992,10 +2986,10 @@
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
-						<integer>774</integer>
+						<integer>805</integer>
 					</dict>
 					<key>ID</key>
-					<integer>784</integer>
+					<integer>815</integer>
 					<key>Points</key>
 					<array>
 						<string>{1927.55, 1059.32}</string>
@@ -3016,7 +3010,7 @@
 					<key>Tail</key>
 					<dict>
 						<key>ID</key>
-						<integer>781</integer>
+						<integer>812</integer>
 						<key>Info</key>
 						<integer>1</integer>
 					</dict>
@@ -3027,10 +3021,10 @@
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
-						<integer>775</integer>
+						<integer>806</integer>
 					</dict>
 					<key>ID</key>
-					<integer>785</integer>
+					<integer>816</integer>
 					<key>Points</key>
 					<array>
 						<string>{1828.34, 1186.88}</string>
@@ -3051,7 +3045,7 @@
 					<key>Tail</key>
 					<dict>
 						<key>ID</key>
-						<integer>782</integer>
+						<integer>813</integer>
 						<key>Info</key>
 						<integer>1</integer>
 					</dict>
@@ -3062,10 +3056,10 @@
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
-						<integer>776</integer>
+						<integer>807</integer>
 					</dict>
 					<key>ID</key>
-					<integer>786</integer>
+					<integer>817</integer>
 					<key>Points</key>
 					<array>
 						<string>{1729.13, 1059.32}</string>
@@ -3086,7 +3080,7 @@
 					<key>Tail</key>
 					<dict>
 						<key>ID</key>
-						<integer>779</integer>
+						<integer>810</integer>
 						<key>Info</key>
 						<integer>1</integer>
 					</dict>
@@ -3099,10 +3093,10 @@
 					<key>Head</key>
 					<dict>
 						<key>ID</key>
-						<integer>773</integer>
+						<integer>804</integer>
 					</dict>
 					<key>ID</key>
-					<integer>787</integer>
+					<integer>818</integer>
 					<key>OrthogonalBarAutomatic</key>
 					<false/>
 					<key>OrthogonalBarPosition</key>
@@ -3130,14 +3124,14 @@
 					<key>Tail</key>
 					<dict>
 						<key>ID</key>
-						<integer>774</integer>
+						<integer>805</integer>
 						<key>Info</key>
 						<integer>4</integer>
 					</dict>
 				</dict>
 			</array>
 			<key>ID</key>
-			<integer>772</integer>
+			<integer>803</integer>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -7602,9 +7596,7 @@
 			<key>ID</key>
 			<integer>677</integer>
 			<key>ImageID</key>
-			<integer>17</integer>
-			<key>ManualSizeImage</key>
-			<string>YES</string>
+			<integer>40</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -7976,9 +7968,14 @@
 	<key>HPages</key>
 	<integer>2</integer>
 	<key>ImageCounter</key>
-	<integer>38</integer>
+	<integer>48</integer>
 	<key>ImageLinkBack</key>
 	<array>
+		<dict/>
+		<dict/>
+		<dict/>
+		<dict/>
+		<dict/>
 		<dict/>
 		<dict/>
 		<dict/>
@@ -8006,23 +8003,27 @@
 	</array>
 	<key>ImageList</key>
 	<array>
+		<string>image7.png</string>
 		<string>image3.pdf</string>
 		<string>image37.png</string>
-		<string>image15.png</string>
-		<string>image16.png</string>
+		<string>image39.rgb</string>
+		<string>image41.rgb</string>
 		<string>image36.png</string>
 		<string>image35.png</string>
-		<string>image18.png</string>
+		<string>image38.rgb</string>
 		<string>image34.png</string>
 		<string>image33.png</string>
-		<string>image7.png</string>
-		<string>image14.png</string>
+		<string>image42.rgb</string>
 		<string>image26.png</string>
 		<string>image23.png</string>
 		<string>image24.png</string>
 		<string>image21.png</string>
 		<string>image19.pdf</string>
-		<string>image17.png</string>
+		<string>image47.tiff</string>
+		<string>image45.tiff</string>
+		<string>image46.tiff</string>
+		<string>image43.tiff</string>
+		<string>image44.tiff</string>
 		<string>image4.pdf</string>
 		<string>image12.png</string>
 		<string>image11.JPG</string>
@@ -8030,6 +8031,7 @@
 		<string>image9.pdf</string>
 		<string>image8.pdf</string>
 		<string>image2.png</string>
+		<string>image40.rgb</string>
 	</array>
 	<key>IsPalette</key>
 	<string>NO</string>
@@ -8129,7 +8131,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2006-11-14 18:19:55 +0100</string>
+	<string>2007-01-05 18:27:14 +0100</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -8206,7 +8208,7 @@
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{262, 0}, {1169, 878}}</string>
+		<string>{{123, 53}, {1169, 878}}</string>
 		<key>ShowRuler</key>
 		<false/>
 		<key>ShowStatusBar</key>
