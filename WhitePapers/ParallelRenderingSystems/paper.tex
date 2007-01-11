@@ -48,29 +48,34 @@
 % \end{figure}
 \vfill
 \abstract{
-This White Paper analyzes and classifies the different approaches taken
-to parallel rendering. The purpose is to clarify common
-misconceptions and false expectations of the capabilities of the
-different classes of parallel rendering software.
-
-We examine the rendering pipeline of the typical visualization
-application and identify the typical bottlenecks found in this
-pipeline. The methods used for parallel rendering are classified in
-three fundamental approaches and then analyzed with respect to their
-influence on this rendering pipeline, which leads to conclusions about
-possible performance gains and the necessary porting effort.
-
-We advocate the need for a generic, open parallel rendering framework to
-build scalable graphics software. The inherent limitations of transparent
-multi-pipe software are justified, and a full software stack for
-graphics clusters is outlined.
+  This White Paper analyzes and classifies the different approaches taken
+  to parallel, interactive rendering. The purpose is to clarify common
+  misconceptions and false expectations of the capabilities of the
+  different classes of parallel rendering software.
+  
+  We examine the rendering pipeline of the typical visualization
+  application and identify the typical bottlenecks found in this
+  pipeline. The methods used for parallel rendering are classified in
+  three fundamental approaches and then analyzed with respect to their
+  influence on this rendering pipeline, which leads to conclusions about
+  possible performance gains and the necessary porting effort.
+  
+  We advocate the need for a generic, open parallel rendering framework to
+  build scalable graphics software. The drawbacks of other existing
+  solutions are outlined, and a full software stack for graphics clusters
+  is proposed. The Equalizer project\footnote{
+    \htmladdnormallink{http://www.equalizergraphics.com}
+    {http://www.equalizergraphics.com/}} aims to provide such an
+  implementation, combining existing software packages with newly
+  developed middleware.
 }
+
 \vfill
 {\center\begin{tabularx}{.88\textwidth}{|l|l|X|}
 \hline
 \bf Version & \bf Date & \bf Changes \\
 \hline
-0.5.3       & January 11, 2007     & Updated Figure~\ref{FIG_multipipe}\\
+0.6         & January 11, 2007     & Minor rework of the whole paper\\
 0.5.2       & September 19, 2006   & Tweaked Figure~\ref{FIG_parallel}\\
 0.5.1       & July 5, 2006         & Added link to latest version\\
 0.5         & May 19, 2006         & Initial Version\\
@@ -91,26 +96,28 @@ visualization (HPV) community has not generally accepted the need to
 parallelize applications for performance. The belief that scalabity can be
 achieved transparently by some magic software is still wide-spread, and
 contributes to the slow adoption of graphics clusters and virtual reality
-installations due to the application performance and (un-)availability.
+installations due to bad application performance and unavailability.
 
 % Definitions
 
 \subsection{Motivation}
 % Introduce the topic
-Application developers are faced with making their applications
+Application developers are typically faced with making their applications
 aware of multiple graphics cards for two reasons -- either the
-application has to run on advanced display systems, or the rendering has
-to be accelerated by using parallel rendering on multiple graphics cards.
+application has to run on multipipe display systems, or the rendering has
+to be accelerated by using parallel rendering on multiple graphics
+cards. The two reasons are not mutually exclusive.
 
 \subsubsection{Multi-View Rendering}
-The first motivation is often to run the application on advanced display
-systems: workstations with multiple monitors, walls build out of
-multiple displays or projectors as well as immersive environments. Such
-installations need more than one graphics card to drive all the display
-systems. Therefore the rendering has to be distributed across a
-number of cards and often across multiple systems. The outputs of the
-displays has to be synchronized spatially and time-wise to provide one
-coherent image. In immersive environments, stereo rendering is a requirement.
+The first motivation is often to run the application on advanced,
+multipipe display systems: workstations with multiple monitors, walls
+build out of multiple screens or projectors as well as immersive
+environments. Such installations need more than one graphics card to
+drive all the display systems. Therefore the rendering has to be
+distributed across a number of cards, and often across multiple
+systems. The outputs of the displays has to be synchronized spatially
+and time-wise to provide one coherent image. In immersive environments,
+active or passive stereo rendering is a requirement.
 
 \begin{figure}[ht]
 \centering
@@ -129,18 +136,17 @@ the requirements on the whole rendering pipeline.
 \subsubsection{Scalable Rendering}
 The second motivation is to accelerate the rendering by aggregating
 multiple resources, because the application hits limitations of a single
-graphics system.
+graphics system. Figure~\ref{FIG_pipeline} shows a simplified rendering
+pipeline and the resources used by during rendering. The typical
+performance bottlenecks in such a pipeline are:
 
-\begin{figure}[ht]
+\begin{figure}[htb]
 \centering
 \includegraphics[width=0.45\columnwidth]{images/pipeline.pdf}
 \caption{The basic rendering pipeline}
 \label{FIG_pipeline}
 \end{figure}
 
-Figure~\ref{FIG_pipeline} shows a simplified rendering pipeline and the
-resources used by during rendering. The typical performance bottlenecks
-in such a pipeline are:
 \begin{description}
 \item[Fill Rate] The amount of rendered pixels can exceed the processing
   capabilities of the graphics card's rasterization pipeline, that
@@ -180,6 +186,7 @@ in such a pipeline are:
   storage, which can be a bottleneck.
 \end{description}
 
+
 \subsubsection{Parallelism in Graphics Hardware}
 Graphics cards address some bottlenecks through hardware
 parallelism. GPU's have multiple vertex pipelines (geometry
@@ -211,7 +218,7 @@ graphs and parallel rendering frameworks can in theory parallelize the
 rendering for such hardware, once the hardware vendors provide the
 necessary API's to program the hardware.
 
-\section{Transparent Multi-Pipe Rendering Software}
+\section{Transparent Multipipe Rendering Software}
 % Technical Overview
 Transparent rendering software replaces the system's rendering library,
 e.g. OpenGL or Direct3D, with a new 'intercept' library. The
@@ -250,7 +257,7 @@ which is normally only the case for static chunks of data, such as display
 lists and large textures. % mention OpenGL state tracking?
 
 % Parallel Extensions
-Some parallel rendering frameworks support parallelization of the
+Some transparent rendering packages support parallelization of the
 application, that is, the application is modified and renders using
 multiple threads. This support is often rudimentary and does not address other
 problems, such as configuration and data distribution. Furthermore, by
@@ -271,20 +278,20 @@ the individual instances are traversed in parallel to generate the
 rendering commands, which are directly send to the graphics hardware.
 
 From the applications point of view, this approach is similar to the
-transparent solutions, in that the rendering is parallelized. The big
-difference is that a distributed scene graph approaches the problem at a
-much higher level, which allows significant optimisations and leads to
-better performance. In contrast to transparent rendering software, the
-traversal to generate the rendering commands is parallelized, and the
-commands are send --in parallel-- directly to the graphics card. The
-scene graph frees the application developer of the task to parallelize
-the rendering.
+transparent solutions, in that the rendering is parallelized by some
+'magic' software. The big difference is that a distributed scene graph
+approaches the problem at a much higher level, which allows significant
+optimizations and leads to better performance. In contrast to
+transparent rendering software, the traversal to generate the rendering
+commands is parallelized, and the commands are send --in parallel--
+directly to the graphics card. The scene graph frees the application
+developer of the task to parallelize the rendering.
 
 \section{Parallel Rendering Frameworks}
 Parallel rendering frameworks help application developers to parallelize
 their application. They do not impose a scene graph or other rendering
 libraries on the application. By solving the common problems of
-multi-pipe rendering, the application developer can focus on
+any multiple application, the application developer can focus on
 application-specific problems. Parallel rendering frameworks address
 synchronization, task decomposition and load-balancing, data transport
 as well as the composition of the rendering result. In many ways, they
@@ -293,10 +300,10 @@ focused on interactive applications and parallel rendering.
 
 Parallel rendering frameworks provide an execution environment for any
 application, regardless of the used rendering software. Refactoring the
-application, other then strictly needed for multi-pipe rendering, is not
-necessary. The application provides entry points for its rendering
+application, other then necessary for multipipe rendering, is not
+needed. The application provides entry points for its rendering
 functions. Depending on the current configuration, the framework creates
-the necessary rendering threads which are initialised with a rendering
+the necessary rendering threads which are initialized with a rendering
 context by the application's init functions. When the application
 request a new frame of rendering, the framework calls the necessary
 rendering callbacks in the correct context and order.
@@ -327,7 +334,7 @@ which requires a roundtrip to the graphics card is unsupported or
 slow. On the other hand, a transparent solution is a viable way to run a
 certain set of applications on graphics clusters. For legacy
 applications, which cannot be modified, it is the only possibility to make
-them multi-pipe ready. The low porting effort is a strong benefit for
+them multipipe-ready. The low porting effort is a strong benefit for
 transparent rendering software.
 
 % distributed scene graphs
@@ -341,7 +348,7 @@ due to the high porting cost.
 
 % parallel rendering frameworks
 Parallel rendering frameworks are the common middleware for any
-multi-pipe application. Distributed scene graphs and transparent
+multipipe application. Distributed scene graphs and transparent
 rendering software can use it as the base for their
 implementation. Applications not suitable for these approaches
 can easily implement their parallel rendering on such a framework. The
@@ -349,7 +356,7 @@ porting effort is reduced to the unavoidable refactoring needed to
 separate the rendering from the core application in order to to make it
 distributable. A parallel rendering framework addresses common problems
 encountered when doing such a port and follows the natural programming
-model for any multi-pipe application. For high-performance applications,
+model for any multipipe application. For high-performance applications,
 a parallel rendering framework is the only solution short of a
 completely custom implementation.
 
@@ -358,12 +365,13 @@ transparent solutions and distributed scene graphs. These approaches
 then become 'applications' of the parallel rendering framework to
 address a certain subset of parallel rendering applications - namely
 performance-uncritical and legacy applications, as well as applications
-already written using a specific scene graph.
+already written using a specific scene graph. Figure~\ref{FIG_parallel}
+illustrates the proposed software stack.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.45\columnwidth]{images/layers.pdf}
-\caption{Ideal software layering for a visualization system}
+\caption{Proposed software stack for a visualization system}
 \label{FIG_parallel}
 \end{figure}
 
@@ -373,15 +381,15 @@ serve different application needs. Transparent solutions are a quick way
 to run interactive applications on graphic clusters, but they do not
 provide the necessary performance for many applications. Likewise,
 distributed scene graphs are often too invasive since they require the
-applications to use a certain format --the scene graph-- to decribe their
-data. 
+applications to use a certain format and API --the scene graph-- to
+decribe their data. 
 
 \appendix
 \section{Current Parallel Rendering Software}
 This appendix gives a short and incomplete overview of the existing
 software solutions for parallel rendering.
 
-\subsection{Transparent Multi-Pipe Rendering Software}
+\subsection{Transparent Multipipe Rendering Software}
 \subsubsection{Chromium}
 Chromium is a Open Source solution originally developed by the
 Stanford University. Some graphics cluster vendors, most notably
@@ -398,7 +406,7 @@ the rendering performance.
 
 \subsubsection{OpenGL Multipipe}
 OpenGL Multipipe is a transparent software solution delivered with SGI's
-multi-pipe machines. It is not sold separately. For building parallel
+multipipe machines. It is not sold separately. For building parallel
 applications, SGI offered OpenGL Multipipe SDK.
 
 \subsection{Distributed Scene Graphs}
@@ -407,11 +415,16 @@ The Open Inventor Cluster Edition is an extension to the Open Inventor
 scene graph to support parallel, distributed rendering on graphics
 clusters. It does support both multi-view and scalable rendering.
 
+\subsubsection{OpenSG}
+OpenSG is an open source scenegraph and provides various functionality
+for parallel rendering, including network data distribution and scalable
+rendering modes.
+
 \subsection{Parallel Rendering Frameworks}
 \subsubsection{OpenGL Multipipe SDK}
 OpenGL Multipipe SDK from Silicon Graphics, Inc. is a proprietary
 framework for the development of scalable graphics applications. It does
-not support distributed rendering.
+not support distributed rendering, and is not actively developed anymore.
 
 \subsubsection{CAVELib}
 CAVELib from VRCO Inc. is a proprietary, parallel rendering framework
@@ -419,9 +432,9 @@ which supports parallel multi-view rendering.
 
 \subsubsection{Equalizer}
 Equalizer is an open source parallel rendering framework under development
-by the University of Z\"urich and others. Equalizer will
-support multi-view and scalable rendering, together with a resource
-management system and a transparent rendering layer.
+by the University of Z\"urich and others. Equalizer supports multi-view
+and scalable rendering, and a resource management system and a
+transparent rendering layer is planned.
 
 \vfill
 \begin{spacing}{.5}{\footnotesize
