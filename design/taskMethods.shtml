@@ -183,7 +183,8 @@ rendering. The default implementation is empty.
 <p>
 The window represents an OpenGL drawable. It is instanciated
 during <code>Config::init</code> on the render nodes. All window and
-channel task methods are called from the pipe thread.
+channel task methods are called from the pipe thread, with the exception of 
+<code>processEvent</code>
 </p>
 
 <h4>Window::init</h4>
@@ -249,7 +250,8 @@ calls a <code>glFinish</code>.
 Process a single event received by this window. The default implementation
 either processes the event locally or to converts it to
 a <code>ConfigEvent</code> and sends this config event to the application thread
-by using <code>Config::sendEvent</code>.
+by using <code>Config::sendEvent</code>. This method may be called from the
+window thread or from a seperate event thread, depending on the window system.
 </p>
 
 
