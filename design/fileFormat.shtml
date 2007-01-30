@@ -19,8 +19,13 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   this specification, but we try to keep it up to date. The loader
   implementation is the reference for the file format, look
   at <code>src/server/loader.y</code>, if you understand lex/yacc code.
-</p>
-<p>
+</p><p>
+  Note that this format is the representation for the server's low-level
+  scalable rendering engine. Eventually this file format will be replaced by a
+  higher-level format or API, and may even be partially hidden from the
+  user. Automatic configuration and load balancing are not yet implemented,
+  hence the need to have these low-level configuration files.
+</p><p>
   All Equalizer units are in meters. This applies currently to the wall
   coordinates and the eye base, as well as the head matrix supplied
   programmatically.
