@@ -52,6 +52,9 @@ global
      EQ_WINDOW_IATTR_PLANES_DEPTH        unsigned
      EQ_WINDOW_IATTR_PLANES_STENCIL      unsigned
      EQ_CHANNEL_IATTR_HINT_STATISTICS    off | fastest [on] | nicest
+     EQ_COMPOUND_IATTR_STEREO_MODE                 quad | anaglyph
+     EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK   [ red green blue ]
+     EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK  [ red green blue ]
 }
 server
 {
@@ -60,7 +63,7 @@ server
         latency int    // # of frames nodes may fall behind application
         attributes
         {
-             eye_base float // distance between eyes
+             eye_base float // distance between left and right eye
         }
 
         (node|appNode) // 1-n times, a system in the cluster
@@ -116,6 +119,13 @@ server
             viewport [ viewport ]            // wrt parent compound, sort-first
             range    [ float float ]         // DB-range for sort-last
             eye      [ CYCLOP LEFT RIGHT ]   // monoscopic or stereo view
+            attributes
+            {
+                stereo_mode                  quad | anaglyph    // default quad
+                // enable visible color components
+                stereo_anaglyph_left_mask    [ red green blue ] // df green blue
+                stereo_anaglyph_right_mask   [ red green blue ] // default red
+            }
 
             wall                             // frustum description
             {

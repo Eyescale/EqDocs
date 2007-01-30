@@ -1,0 +1,78 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE Anaglyphic Stereo
+
+#include "header.shtml"
+
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+</p>
+
+<h3>Overview</h3>
+<p>
+  This features adds support for anaglyphic stereo rendering. Each eye pass is
+  rendered in a different color, but using the same frame buffer. Colored
+  glasses provide the eye separation when viewing the superimposed images.
+</p>
+  
+<a name="Implementation"/>
+<h3>Design and Implementation</h3>
+<p>
+  Extending <code>Channel::applyBuffer</code> to use glColorMask to mask out the
+  correct components for the current eye allow  rendering as in quad-buffered
+  stereo. The color mask is applied at the very end of the OpenGL pipeline, and
+  therefore affects all operations, including <code>glClearColor</code> and
+  the pixel operations used for stereo decomposition.
+</p>
+
+<h4>API</h4>
+<p>
+  <pre>
+    class ColorMask
+    {
+    public:
+        ColorMask() : red( true ), green( true ), blue( true ) {}
+        bool red;
+        bool green;
+        bool blue;
+    };
+
+    const ColorMask& Channel::getDrawBufferMask() const;
+  </pre>
+</p>
+
+<h4>File Format</h4>
+<p>
+  <pre>
+    global
+    {
+        EQ_COMPOUND_IATTR_STEREO_MODE                 quad | anaglyph
+        EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK   [ red green blue ]
+        EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK  [ red green blue ]
+    }
+
+    compound
+    {
+        ...
+        attributes
+        {
+            stereo_mode                  quad | anaglyph    // default quad
+            // enable visible color components
+            stereo_anaglyph_left_mask    [ red green blue ] // dflt green blue
+            stereo_anaglyph_right_mask   [ red green blue ] // default red
+        }
+        ...
+    }
+  </pre>
+</p>
+
+<a name="Issues">
+<h3>Open Issues</h3>
+<p>
+  None
+</p>
+
+#include "footer.shtml"
+<!-- $Id$ -->
