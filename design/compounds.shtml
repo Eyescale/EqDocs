@@ -114,7 +114,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
  combining the right tasks, the same functionality as in MPK can be
  achieved. The following config file illustrates the equivalent of a MPK
  2-channel 2D compound:
- <pre>
+<pre>
  compound
  {
      channel "destination"
@@ -135,7 +135,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
      inputframe { name "frame.buffer" }
  }
- </pre>
+ </pre><!-- */ -->
  </p><p>
  Each compound executes the tasks in the order they appear below. DRAW
  tasks are only executed on leaf compounds. The following tasks are possible:
@@ -260,7 +260,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
  <a name="FileFormat"/>
  <h3>File Format</h3>
- <p><pre>
+ <!-- /* --><pre>
    compound
    {
        channel "channel-name"
@@ -304,11 +304,11 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
            // later: period, phase
        }
    }
- </pre></p>
+ </pre><!-- */ -->
        
 <a name="Examples"/>
 <h2>Example Config Files</h2>
-<p><pre>
+<!-- /* --><pre>
    2-channel DB compound:
 
     compound {
@@ -568,7 +568,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             swapbarrier {}
         }
     }
-</pre></p>
+</pre><!-- */ -->
 
 #include "footer.shtml"
 <!-- $Id$ -->

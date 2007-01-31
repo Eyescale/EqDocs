@@ -28,8 +28,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <h4>API</h4>
-<p>
-  <pre>
+<!-- /* --><pre>
     class ColorMask
     {
     public:
@@ -40,12 +39,10 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
     };
 
     const ColorMask& Channel::getDrawBufferMask() const;
-  </pre>
-</p>
+</pre><!-- */ -->
 
 <h4>File Format</h4>
-<p>
-  <pre>
+<!-- /* --><pre>
     global
     {
         EQ_COMPOUND_IATTR_STEREO_MODE                 quad | anaglyph
@@ -65,8 +62,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         }
         ...
     }
-  </pre>
-</p>
+</pre><!-- */ -->
 
 <a name="Issues">
 <h3>Open Issues</h3>

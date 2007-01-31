@@ -84,7 +84,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 <h3>Implementation</h3>
 <p>
   The implementation should execute as follows:
-  <pre>
+  <!-- /* --><pre>
     [readback callback]
     foreach frame
         start readback of image[s]
@@ -103,7 +103,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         start draw frame
     foreach frame
         sync draw frame (omit or defer until frame is reused?)
-  </pre>
+  </pre><!-- */ -->
 </p><p>
   Use monitor to determine readyness of frame data.
 </p><p>
@@ -123,7 +123,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   number of images per frame can vary.
 </p><p>
   On the server:
-  <pre>
+  <!-- /* --><pre>
     Compound::update
         prepare output frames (1st tree traversal)
            release old frame datas based on frame number
@@ -159,10 +159,10 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
                       -> holds frame data id and version -> holds frame number
         if assemble task frame list not empty
             send assemble task containing frame list
-  </pre>
+  </pre><!-- */ -->
 
   On the "output" node:
-  <pre>
+  <!-- /* --><pre>
     readback task:
         start readback
 
@@ -172,10 +172,10 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
                 sync readback
                 transmit image packet [ frame data version, type, vp, data ]
             transmit frame data ready [ frame number ]
-  </pre>
+  </pre><!-- */ -->
     
   On the "input" node:
-  <pre>
+  <!-- /* --><pre>
     assemble task
         foreach input frame
             sync to frame version
@@ -191,7 +191,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
             save image into recycled Image object
         receive ready
             set image ready version
-  </pre>
+  </pre><!-- */ -->
 </p>
 
 <h4>API</h4>
@@ -199,7 +199,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   Incomplete pseudocode of the API, look at the implementation for full
   details. A object of a given type has a different implementation on the
   server-side and client-side which share the same distributed data.
-  <pre>
+  <!-- /* --><pre>
     class Frame
     {
         uint32_t frameDataID;
@@ -225,7 +225,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         void startReadback( buffers, type, x, y, w, h );
         void syncReadback();
     };
-  </pre>
+  </pre><!-- */ -->
 </p>
 
 <a name="Issues"/>

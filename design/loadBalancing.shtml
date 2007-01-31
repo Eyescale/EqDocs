@@ -53,23 +53,23 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <h3>File Format</h3>
-<p><pre>
+<!-- /* --><pre>
 compound
 {
     split    split-spec ?
     viewport [ (x y w h) | auto ]
     range    [ (x y w h) | auto ]
 }
-</pre></p>
+</pre><!-- */ -->
 
 <h3>Programming Interface</h3>
 <h4>New Types</h4>
-<p><pre>
-</pre></p>
+<!-- /* --><pre>
+</pre><!-- */ -->
 
 <h4>New Functions</h4>
-<p><pre>
-</pre></p>
+<!-- /* --><pre>
+</pre><!-- */ -->
 
 #include "footer.shtml"
 <!-- $Id$ -->

@@ -39,7 +39,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   of the associated entities.
 </p>
 
- <p><pre>
+<!-- /* --><pre>
 global
 {
      EQ_CONNECTION_SATTR_HOSTNAME        string
@@ -156,7 +156,7 @@ server
         }
     }
 }
- </pre></p>
+</pre><!-- */ -->
 
 #include "footer.shtml"
 <!-- $Id$ -->

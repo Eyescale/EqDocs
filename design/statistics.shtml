@@ -37,53 +37,53 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <h3>File Format</h3>
-<p><pre>
-global
-{
-     EQ_CHANNEL_IATTR_HINTS_STATISTICS    off | fastest [on] | nicest
-}
-channel
-{
-    attributes
-    {
-        hints
-        {
-            statistics     off | fastest [on] | nicest
-        }
-    }
-}
-</pre></p>
+<!-- /* --><pre>
+  global
+  {
+      EQ_CHANNEL_IATTR_HINTS_STATISTICS    off | fastest [on] | nicest
+  }
+  channel
+  {
+      attributes
+      {
+          hints
+          {
+              statistics     off | fastest [on] | nicest
+          }
+      }
+  }
+</pre><!-- */ -->
 
 <h3>Programming Interface</h3>
 <h4>New Types</h4>
-<p><pre>
-struct StatEvent 
-{
-public:
-    enum Type
-    {
-        CHANNEL_CLEAR,
-        CHANNEL_DRAW,
-        CHANNEL_ASSEMBLE,
-        CHANNEL_READBACK,
-        CHANNEL_TRANSMIT,
-        CHANNEL_COMPRESS,
-        TYPE_ALL          // must be last
-    };
+<!-- /* --><pre>
+  struct StatEvent 
+  {
+  public:
+      enum Type
+      {
+          CHANNEL_CLEAR,
+          CHANNEL_DRAW,
+          CHANNEL_ASSEMBLE,
+          CHANNEL_READBACK,
+          CHANNEL_TRANSMIT,
+          CHANNEL_COMPRESS,
+          TYPE_ALL          // must be last
+      };
 
-    Type     type;
-    uint32_t objectType;
-    uint32_t objectID;
-    float    startTime;
-    float    endTime;
-};
-</pre></p>
+      Type     type;
+      uint32_t objectType;
+      uint32_t objectID;
+      float    startTime;
+      float    endTime;
+  };
+</pre><!-- */ -->
 
 <h4>New Functions</h4>
-<p><pre>
-float Pipe::getFrameTime() const;
-void  Pipe::addStatEvent( const StatEvent& event );
-</pre></p>
+<!-- /* --><pre>
+  float Pipe::getFrameTime() const;
+  void  Pipe::addStatEvent( const StatEvent& event );
+</pre><!-- */ -->
 
 #include "footer.shtml"
 <!-- $Id$ -->

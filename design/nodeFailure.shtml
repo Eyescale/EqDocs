@@ -68,7 +68,7 @@ prioritize one config over another, if both configs use the same node for the
 same application. Additionally, the config name or identifier can be present
 when the node is connecting to the server. The server will have a best-fit
 strategy to assign a connecting render node to a running config.
-<pre>
+<!-- /* --><pre>
   struct NodeConnectData
   {
       // IP is implicit
@@ -76,7 +76,7 @@ strategy to assign a connecting render node to a running config.
       string   configName;
       uint32_t configID;
   };
-</pre>
+</pre><!-- */ -->
 </p><p>
 The initial state of nodes in a configuration is offline. By default, Equalizer
 will launch them and wait a given time for them to connect. When connected, a
