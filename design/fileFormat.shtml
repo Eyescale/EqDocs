@@ -128,8 +128,8 @@ server
             {
                 stereo_mode                  quad | anaglyph    // default quad
                 // enable visible color components
-                stereo_anaglyph_left_mask    [ red green blue ] // df green blue
-                stereo_anaglyph_right_mask   [ red green blue ] // default red
+                stereo_anaglyph_left_mask    [ red green blue ] // default red
+                stereo_anaglyph_right_mask   [ red green blue ] // df green blue
             }
 
             wall                             // frustum description
