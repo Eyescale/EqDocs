@@ -1,0 +1,135 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE Stereo and Head Tracking
+
+#include "header.shtml"
+
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+</p>
+
+<h3>Overview</h3>
+<p>
+  For stereo viewing, typically two different views are rendered, one for each
+  eye. The display setup ensures that each eye sees the correct view, either by
+  time-multiplexing the left/right images (active stereo) or by using
+  polarization filters (passive stereo). Some autostereoscopic or holographic
+  displays require more than two views, since the project to multiple viewer
+  positions in space.
+</p><p>
+  Head tracking is often used with stereo rendering. The viewer position is
+  tracked, and the rendering is adapted to give the observer the illusion of a
+  fixed scene in 3D space.
+</p>
+  
+<h3>Stereo Rendering</h3>
+<div class="float_right"><a href="documents/design/images/mono.png">
+    <img src="documents/design/images/mono-small.png" 
+         alt="View frustum for monoscopic rendering"></a>
+  <div class="label">Monoscopic View Frustum</div>
+</div>
+<p>
+  Equalizer uses the notion of an eye pass in the compound specification. If
+  nothing is specified, the compound renders one view for monoscopic viewing,
+  for the <code>CYCLOP</code> eye, as shown on the right. With the
+  compound's <code>eye</code> field the eye passes are specified. The eye passes
+  are inherited to children, unless the children overwrite the eye field.
+</p>
+<div class="float_left"><a href="documents/design/images/stereo.png">
+    <img src="documents/design/images/stereo-small.png" 
+         alt="View frustra for stereo rendering"></a>
+  <div class="label">Stereoscopic View Frustra</div>
+</div>
+<p> 
+  To use active stereo, the window has to have a stereo visual and the
+  compound has to specify the left and right eye using 
+  <code>eye [ LEFT RIGHT ]</code>. Equalizer then executes two rendering passes,
+  and uses the eye base to adjust the view frustra as shown on the left.
+</p><p> 
+  For passive stereo, two output channels are used and projected onto the same
+  surface. Typically two compounds would be used, one rendering the left eye
+  using the channel connected to the left projector, and the other rendering the
+  right eye using the same wall description.
+</p><p>
+  The window attribute <code>hint_stereo</code> can be used to request a
+  quad-buffered stereo visual. The distance between the left and right eye is
+  specified using the config attribute <code>eye_base</code>.
+</p><div class="flush_float"></div>
+
+<h3>Immersive Visualization</h3>
+<div class="float_right"><a href="documents/design/images/immersive.png">
+    <img src="documents/design/images/immersive-small.png" 
+         alt="Head Tracking with stereo frustra"></a>
+  <div class="label">Stereo Frustra with Head Tracking</div>
+</div>
+<p>
+  For immersive installations, the head position is tracked and view frustra are
+  adapted to the viewers position and orientation, as shown on the right. The
+  head position is reported by the application
+  using <code>Config::setHeadMatrix</code>, which is used by the server to
+  compute the eye positions (cyclop, left, right). These eye positions, together
+  with the wall description, are used to compute an OpenGL frustum and the head
+  transformation to position the frustum. The default head matrix is an identity
+  matrix, thus the default eye positions are <code>( +-eye_base/2, 0, 0
+  )</code>, as show above in the stereoscopic view frustra.
+</p>
+<h3>Eye compounds</h3>
+<p>
+  Eye compounds parallelize the rendering of the eye passes, by assigning each
+  eye pass to a different channel and recombining the result. For passive
+  stereo, where the channels are separated for display, parallelization can be
+  achieved by using a different pipe (graphics card) for each channel. For
+  active stereo, one of the eyes can be rendered on a different pipe and
+  transferred to the correct draw buffer using the compound output and input
+  frames. The Equalizer distribution contains example config files.
+</p><div class="flush_float"></div>
+
+<h4>API</h4>
+<!-- /* --><pre>
+  void Config::setHeadMatrix( const vmml::Matrix4f& matrix );
+</pre><!-- */ -->
+
+<h4>File Format</h4>
+<!-- /* --><pre>
+    global
+    {
+        EQ_CONFIG_FATTR_EYE_BASE            float
+    }
+
+    config // 1-n times, currently only the first one is used by the server
+    {
+        ...
+        attributes
+        {
+             eye_base float // distance between left and right eye
+        }
+        ...
+                window
+                {
+                    ...
+                    attributes
+                    {
+                        hint_stereo         off | on | auto
+                    }
+                    ...
+                }
+        ...
+        compound
+        {
+            ...
+            eye      [ CYCLOP LEFT RIGHT ]   // monoscopic or stereo view
+            ...
+        }
+    }
+</pre><!-- */ -->
+
+<a name="Issues">
+<h3>Open Issues</h3>
+<p>
+  Autostereoscopic displays with multiple views - define new eye passes?
+</p>
+
+#include "footer.shtml"
+<!-- $Id: anaglyph.shtml 774 2007-02-05 15:18:23Z eile $ -->
