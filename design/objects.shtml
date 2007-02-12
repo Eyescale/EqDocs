@@ -13,17 +13,19 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 <p>
   Equalizer provides facilities to ease the data distribution of an
   application. The central piece is the <code>eqNet::Object</code> base class,
-  from which distributed objects are derived.
+  from which distributed objects are derived. Objects become accessable by
+  making them known to a session. The example code shipped with Equalizer
+  contains examples of distributed objects.
 </p>
 
 <h2>Classification</h2>
 <p>
-  Equalizer knows different types of objects: unversioned and versioned
-  objects.
+  Equalizer can manage static and versioned objects.
 </p><p>
-  Unversioned objects can be instanciated on multiple nodes. Upon instanciation,
-  the data from the master version is replicated to the 'slave' node. They are
-  typically used for static data.
+  Static objects can be instanciated on multiple nodes. Upon instanciation,
+  the data from the master version is replicated to the 'slave' node. Static
+  objects do not retain object data, since this data is assumed to be
+  immutable.
 </p><p> 
   Versioned objects work like a simplified version control system. One
   master copy of the object creates a new version whenever the application
@@ -38,122 +40,60 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   commit.
 </p>
 
-<h2>Unversioned Objects</h2>
+<h2>Object Mapping</h2>
+<p>
+  To make objects distributable, they have to be known by the session. During
+  this process the type of object is determined.
+</p><p> 
+  The master instance of an object is registered
+  using <code>Session::registerObject</code>. Upon registration, a
+  session-unique identifier is assigned, which can be used to map slave
+  instances using <code>Session::mapObject</code>. Mapped slave instance are
+  instanciated with the oldest known version from the master instance, and can
+  be synchronized to the head version using <code>Object::sync</code>.
+</p><p>
+  Additionally, the object identifier can be used to send
+  an <code>ObjectPacket</code> to another node. Each object instance has a
+  node-unique instance identifier to address single instances of an object on a
+  remote node.
+</p>
+
+<h2>Static Objects</h2>
 <p>
   The implementation of unversioned objects is straight-forward and requires the
-  application to either declare its distributed data using
+  application to either declare the distributed data using
   <code>Object::setInstanceData</code> or to implement 
-  <code>Object::getInstanceData</code>. For instanciation, the appropriate
-  construction in <code>Session::instanciateObject</code> has to be implemented.
+  <code>Object::getInstanceData</code>.
 </p>
 
 <h2>Versioned Objects</h2>
 <p>
-  Versioned objects have to implement, in addition to unversioned objects, the
-  methods <code>Object::pack</code> and <code>Object::unpack</code> to create or
-  apply a diff from the last version. Alternatively they can declare the
-  location of the data using <code>Object::setDeltaData</code> on both the
-  master and slave instances.
+  Versioned objects override the method <code>Object::isStatic</code> to return
+  <code>false</code>. They have to implement, in addition to unversioned
+  objects, the methods <code>Object::pack</code> and <code>Object::unpack</code>
+  to create or apply a diff from the last version. Alternatively they can
+  declare the location of the data using <code>Object::setDeltaData</code> on
+  both the master and slave instances.
+</p><p>
+  Objects with the same instance and delta data only distribute instance data
+  for each new version, and do not have to implement pack and unpack.
 </p>
 
 <h2>Implementation</h2>
-<pre>
-class Object
-{
-public:
-    uint32_t commit();
-    uint32_t sync();
-    uint32_t getVersion();
-    uint32_t getHeadVersion();
-
-protected:
-    setInstanceData(...);
-    setDeltaData(...);
-
-private:
-    ObjectCM* _cm;
-};
-
-class ObjectCM
-{
-public:
-    ObjectCM( Object* managed );
-
-}
-
-class StaticMasterCM;
-class StaticSlaveCM;
-class FullMasterCM;
-class FullSlaveCM;
-class DeltaMasterCM;
-class DeltaSlaveCM;
-
-</pre>
 <p>
-  The implementation of versioned objects becomes quickly more complex
-  when trying to find the right balance between memory footprint, network
-  bandwidth and CPU utilisation. This complexity lies mostly in the
-  handling and instantiation of 'old' versions.
-</p><p>
-  In order to keep track
-  of old versions, two fundamental approaches can be taken. Both approaches have
-  to keep a copy of all 'patches' from the oldest to the newest version.
-</p><p> 
-  The first approach creates a proxy object which represents the oldest
-  available version. When a new instance of the object is created, the proxy
-  object's instance data and all patches are sent to the instanciating node. The
-  receiver instanciates the object and unpacks the patches as requested. This
-  approach minimises memory usage while requiring more network bandwidth and CPU
-  cycles.
-</p><p>
-  The second approach does not create a proxy object, but keeps an
-  instance data for each version, in addition to the version patches. When an
-  object is instanciated, the _requested_ version's instance data and all
-  following patches are send to the requestor. This approach minimises network
-  traffic and CPU load, but requires more memory. For some objects and versions,
-  the pack'ed data is equivivalent to the instance data. In this case, the
-  memory consumption can be as low as for the other approach.
-</p><p> 
-  Both approaches need a mechanism to obsolete old versions. Depending on
-  the use case, this may be automatically done in <code>Object::commit</code>,
-  or explicitly by the application. At least one base version has to be kept for
-  the checkout. The automatic obsoletion can be configured to keep a fixed
-  number of versions, or to keep the versions for a fixed number of commits (not
-  each commit may generate a new version). By default, only the last version is
-  kept.
-</p>
-
-<h3>Multiple Instances</h3>
-<p>
-  There are certain use cases within Equalizer when two different versions of
-  the same objects have to be instantiated on the same node. One example is the
-  usage of the same per-frame data by two different pipe threads on the same
-  node, where each pipe thread renders a different frame.
-</p><p>
-  Therefore, an object command sent to a node may affect more then one
-  instance. The following implementations are possible:
-  <ul>
-    <li>Create a unique instance ID, so that the objects can be addressed
-      individually. Problem: One command will be sent multiple times.</li>
-    <li>Extend the CommandResult to let the implementation decide to
-      propagate the command to other instances or to declare the command
-      handled. Problem: May be hard to decide on the receiver?</li>
-  </ul>
-  -> Second approach seems to be the right one.
-</p><p>
-  Another issue is the instanciation and referentiation method of
-  objects. The default approach is to access the instantiated objects per
-  identifier, which works if there is only one instance. This concept can be
-  extended to have one instance per thread.
+  Each object has a change manager, which depends on the type of the object and
+  its master/slave status. Equalizer implements a change manager for static
+  objects, versioned objects with delta data and versioned objects with only
+  instance data. Externalizing the implementation of change handling allows for
+  optimisations in the implementation and the memory usage for storing the
+  version data.
 </p>
 
 <h2>Open Issues</h2>
-<pre>
-  void event(); // to implement auto-sync
-
-  void     commitNB();      // non-blocking commit
-  uint64_t completeCommit()
-</pre>
+<p>
+  Document <code>Session::attachObject</code> for unmanaged
+  objects. Document object version obsoletion.
+</p>
 
 #include "footer.shtml"
 <!-- $Id$ -->
