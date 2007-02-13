@@ -1,0 +1,34 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE Region of Interest
+
+#include "header.shtml"
+
+<p>
+  Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+</p>
+
+<h2>Overview</h2>
+<p>
+  The region of interest (ROI) is the screen-space area covered by the channel
+  during rendering. The application can declare this area, which is then used by
+  Equalizer to optimize parts of the rendering pipeline.
+</p><p>
+  In the current implementation the ROI is used to optimize compositing
+  operations by limiting the framebuffer area to be read, transferred and
+  written.
+</p>
+
+<h2>API</h2>
+<!-- /* --><pre>
+  void Channel::setROI( const vmml::Matrix4f& matrix );
+</pre><!-- */ -->
+
+<h2>Open Issues</h2>
+<!-- /* --><pre>
+</pre><!-- */ -->
+
+#include "footer.shtml"
+<!-- $Id$ -->

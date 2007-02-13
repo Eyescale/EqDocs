@@ -10,7 +10,7 @@
 Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
-<h3>Overview</h3>
+<h2>Overview</h2>
 <p>
   Equalizer 0.2 implements a fast image compression algorithm used for network
   transfers. The algorithm is a modified RLE algorithm, which exploits some
@@ -18,7 +18,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
   
 <a name="Implementation"/>
-<h3>Implementation</h3>
+<h2>Implementation</h2>
 <p>
   The compression algorithm uses four-byte values as the token size, since they
   typically represent one pixel of the data. Comparing pixels instead of bytes
@@ -41,7 +41,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a name="Issues"/>
-<h3>Open Issues</h3>
+<h2>Open Issues</h2>
 <p>
   Handling of non-four-byte pixels, which are not currently supported in
   Equalizer.

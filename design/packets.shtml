@@ -10,19 +10,22 @@
 Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
-<h3>Background</h3>
+<h2>Background</h2>
 <p>
   The packet handling code in Equalizer is the core piece of the networking
   layer. This document describes the packet dispatch mechanism used by the
   Equalizer network layer (<code>namespace eqNet</code>). The implementation
   matches this document at the time of writing (UPDATE), but may diverge over
   time.
-</p><p>
-  <img src="documents/design/packets.png" 
-       alt="Flow chart of the eqNet packet handling"/>
 </p>
+<div class="float_right">
+  <a href="documents/design/images/packets.png">
+    <img src="documents/design/images/packets-small.png" 
+         alt="Flow chart of the eqNet packet handling"/></a>
+  <div class="label">Equalizer Packet Handling</div>
+</div>
 
-<h3>Packets</h3>
+<h2>Packets</h2>
 <p>
   <code>Packet</code>s are the base piece of information exchanged
   between <code>Node</code>s. A packet has a data type to identify the object it
@@ -30,7 +33,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   packet. Packets contain additional data depending on the data type and
   command, as explained below.
 </p>
-<h3>Nodes</h3>
+
+<h2>Nodes</h2>
 <p>
   <code>Node</code>s are the basic entity in the network layer. They communicate
   with each other using <code>Connection</code>s. During initialization, a node
@@ -41,7 +45,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   connections. Nodes send each other <code>Packet</code>s. The receiving node
   reads the packet from the connection and calls <code>dispatchCommand</code>.
 </p>
-<h3>Commands</h3>
+
+<h2>Commands</h2>
 <p>
   Packets read by the node are wrapped in a <code>Command</code>, which holds
   the packet and node. The <code>Command</code> manages the ownership of the
@@ -52,7 +57,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   push cases below). This mechanism allows reuse of handled commands, and avoids
   copies when the command will be handled later.
 </p>
-<h3>The eqNet Base Class</h3>
+
+<h2>The eqNet Base Class</h2>
 <p>
   <code>eqNet::Base</code> provides packet dispatching using a command handler
   table. During construction, sub classes provide command handlers for each
@@ -74,7 +80,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         processing.</dd>
   </dl>
 </p>
-<h3>Node Packet Dispatch</h3>
+
+<h2>Node Packet Dispatch</h2>
 <p>
   Depending on the packet's data type, <code>dispatchPacket</code> decides how
   the packet is handled. For node packets, <code>invokeCommand</code> is
@@ -91,7 +98,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   from <code>dispatchPacket</code> is not allowed to block, since it is executed
   from within the receiver thread and would therefore block the packet handling.
 </p>
-<h3>Session Packet Dispatch</h3>
+
+<h2>Session Packet Dispatch</h2>
 <p>
   The <code>Session</code> inherits, like the node, from 
   <code>eqNet::Base</code>. The session dispatch works similar to the node
@@ -101,7 +109,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   returned. The object is retrieved using the objectID, and possibly instanceID,
   contained in the <code>ObjectPacket</code>.
 </p>
-<h3>Asynchronous Handling of Packets</h3>
+
+<h2>Asynchronous Handling of Packets</h2>
 <p>
   Several commands for Equalizer entities, for example window initialisation
   requests, have to be handled by another thread. A

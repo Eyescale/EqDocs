@@ -16,7 +16,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   further.
 </p>
 
-<h3>Specification</h3>
+<h2>Specification</h2>
 <p>
   Statistics are measured per frame, in milliseconds since the frame started. A
   new statistics clock is started with the receiption of the pipe update packet
@@ -36,7 +36,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   implemented.
 </p>
 
-<h3>File Format</h3>
+<h2>File Format</h2>
 <!-- /* --><pre>
   global
   {
@@ -54,8 +54,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   }
 </pre><!-- */ -->
 
-<h3>Programming Interface</h3>
-<h4>New Types</h4>
+<h2>API</h2>
+<h3>New Types</h3>
 <!-- /* --><pre>
   struct StatEvent 
   {
@@ -79,7 +79,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   };
 </pre><!-- */ -->
 
-<h4>New Functions</h4>
+<h3>New Functions</h3>
 <!-- /* --><pre>
   float Pipe::getFrameTime() const;
   void  Pipe::addStatEvent( const StatEvent& event );

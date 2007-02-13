@@ -10,7 +10,7 @@
 Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
-<h3>Overview</h3>
+<h2>Overview</h2>
 <p>
   This features adds support for updating the near and far plane
   from <code>Channel::draw</code>. Updating the near and far plane changes the
@@ -20,7 +20,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
   
 <a name="Implementation"/>
-<h3>Implementation</h3>
+<h2>Implementation</h2>
 <p>
   The current implementation, introduced in Equalizer 0.2, updates the current
   rendering context by setting the frustum's near and far value and by
@@ -28,13 +28,13 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   change.
 </p>
 
-<h4>API</h4>
+<h2>API</h2>
 <!-- /* --><pre>
     void eq::Channel::setNearFar( const float near, const float far );
 </pre><!-- */ -->
 
 <a name="Issues"/>
-<h3>Open Issues</h3>
+<h2>Open Issues</h2>
 <p>
   Only the current context is modified, subsequent rendering tasks are not
   affected. Future implementations will have to retain the near and far values

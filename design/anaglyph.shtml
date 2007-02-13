@@ -10,7 +10,7 @@
 Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
-<h3>Overview</h3>
+<h2>Overview</h2>
 <div class="float_right"><a href="images/anaglyph.png">
     <img src="images/anaglyph-small.png" alt="An anaglyphic stereo rendering">
 </a></div>
@@ -21,7 +21,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
   
 <a name="Implementation"/>
-<h3>Design and Implementation</h3>
+<h2>Implementation</h2>
 <p>
   Extending <code>Channel::applyBuffer</code> to use glColorMask to mask out the
   correct components for the current eye allow  rendering as in quad-buffered
@@ -30,7 +30,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   the pixel operations used for stereo decomposition.
 </p>
 
-<h4>API</h4>
+<h2>API</h2>
 <!-- /* --><pre>
     class ColorMask
     {
@@ -44,7 +44,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
     const ColorMask& Channel::getDrawBufferMask() const;
 </pre><!-- */ -->
 
-<h4>File Format</h4>
+<h2>File Format</h2>
 <!-- /* --><pre>
     global
     {
@@ -68,7 +68,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </pre><!-- */ -->
 
 <a name="Issues">
-<h3>Open Issues</h3>
+<h2>Open Issues</h2>
 <p>
   None
 </p>

@@ -21,7 +21,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </ul>
 
 <a name="Background"/>
-<h3>Background</h3>
+<h2>Background</h2>
 <p>
   Frames are used by <a href="documents/design/compounds.html">compounds</a>
   during the recomposition phase. This document discusses the implementation
@@ -29,7 +29,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a name="Overview"/>
-<h3>Overview</h3>
+<h2>Overview</h2>
 <p>
   <img src="documents/design/frames.png" 
        alt="UML diagram of compound frames"/>
@@ -52,7 +52,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   
 
 <a name="Requirements"/>
-<h3>Requirements</h3>
+<h2>Requirements</h2>
 <p>
  Frames are used in the following way:
  <ul>
@@ -81,7 +81,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a name="Implementation"/>
-<h3>Implementation</h3>
+<h2>Implementation</h2>
 <p>
   The implementation should execute as follows:
   <!-- /* --><pre>
@@ -194,7 +194,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   </pre><!-- */ -->
 </p>
 
-<h4>API</h4>
+<h2>API</h2>
 <p>
   Incomplete pseudocode of the API, look at the implementation for full
   details. A object of a given type has a different implementation on the
@@ -229,14 +229,14 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a name="Issues"/>
-<h3>Open Issues</h3>
+<h2>Open Issues</h2>
 <p>
   Send optimisation for partial input frames, select ready frames from list for
   early assembly,
 </p>
 
 <a name="Restrictions"/>
-<h3>Restrictions</h3>
+<h2>Restrictions</h2>
 <p>
   Only full images are sent to the nodes. If the input frame specifies a
   non-full viewport (which is relative to the output frame), the amount of data
@@ -245,7 +245,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a name="FileFormat"/>
-<h3>File Format</h3>
+<h2>File Format</h2>
  <p>
    See <a href="documents/design/compounds.html#FileFormat">compound file format
      spec</a>.

@@ -10,7 +10,7 @@
 Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
-<h3>Overview</h3>
+<h2>Overview</h2>
 <p>
   For stereo viewing, typically two different views are rendered, one for each
   eye. The display setup ensures that each eye sees the correct view, either by
@@ -24,7 +24,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   fixed scene in 3D space.
 </p>
   
-<h3>Stereo Rendering</h3>
+<h2>Stereo Rendering</h2>
 <div class="float_right"><a href="documents/design/images/mono.png">
     <img src="documents/design/images/mono-small.png" 
          alt="View frustum for monoscopic rendering"></a>
@@ -58,7 +58,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   specified using the config attribute <code>eye_base</code>.
 </p><div class="flush_float"></div>
 
-<h3>Immersive Visualization</h3>
+<h2>Immersive Visualization</h2>
 <div class="float_right"><a href="documents/design/images/immersive.png">
     <img src="documents/design/images/immersive-small.png" 
          alt="Head Tracking with stereo frustra"></a>
@@ -75,7 +75,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   matrix, thus the default eye positions are <code>( +-eye_base/2, 0, 0
   )</code>, as show above in the stereoscopic view frustra.
 </p>
-<h3>Eye compounds</h3>
+<h2>Eye compounds</h2>
 <p>
   Eye compounds parallelize the rendering of the eye passes, by assigning each
   eye pass to a different channel and recombining the result. For passive
@@ -86,12 +86,12 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   frames. The Equalizer distribution contains example config files.
 </p><div class="flush_float"></div>
 
-<h4>API</h4>
+<h2>API</h2>
 <!-- /* --><pre>
   void Config::setHeadMatrix( const vmml::Matrix4f& matrix );
 </pre><!-- */ -->
 
-<h4>File Format</h4>
+<h2>File Format</h2>
 <!-- /* --><pre>
     global
     {
@@ -126,7 +126,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </pre><!-- */ -->
 
 <a name="Issues">
-<h3>Open Issues</h3>
+<h2>Open Issues</h2>
 <p>
   Autostereoscopic displays with multiple views - define new eye passes?
 </p>

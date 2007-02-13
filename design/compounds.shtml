@@ -7,7 +7,7 @@
 #include "header.shtml"
 
 <p>
-Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+  Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <ul>
@@ -26,7 +26,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </ul>
 
 <a name="Background"/>
-<h3>Background</h3>
+<h2>Background</h2>
 <p>
   OpenGL Multipipe SDK (MPK) used the concept of compounds to describe
   the decomposition and recomposition of the rendering. The compound had
@@ -45,75 +45,75 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a name="Glossary"/>
-<h3>Glossary</h3>
+<h2>Glossary</h2>
 <p>
- <ul>
-  <li>compound: an ordered collection of tasks for a channel. Can have
+  <ul>
+    <li>compound: an ordered collection of tasks for a channel. Can have
       compound children.</li>
-  <li>frame: a collection of images belonging to the same framebuffer (as
+    <li>frame: a collection of images belonging to the same framebuffer (as
       in OpenGL)</li>
-  <li>image: a set of 2D arrays of pixels with a type and format, corresponding
-    to the color, depth, or stencil framebuffer.</li>
-  <li>channel: A viewport on a drawable, the basic rendering unit in 
+    <li>image: a set of 2D arrays of pixels with a type and format, corresponding
+      to the color, depth, or stencil framebuffer.</li>
+    <li>channel: A viewport on a drawable, the basic rendering unit in 
       Equalizer.</li>
- </ul>
+  </ul>
 </p>
 
 <a name="Requirements"/>
-<h3>Requirements</h3>
+<h2>Requirements</h2>
 <p>
- The following decomposition modes have to be supported:
- <ul>
-  <li>Sync mode where all children are synchronized for SwapBuffers</li>
-  <li>2D or screen-space partioning of the destination view</li>
-  <li>DB or database partioning of the destination view</li>
-  <li>Eye decomposition for stereo rendering</li>
-  <li>DPlex or time-space decomposition</li>
-  <li>Subpixel decompositions (FSAA, DOF)</li>
-  <li>Cull or task compounds</li>
- </ul>
+  The following decomposition modes have to be supported:
+  <ul>
+    <li>Sync mode where all children are synchronized for SwapBuffers</li>
+    <li>2D or screen-space partioning of the destination view</li>
+    <li>DB or database partioning of the destination view</li>
+    <li>Eye decomposition for stereo rendering</li>
+    <li>DPlex or time-space decomposition</li>
+    <li>Subpixel decompositions (FSAA, DOF)</li>
+    <li>Cull or task compounds</li>
+  </ul>
 </p><p>
- The following recomposition modes have to be supported:
- <ul>
-  <li>Tile-based recomposition, typically used by 2D, Eye and DPlex
+  The following recomposition modes have to be supported:
+  <ul>
+    <li>Tile-based recomposition, typically used by 2D, Eye and DPlex
       decompositions</li>
-  <li>Z-based recomposition, typically used by DB decompositions
+    <li>Z-based recomposition, typically used by DB decompositions
       (polygonal data)</li>
-  <li>Ordered alpha-based blending recomposition, typically used by DB
+    <li>Ordered alpha-based blending recomposition, typically used by DB
       decompositions (volume data)</li>
-  <li>Unordered alpha-based blending recomposition, typically used by
+    <li>Unordered alpha-based blending recomposition, typically used by
       subpixel decompositions</li>
-  <li>HW-based recompositions, typically used by 2D, subpixel, eye and
+    <li>HW-based recompositions, typically used by 2D, subpixel, eye and
       DPlex decompositions. [open]</li>
- </ul>
+  </ul>
 </p><p>
- The following optimisation have to be possible:
- <ul>
-  <li>Parallelization of the recomposition step, typically across all
+  The following optimisation have to be possible:
+  <ul>
+    <li>Parallelization of the recomposition step, typically across all
       source channels, easily configurable.</li>
-  <li>Automatic per-frame adjustments of the decomposition for loadbalancing 
+    <li>Automatic per-frame adjustments of the decomposition for loadbalancing 
       [open]</li>
-  <li>Assembly before and after rendering for transport optimisations</li>
-  <li>Assembly on the CPU or GPU (default)</li>
-  <li>Configuration of the parts of the framebuffer to be transported
+    <li>Assembly before and after rendering for transport optimisations</li>
+    <li>Assembly on the CPU or GPU (default)</li>
+    <li>Configuration of the parts of the framebuffer to be transported
       (color, depth, ...)</li>
-  <li>Configuration of the format, type and means used to read and write
+    <li>Configuration of the format, type and means used to read and write
       the data. Format/type are the OpenGL format and type. Means can
       be: read/draw pixels, texture transfers, framebuffer attachments,
       copy pixels, ...</li>
-  <li>Cross channel loadbalancing [open]</li>
- </ul>
+    <li>Cross channel loadbalancing [open]</li>
+  </ul>
 </p>
 
 <a name="Specification"/>
-<h3>Specification</h3>
+<h2>Specification</h2>
 <p>
- Equalizer uses a compound tree, similar to MPK. In contrast to MPK, the
- decomposition and recomposition is not described using flags. Instead,
- the rendering tasks are directly described for each compound. By
- combining the right tasks, the same functionality as in MPK can be
- achieved. The following config file illustrates the equivalent of a MPK
- 2-channel 2D compound:
+  Equalizer uses a compound tree, similar to MPK. In contrast to MPK, the
+  decomposition and recomposition is not described using flags. Instead,
+  the rendering tasks are directly described for each compound. By
+  combining the right tasks, the same functionality as in MPK can be
+  achieved. The following config file illustrates the equivalent of a MPK
+  2-channel 2D compound:
 <pre>
  compound
  {
@@ -135,49 +135,49 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
      inputframe { name "frame.buffer" }
  }
- </pre><!-- */ -->
- </p><p>
- Each compound executes the tasks in the order they appear below. DRAW
- tasks are only executed on leaf compounds. The following tasks are possible:
- <ul>
-  <li>CLEAR: clears the frame buffer. Uses eye and viewport (see below for
-     attributes)</li>
-  <li>CULL: Performs view frustum culling. Uses eye, viewport, range,
-     input queues and output queues.<br/>
-     Q: Default input/output queue?<br/>
-     Q: Other culls, e.g., occlusion?</li>
-  <li>DRAW: Performs rendering. Uses eye, viewport, range and input
-     queues.<br/>
-     Q: Default input queue?</li>
-  <li>compounds: This is not a task. The tasks for the direct child
-     compounds are executed after CULL (DRAW is not executed on non-leaf
-     compounds).</li>
-  <li>ASSEMBLE: Assembles input frames. Uses input frames. Derives eye and
-     viewport from output frames associated with input frames. By
-     default, the task executes the assembly unordered and potentially
-     pipelined or in parallel. Frames with COLOR and DEPTH images use by
-     default a z-based assembly.<br/>
-     Overlapping frames with alpha color data use by default an
-     unordered blending assembly. Otherwise a tile-based assembly is
-     used. [open]<br/>
-     Ordering or CPU compositing is application-specific, and has to be
-     implemented by the application by using a custom callback.</li>
-  <li>READBACK: Reads framebuffer contents. Uses eye, viewport and output
-     frames. By default, the task executes the readback unordered and
-     potentially pipelined or in parallel.</li>
-  <li>SWAP: Is implicitely the last task on all double-buffered
-     <em>windows</em>. This task will not be exposed in the API and config file
-     right now.</li>
- </ul>
- </p>
- 
-  <a name="Attributes"/>
-  <h4>Attributes</h4>
-  <p>
-   Attributes are inherited, that is, if they are not defined they are
-   defined by the parent. If they are defined, they are often expressed
-   relative to the parent. The following attributes are defined:
-   <ul>
+</pre><!-- */ -->
+</p><p>
+  Each compound executes the tasks in the order they appear below. DRAW
+  tasks are only executed on leaf compounds. The following tasks are possible:
+  <ul>
+    <li>CLEAR: clears the frame buffer. Uses eye and viewport (see below for
+      attributes)</li>
+    <li>CULL: Performs view frustum culling. Uses eye, viewport, range,
+      input queues and output queues.<br/>
+      Q: Default input/output queue?<br/>
+      Q: Other culls, e.g., occlusion?</li>
+    <li>DRAW: Performs rendering. Uses eye, viewport, range and input
+      queues.<br/>
+      Q: Default input queue?</li>
+    <li>compounds: This is not a task. The tasks for the direct child
+      compounds are executed after CULL (DRAW is not executed on non-leaf
+      compounds).</li>
+    <li>ASSEMBLE: Assembles input frames. Uses input frames. Derives eye and
+      viewport from output frames associated with input frames. By
+      default, the task executes the assembly unordered and potentially
+      pipelined or in parallel. Frames with COLOR and DEPTH images use by
+      default a z-based assembly.<br/>
+      Overlapping frames with alpha color data use by default an
+      unordered blending assembly. Otherwise a tile-based assembly is
+      used. [open]<br/>
+      Ordering or CPU compositing is application-specific, and has to be
+      implemented by the application by using a custom callback.</li>
+    <li>READBACK: Reads framebuffer contents. Uses eye, viewport and output
+      frames. By default, the task executes the readback unordered and
+      potentially pipelined or in parallel.</li>
+    <li>SWAP: Is implicitely the last task on all double-buffered
+      <em>windows</em>. This task will not be exposed in the API and config file
+      right now.</li>
+  </ul>
+</p>
+
+<a name="Attributes"/>
+<h3>Attributes</h3>
+<p>
+  Attributes are inherited, that is, if they are not defined they are
+  defined by the parent. If they are defined, they are often expressed
+  relative to the parent. The following attributes are defined:
+  <ul>
     <li>task: non-inherited bitwise combination of tasks (see
       above). DRAW is executed only on leaf compounds. Defaults to
       [ CLEAR CULL DRAW ASSEMBLE READBACK ] for leaf compounds, and to
@@ -203,63 +203,62 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
       images. Default is hardware-dependent, typically
       (GL_RGBA GL_UNSIGNED_INT), (GL_DEPTH_COMPONENT GL_FLOAT),
       (GL_STENCIL_INDEX ?)</li>
-   </ul>
-  </p>
-  
-  <a name="IO"/>
-  <h4>Input and Output</h4>
-  <a name="swapbarrier"></a>
-  <p>
-   Certain tasks generate input and output. Right now, this can be
-   queues for culling and frames for gathering. During compound initialisation,
-   input and output objects with the same name are connected. IO entities
-   can therefore not be shared between disjunct compound trees. Compound trees
-   can be joined by a common parent compound, if entities are to be shared.
-   Cached FrameDatas and Images are disposed during compound exit.
-  </p><p>
-   The default names are set during the adding of the object to the compound,
-   if the object's name is empty. The default name
-   for frames is 'frame.[compound-name]' if the compound has a name, otherwise
-   'frame.[channel-name]'. If neither has a name, the parent are tried until a
-   name is found. If no name is found, the default name is 'frame'. For swap
-   barriers, the default name is 'barrier.[root-compound-name]',
-   'barrier.[root-channel-name]' or 'barrier'.
-  </p><p>
-   Output frames use viewport, eye, period and phase attributes, which
-   are relative to the compound attributes. Using the same output frame
-   multiple times is currently undefined.
-  </p><p>
-   Input frames use the viewport, eye, period and phase attributes, which
-   are relative to the corresponding output frame attributes. The same
-   input frame can be used multiple times. Deadlocks are not checked and can
-   occur when output and input frames are used inappropriately.
-  </p><p>
-   TODO: Queues and culling semantics
-  </p><p>
-   Swap barriers synchronize the compound's window before the execution
-   of <em>eq::Window::swap</em>. If a swap barrier is
-   set, <em>eq::Window::finish</em> is called before the barrier is entered. By
-   default, this function calls <em>glFinish</em> to ensure the immediate
-   execution of the swapbuffer command after the barrier is left. Deadlocks are
-   not checked and can occur if multiple swap barriers are used inappropriately.
-  </p>
+  </ul>
+</p>
 
-  <a name="Images"/>
-  <h4>Images</h4>
-  Outsourced to a separate <a href="documents/design/frames.html">frames
+<a name="IO"/>
+<h3>Input and Output</h3>
+<p>
+  Certain tasks generate input and output. Right now, this can be
+  queues for culling and frames for gathering. During compound initialisation,
+  input and output objects with the same name are connected. IO entities
+  can therefore not be shared between disjunct compound trees. Compound trees
+  can be joined by a common parent compound, if entities are to be shared.
+  Cached FrameDatas and Images are disposed during compound exit.
+</p><p>
+  The default names are set during the adding of the object to the compound,
+  if the object's name is empty. The default name
+  for frames is 'frame.[compound-name]' if the compound has a name, otherwise
+  'frame.[channel-name]'. If neither has a name, the parent are tried until a
+  name is found. If no name is found, the default name is 'frame'. For swap
+  barriers, the default name is 'barrier.[root-compound-name]',
+  'barrier.[root-channel-name]' or 'barrier'.
+</p><p>
+  Output frames use viewport, eye, period and phase attributes, which
+  are relative to the compound attributes. Using the same output frame
+  multiple times is currently undefined.
+</p><p>
+  Input frames use the viewport, eye, period and phase attributes, which
+  are relative to the corresponding output frame attributes. The same
+  input frame can be used multiple times. Deadlocks are not checked and can
+  occur when output and input frames are used inappropriately.
+</p><p>
+  TODO: Queues and culling semantics
+</p><p><a name="swapbarrier"></a>
+  Swap barriers synchronize the compound's window before the execution
+  of <em>eq::Window::swap</em>. If a swap barrier is
+  set, <em>eq::Window::finish</em> is called before the barrier is entered. By
+  default, this function calls <em>glFinish</em> to ensure the immediate
+  execution of the swapbuffer command after the barrier is left. Deadlocks are
+  not checked and can occur if multiple swap barriers are used inappropriately.
+</p>
+
+<a name="Images"/>
+<h3>Images</h3>
+Outsourced to a separate <a href="documents/design/frames.html">frames
   specification</a> document.
 
- <a name="Restrictions"/>
- <h3>Restrictions</h3>
- <p>
+<a name="Restrictions"/>
+<h2>Restrictions</h2>
+<p>
   The cull task, queues, DPlex and subpixel decomposition are not fully
   described. They will be designed further and implemented
   later. Stencil images will be implemented later. The behaviour of
   using the same output frame multiple times is currently undefined.
- </p>
+</p>
 
  <a name="FileFormat"/>
- <h3>File Format</h3>
+ <h2>File Format</h2>
  <!-- /* --><pre>
    compound
    {
