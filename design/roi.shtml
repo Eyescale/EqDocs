@@ -15,10 +15,9 @@
   The region of interest (ROI) is the screen-space area covered by the channel
   during rendering. The application can declare this area, which is then used by
   Equalizer to optimize parts of the rendering pipeline.
-</p><p>
-  In the current implementation the ROI is used to optimize compositing
-  operations by limiting the framebuffer area to be read, transferred and
-  written.
+</p><p> 
+  In the current implementation Equalizer optimizes compositing operations
+  by limiting the framebuffer area to be read, transferred and written.
 </p>
 
 <h2>Implementation</h2>
@@ -27,7 +26,8 @@
   ROI is a fractional viewport with respect to the channel viewport. The initial
   ROI is the full, i.e., <code>[ 0 0 1 1 ]</code>. The ROI is retained over all
   operations and will not be changed by Equalizer. It is the responsibility of
-  the application to keep the ROI up to date.
+  the application to keep the ROI up to date, or to reset it to the full channel
+  area.
 </p><p>
   The ROI is relative to the context in which it was set. Subsequent operations
   on the same channel might use a different pixel viewport. Internally we will
