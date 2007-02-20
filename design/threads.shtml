@@ -1,0 +1,47 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE Threads
+
+#include "header.shtml"
+
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+</p>
+
+<h2>Application (app) Thread</h2>
+<p>
+  The app thread is the main execution thread of an Equalizer application,
+  typically the one running main(). It drives the application's rendering. The
+  app thread of a render node does currently nothing. The app thread of the
+  server handles all blocking requests, i.e., all requests which require further
+  network communication.
+</p>
+
+<h2>Receiver (recv) Thread</h2>
+<p>
+  Each Equalizer network node has a recv thread, created during
+  Node::initLocal(). It listens on all connections and reads the data into
+  packets. The packets are <a href="documents/design/packets.html">dispatched to
+  the command handler functions</a>. The command handler functions in the
+  receiver thread should never block to avoid deadlocks.
+</p>
+
+<h2>Node Thread</h2>
+<p>
+  The node thread does execute all node functions (init, exit), sent by the
+  server. The commands are dispatched from the receiver thread to the node
+  thread using a fifo. Therefore, the node thread may block its execution.
+</p>
+
+<h2>Pipe Thread(s)</h2>
+<p>
+  All commands for a pipe and its siblings (windows, channels) are executed in a
+  separate thread for optimal performance. The commands are dispatched from the
+  receiver thread to the node thread using a fifo. Therefore, the pipe thread
+  may block its execution.
+</p>
+
+#include "footer.shtml"
+<!-- $Id$ -->
