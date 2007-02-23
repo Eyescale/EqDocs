@@ -47,17 +47,23 @@
   <li>Anaglyphic stereo rendering.</li>
   <li>Improved distributed object support.</li>
 </ul>
+
 <h4>Bug Fixes</h4>
 <p>
   Equalizer 0.3 alpha includes various bugfixes over the previous release.
 </p>
+
 <h4>New Documentation</h4>
-<p>
 <ul>
   <li><a href="documents/design/anaglyph.html">Anaglyphic Stereo 
       Specification</a></li>
 </ul>
-</p>
+<h4>Known Bugs</h4>
+<ul>
+  <li>Multi-node configurations using scalable rendering on Windows have a race
+    condition producing deadlocks.</li>
+</ul>
+
 <h3>Supported Platforms</h3>
 <p>
   The platforms supported below are the primary development platforms. Equalizer
@@ -77,6 +83,7 @@
   <li><b>WGL:</b> Full support for all documented features.</li>
   <li><b>CGL:</b> Preliminary fullscreen support, no event handling</li>
 </ul>
+
 <h3>Documentation</h3>
 <p>
   Equalizer does not yet have a formal Users or Programmers Guide. The shipped
