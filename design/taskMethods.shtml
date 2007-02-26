@@ -18,8 +18,392 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 <a href="#window">Window</a><br>
 <a href="#channel">Channel</a><br>
 
+<p>
+  Implementation in progress -- <a href="#old">Description for Equalizer 0.2</a>
+  is below.
+</p>
 
 <hr><a name="overview"></a>
+<h2>Overview</h2>
+<div class="float_right">
+  <a href="documents/design/images/mainloop.png">
+    <img src="documents/design/images/mainloop-small.png" 
+         alt="Application and render client main loops"/></a>
+  <div class="label">Application and render client main loops</div>
+</div>
+<p>
+  The application developer overrides methods on Equalizer classes to plug in
+  the application's rendering code. The <a href="api.html">programming interface
+  overview</a> describes the concept on a high level. This document lists all
+  currently implemented task methods, their typical use case and default
+  implementation. Some methods related to the task methods are described as
+  well. Task methods invoked by Equalizer start with a noun declaring the
+  context, followed by a verb for the action to implement,
+  e.g., <code>Channel::frameInit</code>. All other Equalizer methods start with
+  a verb, e.g., <code>Channel::applyFrustum</code>. The <code>eqPly</code>
+  example can be used as a reference.
+</p>
+
+<a href="#top">Back to top</a>
+<hr><a name="nodefactory"></a>
+<h2>NodeFactory</h2>
+<p>
+  The <code>NodeFactory</code> is the place where the subclassed Equalizer
+  objects are created by the application. It consists of virtual methods to
+  instanciate new instances of all classes mentioned below. The methods in the
+  base class <code>eq::NodeFactory</code> instanciate base Equalizer
+  objects, allowing selective subclassing. The node factory is created by the
+  application and passed to <code>eq::init</code>.
+</p>
+
+<a href="#top">Back to top</a>
+<hr><a name="config"></a>
+<h2>Config</h2>
+<p>
+  The config represents an Equalizer session and controls frame generation. It
+  is instanciated on the application node
+  by <code>eq::Server::chooseConfig</code> and on the render nodes
+  during <code>eq::Config::init</code>.
+</p>
+
+<h3>Config::init</h3>
+<p>
+  This method is called directly by the application on the application node to
+  initialize the configuration. The application can override it to update
+  application-specific data before or after
+  calling <code>eq::Config::init</code>.
+</p>
+
+<h3>Config::exit</h3>
+<p>
+  This method is called directly by the application on the application node to
+  exit a running configuration. The application can override it to update
+  application-specific data before or after
+  calling <code>eq::Config::exit</code>.
+</p>
+
+<h3>Config::startFrame</h3>
+<p>
+  This method is called directly by the application on the application node to
+  request a new frame to be rendered. The application can override it to update
+  frame-specific data before or after
+  calling <code>eq::Config::startFrame</code>.
+</p>
+
+<h3>Config::finishFrame</h3>
+<p>
+  This method is called directly by the application on the application node to
+  request a frame to be finished. The frame finished can be older than the last
+  frame started, depending on the config's latency. The application can override
+  it to update frame-specific data before or after
+  calling <code>eq::Config::finishFrame</code>.
+</p>
+
+<h3>Config::finishAllFrames</h3>
+<p>
+  This method is called directly by the application on the application node to
+  finish all started frames. The application can override it to update
+  frame-specific data before or after
+  calling <code>eq::Config::finishAllFrames</code>.
+</p>
+
+<h3>Config::handleEvents</h3>
+<p>
+  This method is called on the application node from
+  within <code>Config::finishFrame</code> to process all pending events. Its
+  purpose is to implement custom event handling, for example event-driven
+  execution. The default implementation does not block and calls
+  <code>Config::handleEvent</code> for each queued event. See also 
+  <a href="documents/design/eventHandling.html">Event Handling</a>.
+</p>
+
+<h3>Config::handleEvent</h3>
+<p>
+  This method is called by <code>Config::handleEvents</code> to process a single
+  event. Its purpose is to update the application's state depending on the
+  received event. The default implementation does nothing.
+</p>
+
+<a href="#top">Back to top</a>
+<hr><a name="node"></a>
+<h2>Node</h2>
+<p>
+  The node represent a single machine in the cluster. It is instanciated on the
+  render clients during <code>Config::init</code>.
+</p>
+
+<a name="nodeinit"></a>
+<h3>Node::configInit</h3>
+<p>
+  This method is called during <code>Config::init</code> on the render
+  clients. Its purpose is to initialize node-specific application data. It is
+  called in the node's main thread. The default implementation does nothing. A
+  return value of <code>false</code> causes the config initialization to fail.
+</p>
+
+<h3>Node::configExit</h3>
+<p>
+  This method is called during <code>Config::exit</code> on the render
+  clients. Its purpose is to de-initialize node-specific application data. It is
+  called in the node's main thread. The default implementation does nothing. A
+  return value of <code>false</code> causes the config exit to fail.
+</p>
+
+<h3>Node::frameStart</h3>
+<p>
+  This method is the first method called for a given frame on the node. Its
+  purpose is to update all frame-specific per-node data, and to unlock all
+  resources underneath the node by calling <code>Node::startFrame</code>. The
+  default implementation calls <code>Node::startFrame</code>.
+</p>
+
+<h3>Node::frameFinish</h3>
+<p>
+  This method is the last method called for a given frame in the node
+  thread. Its purpose is to update frame-specific data after a frame has been
+  finished rendering, and to unlock the parent by
+  calling <code>Node::endFrame</code>. The frame finishing can be older than the
+  last frame started, depending on the config's latency. The default
+  implementation calls <code>Node::endFrame</code>.
+</p>
+
+<a href="#top">Back to top</a>
+<hr><a name="pipe"></a>
+<h2>Pipe</h2>
+<p>
+  The pipe represents a graphic card. It is instanciated
+  during <code>Config::init</code> on the render nodes. All pipe, window and
+  channel task methods are currently called from the pipe thread.
+</p>
+
+<h3>Pipe::configInit</h3>
+<p>
+  This method is called during <code>Config::init</code> on the render
+  clients. Its purpose is to initialize pipe-specific application data and the
+  handle to the graphic card, if applicable for the current window system. The
+  default implementation calls a windows-system specific task method,
+  e.g. <code>configInitGLX</code>, which initializes the handle to the graphic
+  card. The application typically allocates a renderer and other
+  rendering-specific data for each pipe, since each pipe runs in a separate
+  thread. A return value of <code>false</code> causes the config initialization
+  to fail.
+</p>
+
+<h3>Pipe::configExit</h3>
+<p>
+  This method is called during <code>Config::exit</code> on the render
+  clients. Its purpose is to de-initialize pipe-specific application data and
+  the handle to the graphic card, if applicable. The default implementation
+  calls a window-system specific task method, e.g. <code>configExitGLX</code>,
+  which closes the handle to the graphic card. A return value
+  of <code>false</code> causes the config exit to fail.
+</p>
+
+<a name="pipestartframe"></a>
+<h3>Pipe::frameStart</h3>
+<p>
+  This method is the first method called for a given frame in the pipe
+  thread. Its purpose is to update all frame-specific data to the version
+  corresponding to the started frame, and to unlock all resources underneath the
+  pipe by calling <code>Pipe::startFrame</code>. The default implementation
+  calls <code>Pipe::startFrame</code>.
+</p>
+
+<h3>Pipe::frameFinish</h3>
+<p>
+  This method is the last method called for a given frame in the pipe
+  thread. Its purpose is to update frame-specific data after a frame has been
+  finished rendering, and to unlock the parent by
+  calling <code>Pipe::endFrame</code>. The default implementation
+  calls <code>Pipe::endFrame</code>.
+</p>
+
+<a href="#top">Back to top</a>
+<hr><a name="window"></a>
+<h2>Window</h2>
+<p>
+  The window represents an OpenGL drawable. It is instanciated
+  during <code>Config::init</code> on the render nodes. All window and
+  channel task methods are called from the pipe thread, with the exception of 
+  <code>processEvent</code>, which might be called from a separate event thread.
+</p>
+
+<a name="windowinit"></a>
+<h3>Window::configInit</h3>
+<p>
+  This method is called during <code>Config::init</code> on the render
+  clients. Its purpose is to initialize an OpenGL drawable and context, to setup
+  the OpenGL state, as well as to initialize window-specific application
+  data. The default implementation calls a windows-system specific task method,
+  e.g. <code>configInitGLX</code>, which creates a drawable and context
+  according to the window's attributes, and then calls <code>configInitGL</code>
+  if the context creation was successful. A return value of <code>false</code>
+  causes the config initialization to fail.
+</p>
+
+<h3>Window::configExit</h3>
+<p>
+  This method is called during <code>Config::exit</code> on the render
+  clients. Its purpose is to destroy the OpenGL context and drawable, as wall as
+  to de-initialize window-specific application data. The default implementation
+  calls a windows-system specific task method, e.g. <code>configExitGLX</code>,
+  which destroyes the context and drawable. A return value of <code>false</code>
+  causes the config exit to fail.
+</p>
+
+<h3>Window::frameStart</h3>
+<p>
+  This method is the first window task method called for a given frame. Its
+  purpose is to update all frame-specific data for this window, and to unlock
+  the resources underneath by calling <code>Window::startFrame</code>. The
+  default implementation calls <code>Window::startFrame</code>.
+</p>
+
+<h3>Window::frameFinish</h3>
+<p>
+  This method is the last method called for a given frame in the window
+  thread. Its purpose is to update frame-specific data after the window has
+  finished rendering a frame, and to unlock its parent by
+  calling <code>Window::endFrame</code>. The default implementation
+  calls <code>Window::endFrame</code>.
+</p>
+
+<h3>Window::makeCurrent</h3>
+<p>
+  Makes the OpenGL context for the window current. The default implementation
+  calls a window-specific method to attach the OpenGL context, e.g.,
+  <code>glXMakeCurrent</code>.
+</p>
+
+<h3>Window::swapBuffers</h3>
+<p>
+  Swap the back and front rendering buffer. The default implementation
+  calls a window-specific method to swap the buffers, e.g.,
+  <code>glXSwapBuffers</code>.
+</p>
+
+<h3>Window::finish</h3>
+<p>
+  Complete the rendering of all OpenGL commands. The purpose of this method is to
+  ensure that the rendering has been finished, for example to ensure a
+  simultaneous buffer swap of multiple windows. The default implementation
+  calls a <code>glFinish</code>.
+</p>
+
+<h3>Window::processEvent</h3>
+<p>
+  Process a single event received by this window. The default implementation
+  either processes the event locally or converts it to
+  a <code>ConfigEvent</code>, which is send application thread by
+  using <code>Config::sendEvent</code>. This method may be called from the
+  window thread or from a seperate event thread, depending on the window system.
+</p>
+
+
+<a href="#top">Back to top</a>
+<hr><a name="channel"></a>
+<h2>Channel</h2>
+<p>
+  The channel is a viewport in a window. It executes the rendering tasks. All
+  channel methods are called from the pipe thread. The channel rendering methods
+  are given contextual information which are to be used during rendering, either
+  by using the convenience apply functions, e.g., <code>applyViewport</code>, or
+  by getting the values and calling the appropriate OpenGL functions.
+</p>
+
+<h3>Channel::configInit</h3>
+<p>
+  This method is called during <code>Config::init</code> on the render
+  clients. Its purpose is to initialize channel-specific application data. The
+  default implementation is empty. A return value of <code>false</code> causes
+  the config initialization to fail.
+</p>
+
+<h3>Channel::configExit</h3>
+<p>
+  This method is called during <code>Config::exit</code> on the render
+  clients. Its purpose is to de-initialize channel-specific application
+  data. The default implementation is empty. A return value
+  of <code>false</code> causes the config exit to fail.
+</p>
+
+<h3>Channel::frameStart</h3>
+<p>
+  This method is the first channel task method called for a given frame. Its
+  purpose is to unlock the resources underneath by
+  calling <code>Channel::startFrame</code>. The default implementation
+  calls <code>Channel::startFrame</code>.
+</p>
+
+<h3>Channel::frameFinish</h3>
+<p>
+  This method is the last method called for a given frame in the channel
+  thread. Its purpose is to update frame-specific data after the channel has
+  finished rendering a frame, and to unlock its parent by
+  calling <code>Channel::endFrame</code>. The default implementation
+  calls <code>Channel::endFrame</code>.
+</p>
+
+<h3>Channel::frameClear</h3>
+<p>
+  Clear the frame buffer. The function has to use the provided draw buffer
+  (see <code>getBuffer</code>) and viewport (see <code>getViewport</code>). The
+  default method applies the draw buffer and viewport and clears the color and
+  depth buffer.
+</p>
+
+<a name="channeldraw"></a>
+<h3>Channel::frameDraw</h3>
+<p>
+  Render the scene. The function has to use the provided draw buffer
+  (see <code>getBuffer</code>), viewport (see <code>getViewport</code>), frustum
+  (see <code>getFrustum</code>, head transformation
+  (see <code>getHeadTransform</code>) and range for sort-last rendering
+  (see <code>getRange</code>). The default implementation applies the buffer,
+  viewport, frustum and head transform and draw a quad.
+</p>
+
+<h3>Channel::frameAssemble</h3>
+<p>
+  Assemble all provided input frames. The function has to use the provided draw
+  buffer (see <code>getBuffer</code>), viewport (see <code>getViewport</code>)
+  and input frames (see <code>getInputFrames</code>). The default method applies
+  the draw buffer and viewport, calls <code>setupAssemblyState</code>, assembles
+  the input frames using <code>glDrawPixels</code> and
+  calls <code>resetAssemblyState</code>. If the input frame has depth
+  information, it is z-composited using the stencil buffer with the information
+  in the channel's frame buffer. The frames are assembled in an arbitrary order
+  as they become available.
+</p>
+
+<h3>Channel::frameReadback</h3>
+<p>
+  Readback the frame buffer. The function has to use the provided draw buffer
+  (see <code>getBuffer</code>), viewport (see <code>getViewport</code>) and
+  output frames (see <code>getOutputFrames</code>). The output frames specify
+  the frame buffer attachments (color, depth) to read back. The default method
+  applies the draw buffer and viewport, calls <code>setupAssemblyState</code>,
+  reads back the output frames using <code>glReadPixels</code> and
+  calls <code>resetAssemblyState</code>.
+</p>
+
+<h3>Channel::setupAssemblyState</h3>
+<p>
+  Setup the OpenGL state for a readback or assemble operation. The default
+  implementation is very conservative and saves any state which is potentially
+  changed by the assembly routines. This method is always called in conjunction
+  with a later <code>resetAssemblyState</code>.
+</p>
+
+<h3>Channel::resetAssemblyState</h3>
+<p>
+  Reset the OpenGL state after an assembly operation.
+</p>
+
+<hr><a name="old"></a>
+<h1>Equalizer 0.2 Implementation</h1>
+
+<hr>
 <h2>Overview</h2>
 <p>
   The application developer overrides methods on Equalizer classes to plug in
@@ -31,7 +415,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a href="#top">Back to top</a>
-<hr><a name="nodefactory"></a>
+<hr>
 <h2>NodeFactory</h2>
 <p>
   The <code>NodeFactory</code> is the place where the subclassed Equalizer
@@ -43,7 +427,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a href="#top">Back to top</a>
-<hr><a name="config"></a>
+<hr>
 <h2>Config</h2>
 <p>
   The config represents an Equalizer session and controls frame generation. It
@@ -106,8 +490,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a href="#top">Back to top</a>
-<hr><a name="node"></a>
-<a name="nodeinit"></a>
+<hr>
 <h2>Node</h2>
 <p>
   The node represent a single machine in the cluster. It is instanciated on the
@@ -131,7 +514,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a href="#top">Back to top</a>
-<hr><a name="pipe"></a>
+<hr>
 <h2>Pipe</h2>
 <p>
   The pipe represents a graphic card. It is instanciated
@@ -152,7 +535,6 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   to fail.
 </p>
 
-<a name="pipestartframe"></a>
 <h3>Pipe::exit</h3>
 <p>
   This method is called during <code>Config::exit</code> on the render
@@ -178,8 +560,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <a href="#top">Back to top</a>
-<hr><a name="window"></a>
-<a name="windowinit"></a>
+<hr>
 <h2>Window</h2>
 <p>
   The window represents an OpenGL drawable. It is instanciated
@@ -257,7 +638,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 
 
 <a href="#top">Back to top</a>
-<hr><a name="channel"></a>
+<hr>
 <h2>Channel</h2>
 <p>
   The channel is a viewport in a window. It executes the rendering tasks. All
@@ -283,7 +664,6 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   of <code>false</code> causes the config exit to fail.
 </p>
 
-<a name="channeldraw"></a>
 <h3>Channel::clear</h3>
 <p>
   Clear the frame buffer. The function has to use the provided draw buffer
