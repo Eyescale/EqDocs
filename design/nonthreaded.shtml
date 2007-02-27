@@ -7,8 +7,8 @@
 #include "header.shtml"
 
 <p>
-Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
-Implemented in: v0.3<br/2>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br>
+Implementation in progress.<br>
 </p>
 
 <h2>Overview</h2>
@@ -17,9 +17,11 @@ Implemented in: v0.3<br/2>
   adds the capability to update certain windows from the main application
   thread, i.e., they are nonthreaded. This allows applications with an existing
   main GUI loop and OpenGL drawables to have them updated by Equalizer, while
-  using additional resources for scalable rendering or as auxilary views.  Using
-  nonthreaded channels as a source for scalable rendering is not a supported use
-  case, but may work coincidentally for some configurations.
+  using additional resources for scalable rendering or as auxilary
+  views. Updating windows from the main thread avoids thread-safety issues with
+  the windowing system and widget library. Using nonthreaded channels as a
+  source for scalable rendering is not a supported use case, but may work
+  coincidentally for some configurations.
 </p><p>
   Nonthreaded execution on render client processes happens in the main thread,
   similarly to the execution on the application process.
