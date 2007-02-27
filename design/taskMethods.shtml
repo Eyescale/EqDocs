@@ -162,9 +162,9 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   This method is the last method called for a given frame in the node
   thread. Its purpose is to update frame-specific data after a frame has been
   finished rendering, and to unlock the parent by
-  calling <code>Node::endFrame</code>. The frame finishing can be older than the
+  calling <code>Node::releaseFrame</code>. The frame finishing can be older than the
   last frame started, depending on the config's latency. The default
-  implementation calls <code>Node::endFrame</code>.
+  implementation calls <code>Node::releaseFrame</code>.
 </p>
 
 <a href="#top">Back to top</a>
@@ -214,8 +214,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   This method is the last method called for a given frame in the pipe
   thread. Its purpose is to update frame-specific data after a frame has been
   finished rendering, and to unlock the parent by
-  calling <code>Pipe::endFrame</code>. The default implementation
-  calls <code>Pipe::endFrame</code>.
+  calling <code>Pipe::releaseFrame</code>. The default implementation
+  calls <code>Pipe::releaseFrame</code>.
 </p>
 
 <a href="#top">Back to top</a>
@@ -264,8 +264,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   This method is the last method called for a given frame in the window
   thread. Its purpose is to update frame-specific data after the window has
   finished rendering a frame, and to unlock its parent by
-  calling <code>Window::endFrame</code>. The default implementation
-  calls <code>Window::endFrame</code>.
+  calling <code>Window::releaseFrame</code>. The default implementation
+  calls <code>Window::releaseFrame</code>.
 </p>
 
 <h3>Window::makeCurrent</h3>
@@ -340,8 +340,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   This method is the last method called for a given frame in the channel
   thread. Its purpose is to update frame-specific data after the channel has
   finished rendering a frame, and to unlock its parent by
-  calling <code>Channel::endFrame</code>. The default implementation
-  calls <code>Channel::endFrame</code>.
+  calling <code>Channel::releaseFrame</code>. The default implementation
+  calls <code>Channel::releaseFrame</code>.
 </p>
 
 <h3>Channel::frameClear</h3>
@@ -401,7 +401,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
 <hr><a name="old"></a>
-<h1>Equalizer 0.2 Implementation</h1>
+<h1>Equalizer 0.3 alpha Implementation</h1>
 
 <hr>
 <h2>Overview</h2>
