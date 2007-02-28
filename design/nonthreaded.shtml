@@ -19,9 +19,13 @@ Implementation in progress.<br>
   main GUI loop and OpenGL drawables to have them updated by Equalizer, while
   using additional resources for scalable rendering or as auxilary
   views. Updating windows from the main thread avoids thread-safety issues with
-  the windowing system and widget library. Using nonthreaded channels as a
-  source for scalable rendering is not a supported use case, but may work
-  coincidentally for some configurations.
+  the windowing system and widget library.
+</p>
+<p>
+  Using nonthreaded channels as a source for scalable rendering is not a
+  supported use case, i.e., a nonthreaded channel should not produce any output
+  frames. A nonthreaded channel can contribute to the rendering of its own view,
+  as this does not create any dependency for other channels.
 </p><p>
   Nonthreaded execution on render client processes happens in the main thread,
   similarly to the execution on the application process.
@@ -69,7 +73,7 @@ Implementation in progress.<br>
 <!-- /* --><pre>
   global
   {
-      EQ_PIPE_IATTR_HINT_THREAD off | on
+      EQ_PIPE_IATTR_HINT_THREAD   off | on
   }
 
   pipe
@@ -77,7 +81,7 @@ Implementation in progress.<br>
       ...
       attributes
       {
-          hint_thread off | on
+          hint_thread   off | on
       }
       ...
   }

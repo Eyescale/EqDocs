@@ -48,6 +48,7 @@ global
      EQ_CONNECTION_IATTR_TCPIP_PORT      unsigned
      EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT  unsigned
      EQ_CONFIG_FATTR_EYE_BASE            float
+     EQ_PIPE_IATTR_HINT_THREAD           off | on
      EQ_WINDOW_IATTR_HINT_STEREO         off | on | auto
      EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER   off | on | auto
      EQ_WINDOW_IATTR_HINT_DECORATION     off | on
@@ -86,6 +87,11 @@ server
                 display  unsigned     // X server number or ignored
                 screen   unsigned     // graphics adapter number
                 viewport [ viewport ] // default: autodetect
+                attributes
+                {
+                    hint_thread   off | on   // default on
+                }
+
                 window
                 {
                     name     string
