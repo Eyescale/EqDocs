@@ -10,14 +10,25 @@
 Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 </p>
 
-<h2>Application (app) Thread</h2>
+<h2>Application (app) Main Thread</h2>
 <p>
   The app thread is the main execution thread of an Equalizer application,
-  typically the one running main(). It drives the application's rendering. The
-  app thread of a render node does currently nothing. The app thread of the
-  server handles all blocking requests, i.e., all requests which require further
-  network communication.
+  typically the one running main(). It drives the application's rendering and
+  executes <a href="documents/design/taskMethods.html#node">node tasks</a>
+  and <a href="documents/design/nonthreaded.html">nonthreaded rendering</a>
+  tasks.
 </p>
+
+<h2>Render Client Main Thread</h2>
+<p>
+  The render client main thread is very similar to the application thread, in
+  that it executes <a href="documents/design/taskMethods.html#node">node
+  tasks</a> and <a href="documents/design/nonthreaded.html">nonthreaded
+  rendering</a> tasks. The only difference is that it does not drive the
+  application's, and that the main loop is controlled by the Equalizer client
+  library.
+</p>
+
 
 <h2>Receiver (recv) Thread</h2>
 <p>
@@ -25,14 +36,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   Node::initLocal(). It listens on all connections and reads the data into
   packets. The packets are <a href="documents/design/packets.html">dispatched to
   the command handler functions</a>. The command handler functions in the
-  receiver thread should never block to avoid deadlocks.
-</p>
-
-<h2>Node Thread</h2>
-<p>
-  The node thread does execute all node functions (init, exit), sent by the
-  server. The commands are dispatched from the receiver thread to the node
-  thread using a fifo. Therefore, the node thread may block its execution.
+  receiver thread should never block to avoid deadlocks. An exception are
+  nonthreaded pipes, which are executed from the main thread.
 </p>
 
 <h2>Pipe Thread(s)</h2>
