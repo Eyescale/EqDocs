@@ -234,19 +234,23 @@
   occur when output and input frames are used inappropriately.
 </p><p>
   TODO: Queues and culling semantics
-</p><p><a name="swapbarrier"></a>
-  Swap barriers synchronize the compound's window before the execution
-  of <em>eq::Window::swap</em>. If a swap barrier is
-  set, <em>eq::Window::finish</em> is called before the barrier is entered. By
-  default, this function calls <em>glFinish</em> to ensure the immediate
-  execution of the swapbuffer command after the barrier is left. Deadlocks are
-  not checked and can occur if multiple swap barriers are used inappropriately.
+</p>
+<p>
+  <a name="swapbarrier"></a> Swap barriers synchronize the compound's window
+  before the execution of <code>eq::Window::swap</code>. If a swap barrier is
+  set, <code>eq::Window::finish</code> is called before the barrier is
+  entered. By default, this function calls <code>glFinish</code> to ensure the
+  immediate execution of the swapbuffer command after the barrier is
+  left. Deadlocks are not checked and can occur if multiple swap barriers are
+  used inappropriately.
 </p>
 
 <a name="Images"/>
 <h3>Images</h3>
-Outsourced to a separate <a href="documents/design/frames.html">frames
+<p>
+  Outsourced to a separate <a href="documents/design/frames.html">frames
   specification</a> document.
+</p>
 
 <a name="Restrictions"/>
 <h2>Restrictions</h2>
