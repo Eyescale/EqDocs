@@ -36,8 +36,7 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   Node::initLocal(). It listens on all connections and reads the data into
   packets. The packets are <a href="documents/design/packets.html">dispatched to
   the command handler functions</a>. The command handler functions in the
-  receiver thread should never block to avoid deadlocks. An exception are
-  nonthreaded pipes, which are executed from the main thread.
+  receiver thread should never block to avoid deadlocks.
 </p>
 
 <h2>Pipe Thread(s)</h2>
@@ -45,7 +44,8 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
   All commands for a pipe and its siblings (windows, channels) are executed in a
   separate thread for optimal performance. The commands are dispatched from the
   receiver thread to the node thread using a fifo. Therefore, the pipe thread
-  may block its execution.
+  may block its execution. An exception are nonthreaded pipes, which are
+  executed from the main thread.
 </p>
 
 #include "footer.shtml"
