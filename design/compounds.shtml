@@ -136,9 +136,13 @@
      inputframe { name "frame.buffer" }
  }
 </pre><!-- */ -->
-</p><p>
-  Each compound executes the tasks in the order they appear below. DRAW
-  tasks are only executed on leaf compounds. The following tasks are possible:
+</p>
+<p>
+  Each compound executes the tasks in the order they appear below. The default
+  tasks for non-leaf compounds are assemble and readback. The default tasks for
+  leaf compounds are all tasks. Assemble and readback tasks are only executed if
+  output or input frames have been specified, respectively. The following tasks
+  are possible:
   <ul>
     <li>CLEAR: clears the frame buffer. Uses eye and viewport (see below for
       attributes)</li>
@@ -149,9 +153,8 @@
     <li>DRAW: Performs rendering. Uses eye, viewport, range and input
       queues.<br/>
       Q: Default input queue?</li>
-    <li>compounds: This is not a task. The tasks for the direct child
-      compounds are executed after CULL (DRAW is not executed on non-leaf
-      compounds).</li>
+    <li>compounds: This is not a task. The tasks for all direct child
+      compounds are executed here.</li>
     <li>ASSEMBLE: Assembles input frames. Uses input frames. Derives eye and
       viewport from output frames associated with input frames. By
       default, the task executes the assembly unordered and potentially

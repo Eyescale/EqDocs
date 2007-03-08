@@ -1,0 +1,40 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE InfiniBand
+
+#include "header.shtml"
+
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br>
+Tested with svn tree.<br>
+</p>
+
+<h2>Overview</h2>
+<p>
+  InfiniBand (IB) is supported using the SDP layer. This layer is transparent to
+  socket-based applications, such as the Equalizer network layer. This document
+  describes the setup to use IB hardware with Equalizer applications.
+</p>
+
+<h2>Windows XP</h2>
+<ul>
+  <li>Download and install the WinIB Software from Mellanox
+    (<a href="http://www.mellanox.com">www.mellanox.com</a>, go to
+    Product: Software: WinIB)</li>
+  <li>Setup the network ports with private IP addressing, e.g., address
+    10.1.1.x, netmask 255.255.255.0, no default gateway or DNS.</li>
+  <li>If you are using a two-node back-to-back configuration, start one subnet
+    manager per IB port (%ProgramFiles%/Mellanox/WinIB/bin/OpenSM.exe).</li>
+  <li>Use the IP addresses, as configured above, as the hostname in the node
+    configuration section.</li>
+</ul>
+
+<h2>Linux</h2>
+<p>
+  Not yet tested.
+</p>
+
+#include "footer.shtml"
+<!-- $Id$ -->
