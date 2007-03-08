@@ -75,6 +75,7 @@ server
         (node|appNode) // 1-n times, a system in the cluster
                        // 0|1 appNode: launches render thread within app process
         {
+            name     string
             connection // 0-n times, possible connections to this node
             {
                 type     TCPIP    // other protocols when implemented
@@ -84,6 +85,7 @@ server
             }
             pipe // 1-n times
             {
+                name     string
                 display  unsigned     // X server number or ignored
                 screen   unsigned     // graphics adapter number
                 viewport [ viewport ] // default: autodetect
