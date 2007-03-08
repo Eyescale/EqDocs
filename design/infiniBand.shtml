@@ -27,8 +27,8 @@ Tested with svn tree.<br>
     10.1.1.x, netmask 255.255.255.0, no default gateway or DNS.</li>
   <li>If you are using a two-node back-to-back configuration, start one subnet
     manager per IB port (%ProgramFiles%/Mellanox/WinIB/bin/OpenSM.exe).</li>
-  <li>Use the IP addresses, as configured above, as the hostname in the node
-    configuration section.</li>
+  <li>Use the IP addresses, as configured above, as the hostname for the node
+    connection settings in the configuration files.</li>
 </ul>
 
 <h2>Linux</h2>
