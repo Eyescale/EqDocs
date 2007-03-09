@@ -86,8 +86,8 @@ server
             pipe // 1-n times
             {
                 name     string
-                display  unsigned     // X server number or ignored
-                screen   unsigned     // graphics adapter number
+                port     unsigned     // X server number or ignored
+                device   unsigned     // graphics adapter number
                 viewport [ viewport ] // default: autodetect
                 attributes
                 {
