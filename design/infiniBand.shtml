@@ -23,6 +23,7 @@ Tested with svn tree.<br>
   <li>Download and install the WinIB Software from Mellanox
     (<a href="http://www.mellanox.com">www.mellanox.com</a>, go to
     Product: Software: WinIB)</li>
+  <li>At the end of the installer, select 'Enable Socket Direct Protocol'</li>
   <li>Setup the network ports with private IP addressing, e.g., address
     10.1.1.x, netmask 255.255.255.0, no default gateway or DNS.</li>
   <li>If you are using a two-node back-to-back configuration, start one subnet

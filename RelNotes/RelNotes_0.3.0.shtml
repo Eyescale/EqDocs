@@ -1,17 +1,17 @@
 #define S_DOCUMENTATION
 #define S_DOCUMENTATION_RELNOTES
 #define PAGE Release Notes
-#define SUBPAGE Release Notes for Equalizer 0.3 Alpha
+#define SUBPAGE Release Notes for Equalizer 0.3 Beta
 
 #include "header.shtml"
 
 <p>
-  Welcome to Equalizer 0.3 alpha, a framework for the development and deployment
+  Welcome to Equalizer 0.3 beta, a framework for the development and deployment
   of scalable multipipe applications, based on C++ and OpenGL. The major new
-  feature in Equalizer 0.3 alpha is support for the Windows operating system.
+  feature in Equalizer 0.3 beta is support for the Windows operating system.
 </p>
 <p>
-  Equalizer 0.3 alpha is an alpha release, and therefore intended as preview and
+  Equalizer 0.3 beta is an beta release, and therefore intended as preview and
   evaluation snapshot for application developers and early adopters.
 </p>
 
@@ -46,35 +46,41 @@
   <li>Support for Windows XP and Visual Studio 2005</li>
   <li>Anaglyphic stereo rendering</li>
   <li>Improved distributed object support</li>
+  <li>Support for nonthreaded rendering</li>
+  <li>New, Equalizer-based benchmark tool for pixel readback and draw 
+    operations</li>
+  <li>Support for application-specific config events</li>
+  <li>Addressing of indidual graphic cards on Windows using
+    the <a href="http://developer.download.nvidia.com/opengl/specs/WGL_nv_gpu_affinity.txt">WGL_NV_gpu_affinity</a>
+    extension</li>
 </ul>
 
 <h4>Bug Fixes</h4>
 <p>
-  Equalizer 0.3 alpha includes various bugfixes over the previous release.
+  Equalizer 0.3 beta includes various bugfixes over the previous release.
 </p>
 
 <h4>New Documentation</h4>
 <ul>
   <li><a href="documents/design/anaglyph.html">Anaglyphic Stereo 
       Specification</a></li>
+  <li><a href="documents/design/nonthreaded.html">Nonthreaded Rendering</a></li>
+  <li><a href="documents/design/infiniBand.html">Infiniband Setup</a></li>
 </ul>
 <h4>Known Bugs</h4>
 <ul>
-  <li>Multi-node configurations using scalable rendering on Windows have a race
-    condition producing deadlocks.</li>
 </ul>
 
 <h3>Supported Platforms</h3>
 <p>
   The platforms supported below are the primary development platforms. Equalizer
   is designed to run on a variety of platforms, including all Unix variants and
-  the Windows operating system. Equalizer 0.3 alpha supports:
+  the Windows operating system. Equalizer 0.3 beta supports:
 </p>
 <h4>Operating System Support</h4>
 <ul>
-  <li><b>Linux:</b> SuSE Linux 10 (x86_64, i386), SLES 9.0 (ia64), Ubuntu 6.06
-    (i386)</li>
-  <li><b>Windows:</b> XP with Visual Studio 2005 (i386)</li>  
+  <li><b>Linux:</b> SuSE Linux 10 (x64, i386), Ubuntu 6.10 (i386)</li>
+  <li><b>Windows:</b> XP with Visual Studio 2005 (i386, x64)</li>  
   <li><b>Mac OS X:</b> 10.4 (PowerPC, i386)</li>
 </ul>
 <h4>Window System Support</h4>
