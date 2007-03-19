@@ -46,13 +46,14 @@
   <li>Support for Windows XP (i386, x64) and Visual Studio 2005</li>
   <li>Anaglyphic stereo rendering</li>
   <li>Improved distributed object support</li>
-  <li>Support for nonthreaded rendering</li>
-  <li>New, Equalizer-based benchmark tool for pixel readback and draw 
-    operations</li>
-  <li>Support for application-specific config events</li>
+  <li>Nonthreaded rendering from the main application thread</li>
   <li>Addressing of indidual graphic cards on Windows using
     the <a href="http://developer.download.nvidia.com/opengl/specs/WGL_nv_gpu_affinity.txt">WGL_NV_gpu_affinity</a>
     extension</li>
+  <li>New Equalizer-based benchmark tool for pixel readback and draw 
+    operations</li>
+  <li>New Equalizer-based benchmark tool for network bandwidth</li>
+  <li>Support for application-specific config events</li>
 </ul>
 
 <h4>Bug Fixes</h4>
@@ -69,6 +70,7 @@
 </ul>
 <h4>Known Bugs</h4>
 <ul>
+  <li>Infiniband network performance is too slow.</li>
 </ul>
 
 <h3>Supported Platforms</h3>
