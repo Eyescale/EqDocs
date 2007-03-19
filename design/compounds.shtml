@@ -292,18 +292,18 @@
        eye      [ CYCLOP LEFT RIGHT ]
        period   [int]
        phase    [int]
-       jitter   [ x y | auto ]
+       jitter   [ x y | AUTO ]
 
-       // later ..frame[task] ?
-       (outputframe|inputframe) 
+       (output|input) 
        {
-           name     "frame-name"  // default see 'Input and Output'
+           frame    "name"
+           queue    "name"                   // later
+           task     ASSEMBLE | READBACK      // later
            buffer   [ COLOR DEPTH STENCIL ]
            viewport [ x y w h ]
            eye      [ CYCLOP LEFT RIGHT ]
        }
 
-       (outputqueue|inputqueue)[CULL|DRAW] { name "queue-name" TBD }
        swapbarrier 
        { 
            name "barrier-name" // default see 'Input and Output'

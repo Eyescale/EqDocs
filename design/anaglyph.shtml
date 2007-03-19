@@ -48,9 +48,9 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
 <!-- /* --><pre>
     global
     {
-        EQ_COMPOUND_IATTR_STEREO_MODE                 quad | anaglyph
-        EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK   [ red green blue ]
-        EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK  [ red green blue ]
+        EQ_COMPOUND_IATTR_STEREO_MODE                 QUAD | ANAGLYPH
+        EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK   [ RED GREEN BLUE ]
+        EQ_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK  [ RED GREEN BLUE ]
     }
 
     compound
@@ -58,10 +58,10 @@ Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
         ...
         attributes
         {
-            stereo_mode                  quad | anaglyph    // default quad
+            stereo_mode                  QUAD | ANAGLYPH    // default quad
             // enable visible color components
-            stereo_anaglyph_left_mask    [ red green blue ] // default red
-            stereo_anaglyph_right_mask   [ red green blue ] // dflt green blue
+            stereo_anaglyph_left_mask    [ RED GREEN BLUE ] // default RED
+            stereo_anaglyph_right_mask   [ RED GREEN BLUE ] // dflt GREEN BLUE
         }
         ...
     }
