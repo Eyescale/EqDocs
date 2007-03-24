@@ -20,8 +20,7 @@ Tested with svn tree.<br>
 
 <h2>Windows XP</h2>
 <p>
-  The Mellanox Windows SDP implementation tested is described in great detail in
-  the
+  The Mellanox Windows SDP implementation is described in great detail in the
   <a href="http://www.mellanox.com/pdf/whitepapers/SDPCluster2006.pdf">Architecture
   and Implementation of Sockets Direct Protocol in Windows</a> paper.
 
@@ -37,6 +36,14 @@ Tested with svn tree.<br>
   <li>Use the IP addresses, as configured above, as the hostname for the node
     connection settings in the configuration files.</li>
 </ul>
+
+<!--
+<p>
+  The current (1.3.0) Mellanox Windows SDP implementation only supports a subset
+  of the Windows socket interface. Most notably, the eqNet layer will have to
+  use overlapped (asynchronous) IO.
+</p>
+-->
 
 <h2>Linux</h2>
 <p>
