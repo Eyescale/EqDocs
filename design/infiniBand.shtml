@@ -21,7 +21,11 @@ Tested with svn tree.<br>
 <h2>Windows XP</h2>
 <h3>Overview</h3>
 <p>
-  The Mellanox Windows SDP implementation is described in great detail in the
+  The usage of InfiniBand requires a Mellanox card, since Mellanox is the only
+  vendor providing a SDP implementation. Often cards from other vendors are
+  Mellanox cards with a different firmware and can be 'converted' by flashing a
+  Mellanox firmware. The Mellanox Windows SDP implementation is described in
+  great detail in the
   <a href="http://www.mellanox.com/pdf/whitepapers/SDPCluster2006.pdf">Architecture
   and Implementation of Sockets Direct Protocol in Windows</a> paper.
 </p>

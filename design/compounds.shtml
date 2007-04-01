@@ -294,14 +294,11 @@
        phase    [int]
        jitter   [ x y | AUTO ]
 
-       (output|input) 
+       (outputframe|inputframe)
        {
-           frame    "name"
-           queue    "name"                   // later
-           task     ASSEMBLE | READBACK      // later
+           name "frame-name"   // default see 'Input and Output'
            buffer   [ COLOR DEPTH STENCIL ]
            viewport [ x y w h ]
-           eye      [ CYCLOP LEFT RIGHT ]
        }
 
        swapbarrier 
@@ -311,6 +308,19 @@
        }
    }
  </pre><!-- */ -->
+
+<!--
+post-0.3 file format?
+       (output|input) 
+       {
+           frame    "name"
+           queue    "name"                   // later
+           task     ASSEMBLE | READBACK      // later
+           buffer   [ COLOR DEPTH STENCIL ]
+           viewport [ x y w h ]
+           eye      [ CYCLOP LEFT RIGHT ]
+       }
+-->
        
 <a name="Examples"/>
 <h2>Example Config Files</h2>
