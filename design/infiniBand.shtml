@@ -62,7 +62,7 @@ Tested with svn tree.<br>
   <li>Use the IP addresses, as configured above, as the hostname for the node
     connection settings in the configuration files.</li>
   <li>Start the server using the SDP server address, for
-    example: <code>eqServer.exe --eq-listen 10.1.1.x</code>.</li>
+    example: <code>eqServer.exe config.eqc --eq-listen 10.1.1.x</code>.</li>
   <li>Start the application so that it connects to the SDP server address and
     uses the local SDP as listening address (instead of localhost), for
     example: <code>eqPly.exe -- --eq-server 10.1.1.x --eq-listen
