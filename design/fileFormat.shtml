@@ -44,7 +44,7 @@ global
 {
      EQ_CONNECTION_SATTR_HOSTNAME        string
      EQ_CONNECTION_SATTR_LAUNCH_COMMAND  string
-     EQ_CONNECTION_IATTR_TYPE            TCPIP  // others (IB, MYRI, ...) later
+     EQ_CONNECTION_IATTR_TYPE            TCPIP | SDP
      EQ_CONNECTION_IATTR_TCPIP_PORT      unsigned
      EQ_CONNECTION_IATTR_LAUNCH_TIMEOUT  unsigned
      EQ_CONFIG_FATTR_EYE_BASE            float
@@ -78,10 +78,11 @@ server
             name     string
             connection // 0-n times, possible connections to this node
             {
-                type     TCPIP    // other protocols when implemented
-                hostname string
-                command  string   // launch command for the render client
-                timeout  unsigned // timeout in milliseconds for launch
+                type       TCPIP | SDP
+                TCPIP_port unsigned
+                hostname   string
+                command    string   // launch command for the render client
+                timeout    unsigned // timeout in milliseconds for launch
             }
             pipe // 1-n times
             {
