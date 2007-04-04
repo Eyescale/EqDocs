@@ -1553,12 +1553,16 @@ Sponsored by:}</string>
 				<integer>0</integer>
 				<key>Text</key>
 				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;\f1\fswiss\fcharset77 Helvetica-Oblique;}
 {\colortbl;\red255\green255\blue255;}
 \deftab720
 \pard\pardeftab720\sa320\qj
 
-\f0\fs20 \cf0 Equalizer is an open source programming interface and resource management system for scalable graphics applications. An Equalizer application can run unmodified on any visualization system, from a singlepipe workstation to large scale graphics clusters and shared memory visualization systems. The foundation of Equalizer is a parallel, scalable programming interface which solves the problems common to any multipipe application.}</string>
+\f0\fs20 \cf0 Equalizer is an open source programming interface and resource management system for 
+\f1\i parallel, scalable
+\f0\i0  OpenGL applications. An Equalizer application can run unmodified on any visualization system, from a singlepipe workstation to large scale graphics clusters and shared memory visualization systems. The foundation of Equalizer is a 
+\f1\i minimally invasive
+\f0\i0  programming interface which addresses the problems common to any multipipe application.}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -1791,9 +1795,13 @@ contact@equalizergraphics.com\
 			<key>AllowConnections</key>
 			<string>NO</string>
 			<key>Bounds</key>
-			<string>{{297.638, 354.331}, {240.945, 155.905}}</string>
+			<string>{{297.638, 354.331}, {240.945, 127.559}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
+			<key>FitText</key>
+			<string>Clip</string>
+			<key>Flow</key>
+			<string>Clip</string>
 			<key>HFlip</key>
 			<string>YES</string>
 			<key>ID</key>
@@ -1831,12 +1839,17 @@ contact@equalizergraphics.com\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa40\qc\pardirnatural
 
 \f0\fs20 \cf0 \expnd0\expndtw0\kerning0
-Open standard for scalable rendering\
-LGPL license\
+Linux, Windows XP and Mac OS X\
+Ethernet, InfiniBand\
+\
+Open standard for parallel rendering\
+LGPL license: commercial and open source use\
 \
 Collaborations welcome\
 Consulting and support available}</string>
 			</dict>
+			<key>TextPlacement</key>
+			<integer>0</integer>
 		</dict>
 		<dict>
 			<key>AllowConnections</key>
@@ -2258,7 +2271,7 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-03-24 17:53:44 +0100</string>
+	<string>2007-04-04 16:49:11 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -2335,7 +2348,7 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{392, 130}, {962, 766}}</string>
+		<string>{{452, 123}, {962, 766}}</string>
 		<key>ShowRuler</key>
 		<false/>
 		<key>ShowStatusBar</key>

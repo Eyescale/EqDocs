@@ -1,0 +1,72 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE Hardware Compositor Integration
+
+#include "header.shtml"
+
+<p>
+  Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br>
+  State: Design Brainstorming
+</p>
+
+<h2>Overview</h2>
+<p>
+  Compositing hardware, such as ATI Crossfire, nVidia SLI or HP Sepia, can help
+  to accelerate scalable rendering by offloading the final result recomposition.
+  This document explains the benefits of an Equalizer integration over a
+  transparent usage, and explores the design of the integration.
+</p>
+
+<h2>Previous Work</h2>
+<p>
+  OpenGL Multipipe SDK did integrate support for the Onyx DPlex option board and
+  the SGI Compositor using the 
+  <a href="http://www.opengl.org/registry/specs/SGIX/hyperpipe_group.txt">GLX_SGIX_hyperpipe</a>
+  extension. The support is mostly transparent to the application, and
+  configured adding a HW flag to the 2D, FSAA or DPLEX compound mode.
+</p>
+
+<h2>Architecture</h2>
+<p>
+  The default mode of Crossfire and SLI is to transparently handle the
+  decomposition and recomposition in the OpenGL driver. This approach leaves the
+  OpenGL command creation (the application) untouched and singlethreaded. In
+  most cases, it can only scale fill rate. The driver has to make educated
+  guesses about the best way to distribute the load.
+</p>
+<p>
+  An Equalizer application is already parallel. Equalizer can transparently
+  handle the compositing hardware and threading for the application, so that
+  each GPU is driven by a separate thread. This has the benefit that the
+  application can restrict the data send to the card based on the GPU's
+  sub-frustrum, and utilize multiple CPU cores.
+</p>
+
+<h3>ATI Crossfire</h3>
+<p>
+  ATI Crossfire is a video compositor. It exists in two flavors: DVI-based and
+  bus-based. The DVI-based version plugs the DVI output of one card into the
+  compositing card, which combines the DVI input with it's own DVI output. The
+  bus-based approach DMA's part of the framebuffer directly from the 'input'
+  card to the 'output' card. Both modes support 2D (sort-first, SFR) and DPlex
+  (time-multiplex, AFR) recomposition.
+</p>
+
+<h3>nVidia SLI</h3>
+<p>
+  nVidia SLI uses a bridge to connect two or four cards. In normal SLI mode, the
+  driver transparently supports 2D (sort-first, SFR) and DPlex (time-multiplex,
+  AFR) modes. In SLI multiview, the screens are setup side-by-side, and the
+  driver broadcasts graphics commands to all GPU's.
+</p>
+
+<div class="footnote">
+  SLI&trade; is a trademark of NVIDIA Corporation. Crossfire&trade; is a
+  trademark of ATI Technologies Inc. All other products named are trademarks of
+  their respective owners.
+</div>
+
+#include "footer.shtml"
+<!-- $Id$ -->
