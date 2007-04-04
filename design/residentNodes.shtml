@@ -1,0 +1,62 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE Resident Render Clients
+
+#include "header.shtml"
+
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br>
+Implemented in svn tree.<br>
+</p>
+
+<h2>Overview</h2>
+<p>
+  Resident render clients are used to minimize the time for initializing a
+  configuration. They are pre-launched by an external mechanism, and connected
+  by the server during config initialization. They allow pre-loading of
+  application data, and the same process is for multiple configuration 'runs'.
+</p>
+
+<h2>Render Client</h2>
+<p>
+  The render client has to be started on a known address. The <code>eqPly</code>
+  example can be started with the <code>-c portNumber</code> option, and it will
+  create a listening socked using the specified TCP/IP port, and then wait for
+  connections from the server.
+</p>
+<p>
+  The relevant code is in 
+  <a href="/cgi-bin/viewvc.cgi/trunk/src/examples/eqPly/eqPly.cpp?view=markup">src/examples/eqPly.cpp</a>.
+  During inialization in <code>initLocal</code>, a listening connection using
+  the given port is created, and the receiver thread is started using this
+  connection. The eqPly run loop executes <code>runClient</code>, which
+  continuously executes a render client loop.
+</p>
+
+<h2>Configuration</h2>
+<p>
+  Once the render clients have been started, the relevant port have to be used
+  in the node connection section of the configuration file, e.g.:
+  <pre>
+    config
+    {
+        node
+        {
+            connection
+            {
+                hostname   "node1"
+                TCPIP_port 4243
+            }
+        }
+        ...
+     }
+  </pre>
+  The server will first try to connect to this address, and only auto-launch the
+  node if the connection fails. If auto-launching the clients is undesired, a
+  launch command which always fails can be configured.
+</p>
+
+#include "footer.shtml"
+<!-- $Id$ -->
