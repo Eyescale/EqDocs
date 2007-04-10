@@ -76,9 +76,9 @@
 <p>
   The current (1.3.0) Mellanox Windows SDP implementation only supports a subset
   of the Windows socket interface. Most notably, the eqNet socket connection was
-  rewritten to use overlapped (asynchronous) IO
-  with <a href="http://svn.sourceforge.net/equalizer/?rev=951&view=rev">svn
-  revision 951</a>. TCP/IP connections also exhibit a performance increase due
+  rewritten to use overlapped (asynchronous) IO with 
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=951">svn
+    revision 951</a>. TCP/IP connections also exhibit a performance increase due
   to the use of overlapped IO.
 </p>
 <p>
@@ -88,9 +88,9 @@
 </p>
 <p>
   Related SVN changes:
-  <a href="http://svn.sourceforge.net/equalizer/?rev=951&view=rev">951</a>
-  <a href="http://svn.sourceforge.net/equalizer/?rev=952&view=rev">952</a>
-  <a href="http://svn.sourceforge.net/equalizer/?rev=953&view=rev">953</a>
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=951">951</a>
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=952">952</a>
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=953">953</a>
 </p>
 
 <h3>Limitations</h3>
