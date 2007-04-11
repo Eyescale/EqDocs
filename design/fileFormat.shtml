@@ -65,6 +65,13 @@ global
 }
 server
 {
+    connection // 0-n times, listening connections of the server
+    {
+        type       TCPIP | SDP
+        TCPIP_port unsigned
+        hostname   string
+    }
+
     config // 1-n times, currently only the first one is used by the server
     {
         latency int    // # of frames nodes may fall behind application
