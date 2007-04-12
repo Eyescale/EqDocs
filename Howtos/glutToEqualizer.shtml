@@ -1,0 +1,76 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE Equalizer for GLUT Developers
+
+#include "header.shtml"
+
+<p>
+  The following table gives an overview on how the most commonly used GLUT
+  functions map to Equalizer.
+</p>
+<table>
+  <tr><th>GLUT</th><th>Equalizer</th></tr>
+  <tr>
+    <td>glutInit</td>
+    <td>eq::init, Client::initLocal, Client::connectServer, 
+      Server::chooseConfig</td>
+  </tr>
+  <tr>
+    <td>glutInitDisplayString, glutGameModeString, glutFullScreen,
+      glutEnterGameMode, glutInitDisplayMode</td>
+    <td>Window attributes from 
+      <a href="documents/design/fileFormat.html">config file</a<</td>
+  </tr>
+  <tr>
+    <td>glutInitWindowSize</td>
+    <td>Window viewport from <a href="documents/design/fileFormat.html">config 
+        file</a></td>
+  </tr>
+  <tr>
+    <td>glutCreateWindow</td>
+    <td>
+      <a href="documents/design/taskMethods.html#configinit">Config::init</a>
+      causes 
+      <a href="documents/design/taskMethods.html#windowinit">Window::configInit</a>
+      to be called for each window used by the current configuration</td>
+  </tr>
+  <tr>
+    <td>glutMainLoop, glutPostRedisplay, glutIdleFunc</td>
+    <td>
+      <a href="documents/design/taskMethods.html#configstartframe">Config::startFrame</a>,
+      <a href="documents/design/taskMethods.html#configfinishframe">Config::finishFrame</a>
+      (explicit, application-controlled main loop)</td>
+  </tr>
+  <tr>
+    <td>glutDisplayFunc</td>
+    <td>
+      <a href="documents/design/taskMethods.html#channelclear">Channel::frameClear</a>
+      , 
+      <a href="documents/design/taskMethods.html#channeldraw">Channel::frameDraw</a>
+</td>
+  </tr>
+  <tr>
+    <td>glutReshapeFunc, glutKeyboardFunc, glutMouseFunc, 
+      glutVisibilityFunc, glutMotionFunc</td>
+    <td>
+      <a href="documents/design/taskMethods.html#confighandleevent">Config::handleEvent</a>
+      , 
+      <a href="documents/design/taskMethods.html#windowprocessevent">Window::processEvent</a>
+</td>
+  </tr>
+  <tr>
+    <td>glutSwapBuffers</td>
+    <td>
+      <a href="documents/design/taskMethods.html#windowswap">Window::swapBuffers</a>
+      (called automatically at the end of a frame)</td>
+  </tr>
+  <tr>
+    <td>glutCreateMenu and other menu functions, glutStrokeCharacter, glut
+      primitives (cube, sphere, etc.)</td> 
+    <td>not available, outside the scope of Equalizer</td>
+  </tr>
+</table>
+#include "footer.shtml"
+<!-- $Id$ -->

@@ -67,6 +67,7 @@
   during <code>eq::Config::init</code>.
 </p>
 
+<a name="configinit"></a>
 <h3>Config::init</h3>
 <p>
   This method is called directly by the application on the application node to
@@ -83,6 +84,7 @@
   calling <code>eq::Config::exit</code>.
 </p>
 
+<a name="configstartframe"></a>
 <h3>Config::startFrame</h3>
 <p>
   This method is called directly by the application on the application node to
@@ -91,6 +93,7 @@
   calling <code>eq::Config::startFrame</code>.
 </p>
 
+<a name="configfinishframe"></a>
 <h3>Config::finishFrame</h3>
 <p>
   This method is called directly by the application on the application node to
@@ -118,6 +121,7 @@
   <a href="documents/design/eventHandling.html">Event Handling</a>.
 </p>
 
+<a name="confighandleevent"></a>
 <h3>Config::handleEvent</h3>
 <p>
   This method is called by <code>Config::handleEvents</code> to process a single
@@ -276,6 +280,7 @@
   <code>glXMakeCurrent</code>.
 </p>
 
+<a name="windowswap"></a>
 <h3>Window::swapBuffers</h3>
 <p>
   Swap the back and front rendering buffer. The default implementation
@@ -291,6 +296,7 @@
   calls a <code>glFinish</code>.
 </p>
 
+<a name="windowprocessevent"></a>
 <h3>Window::processEvent</h3>
 <p>
   Process a single event received by this window. The default implementation
@@ -345,6 +351,7 @@
   calls <code>Channel::releaseFrame</code>.
 </p>
 
+<a name="channelclear"></a>
 <h3>Channel::frameClear</h3>
 <p>
   Clear the frame buffer. The function has to use the provided draw buffer
