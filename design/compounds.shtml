@@ -7,26 +7,34 @@
 #include "header.shtml"
 
 <p>
-  Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+  Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br>
   State: Partly implemented
 </p>
 
+<h2>Table of Contents</h2>
 <ul>
   <li><a href="documents/design/compounds.html#Background">Background</a></li>
   <li><a href="documents/design/compounds.html#Glossary">Glossary</a></li>
-  <li><a href="documents/design/compounds.html#Requirements">Requirements</a></li>
-  <li><a href="documents/design/compounds.html#Specification">Specification</a></li>
+  <li>
+    <a href="documents/design/compounds.html#Requirements">Requirements</a>
+  </li>
+  <li>
+    <a href="documents/design/compounds.html#Specification">Specification</a>
+  </li>
   <ul>
     <li><a href="documents/design/compounds.html#Attributes">Attributes</a></li>
     <li><a href="documents/design/compounds.html#IO">Input and Output</a></li>
     <li><a href="documents/design/compounds.html#Images">Images</a></li>
   </ul>
-  <li><a href="documents/design/compounds.html#Restrictions">Restrictions</a></li>
+  <li>
+    <a href="documents/design/compounds.html#Restrictions">Restrictions</a>
+  </li>
   <li><a href="documents/design/compounds.html#FileFormat">File Format</a></li>
-  <li><a href="documents/design/compounds.html#Examples">Config File Examples</a></li>
+  <li><a href="documents/design/compounds.html#Examples">Config File 
+      Examples</a></li>
 </ul>
 
-<a name="Background"/>
+<a name="Background"></a>
 <h2>Background</h2>
 <p>
   OpenGL Multipipe SDK (MPK) used the concept of compounds to describe
@@ -45,7 +53,7 @@
   send and binary swap.
 </p>
 
-<a name="Glossary"/>
+<a name="Glossary"></a>
 <h2>Glossary</h2>
 <p>
   <ul>
@@ -60,7 +68,7 @@
   </ul>
 </p>
 
-<a name="Requirements"/>
+<a name="Requirements"></a>
 <h2>Requirements</h2>
 <p>
   The following decomposition modes have to be supported:
@@ -106,7 +114,7 @@
   </ul>
 </p>
 
-<a name="Specification"/>
+<a name="Specification"></a>
 <h2>Specification</h2>
 <p>
   Equalizer uses a compound tree, similar to MPK. In contrast to MPK, the
@@ -148,11 +156,11 @@
     <li>CLEAR: clears the frame buffer. Uses eye and viewport (see below for
       attributes)</li>
     <li>CULL: Performs view frustum culling. Uses eye, viewport, range,
-      input queues and output queues.<br/>
-      Q: Default input/output queue?<br/>
+      input queues and output queues.<br>
+      Q: Default input/output queue?<br>
       Q: Other culls, e.g., occlusion?</li>
     <li>DRAW: Performs rendering. Uses eye, viewport, range and input
-      queues.<br/>
+      queues.<br>
       Q: Default input queue?</li>
     <li>compounds: This is not a task. The tasks for all direct child
       compounds are executed here.</li>
@@ -160,10 +168,10 @@
       viewport from output frames associated with input frames. By
       default, the task executes the assembly unordered and potentially
       pipelined or in parallel. Frames with COLOR and DEPTH images use by
-      default a z-based assembly.<br/>
+      default a z-based assembly.<br>
       Overlapping frames with alpha color data use by default an
       unordered blending assembly. Otherwise a tile-based assembly is
-      used. [open]<br/>
+      used. [open]<br>
       Ordering or CPU compositing is application-specific, and has to be
       implemented by the application by using a custom callback.</li>
     <li>READBACK: Reads framebuffer contents. Uses eye, viewport and output
@@ -175,7 +183,7 @@
   </ul>
 </p>
 
-<a name="Attributes"/>
+<a name="Attributes"></a>
 <h3>Attributes</h3>
 <p>
   Attributes are inherited, that is, if they are not defined they are
@@ -210,7 +218,7 @@
   </ul>
 </p>
 
-<a name="IO"/>
+<a name="IO"></a>
 <h3>Input and Output</h3>
 <p>
   Certain tasks generate input and output. Right now, this can be
@@ -249,14 +257,14 @@
   used inappropriately.
 </p>
 
-<a name="Images"/>
+<a name="Images"></a>
 <h3>Images</h3>
 <p>
   Outsourced to a separate <a href="documents/design/frames.html">frames
   specification</a> document.
 </p>
 
-<a name="Restrictions"/>
+<a name="Restrictions"></a>
 <h2>Restrictions</h2>
 <p>
   The cull task, queues, DPlex and subpixel decomposition are not fully
@@ -265,7 +273,7 @@
   using the same output frame multiple times is currently undefined.
 </p>
 
- <a name="FileFormat"/>
+ <a name="FileFormat"></a>
  <h2>File Format</h2>
  <!-- /* --><pre>
    compound
@@ -323,7 +331,7 @@ post-0.3 file format?
        }
 -->
        
-<a name="Examples"/>
+<a name="Examples"></a>
 <h2>Example Config Files</h2>
 <!-- /* --><pre>
    2-channel DB compound:
