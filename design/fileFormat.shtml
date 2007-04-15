@@ -19,7 +19,7 @@ State: Implemented
   changes to the file format. The actual implementation may differ slightly from
   this specification, but we try to keep it up to date. The loader
   implementation is the reference for the file format, look
-  at <code>src/server/loader.y</code>, if you understand lex/yacc code.
+  at <a href="/cgi-bin/viewvc.cgi/trunk/src/server/loader.y?view=markup">src/server/loader.y</a>, if you understand lex/yacc code.
 </p><p>
   Note that this format is the representation for the server's low-level
   scalable rendering engine. Eventually this file format will be replaced by a
