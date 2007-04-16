@@ -36,7 +36,7 @@
   below. Furthermore, only SDP IP addresses are to be used for all connections.
 </p>
 
-<h3>Installation</h3>
+<h3>Installation and Configuration</h3>
 <p>
   The following steps are necessary to use SDP on Windows:
 </p>
@@ -72,6 +72,43 @@
     by <code>EQ_USE_COMPRESSION</code>.</li>
 </ul>
 
+<a name="explicit"></a>
+<h3>Using explicit SDP connections</h3>
+<p>
+  Mellanox is working on providing a patch to allow applications to explicitly
+  specify the socket type, which allows mixing of TCP and SDP sockets. If you
+  have access to this patch, you can use TCP and SDP concurrently. Revisions 
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=1001">1001</a> to 
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=1010">1010</a> implement
+  support for multiple node connections, which means that if a node (or the
+  server) have multiple connections specified in the configuration file, they
+  now listen to <em>all</em> of them, allowing to use mixed connection
+  types. When a node connects to another node, the connections are tried in the
+  order they are specified. Therefore connections should be configured in the
+  fastest-to-slowest order.
+</p>
+<p>
+  Transparent SDP support, as described above, still works the same
+  way. Explicit SDP support is used by not setting the variable SdpApplications,
+  and explicitly configure SDP socket connections:
+  <ul>
+    <li>Unset SdpApplications</li>
+    <li>Set the global connection type to SDP.</li>
+    <li>Start the server as usual, i.e., without the <code>--eq-listen</code>
+      parameter. The server will create one default connection (SDP), unless
+      connections are specified explicetely in the configuration file.</li>
+    <li>Use SDP IP addresses for the nodes in the config file.</code>
+    <li>Start the client with <code>eqPly.exe -- --eq-server 10.1.1.x:SDP 
+        --eq-listen 10.1.1.x:SDP</code>. Note the :SDP qualifier, which is
+      needed for the client to use SDP (it is unaware of the config file
+      during startup!).</li>
+    <li>Optionally configure (secondary) TCPIP connections. Note that when a
+      node has no SDP capabilities, the server and all nodes he connects to
+      (potentially all in the configuration) need to have a secondary TCPIP
+      connection configured.</li>
+  </ul>
+</p>
+
 <h3>Implementation</h3>
 <p>
   The current (1.3.0) Mellanox Windows SDP implementation only supports a subset
@@ -94,10 +131,6 @@
 </p>
 
 <h3>Limitations</h3>
-<p>
-  All machines have to use SDP connections. This is a limitation of the SDP
-  implementation. We are working with Mellanox to remove this limitation.
-</p>
 <p>
   When using SDP, the client process hangs upon exit. We are investigating this
   issue.
