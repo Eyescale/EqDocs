@@ -1,17 +1,17 @@
 #define S_DOCUMENTATION
 #define S_DOCUMENTATION_RELNOTES
 #define PAGE Release Notes
-#define SUBPAGE Release Notes for Equalizer 0.3 Beta
+#define SUBPAGE Release Notes for Equalizer 0.3
 
 #include "header.shtml"
 
 <p>
-  Welcome to Equalizer 0.3 beta, a framework for the development and deployment
+  Welcome to Equalizer 0.3, a framework for the development and deployment
   of scalable multipipe applications, based on C++ and OpenGL. The major new
-  feature in Equalizer 0.3 beta is support for the Windows operating system.
+  feature in Equalizer 0.3 is support for the Windows operating system.
 </p>
 <p>
-  Equalizer 0.3 beta is an beta release, and therefore intended as preview and
+  Equalizer 0.3 is a beta release, and therefore intended as preview and
   evaluation snapshot for application developers and early adopters.
 </p>
 
@@ -46,38 +46,43 @@
   <li>Support for Windows XP (i386, x64) and Visual Studio 2005</li>
   <li>Anaglyphic stereo rendering</li>
   <li>Improved distributed object support</li>
+  <li>Standalone (server-less) application support</li>
   <li>Nonthreaded rendering from the main application thread</li>
   <li>Addressing of indidual graphic cards on Windows using
     the <a href="http://developer.download.nvidia.com/opengl/specs/WGL_nv_gpu_affinity.txt">WGL_NV_gpu_affinity</a>
     extension</li>
+  <li>Support for explicit SDP connections (Windows only)</li>
   <li>New Equalizer-based benchmark tool for pixel readback and draw 
     operations</li>
   <li>New Equalizer-based benchmark tool for network bandwidth</li>
+  <li>Support for multiple listening connections per node</li>
+  <li>Support and example code for resident (pre-started) render clients</li>
   <li>Support for application-specific config events</li>
 </ul>
 
 <h4>Bug Fixes</h4>
 <p>
-  Equalizer 0.3 beta includes various bugfixes over the previous release.
+  Equalizer 0.3 includes various bugfixes over the previous release.
 </p>
 
 <h4>New Documentation</h4>
 <ul>
-  <li><a href="documents/design/anaglyph.html">Anaglyphic Stereo 
-      Specification</a></li>
+  <li><a href="documents/design/anaglyph.html">Anaglyphic Stereo</a></li>
   <li><a href="documents/design/nonthreaded.html">Nonthreaded Rendering</a></li>
-  <li><a href="documents/design/infiniBand.html">Infiniband Setup</a></li>
+  <li><a href="documents/design/infiniBand.html">Infiniband Setup and
+      Configuration</a></li>
+  <li><a href="documents/design/residentNodes.html">Resident Render
+      Clients</a></li>
+  <li><a href="documents/design/standalone.html">Standalone Application 
+      Support</a></li>
 </ul>
 <h4>Known Bugs</h4>
-<ul>
-  <li>Infiniband network performance is too slow.</li>
-</ul>
 
 <h3>Supported Platforms</h3>
 <p>
   The platforms supported below are the primary development platforms. Equalizer
   is designed to run on a variety of platforms, including all Unix variants and
-  the Windows operating system. Equalizer 0.3 beta supports:
+  the Windows operating system. Equalizer 0.3 supports:
 </p>
 <h4>Operating System Support</h4>
 <ul>
@@ -95,7 +100,7 @@
 <h3>Documentation</h3>
 <p>
   Equalizer does not yet have a formal Users or Programmers Guide. The shipped
-  <code>eqPly</code> example provides a reference for developing or porting
+  <a href="http://www.equalizergraphics.com/cgi-bin/viewvc.cgi/tags/release-0.3/src/examples/eqPly/">eqPly example</a> provides a reference for developing or porting
   applications. The <a href="doc_developer.html">Developer Documentation</a>
   on the website provides further design documents for specific features. The
   source code is a last resort for information.

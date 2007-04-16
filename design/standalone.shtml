@@ -1,0 +1,39 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE Standalone Application Support
+
+#include "header.shtml"
+
+<p>
+  Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br>
+  State: Implemented in svn tree
+</p>
+
+<h2>Overview</h2>
+<p>
+  Standalone application support enables running an Equalizer application
+  without a resource server. The configuration is hardcoded to a single-pipe,
+  single-window setup. It is automatically configured when no server could be
+  connected, and a server was not explicitely specified using the --eq-server
+  command line option or EQ_SERVER environment variable. It is intended to ease
+  the deployment to end users without parallel rendering capabilities, i.e.,
+  simple PC usage.
+</p>
+
+<h2>Implementation</h2>
+<p>
+  After trying a local server,
+  <a href="http://www.equalizergraphics.com/cgi-bin/viewvc.cgi/trunk/src/lib/client/client.cpp?view=markup">eq::Client::connectServer</a>
+  tries to launch an Equalizer server as a separate thread within the
+  application's process. The server is connected using two unidirectional pipe()
+  connections. The server library is dynamically loaded
+  using <code>dlopen</code> or <code>LoadLibrary</code>. The special C entry
+  function 
+  <a href="http://www.equalizergraphics.com/cgi-bin/viewvc.cgi/trunk/src/server/startLocalServer.cpp?view=markup">eqsStartLocalServer</a>
+  is used to start the server. The function returns the connection to the server
+  thread, used by eq::Client::connectServer as the server connection.
+</p>
+
+#include "footer.shtml"
