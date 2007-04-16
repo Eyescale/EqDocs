@@ -92,7 +92,7 @@
   way. Explicit SDP support is used by not setting the variable SdpApplications,
   and explicitly configure SDP socket connections:
   <ul>
-    <li>Unset SdpApplications</li>
+    <li>Unset SdpApplications.</li>
     <li>Set the global connection type to SDP.</li>
     <li>Start the server as usual, i.e., without the <code>--eq-listen</code>
       parameter. The server will create one default connection (SDP), unless
@@ -120,14 +120,34 @@
 </p>
 <p>
   The <code>--eq-listen</code> parsing was extended to support a simplified
-  connection description in the form <code>hostname</code>
-  or <code>hostname:IP</code>.
+  connection description in the form <code>hostname(:port)(:type)</code>. Port
+  is an unsigned short value, type is either <code>SDP</code>
+  or <code>TCPIP</code>.
 </p>
+<p>
+  The interpretation of the node configuration has changed. When multiple
+  connections are described, they are all set up as a listening connection
+  during Node::initLocal(). Therefore, nodes can now listen on multiple sockets
+  for incoming connections.
+</p>
+<p>
+  The connection setup code between two nodes has been improved.
+</p>
+<p>
+  The config file now accepts connection descriptions for the server section.
+</p>
+
 <p>
   Related SVN changes:
   <a href="/cgi-bin/viewvc.cgi?view=rev&revision=951">951</a>
   <a href="/cgi-bin/viewvc.cgi?view=rev&revision=952">952</a>
   <a href="/cgi-bin/viewvc.cgi?view=rev&revision=953">953</a>
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=1001">1001</a>
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=1002">1002</a>
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=1006">1006</a>
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=1007">1007</a>
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=1009">1009</a>
+  <a href="/cgi-bin/viewvc.cgi?view=rev&revision=1010">1010</a>
 </p>
 
 <h3>Limitations</h3>
