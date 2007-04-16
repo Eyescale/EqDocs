@@ -73,7 +73,7 @@
 </ul>
 
 <a name="explicit"></a>
-<h3>Using explicit SDP connections</h3>
+<h3>Using Explicit SDP Connections</h3>
 <p>
   Mellanox is working on providing a patch to allow applications to explicitly
   specify the socket type, which allows mixing of TCP and SDP sockets. If you
@@ -100,7 +100,7 @@
     <li>Use SDP IP addresses for the nodes in the config file.</code>
     <li>Start the client with <code>eqPly.exe -- --eq-server 10.1.1.x:SDP 
         --eq-listen 10.1.1.x:SDP</code>. Note the :SDP qualifier, which is
-      needed for the client to use SDP (it is unaware of the config file
+      needed for the client to use SDP (it is unaware of the configuration file
       during startup!).</li>
     <li>Optionally configure (secondary) TCPIP connections. Note that when a
       node has no SDP capabilities, the server and all nodes he connects to
