@@ -8,13 +8,13 @@
 
 <p>
 Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
-State: Design Brainstorming
+State: Not usable (see Implementation)
 </p>
 
 <h2>Overview</h2>
 <p>
   Depth buffer writes on nVidia (ATI unverified) cards can be relatively slow,
-  for example ~20 FPS at 1280x10024 on a Quadro fx3550. The
+  for example ~20 FPS at 1280x1024 on a Quadro fx3550. The
   <a href="http://www.opengl.org/registry/specs/EXT/packed_depth_stencil.txt">GL_EXT_packed_depth_stencil</a>
   extension can be used to bring depth buffer pixel transfer performance in line
   with color buffer performance (~200 FPS). Note that the
@@ -36,37 +36,21 @@ State: Design Brainstorming
 </p>
 
 <h2>Implementation</h2>
-
-<h3>Client Library</h3>
-<ul>
-  <li>Set default of EQ_WINDOW_IATTR_PLANES_STENCIL to AUTO</li>
-  <li>Implement stencil AUTO strategy for visual selection</a>
-  <li>Test and save stencil buffer availability in window's DrawableConfig</li>
-  <li>Test and save availability of packed_depth_stencil extension</li>
-  <li>Add <em>default</em> OpenGL format and type to frame data</li>
-</ul>
-
-<h3>Server Library</h3>
-<ul>
-  <li>Set default frame format and type to GL_DEPTH_STENCIL_NV and
-    GL_UNSIGNED_INT_24_8_NV</li>
-  <li>During output and input frame update, test preconditions 1-3 and fall back
-    to GL_DEPTH_COMPONENT/GL_FLOAT</li>
-</ul>
-
-<h2>API</h2>
-<pre>
-  TBD
-</pre
-
-<h2>File Format</h2>
 <p>
-  No changes
+  The extension is not useful for Equalizer. Depth writes are used for a z-based
+  reassembly in DB (sort-last) compound. However, using the GL_DEPTH_STENCIL_EXT
+  bypasses "the OpenGL fragment pipeline entirely, unlike the treatment of
+  GL_DEPTH_COMPONENT data.  The stencil and depth masks are applied, as are the
+  pixel ownership and scissor tests, but all other operations are skipped."
+  (quote from the extension specification). This means that no stencil test is
+  performed, which is needed for the z-based assembly
+  (cf. <a
+  href="http://www.equalizergraphics.com/cgi-bin/viewvc.cgi/trunk/src/lib/client/image.cpp?revision=1024&view=markup">eq::Image::_startAssembleDB()</a>).
 </p>
 
 <h2>Open Issues</h2>
 <p>
-  Right now we assume precondition 4 is always true.
+  Try using a textured quad and a fragment shader for z-based assembly.
 </p>
 
 #include "footer.shtml"
