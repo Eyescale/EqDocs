@@ -869,9 +869,9 @@ Scene Graphs\
 			<key>ID</key>
 			<integer>18</integer>
 			<key>ImageID</key>
-			<integer>5</integer>
+			<integer>7</integer>
 			<key>Scale</key>
-			<real>0.10999999940395355</real>
+			<real>0.18000000715255737</real>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -1158,7 +1158,7 @@ Multipipe Workstations
 	<key>HPages</key>
 	<integer>1</integer>
 	<key>ImageCounter</key>
-	<integer>6</integer>
+	<integer>8</integer>
 	<key>ImageLinkBack</key>
 	<array>
 		<dict/>
@@ -1167,9 +1167,9 @@ Multipipe Workstations
 	</array>
 	<key>ImageList</key>
 	<array>
+		<string>image7.png</string>
 		<string>image3.png</string>
 		<string>image1.JPG</string>
-		<string>image5.JPG</string>
 	</array>
 	<key>IsPalette</key>
 	<string>NO</string>
@@ -1269,7 +1269,7 @@ Multipipe Workstations
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-04-04 17:22:03 +0200</string>
+	<string>2007-04-16 15:11:49 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -1336,25 +1336,17 @@ Multipipe Workstations
 	<key>WindowInfo</key>
 	<dict>
 		<key>CurrentSheet</key>
-		<string>0</string>
-		<key>DrawerOpen</key>
-		<false/>
+		<integer>0</integer>
 		<key>DrawerTab</key>
 		<string>Outline</string>
 		<key>DrawerWidth</key>
 		<real>209</real>
-		<key>FitInWindow</key>
-		<true/>
 		<key>Frame</key>
-		<string>{{561, 309}, {841, 673}}</string>
-		<key>ShowRuler</key>
-		<false/>
-		<key>ShowStatusBar</key>
-		<true/>
+		<string>{{561, 308}, {841, 673}}</string>
 		<key>VisibleRegion</key>
 		<string>{{0, 0}, {836.22, 582.114}}</string>
 		<key>Zoom</key>
-		<string>1.018328</string>
+		<real>1.0183281898498535</real>
 	</dict>
 </dict>
 </plist>
