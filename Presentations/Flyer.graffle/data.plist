@@ -30,6 +30,150 @@
 	<key>GraphicsList</key>
 	<array>
 		<dict>
+			<key>AllowConnections</key>
+			<string>NO</string>
+			<key>Bounds</key>
+			<string>{{14.1732, 340.157}, {240.945, 14.1732}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>FontInfo</key>
+			<dict>
+				<key>Font</key>
+				<string>Helvetica</string>
+				<key>Size</key>
+				<real>6</real>
+			</dict>
+			<key>ID</key>
+			<integer>1134</integer>
+			<key>Shape</key>
+			<string>Rectangle</string>
+			<key>Style</key>
+			<dict>
+				<key>fill</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+			</dict>
+			<key>Text</key>
+			<dict>
+				<key>Text</key>
+				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\deftab720
+\pard\pardeftab720\qc
+
+\f0\fs12 \cf0 Direct-send parallel compositing}</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>AllowConnections</key>
+			<string>NO</string>
+			<key>Bounds</key>
+			<string>{{14.1732, 170.079}, {240.945, 14.1732}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>FontInfo</key>
+			<dict>
+				<key>Font</key>
+				<string>Helvetica</string>
+				<key>Size</key>
+				<real>6</real>
+			</dict>
+			<key>ID</key>
+			<integer>1133</integer>
+			<key>Shape</key>
+			<string>Rectangle</string>
+			<key>Style</key>
+			<dict>
+				<key>fill</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+			</dict>
+			<key>Text</key>
+			<dict>
+				<key>Text</key>
+				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\deftab720
+\pard\pardeftab720\qc
+
+\f0\fs12 \cf0 Sort-last (DB), sort-first(2D) and multi-level compounds}</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>AllowConnections</key>
+			<string>NO</string>
+			<key>Bounds</key>
+			<string>{{297.638, 170.079}, {240.945, 14.1732}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>FontInfo</key>
+			<dict>
+				<key>Font</key>
+				<string>Helvetica</string>
+				<key>Size</key>
+				<real>6</real>
+			</dict>
+			<key>ID</key>
+			<integer>1132</integer>
+			<key>Shape</key>
+			<string>Rectangle</string>
+			<key>Style</key>
+			<dict>
+				<key>fill</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+			</dict>
+			<key>Text</key>
+			<dict>
+				<key>Text</key>
+				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\deftab720
+\pard\pardeftab720\qc
+
+\f0\fs12 \cf0 Example configuration for a TAN Holobench\'aa}</string>
+			</dict>
+		</dict>
+		<dict>
 			<key>Class</key>
 			<string>Group</string>
 			<key>Graphics</key>
@@ -133,8 +277,8 @@
 					<integer>1009</integer>
 					<key>Points</key>
 					<array>
-						<string>{736.546, 322.928}</string>
-						<string>{726.884, 336.784}</string>
+						<string>{736.547, 322.928}</string>
+						<string>{726.885, 336.784}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -176,7 +320,7 @@
 					<key>Points</key>
 					<array>
 						<string>{736.513, 354.57}</string>
-						<string>{726.375, 349.713}</string>
+						<string>{726.375, 349.712}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -217,7 +361,7 @@
 					<integer>1011</integer>
 					<key>Points</key>
 					<array>
-						<string>{737.498, 386.883}</string>
+						<string>{737.499, 386.883}</string>
 						<string>{726.375, 361.91}</string>
 					</array>
 					<key>Style</key>
@@ -771,7 +915,7 @@
 					<key>Points</key>
 					<array>
 						<string>{701.818, 322.693}</string>
-						<string>{701.575, 292.991}</string>
+						<string>{701.575, 292.99}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -816,8 +960,8 @@
 					<integer>1023</integer>
 					<key>Points</key>
 					<array>
-						<string>{666.629, 351.711}</string>
-						<string>{676.775, 343.613}</string>
+						<string>{666.629, 351.71}</string>
+						<string>{676.775, 343.612}</string>
 					</array>
 					<key>Style</key>
 					<dict>
@@ -858,7 +1002,7 @@
 					<integer>1024</integer>
 					<key>Points</key>
 					<array>
-						<string>{663.782, 385.586}</string>
+						<string>{663.782, 385.587}</string>
 						<string>{676.775, 355.812}</string>
 					</array>
 					<key>Style</key>
@@ -1219,7 +1363,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{354.331, 184.252}, {127.559, 59.953}}</string>
+			<string>{{354.331, 198.425}, {127.559, 59.953}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
@@ -1293,7 +1437,7 @@
 \pard\pardeftab720\qc
 
 \f0\fs12 \cf0 &lt;%ModificationDate%&gt;\
-\'a9 2006 Stefan Eilemann. All information provided is subject to change without notice.}</string>
+\'a9 2006-2007 Stefan Eilemann. All information provided is subject to change without notice.}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -1401,7 +1545,7 @@
 
 \f0\fs20 \cf0 Equalizer is an open source programming interface and resource management system for 
 \f1\i parallel, scalable
-\f0\i0  OpenGL applications. An Equalizer application can run unmodified on any visualization system, from a singlepipe workstation to large scale graphics clusters and shared memory visualization systems. The foundation of Equalizer is a 
+\f0\i0  OpenGL\'aa applications. An Equalizer application can run unmodified on any visualization system, from a singlepipe workstation to large scale graphics clusters and multi-GPU workstations. The foundation of Equalizer is a 
 \f1\i minimally invasive
 \f0\i0  programming interface which addresses the problems common to any multipipe application.}</string>
 			</dict>
@@ -1614,13 +1758,11 @@ contact@equalizergraphics.com\
 			<key>ID</key>
 			<integer>795</integer>
 			<key>ImageID</key>
-			<integer>64</integer>
+			<integer>101</integer>
 			<key>ManualSizeImage</key>
 			<string>YES</string>
-			<key>Offset</key>
-			<string>{-0, -0.08}</string>
 			<key>Scale</key>
-			<real>0.15000000596046448</real>
+			<real>0.36000001430511475</real>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -1681,7 +1823,7 @@ contact@equalizergraphics.com\
 
 \f0\fs20 \cf0 \expnd0\expndtw0\kerning0
 Linux, Windows XP and Mac OS X\
-Ethernet, InfiniBand\
+Ethernet, InfiniBand interconnects\
 \
 Open standard for parallel rendering\
 LGPL license: commercial and open source use\
@@ -1696,7 +1838,7 @@ Consulting and support available}</string>
 			<key>AllowConnections</key>
 			<string>NO</string>
 			<key>Bounds</key>
-			<string>{{14.1732, 354.331}, {240.945, 226.772}}</string>
+			<string>{{14.1732, 368.504}, {240.945, 212.599}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FontInfo</key>
@@ -1740,15 +1882,17 @@ Consulting and support available}</string>
 				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
 {\fonttbl\f0\fnil\fcharset77 Georgia-Bold;\f1\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\deftab720
-\pard\pardeftab720\sa320\qc
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa320\qc\pardirnatural
 
-\f0\b\fs24 \cf0 Scalability
-\f1\b0\fs20 \
-\pard\pardeftab720\sa320\qj
-\cf0 Equalizer implements a wide range of algorithms to parallelize the rendering of large data sets. Multiple graphic cards, processors and computers can be combined to render a single view. The Equalizer server distributes the rendering task across the available resources (decomposition) and assembles the results on the final view (recomposition).\
+\f0\b\fs24 \cf0 \expnd0\expndtw0\kerning0
+Scalability
+\f1\b0\fs20 \expnd0\expndtw0\kerning0
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qj\pardirnatural
+\cf0 \expnd0\expndtw0\kerning0
+Equalizer implements a wide range of algorithms to parallelize the rendering of large data sets. Multiple graphic cards, processors and computers can be combined to render a single view. Equalizer distributes the rendering task across the available resources (decomposition) and assembles the results on the final view (recomposition).\
 For the task decomposition, Equalizer currently supports sort-first (2D), sort-last (DB) and stereo (Eye) compounds. Time-multiplex (DPlex) is planned.\
-Equalizer supports virtually any recomposition algorithm, for example binary swap or direct send for sort-last, and tile gathering for sort-first rendering.}</string>
+Equalizer supports virtually any parallel compositing algorithm, for example binary swap or direct send for sort-last, and tile gathering for sort-first rendering.}</string>
 			</dict>
 			<key>TextPlacement</key>
 			<integer>0</integer>
@@ -1975,7 +2119,7 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 	<key>HPages</key>
 	<integer>1</integer>
 	<key>ImageCounter</key>
-	<integer>96</integer>
+	<integer>102</integer>
 	<key>ImageLinkBack</key>
 	<array>
 		<dict/>
@@ -1996,6 +2140,7 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 	</array>
 	<key>ImageList</key>
 	<array>
+		<string>image101.pdf</string>
 		<string>image95.pdf</string>
 		<string>image93.pdf</string>
 		<string>image84.png</string>
@@ -2007,7 +2152,6 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 		<string>image78.png</string>
 		<string>image77.png</string>
 		<string>image76.tif</string>
-		<string>image64.JPG</string>
 		<string>image28.pdf</string>
 		<string>image10.png</string>
 		<string>image3.pdf</string>
@@ -2110,7 +2254,7 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-04-10 19:01:05 +0200</string>
+	<string>2007-04-17 11:16:24 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -2183,9 +2327,9 @@ Equalizer supports virtually any recomposition algorithm, for example binary swa
 		<key>DrawerWidth</key>
 		<real>209</real>
 		<key>Frame</key>
-		<string>{{327, 131}, {962, 766}}</string>
+		<string>{{430, 23}, {962, 766}}</string>
 		<key>VisibleRegion</key>
-		<string>{{0, -3.00002}, {836.22, 589.857}}</string>
+		<string>{{0, -3.00003}, {836.22, 589.857}}</string>
 		<key>Zoom</key>
 		<real>1.1675021648406982</real>
 	</dict>
