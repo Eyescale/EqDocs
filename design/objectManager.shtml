@@ -1,0 +1,78 @@
+#define S_DOCUMENTATION
+#define S_DOCUMENTATION_DEVELOPER
+#define PAGE Documentation
+#define SUBPAGE Developer
+#define TITLE OpenGL Object Manager
+
+#include "header.shtml"
+
+<p>
+Author: <a href="mailto:eilemann@gmail.com">eilemann@gmail.com</a><br/>
+State: Design Brainstorming
+</p>
+
+<h2>Overview</h2>
+<p>
+  The purpose of the object manager is to facilitate the management of OpenGL
+  objects, e.g., texture IDs and display lists, in a multipipe
+  application. Objects are allocated and queried using a key. Windows sharing
+  the same OpenGL context will use the same object manager.
+</p>
+
+<h2>Objects</h2>
+<p>
+  The API will be created as needed. Possible object types are: display lists,
+  textures, GLSL shaders, VBO's, ...
+</p>
+
+<h2>API</h2>
+<p>
+  For each type of object, the following functions are available:
+  <ul>
+    <li><b>getObject</b> returns the object associated with the key, or
+      0. Increases the reference count.</li>
+    <li><b>newObject</b> allocates a new object for a key. Returns 0 if the
+      object already exists. Sets the reference count of a newly created object
+      to 1.</li>
+    <li><b>obtainObject</b> convenience function which gets or obtains the
+      object associated with the key. Return 0 only if object allocation
+      fails.</li>
+    <li><b>releaseObject</b> decreases the reference count and deletes the
+      object if the reference count reaches 0.</li>
+    <li><b>deleteObject</b> forcibly deletes the object. To be used if
+      reference counting is not desired.</li>
+  </ul>
+</p>
+<p>
+  Example API for display list management:
+  <pre>
+  template< typename T >
+  class ObjectManager : public eqBase::NonCopyable
+  {
+  public:
+      GLuint getList( const T& name );
+      GLuint newList( const T& name );
+      GLuint obtainList( const T& name );
+      void   releaseList( const T& name );
+      void   releaseList( GLuint list );
+      void   deleteList( const T& name );
+      void   deleteList( GLuint list );
+  }
+
+  typedef ObjectManager<const char*> ObjectManagerS;
+  ObjectManagerS& eq::Window::getObjectManager();
+  </pre>
+</p>
+<p>
+  The application can allocate it's own object manager with a different key
+  type, if desired. For the Equalizer object manager, keys starting with 'Eq_'
+  are reserved. Introduce new window drawable config flag sharedContext (default
+  true) to control creation scope (thread/window) of the window's object manager:
+  <pre>
+    void eq::Window::setSharedContext( const bool shared );
+    bool eq::Window::getSharedContext() const;
+  </pre>
+</p>
+
+#include "footer.shtml"
+<!-- $Id$ -->
