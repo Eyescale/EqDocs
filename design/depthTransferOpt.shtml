@@ -50,7 +50,15 @@ State: Not usable (see Implementation)
 
 <h2>Open Issues</h2>
 <p>
-  Try using a textured quad and a fragment shader for z-based assembly.
+  Try using a textured quad and a fragment shader for z-based assembly
+<!--
+  Create resource manager class (texture id's, shader obj's, etc.)
+  Allocate, bind and download depth and color texture
+  Allocate and bind assemble fragment shader (sets frag color and depth from
+  textures)
+  Draw textured quad
+  Restore state
+-->
 </p>
 
 #include "footer.shtml"

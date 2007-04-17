@@ -280,27 +280,27 @@
    {
        channel "channel-name"
        task    [ CLEAR CULL DRAW ASSEMBLE READBACK ]
-       [frustum-spec]
+       [ frustum-spec ]
        buffer  [ COLOR DEPTH STENCIL ]
 
        attributes
        {
            color, depth, stencil
            {
-               format [GL_enum]
-               type   [GL_enum]
+               format [ GL_enum ]
+               type   [ GL_enum ]
            }
            hints
            {
-               adaptive  [bool]
+               adaptive  [ bool ]
                decompose "split-string" // set during init, used by adaptive
            }
        }
        viewport [ x y w h ]
        range    [ start end ]
        eye      [ CYCLOP LEFT RIGHT ]
-       period   [int]
-       phase    [int]
+       period   [ int ]
+       phase    [ int ]
        jitter   [ x y | AUTO ]
 
        (outputframe|inputframe)
@@ -326,6 +326,7 @@ post-0.3 file format?
            queue    "name"                   // later
            task     ASSEMBLE | READBACK      // later
            buffer   [ COLOR DEPTH STENCIL ]
+           offset   [ x y ] | AUTO
            viewport [ x y w h ]
            eye      [ CYCLOP LEFT RIGHT ]
        }
@@ -407,11 +408,8 @@ post-0.3 file format?
             outputframe {}
         }
 
-        compound {
-            task [ ASSEMBLE ]
-            inputframe { name "frame.buffer1" }
-            inputframe { name "frame.buffer2" }
-        }
+        inputframe { name "frame.buffer1" }
+        inputframe { name "frame.buffer2" }
     }
 ------------------------------------------------------------------------
 
