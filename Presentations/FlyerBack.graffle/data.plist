@@ -14,7 +14,7 @@
 	<key>CanvasOrigin</key>
 	<string>{0, 0}</string>
 	<key>CanvasScale</key>
-	<real>0.97000002861022949</real>
+	<real>0.95999997854232788</real>
 	<key>ColumnAlign</key>
 	<integer>1</integer>
 	<key>ColumnSpacing</key>
@@ -30,248 +30,334 @@
 	<key>GraphicsList</key>
 	<array>
 		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{581.102, 340.158}, {240.945, 127.559}}</string>
 			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>FitText</key>
-			<string>Clip</string>
-			<key>Flow</key>
-			<string>Clip</string>
-			<key>HFlip</key>
-			<string>YES</string>
-			<key>ID</key>
-			<integer>1138</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
+			<string>Group</string>
+			<key>Graphics</key>
+			<array>
 				<dict>
-					<key>Draws</key>
+					<key>AllowConnections</key>
 					<string>NO</string>
-				</dict>
-				<key>shadow</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>CornerRadius</key>
-					<real>4</real>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Pad</key>
-				<integer>0</integer>
-				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+					<key>Bounds</key>
+					<string>{{301.829, 286.57}, {240.945, 269.291}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>1144</integer>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>CornerRadius</key>
+							<real>4</real>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+					<key>Text</key>
+					<dict>
+						<key>Pad</key>
+						<integer>0</integer>
+						<key>Text</key>
+						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+{\fonttbl\f0\fnil\fcharset77 Georgia-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-Bold;
+}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa40\qc\pardirnatural
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qc\pardirnatural
 
-\f0\fs20 \cf0 \expnd0\expndtw0\kerning0
-Linux, Windows XP and Mac OS X\
-Ethernet, InfiniBand interconnects\
+\f0\b\fs24 \cf0 \expnd0\expndtw0\kerning0
+Use Cases
+\f1\b0\fs20 \expnd0\expndtw0\kerning0
 \
-Open standard for parallel rendering\
-LGPL license: commercial and open source use\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qj\pardirnatural
+\cf0 \expnd0\expndtw0\kerning0
 \
-Collaborations welcome\
-Consulting and support available}</string>
-			</dict>
-			<key>TextPlacement</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{581.102, 368.504}, {240.945, 14.1732}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>FontInfo</key>
-			<dict>
-				<key>Font</key>
-				<string>Helvetica</string>
-				<key>Size</key>
-				<real>6</real>
-			</dict>
-			<key>ID</key>
-			<integer>1136</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
+The Equalizer framework abstracts the runtime configuration from the application code. This allows an application to be deployed in many different ways without any modification, for example: 
+\f2\b \expnd0\expndtw0\kerning0
+\
+Display Walls
+\f1\b0 \expnd0\expndtw0\kerning0
+ are one of the common uses for visua-lization clusters today. Typically one instance of the application's rendering code is executed locally on a node for each display.
+\f2\b \expnd0\expndtw0\kerning0
+\
+Virtual Reality Installations 
+\f1\b0 \expnd0\expndtw0\kerning0
+use passive or active stereo rendering with head tracking, both supported by Equalizer.
+\f2\b \expnd0\expndtw0\kerning0
+\
+Scalable Rendering
+\f1\b0 \expnd0\expndtw0\kerning0
+ parallelizes the rendering of a single view across multiple graphic cards, processors and potentially computers to render more data faster.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qj\pardirnatural
+
+\f2\b \cf0 \expnd0\expndtw0\kerning0
+Multi-GPU Workstations
+\f1\b0 \expnd0\expndtw0\kerning0
+ are an affordable way to scale the rendering performance and display size. Equalizer applications can exploit multiple processors and graphic cards by running multiple rendering threads.}</string>
+					</dict>
+					<key>TextPlacement</key>
+					<integer>0</integer>
 				</dict>
-				<key>shadow</key>
 				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+					<key>Class</key>
+					<string>Group</string>
+					<key>Graphics</key>
+					<array>
+						<dict>
+							<key>AllowConnections</key>
+							<string>NO</string>
+							<key>Bounds</key>
+							<string>{{585.294, 371.609}, {240.945, 14.1732}}</string>
+							<key>Class</key>
+							<string>ShapedGraphic</string>
+							<key>FontInfo</key>
+							<dict>
+								<key>Font</key>
+								<string>Helvetica</string>
+								<key>Size</key>
+								<real>6</real>
+							</dict>
+							<key>ID</key>
+							<integer>1146</integer>
+							<key>Shape</key>
+							<string>Rectangle</string>
+							<key>Style</key>
+							<dict>
+								<key>fill</key>
+								<dict>
+									<key>Draws</key>
+									<string>NO</string>
+								</dict>
+								<key>shadow</key>
+								<dict>
+									<key>Draws</key>
+									<string>NO</string>
+								</dict>
+								<key>stroke</key>
+								<dict>
+									<key>Draws</key>
+									<string>NO</string>
+								</dict>
+							</dict>
+							<key>Text</key>
+							<dict>
+								<key>Text</key>
+								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \deftab720
 \pard\pardeftab720\qc
 
 \f0\fs12 \cf0 Scalable rendering using six graphic cards to render a single view. }</string>
-			</dict>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{14.1732, 566.929}, {240.945, 14.1732}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>FontInfo</key>
-			<dict>
-				<key>Font</key>
-				<string>Helvetica</string>
-				<key>Size</key>
-				<real>6</real>
-			</dict>
-			<key>ID</key>
-			<integer>1135</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
+							</dict>
+						</dict>
+						<dict>
+							<key>Bounds</key>
+							<string>{{585.294, 215.703}, {240.945, 155.905}}</string>
+							<key>Class</key>
+							<string>ShapedGraphic</string>
+							<key>ID</key>
+							<integer>1147</integer>
+							<key>ImageID</key>
+							<integer>7</integer>
+							<key>Scale</key>
+							<real>0.18000000715255737</real>
+							<key>Shape</key>
+							<string>Rectangle</string>
+							<key>Style</key>
+							<dict>
+								<key>stroke</key>
+								<dict>
+									<key>CornerRadius</key>
+									<real>4</real>
+								</dict>
+							</dict>
+						</dict>
+					</array>
+					<key>ID</key>
+					<integer>1145</integer>
 				</dict>
-				<key>shadow</key>
 				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+					<key>Class</key>
+					<string>Group</string>
+					<key>Graphics</key>
+					<array>
+						<dict>
+							<key>AllowConnections</key>
+							<string>NO</string>
+							<key>Bounds</key>
+							<string>{{18.3647, 570.033}, {240.945, 14.1732}}</string>
+							<key>Class</key>
+							<string>ShapedGraphic</string>
+							<key>FontInfo</key>
+							<dict>
+								<key>Font</key>
+								<string>Helvetica</string>
+								<key>Size</key>
+								<real>6</real>
+							</dict>
+							<key>ID</key>
+							<integer>1149</integer>
+							<key>Shape</key>
+							<string>Rectangle</string>
+							<key>Style</key>
+							<dict>
+								<key>fill</key>
+								<dict>
+									<key>Draws</key>
+									<string>NO</string>
+								</dict>
+								<key>shadow</key>
+								<dict>
+									<key>Draws</key>
+									<string>NO</string>
+								</dict>
+								<key>stroke</key>
+								<dict>
+									<key>Draws</key>
+									<string>NO</string>
+								</dict>
+							</dict>
+							<key>Text</key>
+							<dict>
+								<key>Text</key>
+								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \deftab720
 \pard\pardeftab720\qc
 
 \f0\fs12 \cf0 A virtual reality installation using passive stereo and head tracking}</string>
-			</dict>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{14.1732, 170.079}, {240.945, 14.1732}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>FontInfo</key>
-			<dict>
-				<key>Font</key>
-				<string>Helvetica</string>
-				<key>Size</key>
-				<real>6</real>
-			</dict>
-			<key>ID</key>
-			<integer>1134</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
+							</dict>
+						</dict>
+						<dict>
+							<key>Bounds</key>
+							<string>{{18.3647, 414.128}, {240.945, 155.906}}</string>
+							<key>Class</key>
+							<string>ShapedGraphic</string>
+							<key>ID</key>
+							<integer>1150</integer>
+							<key>ImageID</key>
+							<integer>3</integer>
+							<key>ManualSizeImage</key>
+							<string>YES</string>
+							<key>Offset</key>
+							<string>{-0, -0.08}</string>
+							<key>Scale</key>
+							<real>0.15000000596046448</real>
+							<key>Shape</key>
+							<string>Rectangle</string>
+							<key>Style</key>
+							<dict>
+								<key>stroke</key>
+								<dict>
+									<key>CornerRadius</key>
+									<real>4</real>
+								</dict>
+							</dict>
+						</dict>
+					</array>
+					<key>ID</key>
+					<integer>1148</integer>
 				</dict>
-				<key>shadow</key>
 				<dict>
-					<key>Draws</key>
+					<key>AllowConnections</key>
 					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+					<key>Bounds</key>
+					<string>{{18.3647, 173.184}, {240.945, 14.1732}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Font</key>
+						<string>Helvetica</string>
+						<key>Size</key>
+						<real>6</real>
+					</dict>
+					<key>ID</key>
+					<integer>1151</integer>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+					<key>Text</key>
+					<dict>
+						<key>Text</key>
+						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \deftab720
 \pard\pardeftab720\qc
 
 \f0\fs12 \cf0 A display wall running an Equalizer-based terrain rendering application}</string>
-			</dict>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{297.638, 14.1732}, {240.945, 255.118}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>HFlip</key>
-			<string>YES</string>
-			<key>ID</key>
-			<integer>764</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
+					</dict>
 				</dict>
-				<key>shadow</key>
 				<dict>
-					<key>Draws</key>
+					<key>AllowConnections</key>
 					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>CornerRadius</key>
-					<real>4</real>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Pad</key>
-				<integer>0</integer>
-				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+					<key>Bounds</key>
+					<string>{{301.829, 17.2778}, {240.945, 255.118}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>HFlip</key>
+					<string>YES</string>
+					<key>ID</key>
+					<integer>1152</integer>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>CornerRadius</key>
+							<real>4</real>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+					<key>Text</key>
+					<dict>
+						<key>Pad</key>
+						<integer>0</integer>
+						<key>Text</key>
+						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
 {\fonttbl\f0\fnil\fcharset77 Georgia-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-Bold;
 }
 {\colortbl;\red255\green255\blue255;}
@@ -304,101 +390,74 @@ Distributed Execution:
 \f2\b \expnd0\expndtw0\kerning0
 Support for Immersive Environments:
 \f1\b0 \expnd0\expndtw0\kerning0
- Equalizer supports both active and passive stereo rendering, as well as the head tracking, which is required for immersive Virtual Reality installations.\
-A detailed feature list can be found on the website.}</string>
-			</dict>
-			<key>TextPlacement</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>Bounds</key>
-			<string>{{14.1732, 411.023}, {240.945, 155.906}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>ID</key>
-			<integer>761</integer>
-			<key>ImageID</key>
-			<integer>3</integer>
-			<key>ManualSizeImage</key>
-			<string>YES</string>
-			<key>Offset</key>
-			<string>{-0, -0.08}</string>
-			<key>Scale</key>
-			<real>0.15000000596046448</real>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>stroke</key>
-				<dict>
-					<key>CornerRadius</key>
-					<real>4</real>
+ Equalizer supports both active and passive stereo rendering, as well as head tracking, which is required for immersive Virtual Reality installations.}</string>
+					</dict>
+					<key>TextPlacement</key>
+					<integer>0</integer>
 				</dict>
-			</dict>
-		</dict>
-		<dict>
-			<key>Bounds</key>
-			<string>{{14.1732, 14.1727}, {240.945, 155.906}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>ID</key>
-			<integer>35</integer>
-			<key>ImageID</key>
-			<integer>1</integer>
-			<key>ManualSizeImage</key>
-			<string>YES</string>
-			<key>Scale</key>
-			<real>0.12999999523162842</real>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>stroke</key>
 				<dict>
-					<key>CornerRadius</key>
-					<real>4</real>
+					<key>Bounds</key>
+					<string>{{18.3647, 17.2773}, {240.945, 155.906}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>1153</integer>
+					<key>ImageID</key>
+					<integer>1</integer>
+					<key>ManualSizeImage</key>
+					<string>YES</string>
+					<key>Scale</key>
+					<real>0.12999999523162842</real>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
+					<dict>
+						<key>stroke</key>
+						<dict>
+							<key>CornerRadius</key>
+							<real>4</real>
+						</dict>
+					</dict>
 				</dict>
-			</dict>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{14.1731, 198.425}, {240.945, 212.598}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>HFlip</key>
-			<string>YES</string>
-			<key>ID</key>
-			<integer>32</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
 				<dict>
-					<key>Draws</key>
+					<key>AllowConnections</key>
 					<string>NO</string>
-				</dict>
-				<key>shadow</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>CornerRadius</key>
-					<real>4</real>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Pad</key>
-				<integer>0</integer>
-				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+					<key>Bounds</key>
+					<string>{{18.3645, 201.53}, {240.945, 212.598}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>HFlip</key>
+					<string>YES</string>
+					<key>ID</key>
+					<integer>1154</integer>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>CornerRadius</key>
+							<real>4</real>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+					<key>Text</key>
+					<dict>
+						<key>Pad</key>
+						<integer>0</integer>
+						<key>Text</key>
+						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
 {\fonttbl\f0\fnil\fcharset77 Georgia-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-Oblique;
 \f3\fswiss\fcharset77 Helvetica-Bold;}
 {\colortbl;\red255\green255\blue255;}
@@ -440,409 +499,345 @@ minimally invasive
  - a viewport within a window\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qj\pardirnatural
 \cf0 \expnd0\expndtw0\kerning0
-The application amends these entities with it's rendering code by implementing 
+The developer amends these entities by implementing application-specific 
 \f2\i \expnd0\expndtw0\kerning0
-task-specific
+task methods
 \f1\i0 \expnd0\expndtw0\kerning0
- methods. Equalizer simplifies application porting by providing a default implementation for each task, which implements the typical use case.}</string>
-			</dict>
-			<key>TextPlacement</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{581.102, 396.85}, {240.945, 184.252}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>HFlip</key>
-			<string>YES</string>
-			<key>ID</key>
-			<integer>31</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
+. Equalizer facilitates application porting by providing a default implemen-tation for each task, which implements the typical use case.}</string>
+					</dict>
+					<key>TextPlacement</key>
+					<integer>0</integer>
+				</dict>
 				<dict>
-					<key>Draws</key>
+					<key>AllowConnections</key>
 					<string>NO</string>
-				</dict>
-				<key>shadow</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>CornerRadius</key>
-					<real>4</real>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Pad</key>
-				<integer>0</integer>
-				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fnil\fcharset77 Georgia-Bold;\f1\fswiss\fcharset77 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-\deftab720
-\pard\pardeftab720\sa360\qc
-
-\f0\b\fs24 \cf0 Transparent OpenGL Layer\
-\pard\pardeftab720\sa320\qj
-
-\f1\b0\fs20 \cf0 A transparent OpenGL layer will enable the execution of unmodified OpenGL applications. It allows a seamless integration of unmodified and scalable applications on the same system.\
-\pard\pardeftab720\sa360\qc
-
-\f0\b\fs24 \cf0 Distributed Scene Graphs\
-\pard\pardeftab720\sa320\qj
-
-\f1\b0\fs20 \cf0 Equalizer will be integrated with popular scene graphs, such as Coin3D or OpenSceneGraph. Applications using these scene graphs can easily implement parallel, scalable applications, and profit from the current and future feature set of Equalizer.\
-}</string>
-			</dict>
-			<key>TextPlacement</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{581.102, 14.1732}, {240.945, 184.252}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>HFlip</key>
-			<string>YES</string>
-			<key>ID</key>
-			<integer>30</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>shadow</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>CornerRadius</key>
-					<real>4</real>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Pad</key>
-				<integer>0</integer>
-				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fnil\fcharset77 Georgia-Bold;\f1\fswiss\fcharset77 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-\deftab720
-\pard\pardeftab720\sa380\qc
-
-\f0\b\fs24 \cf0 Resource Management\
-\pard\pardeftab720\sa320\qj
-
-\f1\b0\fs20 \cf0 Equalizer uses a system-wide configuration server to optimally allocate and balance the available resources on the visualization system. The server is configured using a hierarchically structured configuration file to describe the available resources, and the combination of the resources for rendering. Equalizer applications can also run without a server, in which case they will automatically configure themselves for the local workstation. The central resource management enables system-wide resource reservation, allocation and scheduling, as well as the integration with other cluster scheduling software.}</string>
-			</dict>
-			<key>TextPlacement</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>Bounds</key>
-			<string>{{581.102, 212.598}, {240.945, 155.905}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>ID</key>
-			<integer>18</integer>
-			<key>ImageID</key>
-			<integer>7</integer>
-			<key>Scale</key>
-			<real>0.18000000715255737</real>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>stroke</key>
-				<dict>
-					<key>CornerRadius</key>
-					<real>4</real>
-				</dict>
-			</dict>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{297.638, 283.465}, {240.945, 283.464}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>ID</key>
-			<integer>14</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>shadow</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>CornerRadius</key>
-					<real>4</real>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Pad</key>
-				<integer>0</integer>
-				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fnil\fcharset77 Georgia-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-Bold;
+					<key>Bounds</key>
+					<string>{{585.293, 399.955}, {240.945, 170.079}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>HFlip</key>
+					<string>YES</string>
+					<key>ID</key>
+					<integer>1155</integer>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>CornerRadius</key>
+							<real>4</real>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+					<key>Text</key>
+					<dict>
+						<key>Pad</key>
+						<integer>0</integer>
+						<key>Text</key>
+						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+{\fonttbl\f0\fnil\fcharset77 Georgia-Bold;\f1\fswiss\fcharset77 Helvetica-Bold;\f2\fswiss\fcharset77 Helvetica;
 }
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qc\pardirnatural
+\deftab720
+\pard\pardeftab720\sa360\qc
+
+\f0\b\fs24 \cf0 Compatibility\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\sa40\qj\pardirnatural
+
+\f1\fs20 \cf0 \expnd0\expndtw0\kerning0
+OS Support: 
+\f2\b0 Linux, Windows XP and Mac OS X\
+
+\f1\b Interconnects: 
+\f2\b0 Ethernet, InfiniBand\
+
+\f1\b Portable:
+\f2\b0  32 and 64 bit, little- and big-endian tested\
+\
+
+\f1\b Minimally invasive:
+\f2\b0  easy porting\
+
+\f1\b Clusters
+\f2\b0  and 
+\f1\b Multi-GPU
+\f2\b0  workstations\
+\
+
+\f1\b LGPL license:
+\f2\b0  commercial and open source use\
+
+\f1\b Open standard
+\f2\b0  for parallel rendering\
+}</string>
+					</dict>
+					<key>TextPlacement</key>
+					<integer>0</integer>
+				</dict>
+				<dict>
+					<key>AllowConnections</key>
+					<string>NO</string>
+					<key>Bounds</key>
+					<string>{{585.293, 17.2779}, {240.945, 198.425}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>HFlip</key>
+					<string>YES</string>
+					<key>ID</key>
+					<integer>1156</integer>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
+					<dict>
+						<key>fill</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>CornerRadius</key>
+							<real>4</real>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+					</dict>
+					<key>Text</key>
+					<dict>
+						<key>Pad</key>
+						<integer>0</integer>
+						<key>Text</key>
+						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+{\fonttbl\f0\fnil\fcharset77 Georgia-Bold;\f1\fswiss\fcharset77 Helvetica-Bold;\f2\fswiss\fcharset77 Helvetica;
+}
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa380\qc\pardirnatural
 
 \f0\b\fs24 \cf0 \expnd0\expndtw0\kerning0
-Use Cases
-\f1\b0\fs20 \expnd0\expndtw0\kerning0
-\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qj\pardirnatural
-\cf0 \expnd0\expndtw0\kerning0
-\
-Equalizer abstracts the configuration from the application. This allows the same application to be deployed in many different ways, for example: 
-\f2\b \expnd0\expndtw0\kerning0
-\
-Display Walls
-\f1\b0 \expnd0\expndtw0\kerning0
- (top left) are one of the most common use case for visualization clusters today. The typical configuration, as shown on the left, executes one instance of the application's rendering code for each display.
-\f2\b \expnd0\expndtw0\kerning0
-\
-Virtual Reality Installations
-\f1\b0 \expnd0\expndtw0\kerning0
- (bottom left)
-\f2\b \expnd0\expndtw0\kerning0
- 
-\f1\b0 \expnd0\expndtw0\kerning0
-use passive or active stereo rendering with head tracking, both supported by Equalizer.
-\f2\b \expnd0\expndtw0\kerning0
-\
-Scalable Rendering
-\f1\b0 \expnd0\expndtw0\kerning0
- (right) parallelizes the rendering of a single view across multiple graphic cards, processors and potentially computers to render more data faster.\
+Major Benefits\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qj\pardirnatural
 
-\f2\b \cf0 \expnd0\expndtw0\kerning0
-Multipipe Workstations
-\f1\b0 \expnd0\expndtw0\kerning0
- are an affordable way to scale the rendering performance and display size. Equalizer applications can exploit multiple processors and multiple graphic cards by running multiple rendering threads.}</string>
-			</dict>
-			<key>TextPlacement</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{0, 0}, {269.291, 581.102}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>ID</key>
-			<integer>22</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Color</key>
-					<dict>
-						<key>b</key>
-						<string>0.995361</string>
-						<key>g</key>
-						<string>0.961273</string>
-						<key>r</key>
-						<string>0.913634</string>
+\f1\fs20 \cf0 \expnd0\expndtw0\kerning0
+Parallel Rendering Know-How:
+\f2\b0 \expnd0\expndtw0\kerning0
+ Equalizer contains 10+ years of experience in parallel and scalable rendering, easily combined with your application.\
+
+\f1\b \expnd0\expndtw0\kerning0
+Fast Path for Scalable OpenGL Applications:
+\f2\b0 \expnd0\expndtw0\kerning0
+ Equalizer provides the natural parallel execution model to exploit the parallelism of multi-core, multi-GPU workstations and graphic clusters.\
+
+\f1\b \expnd0\expndtw0\kerning0
+Feature-Rich Framework:
+\f2\b0 \expnd0\expndtw0\kerning0
+ Equalizer contains state-of-the-art scalable rendering algorithms, and it\'d5s open development model ensures constant improvement. The configurability allows to deploy Equalizer applications in many, often unforeseen environments.}</string>
 					</dict>
-					<key>FillType</key>
-					<integer>2</integer>
-					<key>GradientAngle</key>
-					<real>90</real>
-					<key>GradientCenter</key>
-					<string>{0, -0.495238}</string>
-					<key>GradientColor</key>
-					<dict>
-						<key>b</key>
-						<string>0.747814</string>
-						<key>g</key>
-						<string>0.608148</string>
-						<key>r</key>
-						<string>0.378088</string>
-					</dict>
+					<key>TextPlacement</key>
+					<integer>0</integer>
 				</dict>
-				<key>shadow</key>
 				<dict>
-					<key>Draws</key>
+					<key>AllowConnections</key>
 					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>Color</key>
+					<key>Bounds</key>
+					<string>{{4.19148, 3.10464}, {269.291, 581.102}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>1157</integer>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
 					<dict>
-						<key>b</key>
-						<string>1</string>
-						<key>g</key>
-						<string>1</string>
-						<key>r</key>
-						<string>1</string>
-					</dict>
-					<key>CornerRadius</key>
-					<real>8</real>
-				</dict>
-			</dict>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{566.929, 0}, {269.291, 581.102}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>ID</key>
-			<integer>24</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Color</key>
-					<dict>
-						<key>b</key>
-						<string>0.995361</string>
-						<key>g</key>
-						<string>0.961273</string>
-						<key>r</key>
-						<string>0.913634</string>
-					</dict>
-					<key>FillType</key>
-					<integer>2</integer>
-					<key>GradientAngle</key>
-					<real>90</real>
-					<key>GradientCenter</key>
-					<string>{0, -0.495238}</string>
-					<key>GradientColor</key>
-					<dict>
-						<key>b</key>
-						<string>0.747814</string>
-						<key>g</key>
-						<string>0.608148</string>
-						<key>r</key>
-						<string>0.378088</string>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.995361</string>
+								<key>g</key>
+								<string>0.961273</string>
+								<key>r</key>
+								<string>0.913634</string>
+							</dict>
+							<key>FillType</key>
+							<integer>2</integer>
+							<key>GradientAngle</key>
+							<real>90</real>
+							<key>GradientCenter</key>
+							<string>{0, -0.495238}</string>
+							<key>GradientColor</key>
+							<dict>
+								<key>b</key>
+								<string>0.747814</string>
+								<key>g</key>
+								<string>0.608148</string>
+								<key>r</key>
+								<string>0.378088</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>1</string>
+								<key>g</key>
+								<string>1</string>
+								<key>r</key>
+								<string>1</string>
+							</dict>
+							<key>CornerRadius</key>
+							<real>8</real>
+						</dict>
 					</dict>
 				</dict>
-				<key>shadow</key>
 				<dict>
-					<key>Draws</key>
+					<key>AllowConnections</key>
 					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>Color</key>
+					<key>Bounds</key>
+					<string>{{571.12, 3.10464}, {269.291, 581.102}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>1158</integer>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
 					<dict>
-						<key>b</key>
-						<string>1</string>
-						<key>g</key>
-						<string>1</string>
-						<key>r</key>
-						<string>1</string>
-					</dict>
-					<key>CornerRadius</key>
-					<real>8</real>
-				</dict>
-			</dict>
-		</dict>
-		<dict>
-			<key>AllowConnections</key>
-			<string>NO</string>
-			<key>Bounds</key>
-			<string>{{283.465, 0}, {269.291, 581.102}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>ID</key>
-			<integer>735</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Color</key>
-					<dict>
-						<key>b</key>
-						<string>0.995361</string>
-						<key>g</key>
-						<string>0.961273</string>
-						<key>r</key>
-						<string>0.913634</string>
-					</dict>
-					<key>FillType</key>
-					<integer>2</integer>
-					<key>GradientAngle</key>
-					<real>90</real>
-					<key>GradientCenter</key>
-					<string>{0, -0.495238}</string>
-					<key>GradientColor</key>
-					<dict>
-						<key>b</key>
-						<string>0.747814</string>
-						<key>g</key>
-						<string>0.608148</string>
-						<key>r</key>
-						<string>0.378088</string>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.995361</string>
+								<key>g</key>
+								<string>0.961273</string>
+								<key>r</key>
+								<string>0.913634</string>
+							</dict>
+							<key>FillType</key>
+							<integer>2</integer>
+							<key>GradientAngle</key>
+							<real>90</real>
+							<key>GradientCenter</key>
+							<string>{0, -0.495238}</string>
+							<key>GradientColor</key>
+							<dict>
+								<key>b</key>
+								<string>0.747814</string>
+								<key>g</key>
+								<string>0.608148</string>
+								<key>r</key>
+								<string>0.378088</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>1</string>
+								<key>g</key>
+								<string>1</string>
+								<key>r</key>
+								<string>1</string>
+							</dict>
+							<key>CornerRadius</key>
+							<real>8</real>
+						</dict>
 					</dict>
 				</dict>
-				<key>shadow</key>
 				<dict>
-					<key>Draws</key>
+					<key>AllowConnections</key>
 					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>Color</key>
+					<key>Bounds</key>
+					<string>{{287.656, 3.10464}, {269.291, 581.102}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>1159</integer>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
 					<dict>
-						<key>b</key>
-						<string>1</string>
-						<key>g</key>
-						<string>1</string>
-						<key>r</key>
-						<string>1</string>
+						<key>fill</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.995361</string>
+								<key>g</key>
+								<string>0.961273</string>
+								<key>r</key>
+								<string>0.913634</string>
+							</dict>
+							<key>FillType</key>
+							<integer>2</integer>
+							<key>GradientAngle</key>
+							<real>90</real>
+							<key>GradientCenter</key>
+							<string>{0, -0.495238}</string>
+							<key>GradientColor</key>
+							<dict>
+								<key>b</key>
+								<string>0.747814</string>
+								<key>g</key>
+								<string>0.608148</string>
+								<key>r</key>
+								<string>0.378088</string>
+							</dict>
+						</dict>
+						<key>shadow</key>
+						<dict>
+							<key>Draws</key>
+							<string>NO</string>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>1</string>
+								<key>g</key>
+								<string>1</string>
+								<key>r</key>
+								<string>1</string>
+							</dict>
+							<key>CornerRadius</key>
+							<real>8</real>
+						</dict>
 					</dict>
-					<key>CornerRadius</key>
-					<real>8</real>
 				</dict>
-			</dict>
+			</array>
+			<key>ID</key>
+			<integer>1143</integer>
 		</dict>
 	</array>
 	<key>GridInfo</key>
@@ -853,8 +848,6 @@ Multipipe Workstations
 		<integer>10</integer>
 		<key>ShowsGrid</key>
 		<string>YES</string>
-		<key>SnapsToGrid</key>
-		<string>YES</string>
 	</dict>
 	<key>GuidesLocked</key>
 	<string>NO</string>
@@ -862,8 +855,12 @@ Multipipe Workstations
 	<string>YES</string>
 	<key>HPages</key>
 	<integer>1</integer>
+	<key>HorizontalGuides</key>
+	<array>
+		<real>294.2928466796875</real>
+	</array>
 	<key>ImageCounter</key>
-	<integer>9</integer>
+	<integer>10</integer>
 	<key>ImageLinkBack</key>
 	<array>
 		<dict/>
@@ -974,7 +971,7 @@ Multipipe Workstations
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-04-17 14:16:08 +0200</string>
+	<string>2007-04-18 16:42:06 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -1009,6 +1006,16 @@ Multipipe Workstations
 			<string>size</string>
 			<string>{842, 595}</string>
 		</array>
+		<key>NSPrinter</key>
+		<array>
+			<string>coded</string>
+			<string>BAtzdHJlYW10eXBlZIHoA4QBQISEhAlOU1ByaW50ZXIAhIQITlNPYmplY3QAhZKEhIQITlNTdHJpbmcBlIQBKxBVbmkgRC1Eb2NrIENvbG9yhoY=</string>
+		</array>
+		<key>NSPrinterName</key>
+		<array>
+			<string>string</string>
+			<string>Uni D-Dock Color</string>
+		</array>
 		<key>NSRightMargin</key>
 		<array>
 			<string>float</string>
@@ -1029,7 +1036,7 @@ Multipipe Workstations
 	<key>SheetTitle</key>
 	<string>Canvas 1</string>
 	<key>SmartAlignmentGuidesActive</key>
-	<string>NO</string>
+	<string>YES</string>
 	<key>SmartDistanceGuidesActive</key>
 	<string>NO</string>
 	<key>UniqueID</key>
@@ -1038,6 +1045,10 @@ Multipipe Workstations
 	<false/>
 	<key>VPages</key>
 	<integer>1</integer>
+	<key>VerticalGuides</key>
+	<array>
+		<real>422.5</real>
+	</array>
 	<key>WindowInfo</key>
 	<dict>
 		<key>CurrentSheet</key>
@@ -1047,11 +1058,11 @@ Multipipe Workstations
 		<key>DrawerWidth</key>
 		<real>209</real>
 		<key>Frame</key>
-		<string>{{387, 242}, {1073, 729}}</string>
+		<string>{{587, 247}, {949, 753}}</string>
 		<key>VisibleRegion</key>
-		<string>{{-69, 0}, {975.842, 582}}</string>
+		<string>{{0, -1.99998}, {845, 592.586}}</string>
 		<key>Zoom</key>
-		<real>1.1177240610122681</real>
+		<real>1.1513806581497192</real>
 	</dict>
 </dict>
 </plist>
