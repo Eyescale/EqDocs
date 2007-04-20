@@ -18,6 +18,12 @@
   <div class="label">Node connection setup</div>
 </div>
 <p>
+  The initial node connection handshake, as described below, is fully
+  implemented by the
+  <a href="/cgi-bin/viewvc.cgi/trunk/src/lib/net/node.cpp?view=markup">eqNet::Node</a>
+  class.
+</p>
+<p>
   Currently there are two situations when two nodes connect to each other. The
   first is a new connection between two running nodes. This happens when the
   application connects to the server, and when two render clients connect to
@@ -26,9 +32,11 @@
   set up.
 </p>
 <p>
-  The node connect packets contain the full node information (node id and type,
-  all connection descriptions) of the sending node. The receiving node stores
-  this information, and can pass it on to other nodes for connection setup.
+  The node connect packets and the launch command contain the full node
+  information (node id and type, all connection descriptions) of the sending
+  node. The receiving node stores this information, and can pass it on to other
+  nodes for connection setup. The node type is used by createNode to determine
+  the node subclass to instanciate.
 </p>
 <p>
   One special case, not shown in the image, is when two nodes simultaneously
