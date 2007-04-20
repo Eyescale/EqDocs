@@ -26,9 +26,9 @@
   set up.
 </p>
 <p>
-  The node connect packets contain the full node information (node id, all
-  connection descriptions) of the sending node. The receiving node stores this
-  information, and can pass it on to other nodes for connection setup.
+  The node connect packets contain the full node information (node id and type,
+  all connection descriptions) of the sending node. The receiving node stores
+  this information, and can pass it on to other nodes for connection setup.
 </p>
 <p>
   One special case, not shown in the image, is when two nodes simultaneously
