@@ -50,16 +50,16 @@ State: Design Brainstorming
   class ObjectManager : public eqBase::NonCopyable
   {
   public:
-      GLuint getList( const T& name );
-      GLuint newList( const T& name );
-      GLuint obtainList( const T& name );
-      void   releaseList( const T& name );
-      void   releaseList( GLuint list );
-      void   deleteList( const T& name );
-      void   deleteList( GLuint list );
+      GLuint getList( const T& key );
+      GLuint newList( const T& key );
+      GLuint obtainList( const T& key );
+      void   releaseList( const T& key );
+      void   releaseList( const GLuint id );
+      void   deleteList( const T& key );
+      void   deleteList( const GLuint list );
   }
 
-  typedef ObjectManager<const char*> ObjectManagerS;
+  typedef ObjectManager< const char* > ObjectManagerS;
   ObjectManagerS& eq::Window::getObjectManager();
   </pre>
 </p>

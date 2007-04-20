@@ -25,6 +25,7 @@
     <li><a href="documents/design/compounds.html#Attributes">Attributes</a></li>
     <li><a href="documents/design/compounds.html#IO">Input and Output</a></li>
     <li><a href="documents/design/compounds.html#Images">Images</a></li>
+    <li><a href="documents/design/compounds.html#Stereo">Stereo</a></li>
   </ul>
   <li>
     <a href="documents/design/compounds.html#Restrictions">Restrictions</a>
@@ -262,6 +263,36 @@
 <p>
   Outsourced to a separate <a href="documents/design/frames.html">frames
   specification</a> document.
+</p>
+
+<a name="Stereo"></a>
+<h3>Stereo</h3>
+<h4>Problem Description</h4>
+<p>
+  Equalizer traverses the compound tree once for each eye pass. If a compound
+  renders multiple eye passes, and specifies a frame, the frame becomes used
+  multiple times, which leads at least for output frames to undefined
+  behaviour. This section design the implementation to correct this behaviour.
+  Option 1 will be implemented.
+</p>
+
+<h4>Option 1: Eye-specific frames</h4>
+<p>
+  This approach is mostly transparent to the application and user. The frame
+  sets are separated by eye pass, which means that enabling stereo rendering
+  just works. On the other hand, it prohibits the usage of frames between eyes,
+  e.g., to swap eye views. This use case could be supported by an eye attribute
+  on the frame, selecting the eye-specific frame independently of the current
+  eye traversal.
+</p>
+
+<h4>Option 2: No changes</h4>
+<p>
+  Keeping the implementation as it is does not prohibit stereo rendering and
+  decompositions. However, it does require to write different configs for stereo
+  rendering, as the individual eye passes have to be configured into separate
+  compounds for each leaf compound, which increases complexity and is not user
+  friendly.
 </p>
 
 <a name="Restrictions"></a>
