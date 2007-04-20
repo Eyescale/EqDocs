@@ -16,9 +16,9 @@
   for debugging purposes are only available in the debug version of the library.
 </p>
 <p><code>Configuration file globals</code> All variables from
-  the <a href="documents/design/fileFormat.html">config file global section</a>
-  can be set as environment variables. Globals specified in the config file take
-  precedence.</p>
+  the <a href="documents/design/fileFormat.html#global">config file global
+  section</a> can be set as environment variables. Globals specified in the
+  config file take precedence over environment variables.</p>
 <p><code>EQ_SERVER</code> The default location of the Equalizer server,
   overridden by the command-line argument <code>--eq-server</code>.
 <p><code>EQ_LOG_LEVEL</code> Determines the verbosity of debugging
@@ -29,7 +29,7 @@
   individual values in the source code.</p>
 <p><code>EQ_TAINT_CHANNELS</code> Set a channel-specific clear color
   in <code>Channel::clear</code>. Used for debugging purposes.</p>
-<p><code>EQ_DUMP_IMAGES</code> Write all read images to disk. Used for
+<p><code>EQ_DUMP_IMAGES</code> Write all output images to disk. Used for
   debugging purposes.</p>
 
 

@@ -37,7 +37,7 @@
   it does send them to threaded pipes. The receiver thread will queue them on
   the pipe's command queue, exactly the same way as for threaded pipe commands.
   The queued commands will be checked and executed from the config frame
-  functions.
+  functions, which are called by the application thread.
 </p>
 <p>
   <code>Config::endFrame</code> will execute all rendering task for the frame
@@ -49,8 +49,8 @@
   The main decision is where and when (latency-wise) the rendering commands are
   executed. The (not yet implemented) cull queue/frame data API will send the
   data between startFrame and endFrame. Therefore, the draw tasks have to be
-  executed from endFrame, since they would deadlock on data when executed from
-  startFrame. Assembly tasks block on the availability of frames. It makes
+  executed from endFrame, otherwise they would deadlock on data when executed
+  from startFrame. Assembly tasks block on the availability of frames. It makes
   therefore sense to execute them late, i.e., endFrame executes the rendering
   tasks for the frame about to finish, to avoid blocking of the application
   thread.
@@ -66,8 +66,9 @@
 </p>
 
 <h2>API</h2>
-<!-- /* --><pre>
-</pre><!-- */ -->
+<p>
+No changes.
+</p>
 
 <h2>File Format</h2>
 <!-- /* --><pre>

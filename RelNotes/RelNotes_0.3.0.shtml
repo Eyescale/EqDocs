@@ -87,7 +87,8 @@
 </p>
 <h4>Operating System Support</h4>
 <ul>
-  <li><b>Linux:</b> SuSE Linux 10 (x64, i386), Ubuntu 6.10 (i386)</li>
+  <li><b>Linux:</b> Ubuntu 6.10 (x64, i386), RedHat Enterprise Linux 4 (x64,
+    i386)</li>
   <li><b>Windows:</b> XP with Visual Studio 2005 (i386, x64)</li>  
   <li><b>Mac OS X:</b> 10.4 (PowerPC, i386)</li>
 </ul>
@@ -95,7 +96,7 @@
 <ul>
   <li><b>X11:</b> Full support for all documented features.</li>
   <li><b>WGL:</b> Full support for all documented features.</li>
-  <li><b>CGL:</b> Preliminary fullscreen support, no event handling</li>
+  <li><b>CGL:</b> Preliminary support: fullscreen only, no event handling</li>
 </ul>
 
 <h3>Documentation</h3>
@@ -115,10 +116,11 @@
     info@equalizergraphics.com</a>.
 </p><p>
   Commercial support, feature requests, as well as software development and
-  porting services are available. Please contact
-  <a href="mailto:info@equalizergraphics.com?subject=Equalizer%20support">
-    info@equalizergraphics.com</a> for
-  further information.
+  porting services are available through 
+  <a href="http://www.tungstengraphics.com">Tungsten Graphics</a>. Please
+  contact
+  <a href="mailto:sales@tungstengraphics.com?subject=Equalizer%20support">sales@tungstengraphics.com</a>
+  for further information.
 </p>
 
 #include "footer.shtml"

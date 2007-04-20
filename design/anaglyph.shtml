@@ -13,15 +13,17 @@ State: Implemented in 0.3.0 alpha
 
 <h2>Overview</h2>
 <div class="float_right"><a href="images/anaglyph.png">
-    <img src="images/anaglyph-small.jpg" alt="An anaglyphic stereo rendering">
-</a></div>
+    <img src="images/anaglyph-small.jpg" 
+         alt="An anaglyphic stereo rendering"></a>
+  <div class="label">An anaglyphic stereo rendering</div>
+</div>
 <p>
   This features adds support for anaglyphic stereo rendering. Each eye pass is
   rendered in a different color, but using the same frame buffer. Colored
   glasses provide the eye separation when viewing the superimposed images.
 </p>
   
-<a name="Implementation"/>
+<a name="Implementation"></a>
 <h2>Implementation</h2>
 <p>
   Extending <code>Channel::applyBuffer</code> to use glColorMask to mask out the
