@@ -35,10 +35,85 @@
 			<key>Graphics</key>
 			<array>
 				<dict>
+					<key>Class</key>
+					<string>Group</string>
+					<key>Graphics</key>
+					<array>
+						<dict>
+							<key>Bounds</key>
+							<string>{{361.179, 444.017}, {127.559, 70.7453}}</string>
+							<key>Class</key>
+							<string>ShapedGraphic</string>
+							<key>ID</key>
+							<integer>1472</integer>
+							<key>ImageID</key>
+							<integer>103</integer>
+							<key>Shape</key>
+							<string>Rectangle</string>
+							<key>Style</key>
+							<dict>
+								<key>fill</key>
+								<dict>
+									<key>Draws</key>
+									<string>NO</string>
+								</dict>
+								<key>shadow</key>
+								<dict>
+									<key>Beneath</key>
+									<string>YES</string>
+									<key>Color</key>
+									<dict>
+										<key>a</key>
+										<string>0.5</string>
+										<key>b</key>
+										<string>0</string>
+										<key>g</key>
+										<string>0</string>
+										<key>r</key>
+										<string>0</string>
+									</dict>
+									<key>ShadowVector</key>
+									<string>{0, 1}</string>
+								</dict>
+								<key>stroke</key>
+								<dict>
+									<key>Draws</key>
+									<string>NO</string>
+								</dict>
+							</dict>
+						</dict>
+						<dict>
+							<key>Bounds</key>
+							<string>{{363.966, 447.233}, {121.181, 63.7793}}</string>
+							<key>Class</key>
+							<string>ShapedGraphic</string>
+							<key>ID</key>
+							<integer>1473</integer>
+							<key>Shape</key>
+							<string>Circle</string>
+							<key>Style</key>
+							<dict>
+								<key>shadow</key>
+								<dict>
+									<key>Draws</key>
+									<string>NO</string>
+								</dict>
+								<key>stroke</key>
+								<dict>
+									<key>Draws</key>
+									<string>NO</string>
+								</dict>
+							</dict>
+						</dict>
+					</array>
+					<key>ID</key>
+					<integer>1471</integer>
+				</dict>
+				<dict>
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{287.268, 290.859}, {226.771, 28.3464}}</string>
+					<string>{{304.486, 288.051}, {240.945, 28.3464}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FitText</key>
@@ -48,7 +123,7 @@
 					<key>HFlip</key>
 					<string>YES</string>
 					<key>ID</key>
-					<integer>1247</integer>
+					<integer>1474</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -97,7 +172,7 @@ Contributors
 							<key>AllowConnections</key>
 							<string>NO</string>
 							<key>Bounds</key>
-							<string>{{17.9765, 347.552}, {226.772, 14.1732}}</string>
+							<string>{{21.0211, 344.744}, {240.945, 14.1732}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -108,7 +183,7 @@ Contributors
 								<real>6</real>
 							</dict>
 							<key>ID</key>
-							<integer>1249</integer>
+							<integer>1476</integer>
 							<key>Shape</key>
 							<string>Rectangle</string>
 							<key>Style</key>
@@ -143,11 +218,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{17.9765, 191.647}, {226.772, 155.906}}</string>
+							<string>{{21.0211, 188.839}, {240.945, 155.906}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1250</integer>
+							<integer>1477</integer>
 							<key>ImageID</key>
 							<integer>93</integer>
 							<key>ManualSizeImage</key>
@@ -167,7 +242,7 @@ Contributors
 						</dict>
 					</array>
 					<key>ID</key>
-					<integer>1248</integer>
+					<integer>1475</integer>
 				</dict>
 				<dict>
 					<key>Class</key>
@@ -178,7 +253,7 @@ Contributors
 							<key>AllowConnections</key>
 							<string>NO</string>
 							<key>Bounds</key>
-							<string>{{17.9765, 177.474}, {226.772, 14.1732}}</string>
+							<string>{{21.0211, 174.666}, {240.945, 14.1732}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -189,7 +264,7 @@ Contributors
 								<real>6</real>
 							</dict>
 							<key>ID</key>
-							<integer>1252</integer>
+							<integer>1479</integer>
 							<key>Shape</key>
 							<string>Rectangle</string>
 							<key>Style</key>
@@ -224,17 +299,17 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{17.9765, 21.5679}, {226.772, 155.906}}</string>
+							<string>{{21.0211, 18.7599}, {240.945, 155.906}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1253</integer>
+							<integer>1480</integer>
 							<key>ImageID</key>
 							<integer>95</integer>
 							<key>ManualSizeImage</key>
 							<string>YES</string>
 							<key>Scale</key>
-							<real>0.18000000715255737</real>
+							<real>0.18999999761581421</real>
 							<key>Shape</key>
 							<string>Rectangle</string>
 							<key>Style</key>
@@ -248,7 +323,7 @@ Contributors
 						</dict>
 					</array>
 					<key>ID</key>
-					<integer>1251</integer>
+					<integer>1478</integer>
 				</dict>
 				<dict>
 					<key>Class</key>
@@ -259,7 +334,7 @@ Contributors
 							<key>AllowConnections</key>
 							<string>NO</string>
 							<key>Bounds</key>
-							<string>{{287.268, 177.474}, {226.771, 14.1732}}</string>
+							<string>{{304.486, 174.666}, {240.945, 14.1732}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>FontInfo</key>
@@ -270,7 +345,7 @@ Contributors
 								<real>6</real>
 							</dict>
 							<key>ID</key>
-							<integer>1255</integer>
+							<integer>1482</integer>
 							<key>Shape</key>
 							<string>Rectangle</string>
 							<key>Style</key>
@@ -305,17 +380,17 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{287.268, 21.5679}, {226.771, 155.906}}</string>
+							<string>{{304.486, 18.7599}, {240.945, 155.906}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1256</integer>
+							<integer>1483</integer>
 							<key>ImageID</key>
 							<integer>101</integer>
 							<key>ManualSizeImage</key>
 							<string>YES</string>
 							<key>Scale</key>
-							<real>0.34000000357627869</real>
+							<real>0.36000001430511475</real>
 							<key>Shape</key>
 							<string>Rectangle</string>
 							<key>Style</key>
@@ -329,7 +404,7 @@ Contributors
 						</dict>
 					</array>
 					<key>ID</key>
-					<integer>1254</integer>
+					<integer>1481</integer>
 				</dict>
 				<dict>
 					<key>Class</key>
@@ -338,11 +413,11 @@ Contributors
 					<array>
 						<dict>
 							<key>Bounds</key>
-							<string>{{580.18, 393.093}, {56.6931, 43.9137}}</string>
+							<string>{{612.246, 390.285}, {60.7428, 43.9137}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1258</integer>
+							<integer>1485</integer>
 							<key>ImageID</key>
 							<integer>81</integer>
 							<key>Scale</key>
@@ -367,11 +442,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{580.18, 344.299}, {56.6931, 43.9137}}</string>
+							<string>{{612.246, 341.491}, {60.7428, 43.9137}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1259</integer>
+							<integer>1486</integer>
 							<key>ImageID</key>
 							<integer>80</integer>
 							<key>Scale</key>
@@ -396,11 +471,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{580.18, 295.506}, {56.6931, 43.9137}}</string>
+							<string>{{612.246, 292.698}, {60.7428, 43.9137}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1260</integer>
+							<integer>1487</integer>
 							<key>ImageID</key>
 							<integer>83</integer>
 							<key>Scale</key>
@@ -429,14 +504,14 @@ Contributors
 							<key>Head</key>
 							<dict>
 								<key>ID</key>
-								<integer>1269</integer>
+								<integer>1496</integer>
 							</dict>
 							<key>ID</key>
-							<integer>1261</integer>
+							<integer>1488</integer>
 							<key>Points</key>
 							<array>
-								<string>{702.559, 330.334}</string>
-								<string>{693.567, 344.177}</string>
+								<string>{743.395, 327.515}</string>
+								<string>{733.733, 341.371}</string>
 							</array>
 							<key>Style</key>
 							<dict>
@@ -460,7 +535,7 @@ Contributors
 							<key>Tail</key>
 							<dict>
 								<key>ID</key>
-								<integer>1281</integer>
+								<integer>1508</integer>
 							</dict>
 						</dict>
 						<dict>
@@ -469,16 +544,16 @@ Contributors
 							<key>Head</key>
 							<dict>
 								<key>ID</key>
-								<integer>1267</integer>
+								<integer>1494</integer>
 								<key>Info</key>
 								<integer>3</integer>
 							</dict>
 							<key>ID</key>
-							<integer>1262</integer>
+							<integer>1489</integer>
 							<key>Points</key>
 							<array>
-								<string>{702.521, 361.96}</string>
-								<string>{693.092, 357.107}</string>
+								<string>{743.361, 359.157}</string>
+								<string>{733.224, 354.299}</string>
 							</array>
 							<key>Style</key>
 							<dict>
@@ -502,7 +577,7 @@ Contributors
 							<key>Tail</key>
 							<dict>
 								<key>ID</key>
-								<integer>1280</integer>
+								<integer>1507</integer>
 							</dict>
 						</dict>
 						<dict>
@@ -511,16 +586,16 @@ Contributors
 							<key>Head</key>
 							<dict>
 								<key>ID</key>
-								<integer>1265</integer>
+								<integer>1492</integer>
 								<key>Info</key>
 								<integer>3</integer>
 							</dict>
 							<key>ID</key>
-							<integer>1263</integer>
+							<integer>1490</integer>
 							<key>Points</key>
 							<array>
-								<string>{703.493, 394.292}</string>
-								<string>{693.092, 369.305}</string>
+								<string>{744.347, 391.47}</string>
+								<string>{733.224, 366.497}</string>
 							</array>
 							<key>Style</key>
 							<dict>
@@ -544,16 +619,16 @@ Contributors
 							<key>Tail</key>
 							<dict>
 								<key>ID</key>
-								<integer>1279</integer>
+								<integer>1506</integer>
 							</dict>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{646.323, 372.355}, {47.2441, 6.09901}}</string>
+							<string>{{683.114, 369.547}, {50.6189, 6.09901}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1264</integer>
+							<integer>1491</integer>
 							<key>ImageID</key>
 							<integer>3</integer>
 							<key>Magnets</key>
@@ -605,11 +680,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{646.323, 366.256}, {47.2441, 6.09901}}</string>
+							<string>{{683.114, 363.448}, {50.6189, 6.09901}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1265</integer>
+							<integer>1492</integer>
 							<key>ImageID</key>
 							<integer>3</integer>
 							<key>Magnets</key>
@@ -661,11 +736,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{646.323, 360.158}, {47.2441, 6.09901}}</string>
+							<string>{{683.114, 357.35}, {50.6189, 6.09901}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1266</integer>
+							<integer>1493</integer>
 							<key>ImageID</key>
 							<integer>3</integer>
 							<key>Magnets</key>
@@ -717,11 +792,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{646.323, 354.058}, {47.2441, 6.09901}}</string>
+							<string>{{683.114, 351.25}, {50.6189, 6.09901}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1267</integer>
+							<integer>1494</integer>
 							<key>ImageID</key>
 							<integer>3</integer>
 							<key>Magnets</key>
@@ -773,11 +848,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{646.323, 347.958}, {47.2441, 6.09901}}</string>
+							<string>{{683.114, 345.15}, {50.6189, 6.09901}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1268</integer>
+							<integer>1495</integer>
 							<key>ImageID</key>
 							<integer>3</integer>
 							<key>Magnets</key>
@@ -829,11 +904,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{646.323, 341.86}, {47.2441, 6.09901}}</string>
+							<string>{{683.114, 339.052}, {50.6189, 6.09901}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1269</integer>
+							<integer>1496</integer>
 							<key>ImageID</key>
 							<integer>3</integer>
 							<key>Magnets</key>
@@ -885,11 +960,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{646.323, 335.761}, {47.2441, 6.09901}}</string>
+							<string>{{683.114, 332.953}, {50.6189, 6.09901}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1270</integer>
+							<integer>1497</integer>
 							<key>ImageID</key>
 							<integer>3</integer>
 							<key>Magnets</key>
@@ -941,11 +1016,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{646.323, 329.662}, {47.2441, 6.09901}}</string>
+							<string>{{683.114, 326.854}, {50.6189, 6.09901}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1271</integer>
+							<integer>1498</integer>
 							<key>ImageID</key>
 							<integer>3</integer>
 							<key>Magnets</key>
@@ -997,11 +1072,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{589.629, 149.127}, {160.63, 151.258}}</string>
+							<string>{{622.37, 146.319}, {172.104, 151.258}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1272</integer>
+							<integer>1499</integer>
 							<key>ImageID</key>
 							<integer>10</integer>
 							<key>Magnets</key>
@@ -1027,11 +1102,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{641.599, 393.093}, {56.6931, 43.9137}}</string>
+							<string>{{678.052, 390.285}, {60.7428, 43.9137}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1273</integer>
+							<integer>1500</integer>
 							<key>ImageID</key>
 							<integer>78</integer>
 							<key>Scale</key>
@@ -1060,20 +1135,20 @@ Contributors
 							<key>Head</key>
 							<dict>
 								<key>ID</key>
-								<integer>1272</integer>
+								<integer>1499</integer>
 								<key>Info</key>
 								<integer>1</integer>
 							</dict>
 							<key>ID</key>
-							<integer>1274</integer>
+							<integer>1501</integer>
 							<key>OrthogonalBarAutomatic</key>
 							<true/>
 							<key>OrthogonalBarPosition</key>
 							<real>-1</real>
 							<key>Points</key>
 							<array>
-								<string>{670.172, 330.088}</string>
-								<string>{669.944, 300.385}</string>
+								<string>{708.666, 327.28}</string>
+								<string>{708.422, 297.577}</string>
 							</array>
 							<key>Style</key>
 							<dict>
@@ -1099,7 +1174,7 @@ Contributors
 							<key>Tail</key>
 							<dict>
 								<key>ID</key>
-								<integer>1271</integer>
+								<integer>1498</integer>
 								<key>Info</key>
 								<integer>2</integer>
 							</dict>
@@ -1110,16 +1185,16 @@ Contributors
 							<key>Head</key>
 							<dict>
 								<key>ID</key>
-								<integer>1268</integer>
+								<integer>1495</integer>
 								<key>Info</key>
 								<integer>4</integer>
 							</dict>
 							<key>ID</key>
-							<integer>1275</integer>
+							<integer>1502</integer>
 							<key>Points</key>
 							<array>
-								<string>{637.358, 359.098}</string>
-								<string>{646.798, 351.007}</string>
+								<string>{673.476, 356.297}</string>
+								<string>{683.623, 348.199}</string>
 							</array>
 							<key>Style</key>
 							<dict>
@@ -1143,7 +1218,7 @@ Contributors
 							<key>Tail</key>
 							<dict>
 								<key>ID</key>
-								<integer>1259</integer>
+								<integer>1486</integer>
 							</dict>
 						</dict>
 						<dict>
@@ -1152,16 +1227,16 @@ Contributors
 							<key>Head</key>
 							<dict>
 								<key>ID</key>
-								<integer>1266</integer>
+								<integer>1493</integer>
 								<key>Info</key>
 								<integer>4</integer>
 							</dict>
 							<key>ID</key>
-							<integer>1276</integer>
+							<integer>1503</integer>
 							<key>Points</key>
 							<array>
-								<string>{634.633, 393.014}</string>
-								<string>{646.798, 363.207}</string>
+								<string>{670.629, 390.174}</string>
+								<string>{683.623, 360.4}</string>
 							</array>
 							<key>Style</key>
 							<dict>
@@ -1185,7 +1260,7 @@ Contributors
 							<key>Tail</key>
 							<dict>
 								<key>ID</key>
-								<integer>1258</integer>
+								<integer>1485</integer>
 							</dict>
 						</dict>
 						<dict>
@@ -1194,14 +1269,14 @@ Contributors
 							<key>Head</key>
 							<dict>
 								<key>ID</key>
-								<integer>1260</integer>
+								<integer>1487</integer>
 							</dict>
 							<key>ID</key>
-							<integer>1277</integer>
+							<integer>1504</integer>
 							<key>Points</key>
 							<array>
-								<string>{646.798, 338.81}</string>
-								<string>{637.31, 333.518}</string>
+								<string>{683.623, 336.003}</string>
+								<string>{673.432, 330.697}</string>
 							</array>
 							<key>Style</key>
 							<dict>
@@ -1225,7 +1300,7 @@ Contributors
 							<key>Tail</key>
 							<dict>
 								<key>ID</key>
-								<integer>1270</integer>
+								<integer>1497</integer>
 								<key>Info</key>
 								<integer>4</integer>
 							</dict>
@@ -1236,14 +1311,14 @@ Contributors
 							<key>Head</key>
 							<dict>
 								<key>ID</key>
-								<integer>1264</integer>
+								<integer>1491</integer>
 							</dict>
 							<key>ID</key>
-							<integer>1278</integer>
+							<integer>1505</integer>
 							<key>Points</key>
 							<array>
-								<string>{669.945, 392.593}</string>
-								<string>{670.012, 378.454}</string>
+								<string>{708.423, 389.785}</string>
+								<string>{708.495, 375.646}</string>
 							</array>
 							<key>Style</key>
 							<dict>
@@ -1267,16 +1342,16 @@ Contributors
 							<key>Tail</key>
 							<dict>
 								<key>ID</key>
-								<integer>1273</integer>
+								<integer>1500</integer>
 							</dict>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{703.016, 393.093}, {56.6931, 43.9137}}</string>
+							<string>{{743.856, 390.285}, {60.7428, 43.9137}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1279</integer>
+							<integer>1506</integer>
 							<key>ImageID</key>
 							<integer>77</integer>
 							<key>Scale</key>
@@ -1301,11 +1376,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{703.016, 344.299}, {56.6931, 43.9137}}</string>
+							<string>{{743.856, 341.491}, {60.7428, 43.9137}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1280</integer>
+							<integer>1507</integer>
 							<key>ImageID</key>
 							<integer>82</integer>
 							<key>Scale</key>
@@ -1330,11 +1405,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{703.016, 295.506}, {56.6931, 43.9137}}</string>
+							<string>{{743.856, 292.698}, {60.7428, 43.9137}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1281</integer>
+							<integer>1508</integer>
 							<key>ImageID</key>
 							<integer>79</integer>
 							<key>Scale</key>
@@ -1361,11 +1436,11 @@ Contributors
 							<key>AllowConnections</key>
 							<string>NO</string>
 							<key>Bounds</key>
-							<string>{{570.732, 285.748}, {198.425, 161.017}}</string>
+							<string>{{602.123, 282.94}, {212.599, 161.017}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1282</integer>
+							<integer>1509</integer>
 							<key>Shape</key>
 							<string>Rectangle</string>
 							<key>Style</key>
@@ -1420,11 +1495,11 @@ Contributors
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{594.354, 154.007}, {151.182, 117.103}}</string>
+							<string>{{627.432, 151.199}, {161.981, 117.103}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
-							<integer>1283</integer>
+							<integer>1510</integer>
 							<key>ImageID</key>
 							<integer>84</integer>
 							<key>Magnets</key>
@@ -1459,45 +1534,15 @@ Contributors
 						</dict>
 					</array>
 					<key>ID</key>
-					<integer>1257</integer>
+					<integer>1484</integer>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{315.614, 453.387}, {170.078, 59.3019}}</string>
+					<string>{{587.949, 132.146}, {240.945, 325.984}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>1284</integer>
-					<key>ImageID</key>
-					<integer>76</integer>
-					<key>Shape</key>
-					<string>Rectangle</string>
-					<key>Style</key>
-					<dict>
-						<key>fill</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-						<key>shadow</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-						<key>stroke</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-					</dict>
-				</dict>
-				<dict>
-					<key>Bounds</key>
-					<string>{{556.558, 134.954}, {226.773, 325.984}}</string>
-					<key>Class</key>
-					<string>ShapedGraphic</string>
-					<key>ID</key>
-					<integer>1285</integer>
+					<integer>1511</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -1521,11 +1566,11 @@ Contributors
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{329.788, 315.946}, {141.732, 66.6143}}</string>
+					<string>{{347.006, 313.138}, {155.905, 73.2756}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>1286</integer>
+					<integer>1512</integer>
 					<key>ImageID</key>
 					<integer>28</integer>
 					<key>Shape</key>
@@ -1553,7 +1598,7 @@ Contributors
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{273.095, 574.325}, {255.118, 28.3463}}</string>
+					<string>{{290.313, 557.344}, {269.291, 28.3463}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1564,7 +1609,7 @@ Contributors
 						<real>6</real>
 					</dict>
 					<key>ID</key>
-					<integer>1287</integer>
+					<integer>1513</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -1600,11 +1645,11 @@ Contributors
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{570.732, 78.2608}, {212.598, 14.1732}}</string>
+					<string>{{587.95, 75.4527}, {240.945, 14.1732}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>1288</integer>
+					<integer>1514</integer>
 					<key>Shape</key>
 					<string>Bezier</string>
 					<key>ShapeData</key>
@@ -1659,13 +1704,13 @@ Contributors
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{556.558, 460.938}, {226.773, 141.732}}</string>
+					<string>{{587.949, 458.13}, {240.945, 127.559}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>HFlip</key>
 					<string>YES</string>
 					<key>ID</key>
-					<integer>1289</integer>
+					<integer>1515</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -1712,11 +1757,11 @@ Contributors
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{287.268, 219.993}, {226.771, 42.5197}}</string>
+					<string>{{304.486, 217.185}, {240.945, 42.5197}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>1290</integer>
+					<integer>1516</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -1760,7 +1805,7 @@ Contributors
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{556.558, 106.607}, {240.945, 14.1732}}</string>
+					<string>{{587.949, 103.799}, {240.945, 14.1732}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1771,7 +1816,7 @@ Contributors
 						<real>18</real>
 					</dict>
 					<key>ID</key>
-					<integer>1291</integer>
+					<integer>1517</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -1807,7 +1852,7 @@ Contributors
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{556.558, 21.5679}, {240.945, 56.6929}}</string>
+					<string>{{587.949, 18.7598}, {240.945, 56.6929}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1823,7 +1868,7 @@ Contributors
 						<real>42</real>
 					</dict>
 					<key>ID</key>
-					<integer>1292</integer>
+					<integer>1518</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -1870,7 +1915,7 @@ Contributors
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{17.9765, 375.899}, {226.772, 226.771}}</string>
+					<string>{{21.0211, 373.091}, {240.945, 212.598}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1883,7 +1928,7 @@ Contributors
 					<key>HFlip</key>
 					<string>YES</string>
 					<key>ID</key>
-					<integer>1293</integer>
+					<integer>1519</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -1933,11 +1978,11 @@ Equalizer supports virtually any parallel compositing algorithm, for example bin
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{3.80331, 7.39466}, {255.118, 595.276}}</string>
+					<string>{{6.84772, 4.58658}, {269.291, 581.102}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>1294</integer>
+					<integer>1520</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -1992,11 +2037,11 @@ Equalizer supports virtually any parallel compositing algorithm, for example bin
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{556.558, 134.954}, {226.773, 325.984}}</string>
+					<string>{{587.949, 132.146}, {240.945, 325.984}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>1295</integer>
+					<integer>1521</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -2014,11 +2059,11 @@ Equalizer supports virtually any parallel compositing algorithm, for example bin
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{542.385, 7.39466}, {255.119, 595.276}}</string>
+					<string>{{573.776, 4.58658}, {269.291, 581.102}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>1296</integer>
+					<integer>1522</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -2075,7 +2120,7 @@ Equalizer supports virtually any parallel compositing algorithm, for example bin
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{287.268, 418.419}, {226.771, 141.732}}</string>
+					<string>{{304.486, 415.611}, {240.945, 141.732}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FitText</key>
@@ -2085,7 +2130,7 @@ Equalizer supports virtually any parallel compositing algorithm, for example bin
 					<key>HFlip</key>
 					<string>YES</string>
 					<key>ID</key>
-					<integer>1297</integer>
+					<integer>1523</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -2129,11 +2174,11 @@ Support and Development Services:\
 \
 \
 \
-www.tungstengraphics.com\cf0 \expnd0\expndtw0\kerning0
+www.eyescale.ch\cf0 \expnd0\expndtw0\kerning0
 \ulnone \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 \cf2 \expnd0\expndtw0\kerning0
-\ul sales@tungstengraphics.com}</string>
+\ul info@eyescale.ch}</string>
 					</dict>
 					<key>TextPlacement</key>
 					<integer>0</integer>
@@ -2142,11 +2187,11 @@ www.tungstengraphics.com\cf0 \expnd0\expndtw0\kerning0
 					<key>AllowConnections</key>
 					<string>NO</string>
 					<key>Bounds</key>
-					<string>{{273.095, 7.39466}, {255.118, 595.276}}</string>
+					<string>{{290.313, 4.58624}, {269.291, 581.102}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
-					<integer>1298</integer>
+					<integer>1524</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -2201,7 +2246,7 @@ www.tungstengraphics.com\cf0 \expnd0\expndtw0\kerning0
 				</dict>
 			</array>
 			<key>ID</key>
-			<integer>1246</integer>
+			<integer>1470</integer>
 		</dict>
 	</array>
 	<key>GridInfo</key>
@@ -2221,10 +2266,10 @@ www.tungstengraphics.com\cf0 \expnd0\expndtw0\kerning0
 	<integer>1</integer>
 	<key>HorizontalGuides</key>
 	<array>
-		<real>305.03286743164062</real>
+		<real>295.13821411132812</real>
 	</array>
 	<key>ImageCounter</key>
-	<integer>102</integer>
+	<integer>104</integer>
 	<key>ImageLinkBack</key>
 	<array>
 		<dict/>
@@ -2245,6 +2290,7 @@ www.tungstengraphics.com\cf0 \expnd0\expndtw0\kerning0
 	</array>
 	<key>ImageList</key>
 	<array>
+		<string>image103.pdf</string>
 		<string>image101.pdf</string>
 		<string>image95.pdf</string>
 		<string>image93.pdf</string>
@@ -2256,7 +2302,6 @@ www.tungstengraphics.com\cf0 \expnd0\expndtw0\kerning0
 		<string>image79.png</string>
 		<string>image78.png</string>
 		<string>image77.png</string>
-		<string>image76.tif</string>
 		<string>image28.pdf</string>
 		<string>image10.png</string>
 		<string>image3.pdf</string>
@@ -2359,7 +2404,7 @@ www.tungstengraphics.com\cf0 \expnd0\expndtw0\kerning0
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-05-08 19:06:47 +0200</string>
+	<string>2007-06-26 16:25:16 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -2389,15 +2434,10 @@ www.tungstengraphics.com\cf0 \expnd0\expndtw0\kerning0
 			<string>int</string>
 			<string>1</string>
 		</array>
-		<key>NSPaperName</key>
-		<array>
-			<string>string</string>
-			<string>Letter</string>
-		</array>
 		<key>NSPaperSize</key>
 		<array>
 			<string>size</string>
-			<string>{792, 612}</string>
+			<string>{842, 595}</string>
 		</array>
 		<key>NSRightMargin</key>
 		<array>
@@ -2430,7 +2470,7 @@ www.tungstengraphics.com\cf0 \expnd0\expndtw0\kerning0
 	<integer>1</integer>
 	<key>VerticalGuides</key>
 	<array>
-		<real>400.87457275390625</real>
+		<real>424.89306640625</real>
 	</array>
 	<key>WindowInfo</key>
 	<dict>
@@ -2441,9 +2481,9 @@ www.tungstengraphics.com\cf0 \expnd0\expndtw0\kerning0
 		<key>DrawerWidth</key>
 		<real>209</real>
 		<key>Frame</key>
-		<string>{{330, 156}, {1006, 852}}</string>
+		<string>{{312, 58}, {1036, 801}}</string>
 		<key>VisibleRegion</key>
-		<string>{{-45, -33}, {889.749, 676.066}}</string>
+		<string>{{-33, -19}, {915.786, 630.276}}</string>
 		<key>Zoom</key>
 		<real>1.1675021648406982</real>
 	</dict>
