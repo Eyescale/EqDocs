@@ -1,7 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \documentclass[10pt,a4]{scrartcl}
 
-\usepackage{tabularx,graphicx,a4}
+\usepackage{tabularx,graphicx,a4,listings}
 
 \ifx\pdfoutput\undefined
   % We're not running pdftex
@@ -20,7 +20,7 @@
 }
 \date{
   \textbf{INCOMPLETE}\\[\medskipamount]
-  Version 0.1, \today
+  Version 0.2, \today
 }
 
 \newcommand{\tm}{\texttrademark~}
@@ -37,6 +37,7 @@
 
 \maketitle
 \vfill
+\lstset{language=C++}
 
 \thispagestyle{empty}
 \begin{figure}[ht]
@@ -52,10 +53,11 @@
 %  multipipe visualization systems.
 %}
 
-\vfill {\center\begin{tabularx}{\textwidth}{|l|l|X|}
+\vfill{\center\begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
     \bf Version & \bf Date     & \bf Changes \\
     \hline
+    0.2         & Aug 20, 2007 & main function described\\
     0.1         & Aug 19, 2007 & outlined the basic concepts\\
     \hline \multicolumn{3}{c}{\small
       \htmladdnormallink{http://www.equalizergraphics.com/documents/Developer/ProgrammingGuide.pdf}
@@ -137,11 +139,14 @@ interfere in any way with the application's rendering code.
 \subsection{\label{ssTaskMethods}Task Methods}
 
 The application subclasses Equalizer objects and overrides virtual
-functions to implement certain functionality, e.g., the OpenGL rendering
-code in \textsf{eq::Channel::frameDraw}. These task methods are in
-concept similar to C function callbacks.
+functions to implement certain functionality, e.g., the application's
+OpenGL rendering in \textsf{eq::Chan\-nel::frameDraw}. These task
+methods are in concept similar to C function callbacks. The
+\textsf{eqPly} section will discuss the most important task methods. A
+full list of all task methods can be found on the
+website\footnote{\htmladdnormallink{http://www.equalizergraphics.com/documents/design/taskMethods.html}{http://www.equalizergraphics.com/documents/design/taskMethods.html}}.
 
-\section{The Resource Tree}
+\subsection{The Resource Tree}
 
 The rendering resources are represented in a hierarchical tree structure
 which corresponds to the physical and logical resources found in a 3D
@@ -165,19 +170,19 @@ instances for one resource, e.g., to run multiple render client nodes on
 one computer. For deployment one node and pipe should be used for each
 computer and graphics card, respectively.
 
-\subsection{Configuration}
+\subsubsection{Configuration}
 
 The root of the resource tree is the \textsf{eq::Config}, which
 represents the current configuration of the application. It currently
 only holds the local node, not all nodes of the configuration.
 
-\subsection{Node}
+\subsubsection{Node}
 
 An \textsf{eq::Node} is the representation of a single computer in the
 system. It is one operating system process of the render client. All
 node task methods are executed from the main application thread.
 
-\subsection{Pipe}
+\subsubsection{Pipe}
 
 The \textsf{eq::Pipe} is the abstraction of a graphics card (GPU). In
 the current implementation it is also one operating system thread,
@@ -185,25 +190,154 @@ unless the pipe's thread hint is set to \textsf{false}. All pipe and
 child window and channel task methods are executed from the pipe thread
 for threaded pipes or from the main application thread for non-threaded
 pipes\footnote{see also
-  \htmladdnormallink{http://www.equalizergraphics.com/documents/design/nonthreaded.html}{http://www.equalizergraphics.com/documents/design/nonthreaded.html}
-  for non-threaded rendering}.
+  \htmladdnormallink{http://www.equalizergraphics.com/documents/design/nonthreaded.html}{http://www.equalizergraphics.com/documents/design/nonthreaded.html}}.
 
 Further versions of Equalizer might introduce threaded windows, where
 all window-related task methods are executed in a separate operating
 system thread.
 
-\subsection{Window}
+\subsubsection{Window}
 
 An \textsf{eq::Window} is an drawable and OpenGL context. The drawable
 can be an on-screen window or an off-screen PBuffer or
 FBO\footnote{off-screen drawables are not yet implemented, but can be
   created by the application and used with Equalizer}. 
 
-\subsection{Channel}
+\subsubsection{Channel}
 
 The \textsf{eq::Channel} is the abstraction of an OpenGL viewport within
 its parent window. It is the entity executing the actual rendering.
 
-\bibliographystyle{abbrvurl}
-\bibliography{paper}
+\subsection{Resource Usage}
+
+How the rendering resources are to be used is configured using a
+compound tree. Each compound has a channel, which it uses to execute the
+rendering tasks. The rendering tasks are computed by the server and send
+to the render clients. At no point the application or render clients
+have or need knowledge of compounds. The configuration of compounds is
+not in the scope of this document\footnote{see
+  \htmladdnormallink{http://www.equalizergraphics.com/documents/design/compounds.html}{http://www.equalizergraphics.com/documents/design/compounds.html}}.
+
+\section{The \textsf{eqPly} polygonal renderer}
+
+The \textsf{eqPly} example is shipped with the Equalizer distribution
+and serves as a simple reference implementation of an Equalizer-based
+application. Its focus is not on rendering features or visual quality.
+It serves as a test bed for most of the Equalizer features.
+
+In this section the source code of \textsf{eqPly} is discussed in
+detail, and relevant design decision and remarks are raised.
+
+All classes in the example are in the \textsf{eqPly} namespace to avoid
+type name ambiguities, in particular for the \textsf{Window} class.
+
+\subsection{The main Function}
+
+The main function starts off with parsing the command line into the
+\textsf{LocalInitData} data structure, which in part will be distributed
+to all render client nodes. For actual command line parsing is done by
+the \textsf{LocalInitData} class and will be discussed there:
+
+{\small\begin{lstlisting}
+int main( int argc, char** argv )
+{
+    // 1. parse arguments
+    eqPly::LocalInitData initData;
+    initData.parseArguments( argc, argv );
+\end{lstlisting}}
+
+The second step is to initialize the Equalizer library. The
+initialization function of Equalizer also parses the command line, which
+is used to set certain default values based on Equalizer-specific
+options\footnote{Equalizer-specific options always start with --eq-},
+e.g., the default server location. Furthermore, a node factory is
+provided:
+
+{\small\begin{lstlisting}
+    // 2. Equalizer initialization
+    NodeFactory nodeFactory;
+    if( !eq::init( argc, argv, &nodeFactory ))
+    {
+        EQERROR << "Equalizer init failed" << endl;
+        return EXIT_FAILURE;
+    }
+\end{lstlisting}}
+
+The node factory is used by Equalizer to create the object instances for
+the rendering entities. Each of the classes inherits from the same type
+provided by Equalizer in the \textsf{eq} namespace. The provided
+\textsf{eq::NodeFactory} base class instantiates a 'plain' Equalizer
+object, thus making it possible to selectively subclass individual
+entity types. For each rendering resource used in the configuration, one
+C++ object will be created:
+
+{\small\begin{lstlisting}
+class NodeFactory : public eq::NodeFactory
+{
+public:
+    virtual eq::Config*  createConfig()  { return new eqPly::Config; }
+    virtual eq::Node*    createNode()    { return new eqPly::Node; }
+    virtual eq::Pipe*    createPipe()    { return new eqPly::Pipe; }
+    virtual eq::Window*  createWindow()  { return new eqPly::Window; }
+    virtual eq::Channel* createChannel() { return new eqPly::Channel; }
+};
+\end{lstlisting}}
+
+The third step is to create an instance of the application and to
+initialize it locally. The application is an \textsf{eq::Client}, which
+is an \textsf{eqNet::Node}. The underlying network distribution in
+Equalizer is a peer-to-peer network structure of
+\textsf{eqNet::Node}s. The application programmer rarely is aware of the
+classes in the \textsf{eqNet} namespace, but both the
+\textsf{eq::Client} and the server are \textsf{eqNet::Node}s. The local
+initialization of nodes creates a local listening socket, so that the
+node, and therefore the \textsf{eq::Client} can communicate over the
+network with other nodes, such as the server and the rendering clients.
+
+{\small\begin{lstlisting}
+    // 3. initialization of local client node
+    RefPtr< eqPly::Application > client = new eqPly::Application( initData );
+    if( !client->initLocal( argc, argv ))
+    {
+        EQERROR << "Can't init client" << endl;
+        eq::exit();
+        return EXIT_FAILURE;
+    }
+\end{lstlisting}}
+
+Finally everything is set up to run the \textsf{eqPly} application:
+
+{\small\begin{lstlisting}
+    // 4. run client
+    const int ret = client->run();
+\end{lstlisting}}
+
+After it has finished, the application and Eqply is deinitialized and
+the \textsf{main} function returns:
+
+{\small\begin{lstlisting}
+    // 5. cleanup and exit
+    client->exitLocal();
+    client = 0;
+
+    eq::exit();
+    return ret;
+}
+\end{lstlisting}}
+
+\subsection{Application}
+
+In the \textbf{eqPly} case, the application is also the render client. It has
+three run-time behaviours:
+
+\begin{enumerate}
+  \item \textbf{Application}: The executable started by the user, which
+    is the controlling entity in the rendering session.
+  \item \textbf{Auto-launched Render Client}: The typical render client,
+    started by the server. In this mode, \textsf{initLocal} never
+    returns and the process is terminated by the server.
+  \item \textbf{Resident Render Client}: Manually pre-started render
+    client, listening on a specified port for server commands.
+\end{enumerate}
+
 \end{document}
