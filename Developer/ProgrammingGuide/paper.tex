@@ -20,7 +20,7 @@
 }
 \date{
   \textbf{INCOMPLETE}\\[\medskipamount]
-  Version 0.2, \today
+  Version 0.3, \today
 }
 
 \newcommand{\tm}{\texttrademark~}
@@ -41,8 +41,9 @@
 
 \thispagestyle{empty}
 \begin{figure}[ht]
-  \centering
-  \includegraphics[width=4cm]{logo.pdf}
+  \hfill
+  \includegraphics[width=4cm]{logo.pdf}\hfill
+  \includegraphics[width=4cm]{vmml.pdf}\hfill\vspace{-1em}\\
 %  {\small\htmladdnormallink{www.eyescale.ch}{http://www.eyescale.ch}}
 \end{figure}
 \vfill
@@ -57,6 +58,7 @@
     \hline
     \bf Version & \bf Date     & \bf Changes \\
     \hline
+    0.3         & Aug 26, 2007 & application and render client code described\\
     0.2         & Aug 20, 2007 & main function described\\
     0.1         & Aug 19, 2007 & outlined the basic concepts\\
     \hline \multicolumn{3}{c}{\small
@@ -154,14 +156,15 @@ rendering environment.
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\columnwidth]{desk.pdf}{\caption{\label{fConfig}An
+  \includegraphics[width=\columnwidth]{cave.pdf}{\caption{\label{fConfig}An
       example configuration}}
 \end{figure}
 
-\fig{fConfig} shows one example configuration, running on a single
-machine (node) using one graphics card (pipe) with one window to render
-to two output channels connected to a L-shaped projection table. The
-compound description is only used by the server to compute the rendering
+\fig{fConfig} shows one example configuration for a four-side
+CAVE\texttrademark, running on two machines (node) using three graphics
+cards (pipe) with one window each to render to the four output channels
+connected to the projectors for each of the walls. The compound
+description is only used by the server to compute the rendering
 tasks. The application is not aware of compounds, and does not need to
 concern itself with the parallel rendering logics of a configuration.
 
@@ -251,7 +254,9 @@ initialization function of Equalizer also parses the command line, which
 is used to set certain default values based on Equalizer-specific
 options\footnote{Equalizer-specific options always start with --eq-},
 e.g., the default server location. Furthermore, a node factory is
-provided:
+provided. The \textsf{EQERROR} macro, and its counterparts
+\textsf{EQWARN}, \textsf{EQINFO} and \textsf{EQVERB} allow selective
+debugging outputs with various logging levels:
 
 {\small\begin{lstlisting}
     // 2. Equalizer initialization
@@ -333,11 +338,176 @@ three run-time behaviours:
 \begin{enumerate}
   \item \textbf{Application}: The executable started by the user, which
     is the controlling entity in the rendering session.
-  \item \textbf{Auto-launched Render Client}: The typical render client,
-    started by the server. In this mode, \textsf{initLocal} never
-    returns and the process is terminated by the server.
-  \item \textbf{Resident Render Client}: Manually pre-started render
-    client, listening on a specified port for server commands.
+  \item \textbf{Auto-launched render client}: The typical render client,
+    started by the server. The server starts the executable with special
+    parameters, which cause \textsf{Client::initLocal} to never
+    return. During exit, the server terminates the process.
+  \item \textbf{Resident render client}: Manually pre-started render
+    client, listening on a specified port for server commands. This mode
+    is selected using the command-line option \textsf{--eq-client} and
+    potentially \textsf{--eq-listen} and \textsf{-r}\footnote{see \htmladdnormallink{http://www.equalizergraphics.com/documents/design/residentNodes.html}{http://www.equalizergraphics.com/documents/design/residentNodes.html}}.
 \end{enumerate}
+
+\subsubsection{Main Loop}
+
+The application's main loop starts by connecting the application to an
+Equalizer server. The command line parameter \textsf{--eq-server}
+explicitly specifies a server address. If no server was specified,
+\textsf{Client::connectServer} try first to connect to a server on the
+local machine using the default port 4242. If that fails, it will create
+a server running within the applications process with a default
+1-channel configuration\footnote{see
+  \htmladdnormallink{http://www.equalizergraphics.com/documents/design/standalone.html}{http://www.equalizergraphics.com/documents/design/standalone.html}}:
+
+{\small\begin{lstlisting}
+int Application::run()
+{
+    // 1. connect to server
+    RefPtr<eq::Server> server = new eq::Server;
+    if( !connectServer( server ))
+    {
+        EQERROR << "Can't open server" << endl;
+        return EXIT_FAILURE;
+    }
+\end{lstlisting}}
+
+The second step is to ask the server for a configuration. The
+\textsf{ConfigParams} are a placeholder for later implementations to
+provide additional hints and information to the server for choosing a
+configuration. The configuration is created using
+\textsf{NodeFactory::createConfig}. Therefore it is of type
+\textsf{eqPly::Config}, but the return value is \textsf{eq::Config},
+making q cast necessary:
+
+{\small\begin{lstlisting}
+    // 2. choose config
+    eq::ConfigParams configParams;
+    Config* config = static_cast<Config*>(server->chooseConfig( configParams ));
+
+    if( !config )
+    {
+        EQERROR << "No matching config on server" << endl;
+        disconnectServer( server );
+        return EXIT_FAILURE;
+    }
+\end{lstlisting}}
+
+Finally it is time to initialize the configuration. For statistics, the
+time for this operation is measures and printed. During initialization
+the server launches and connects all render client nodes, and calls the
+appropriate initialization task methods, as explained in later
+sections. \textsf{Config::init} does return after all nodes, pipes,
+windows and channels are initialized. It returns \textsf{true} only if
+all init task methods were successful. The \textsf{EQLOG} macro allows
+topic-specific logging. The numeric topic values are specified in the
+respective \textsf{log.h} header files:
+
+{\small\begin{lstlisting}
+    // 3. init config
+    eqBase::Clock clock;
+
+    config->setInitData( _initData );
+    if( !config->init( ))
+    {
+        EQERROR << "Config initialization failed: " 
+                << config->getErrorMessage() << endl;
+        server->releaseConfig( config );
+        disconnectServer( server );
+        return EXIT_FAILURE;
+    }
+
+    EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
+                            << endl;
+\end{lstlisting}}
+
+When the configuration was successfully initialized, the actual main
+loop is executed. The main loop runs until the user exits the
+configuration or a maximum number of frames, specified as a command-line
+argument, has been rendered. The latter is useful for benchmarks. The
+\textsf{Clock} is reused for measuring the overall performance. A new
+frame is started using \textsf{Config::startFrame} and a frame is
+finished using \textsf{Config::endFrame}.
+
+When the frame is started, the server computes all rendering tasks and
+sends them to the appropriate render client nodes. The render client
+nodes dispatch the tasks to the correct node or pipe thread, were they
+are executed in the order they arrive.
+
+The frame finished is \textsf{latency} frames behind the frame
+started. The latency is specified in the configuration file, and allows
+several outstanding frames whose tasks are already queued in the node
+and pipe threads for execution. This allows overlapped execution and
+minimizes idle times.
+
+When the main loop is finished, \textsf{Config::finishAllFrames} catches
+up with the latency. It returns after all outstanding frames have been
+rendered:
+
+{\small\begin{lstlisting}
+    // 4. run main loop
+    uint32_t maxFrames = _initData.getMaxFrames();
+    
+    clock.reset();
+    while( config->isRunning( ) && maxFrames-- )
+    {
+        config->startFrame();
+        // config->renderData(...);
+        config->finishFrame();
+    }
+    const uint32_t frame = config->finishAllFrames();
+    const float    time  = clock.getTimef();
+    EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << time << " ms (" << frame
+                            << " frames @ " << ( frame / time * 1000.f)
+                            << " FPS)" << endl;
+\end{lstlisting}}
+
+The remainder of the application code cleans up in the reverse order of
+the initialization. The config is exited, released and the connection to
+the server is closed:
+
+{\small\begin{lstlisting}
+    // 5. exit config
+    clock.reset();
+    config->exit();
+    EQLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms" <<endl;
+
+    // 6. cleanup and exit
+    server->releaseConfig( config );
+    if( !disconnectServer( server ))
+        EQERROR << "Client::disconnectServer failed" << endl;
+    server = 0;
+    return EXIT_SUCCESS;
+}
+\end{lstlisting}}
+
+\subsubsection{Render Clients}
+
+In the second and third case, when the executable is used as a render
+client, \textsf{Client::initLocal} never returns. In order to keep the
+client resident, the \textsf{eqPly} example overrides the client loop to
+keep it running beyond one configuration run:
+
+{\small\begin{lstlisting}
+bool Application::clientLoop()
+{
+    if( !_initData.isResident( )) // execute only one config run
+        return eq::Client::clientLoop();
+
+    // else execute client loops 'forever'
+    while( true ) // TODO: implement SIGHUP handler to exit?
+    {
+        if( !eq::Client::clientLoop( ))
+            return false;
+        EQINFO << "One configuration run successfully executed" << endl;
+    }
+    return true;
+}
+\end{lstlisting}}
+
+
+\if 0
+{\small\begin{lstlisting}
+\end{lstlisting}}
+\fi
 
 \end{document}
