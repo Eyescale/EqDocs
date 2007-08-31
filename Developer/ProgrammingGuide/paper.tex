@@ -1,7 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \documentclass[10pt,a4]{scrartcl}
 
-\usepackage{tabularx,graphicx,a4,listings}
+\usepackage{tabularx,graphicx,a4,listings,wrapfig,subfigure}
 
 \ifx\pdfoutput\undefined
   % We're not running pdftex
@@ -20,7 +20,7 @@
 }
 \date{
   \textbf{INCOMPLETE}\\[\medskipamount]
-  Version 0.3, \today
+  Version 0.4, \today
 }
 
 \newcommand{\tm}{\texttrademark~}
@@ -58,8 +58,9 @@
     \hline
     \bf Version & \bf Date     & \bf Changes \\
     \hline
-    0.3         & Aug 26, 2007 & application and render client code described\\
-    0.2         & Aug 20, 2007 & main function described\\
+    0.4         & Aug 31, 2007 & added distributed objects\\
+    0.3         & Aug 26, 2007 & added application and render client\\
+    0.2         & Aug 20, 2007 & added main function\\
     0.1         & Aug 19, 2007 & outlined the basic concepts\\
     \hline \multicolumn{3}{c}{\small
       \htmladdnormallink{http://www.equalizergraphics.com/documents/Developer/ProgrammingGuide.pdf}
@@ -72,6 +73,8 @@
 
 \clearpage
 \pagenumbering{arabic}
+
+
 
 \section{Introduction}
 
@@ -87,7 +90,10 @@ list\footnote{see
   \htmladdnormallink{http://www.equalizergraphics.com/lists.html}
   {http://www.equalizergraphics.com/lists.html}}.
 
+
+
 \section{Getting Started}
+
 
 \subsection{Compiling and running \textsf{eqPly}}
 
@@ -97,6 +103,7 @@ Guide\footnote{\htmladdnormallink{http://www.equalizergraphics.com/documents/Equ
 explains how to run it. \textsf{eqPly} can also be executed without a
 server, which simplifies the development cycle. In this case it will be
 configured to use one window.
+
 
 \subsection{Equalizer Processes}
 
@@ -131,12 +138,15 @@ The rendering client can be the same executable as the application, as
 is the case with \textsf{eqPly}. Real-world applications often implement
 a separate, light-weight rendering client.
 
+
+
 \section{The Programming Interface}
 
 Equalizer uses a C++ programming interface. The API is minimally
 invasive, that is, Equalizer imposes only the minimal, natural execution
 framework upon the application. It does not impose a scene graph or does
 interfere in any way with the application's rendering code.
+
 
 \subsection{\label{ssTaskMethods}Task Methods}
 
@@ -148,17 +158,17 @@ methods are in concept similar to C function callbacks. The
 full list of all task methods can be found on the
 website\footnote{\htmladdnormallink{http://www.equalizergraphics.com/documents/design/taskMethods.html}{http://www.equalizergraphics.com/documents/design/taskMethods.html}}.
 
+
 \subsection{The Resource Tree}
 
 The rendering resources are represented in a hierarchical tree structure
 which corresponds to the physical and logical resources found in a 3D
 rendering environment. 
 
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=\columnwidth]{cave.pdf}{\caption{\label{fConfig}An
+\begin{wrapfigure}{r}{.5\textwidth}
+  \includegraphics[width=.5\textwidth]{cave.pdf}{\caption{\label{fConfig}An
       example configuration}}
-\end{figure}
+\end{wrapfigure}
 
 \fig{fConfig} shows one example configuration for a four-side
 CAVE\texttrademark, running on two machines (node) using three graphics
@@ -211,6 +221,7 @@ FBO\footnote{off-screen drawables are not yet implemented, but can be
 The \textsf{eq::Channel} is the abstraction of an OpenGL viewport within
 its parent window. It is the entity executing the actual rendering.
 
+
 \subsection{Resource Usage}
 
 How the rendering resources are to be used is configured using a
@@ -220,6 +231,8 @@ to the render clients. At no point the application or render clients
 have or need knowledge of compounds. The configuration of compounds is
 not in the scope of this document\footnote{see
   \htmladdnormallink{http://www.equalizergraphics.com/documents/design/compounds.html}{http://www.equalizergraphics.com/documents/design/compounds.html}}.
+
+
 
 \section{The \textsf{eqPly} polygonal renderer}
 
@@ -234,6 +247,7 @@ detail, and relevant design decision and remarks are raised.
 All classes in the example are in the \textsf{eqPly} namespace to avoid
 type name ambiguities, in particular for the \textsf{Window} class.
 
+
 \subsection{The main Function}
 
 The main function starts off with parsing the command line into the
@@ -241,7 +255,7 @@ The main function starts off with parsing the command line into the
 to all render client nodes. For actual command line parsing is done by
 the \textsf{LocalInitData} class and will be discussed there:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
 int main( int argc, char** argv )
 {
     // 1. parse arguments
@@ -258,7 +272,7 @@ provided. The \textsf{EQERROR} macro, and its counterparts
 \textsf{EQWARN}, \textsf{EQINFO} and \textsf{EQVERB} allow selective
 debugging outputs with various logging levels:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
     // 2. Equalizer initialization
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
@@ -276,7 +290,7 @@ object, thus making it possible to selectively subclass individual
 entity types. For each rendering resource used in the configuration, one
 C++ object will be created:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
 class NodeFactory : public eq::NodeFactory
 {
 public:
@@ -299,7 +313,7 @@ initialization of nodes creates a local listening socket, so that the
 node, and therefore the \textsf{eq::Client} can communicate over the
 network with other nodes, such as the server and the rendering clients.
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
     // 3. initialization of local client node
     RefPtr< eqPly::Application > client = new eqPly::Application( initData );
     if( !client->initLocal( argc, argv ))
@@ -312,7 +326,7 @@ network with other nodes, such as the server and the rendering clients.
 
 Finally everything is set up to run the \textsf{eqPly} application:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
     // 4. run client
     const int ret = client->run();
 \end{lstlisting}}
@@ -320,7 +334,7 @@ Finally everything is set up to run the \textsf{eqPly} application:
 After it has finished, the application and Eqply is deinitialized and
 the \textsf{main} function returns:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
     // 5. cleanup and exit
     client->exitLocal();
     client = 0;
@@ -329,6 +343,7 @@ the \textsf{main} function returns:
     return ret;
 }
 \end{lstlisting}}
+
 
 \subsection{Application}
 
@@ -359,7 +374,7 @@ a server running within the applications process with a default
 1-channel configuration\footnote{see
   \htmladdnormallink{http://www.equalizergraphics.com/documents/design/standalone.html}{http://www.equalizergraphics.com/documents/design/standalone.html}}:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
 int Application::run()
 {
     // 1. connect to server
@@ -379,7 +394,7 @@ configuration. The configuration is created using
 \textsf{eqPly::Config}, but the return value is \textsf{eq::Config},
 making q cast necessary:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
     // 2. choose config
     eq::ConfigParams configParams;
     Config* config = static_cast<Config*>(server->chooseConfig( configParams ));
@@ -402,7 +417,7 @@ all init task methods were successful. The \textsf{EQLOG} macro allows
 topic-specific logging. The numeric topic values are specified in the
 respective \textsf{log.h} header files:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
     // 3. init config
     eqBase::Clock clock;
 
@@ -426,24 +441,35 @@ configuration or a maximum number of frames, specified as a command-line
 argument, has been rendered. The latter is useful for benchmarks. The
 \textsf{Clock} is reused for measuring the overall performance. A new
 frame is started using \textsf{Config::startFrame} and a frame is
-finished using \textsf{Config::endFrame}.
+finished using \textsf{Config::finishFrame}.
 
 When the frame is started, the server computes all rendering tasks and
 sends them to the appropriate render client nodes. The render client
 nodes dispatch the tasks to the correct node or pipe thread, were they
 are executed in the order they arrive.
 
-The frame finished is \textsf{latency} frames behind the frame
-started. The latency is specified in the configuration file, and allows
-several outstanding frames whose tasks are already queued in the node
-and pipe threads for execution. This allows overlapped execution and
-minimizes idle times.
+\begin{wrapfigure}{r}{.5\textwidth}
+  \subfigure[]{\label{fSync}\includegraphics[width=.22\textwidth]{sync}}\hfil
+  \subfigure[]{\label{fAsync}\includegraphics[width=.22\textwidth]{async}}%
+  {\caption{\label{fSyncAsync}Synchronous and asynchronous execution}}
+\end{wrapfigure}
+\textsf{Config::finishFrame} synchronizes on the completion of the frame
+\textsf{current - latency}. The latency is specified in the
+configuration file, and allows several outstanding frames for which the
+tasks are already queued in the node and pipe threads for
+execution. This enables overlapped execution and minimizes idle
+times. The first \textsf{latency Config::finishFrame} return
+immediately, since they have no frame to synchronize
+upon. Figure~\ref{fSyncAsync} shows the execution of (hypothetical)
+rendering tasks without latency~(\ref{fSync}) and with a latency of
+one~(\ref{fAsync}).
 
 When the main loop is finished, \textsf{Config::finishAllFrames} catches
 up with the latency. It returns after all outstanding frames have been
-rendered:
+rendered, and is needed here to provide an accurate measurement of the
+framerate:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
     // 4. run main loop
     uint32_t maxFrames = _initData.getMaxFrames();
     
@@ -465,7 +491,7 @@ The remainder of the application code cleans up in the reverse order of
 the initialization. The config is exited, released and the connection to
 the server is closed:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
     // 5. exit config
     clock.reset();
     config->exit();
@@ -483,11 +509,12 @@ the server is closed:
 \subsubsection{Render Clients}
 
 In the second and third case, when the executable is used as a render
-client, \textsf{Client::initLocal} never returns. In order to keep the
-client resident, the \textsf{eqPly} example overrides the client loop to
-keep it running beyond one configuration run:
+client, \textsf{Client::initLocal} never returns. Therefore the
+application's main loop is never executed. In order to keep the client
+resident, the \textsf{eqPly} example overrides the client loop to keep
+it running beyond one configuration run:
 
-{\small\begin{lstlisting}
+{\footnotesize\begin{lstlisting}
 bool Application::clientLoop()
 {
     if( !_initData.isResident( )) // execute only one config run
@@ -505,8 +532,147 @@ bool Application::clientLoop()
 \end{lstlisting}}
 
 
+\subsection{Distributed Objects}
+
+Equalizer provides distributed objects which help implementing data
+distribution in a graphics cluster. The master version of a distributed
+object is registered with a \textsf{eqNet::Session}, which assigns a
+session-unique identifier to the object. Other nodes can map their
+instance of the object to this identifier, thus synchronizing the
+object's data with the remotely registered object.
+
+Distributed object are created by subclassing from
+\textsf{eqNet::Object}. Distributed objects can be static (immutable) or
+dynamic. Dynamic objects are versioned.
+
+The \textsf{eqPly} example has a static distributed object to provide
+initial data to all rendering nodes, as well as a versioned object to
+provide frame-specific data, such as the camera position, to the
+rendering methods.
+
+\subsubsection{InitData - a Static Distributed Object}
+
+The \textsf{InitData} class holds a couple of parameters needed during
+initialization. These parameters never change during one configuration
+run, and are therefore static.
+
+A static distributed object either has to provide a pointer and size to
+its data using \textsf{setInstanceData} or it has to implement
+\textsf{getInstanceData} and \textsf{applyInstanceData}. The first
+approach can be used if all distributed member variables can be outlayed
+in one contiguous block of memory. The second approach is used
+otherwise.
+
+The \textsf{InitData} class contains a string of variable
+length. Therefore it uses the second approach of manually serializing
+and deserializing its data. The serialization is done in
+\textsf{getInstanceData}. The serialized data is cached using a
+(non-distributed) member variable, which is cleared by each setter of
+distributed data. Serializing the data is a simple matter of allocating
+a large enough memory buffer, and copying the data into the buffer:
+
+{\footnotesize\begin{lstlisting}
+const void* InitData::getInstanceData( uint64_t* size )
+{
+    *size = sizeof( uint32_t ) + sizeof( eq::WindowSystem ) +
+            _filename.length() + 1;
+    if( _instanceData )
+        return _instanceData;
+
+    _instanceData = new char[ *size ];
+
+    reinterpret_cast< uint32_t* >( _instanceData )[0] =  _frameDataID;
+    reinterpret_cast< uint32_t* >( _instanceData )[1] =  _windowSystem;
+
+    const char* string = _filename.c_str();
+    memcpy( _instanceData + sizeof( uint64_t ), string, _filename.length()+1 );
+
+    return _instanceData;
+}
+\end{lstlisting}}
+
+After the data is no longer needed, \textsf{releaseInstanceData} is
+called by Equalizer to allow the object to free the data. Since the data
+is cached for further usage, the release method is not overwritten.
+
+The memory buffer returned by \textsf{getInstanceData} is transferred to
+the remote node during object mapping and passed to
+\textsf{applyInstanceData} for deserialization. The deserialization
+routine reads the data back into its own member variables:
+
+{\footnotesize\begin{lstlisting}
+void InitData::applyInstanceData( const void* data, const uint64_t size )
+{
+    EQASSERT( size > ( sizeof( _frameDataID ) + sizeof( _windowSystem )));
+
+    _frameDataID  = reinterpret_cast< const uint32_t* >( data )[0];
+    _windowSystem = reinterpret_cast< const eq::WindowSystem* >( data )[1];
+    _filename     = static_cast<const char*>( data ) + sizeof( uint64_t );
+
+    EQASSERT( _frameDataID != EQ_ID_INVALID );
+
+    EQINFO << "New InitData instance" << endl;
+}
+\end{lstlisting}}
+
+\subsubsection{FrameData - a Versioned Distributed Object}
+
+Versioned objects have to override \textsf{isStatic} to return false, in
+order for Equalizer to know that they should be versioned. Right now,
+only the master instance of the object is writable, that is,
+\textsf{eqNet::Object::commit} can be called to generate a new
+version. 
+
+Upon \textsf{commit} the delta data from the previous version is sent to
+all mapped slave instances. The data is queued on the remote node, and
+is applied when the application calls \textsf{sync} to synchronize the
+object to a new version. The \textsf{sync} method might block if a
+version has not been committed or is still in transmission.
+
+In addition to the instance data (de)serialization methods needed to map
+an object, versioned objects may implement \textsf{pack} and
+\textsf{unpack} to serialize or deserialize the changes since the last
+version.
+
+If the delta data happens to be layed out contiguously in memory,
+\textsf{setDeltaData} might be used. The default implementation of
+\textsf{pack} and \textsf{unpack} (de)serialize the delta data or the
+instance data if no delta data has been specified.
+
+The frame data is layed out in one anonymous structure in
+memory. It also does not track changes since it is relatively small in
+size and changes frequently. Therefore, for the instance and delta
+date are the same and set in the constructor:
+
+{\footnotesize\begin{lstlisting}
+        FrameData()
+            {
+                reset();
+                setInstanceData( &data, sizeof( Data ));
+                EQINFO << "New FrameData " << std::endl;
+            }
+\end{lstlisting}}
+
 \if 0
-{\small\begin{lstlisting}
+\subsection{Config}
+
+\subsubsection{Config Initialization}
+
+The \textsf{eqPly::Config} class holds
+{\footnotesize\begin{lstlisting}
+bool Config::init()
+{
+    // init distributed objects
+    _frameData.data.color = _initData.useColor();
+    registerObject( &_frameData );
+    _initData.setFrameDataID( _frameData.getID( ));
+
+    registerObject( &_initData );
+\end{lstlisting}}
+\fi
+
+\if 0
+{\footnotesize\begin{lstlisting}
 \end{lstlisting}}
 \fi
 
