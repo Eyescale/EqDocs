@@ -14,13 +14,17 @@
   \usepackage{hyperref}
 \fi
 
-\title{Equalizer Programming Guide}
+\title{Equalizer Programming Guide\\
+  {\footnotesize\mdseries
+    \htmladdnormallink{http://www.equalizergraphics.com/documents/Developer/ProgrammingGuide.pdf}
+    {http://www.equalizergraphics.com/documents/ProgrammingGuide.pdf}}
+}
 \author{Stefan Eilemann\thanks{eile@eyescale.ch}\\[\medskipamount]
   % Eyescale Software Sarl
 }
 \date{
   \textbf{INCOMPLETE}\\[\medskipamount]
-  Version 0.4, \today
+  Version 0.5, \today
 }
 
 \newcommand{\tm}{\texttrademark~}
@@ -42,8 +46,8 @@
 \thispagestyle{empty}
 \begin{figure}[ht]
   \hfill
-  \includegraphics[width=4cm]{logo.pdf}\hfill
-  \includegraphics[width=4cm]{vmml.pdf}\hfill\vspace{-1em}\\
+  \includegraphics[width=4cm]{images/logo.pdf}\hfill
+  \includegraphics[width=4cm]{images/vmml.pdf}\hfill\vspace{-1em}\\
 %  {\small\htmladdnormallink{www.eyescale.ch}{http://www.eyescale.ch}}
 \end{figure}
 \vfill
@@ -58,13 +62,12 @@
     \hline
     \bf Version & \bf Date     & \bf Changes \\
     \hline
+    0.5         & Sep 3, 2007  & added config and partly pipe\\
     0.4         & Aug 31, 2007 & added distributed objects\\
     0.3         & Aug 26, 2007 & added application and render client\\
     0.2         & Aug 20, 2007 & added main function\\
     0.1         & Aug 19, 2007 & outlined the basic concepts\\
-    \hline \multicolumn{3}{c}{\small
-      \htmladdnormallink{http://www.equalizergraphics.com/documents/Developer/ProgrammingGuide.pdf}
-      {http://www.equalizergraphics.com/documents/ProgrammingGuide.pdf}}\\
+    \hline
   \end{tabularx}}
 
 \clearpage
@@ -107,6 +110,13 @@ configured to use one window.
 
 \subsection{Equalizer Processes}
 
+\begin{wrapfigure}{r}{.4\textwidth}
+  \includegraphics[width=.4\textwidth]{images/processes.pdf}
+  {\caption{\small\label{fProcesses}Equalizer Processes}}
+\end{wrapfigure}
+All functionality of Equalizer is accessed through the Equalizer client
+library, which implements all functionality discussed in this document.
+
 \subsubsection{The Server}
 
 An Equalizer server is responsible for managing one visualization
@@ -147,6 +157,9 @@ invasive, that is, Equalizer imposes only the minimal, natural execution
 framework upon the application. It does not impose a scene graph or does
 interfere in any way with the application's rendering code.
 
+Methods called by the application always have the form
+\textsf{verb[Noun]}, whereas methods called by Equalizer (`Task
+Methods') have the form \textsf{nounVerb}.
 
 \subsection{\label{ssTaskMethods}Task Methods}
 
@@ -155,7 +168,7 @@ functions to implement certain functionality, e.g., the application's
 OpenGL rendering in \textsf{eq::Chan\-nel::frameDraw}. These task
 methods are in concept similar to C function callbacks. The
 \textsf{eqPly} section will discuss the most important task methods. A
-full list of all task methods can be found on the
+full list can be found on the
 website\footnote{\htmladdnormallink{http://www.equalizergraphics.com/documents/design/taskMethods.html}{http://www.equalizergraphics.com/documents/design/taskMethods.html}}.
 
 
@@ -165,9 +178,9 @@ The rendering resources are represented in a hierarchical tree structure
 which corresponds to the physical and logical resources found in a 3D
 rendering environment. 
 
-\begin{wrapfigure}{r}{.5\textwidth}
-  \includegraphics[width=.5\textwidth]{cave.pdf}{\caption{\label{fConfig}An
-      example configuration}}
+\begin{wrapfigure}{r}{.6\textwidth}
+  \includegraphics[width=.6\textwidth]{images/cave.pdf}
+  {\caption{\small\label{fConfig}An example configuration}}
 \end{wrapfigure}
 
 \fig{fConfig} shows one example configuration for a four-side
@@ -193,7 +206,9 @@ only holds the local node, not all nodes of the configuration.
 
 An \textsf{eq::Node} is the representation of a single computer in the
 system. It is one operating system process of the render client. All
-node task methods are executed from the main application thread.
+node task methods are executed from the main application thread. Each
+configuration might also use an application node, in which case the
+application process is also used for rendering.
 
 \subsubsection{Pipe}
 
@@ -280,7 +295,7 @@ debugging outputs with various logging levels:
         EQERROR << "Equalizer init failed" << endl;
         return EXIT_FAILURE;
     }
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
 The node factory is used by Equalizer to create the object instances for
 the rendering entities. Each of the classes inherits from the same type
@@ -322,7 +337,7 @@ network with other nodes, such as the server and the rendering clients.
         eq::exit();
         return EXIT_FAILURE;
     }
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
 Finally everything is set up to run the \textsf{eqPly} application:
 
@@ -384,7 +399,7 @@ int Application::run()
         EQERROR << "Can't open server" << endl;
         return EXIT_FAILURE;
     }
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
 The second step is to ask the server for a configuration. The
 \textsf{ConfigParams} are a placeholder for later implementations to
@@ -405,7 +420,7 @@ making q cast necessary:
         disconnectServer( server );
         return EXIT_FAILURE;
     }
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
 Finally it is time to initialize the configuration. For statistics, the
 time for this operation is measures and printed. During initialization
@@ -433,7 +448,7 @@ respective \textsf{log.h} header files:
 
     EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
                             << endl;
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
 When the configuration was successfully initialized, the actual main
 loop is executed. The main loop runs until the user exits the
@@ -448,10 +463,12 @@ sends them to the appropriate render client nodes. The render client
 nodes dispatch the tasks to the correct node or pipe thread, were they
 are executed in the order they arrive.
 
-\begin{wrapfigure}{r}{.5\textwidth}
-  \subfigure[]{\label{fSync}\includegraphics[width=.22\textwidth]{sync}}\hfil
-  \subfigure[]{\label{fAsync}\includegraphics[width=.22\textwidth]{async}}%
-  {\caption{\label{fSyncAsync}Synchronous and asynchronous execution}}
+\begin{wrapfigure}{r}{.4\textwidth}
+  \subfigure[]{\label{fSync}
+    \includegraphics[width=.18\textwidth]{images/sync}}\hfil
+  \subfigure[]{\label{fAsync}
+    \includegraphics[width=.18\textwidth]{images/async}}%
+  {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
 \end{wrapfigure}
 \textsf{Config::finishFrame} synchronizes on the completion of the frame
 \textsf{current - latency}. The latency is specified in the
@@ -485,7 +502,7 @@ framerate:
     EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << time << " ms (" << frame
                             << " frames @ " << ( frame / time * 1000.f)
                             << " FPS)" << endl;
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
 The remainder of the application code cleans up in the reverse order of
 the initialization. The config is exited, released and the connection to
@@ -504,7 +521,7 @@ the server is closed:
     server = 0;
     return EXIT_SUCCESS;
 }
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
 \subsubsection{Render Clients}
 
@@ -529,7 +546,7 @@ bool Application::clientLoop()
     }
     return true;
 }
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
 
 \subsection{Distributed Objects}
@@ -613,7 +630,7 @@ void InitData::applyInstanceData( const void* data, const uint64_t size )
 
     EQINFO << "New InitData instance" << endl;
 }
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
 \subsubsection{FrameData - a Versioned Distributed Object}
 
@@ -651,14 +668,46 @@ date are the same and set in the constructor:
                 setInstanceData( &data, sizeof( Data ));
                 EQINFO << "New FrameData " << std::endl;
             }
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
-\if 0
 \subsection{Config}
 
-\subsubsection{Config Initialization}
+The configuration is driving the applications rendering, that is, it is
+responsible for updating the data based on received events, requesting
+new frames to be rendered and to provide the render clients with the
+necessary data.
 
-The \textsf{eqPly::Config} class holds
+\subsubsection{Config Initialization and Exit}
+
+\begin{wrapfigure}{r}{.6\textwidth}
+  \includegraphics[width=.6\textwidth]{images/configInit.pdf}
+  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
+\end{wrapfigure}
+The config initialization happens in parallel, that is, all config
+initialization tasks are transmitted by the server at once and their
+execution is synchronized later. 
+
+The tasks are executed by the node and pipe threads in parallel. The
+parent's initialization methods are always executed before any child
+initialization method. This is necessary to allow a speedy startup of
+the configuration on large-scale graphics clusters. On the other hand,
+it means that initialization functions are called even if the parent's
+initialization has failed.
+
+The \textsf{eqPly::Config} class holds the master versions of the
+initialization and frame data. Both objects are registered with the
+\textsf{eq::Config}, which is the \textsf{eqNet::Session} used for
+rendering. Equalizer takes care of the session setup and exit in
+\textsf{Client::choose\-Config} and \textsf{Client::releaseConfig},
+respectively.
+
+The frame data is registered first, since its identifier is transmitted
+using the initialization data, which is registered afterwards. The
+identifier of the initialization data is transmitted to the render
+client nodes using the \textsf{initID} parameter of
+\textsf{eq::Config::init}. Equalizer will pass this identifier to all
+\textsf{configInit} calls of the respective objects:
+
 {\footnotesize\begin{lstlisting}
 bool Config::init()
 {
@@ -668,8 +717,316 @@ bool Config::init()
     _initData.setFrameDataID( _frameData.getID( ));
 
     registerObject( &_initData );
+
+    // init config
+    _running = eq::Config::init( _initData.getID( ));
+    if( !_running )
+        return false;
 \end{lstlisting}}
-\fi
+
+If the configuration was initialized correctly, the configuration tries
+to set up a tracking device for head tracking. Equalizer does not
+provide extensive support for tracking device, as this is an orthogonal
+problem to parallel rendering, and has been solved already by a number
+of implementations\footnote{VRCO trackd, OpenVPRN, etc.}. The example
+code in \textsf{eqPly} is one reference implementation for the
+integration of such a tracking library:
+
+{\footnotesize\begin{lstlisting}
+    // init tracker
+    if( !_initData.getTrackerPort().empty( ))
+    {
+        if( !_tracker.init( _initData.getTrackerPort() ))
+            EQWARN << "Failed to initialise tracker" << endl;
+        else
+        {
+            // Set up position of tracking system in world space
+            // Note: this depends on the physical installation.
+            vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
+            m.scale( 1.f, 1.f, -1.f );
+            //m.x = .5;
+            _tracker.setWorldToEmitter( m );
+
+            m = vmml::Matrix4f::IDENTITY;
+            m.rotateZ( -M_PI_2 );
+            _tracker.setSensorToObject( m );
+            EQLOG( eq::LOG_CUSTOM ) << "Tracker initialised" << endl;
+        }
+    }
+
+    return true;
+}
+\end{lstlisting}}%>>
+
+The exit of the configuration stops the render clients by calling
+\textsf{eq::Config::exit}, and then deregisters the initialization and
+frame data objects with the session:
+
+{\footnotesize\begin{lstlisting}
+bool Config::exit()
+{
+    _running = false;
+    const bool ret = eq::Config::exit();
+
+    _initData.setFrameDataID( EQ_ID_INVALID );
+    deregisterObject( &_initData );
+    deregisterObject( &_frameData );
+
+    return ret;
+}
+\end{lstlisting}}
+
+\subsubsection{Frame Control}
+
+The rendering frames are issued by the application. The \textsf{Config}
+only overrides \textsf{startFrame} in order to update the its data
+before forwarding the start frame request to the \textsf{eq::Config}.
+
+If a tracker is used, the current head position and orientation is
+retrieved and given to Equalizer, which uses the head matrix together
+with the wall or projection description to compute the view
+frustra\footnote{see
+  \htmladdnormallink{http://www.equalizergraphics.com/documents/design/immersive.html}{http://www.equalizergraphics.com/documents/design/immersive.html}}. 
+
+The camera position is updated and the frame data is commited, which
+generates a new version. This version is passed to the rendering
+callbacks and will be used to synchronize the frame data to the state
+belonging to the current frame:
+
+{\footnotesize\begin{lstlisting}
+uint32_t Config::startFrame()
+{
+    // update head position
+    if( _tracker.isRunning() )
+    {
+        _tracker.update();
+        const vmml::Matrix4f& headMatrix = _tracker.getMatrix();
+        setHeadMatrix( headMatrix );
+    }
+
+    // update database
+    _frameData.data.rotation.preRotateX( -0.001f * _spinX );
+    _frameData.data.rotation.preRotateY( -0.001f * _spinY );
+    const uint32_t version = _frameData.commit();
+
+    return eq::Config::startFrame( version );
+}
+\end{lstlisting}}
+
+\subsubsection{Event Handling}
+
+Events are send by the render clients to the application using
+{eq::Config::sendEvent}. At the end of the frame,
+\textsf{Config::finishFrame} calls \textsf{Config::handleEvents} to do
+the event handling. The default implementation processes all pending
+events by calling \textsf{Config::handleEvent} for each of them.
+
+For event-driven execution, the application can override
+\textsf{Config::handleEvents} to blockingly receive events using
+\textsf{Config::nextEvent} until a new frame has to be rendered.
+
+The \textsf{eqPly} example continuously renders new frames. It
+implements \textsf{Config::hand\-le\-Event} to provide the various reactions
+to user input:
+
+{\footnotesize\begin{lstlisting}
+bool Config::handleEvent( const eq::ConfigEvent* event )
+{
+    switch( event->type )
+    {
+        case eq::ConfigEvent::WINDOW_CLOSE:
+            _running = false;
+            return true;
+
+        [...]
+
+        default:
+            break;
+    }
+    return eq::Config::handleEvent( event );
+}
+\end{lstlisting}}
+
+
+\subsection{Node}
+
+Foreach active render client, one \textsf{eq::Node} instance is
+created on the appropriate machine. Nodes are only instantiated on their
+render client processes, i.e., each process should have only one
+instance of the \textsf{eq::Node} class. The application process might
+also have a node class, which is handled in exactly the same way as the
+render client nodes.
+
+During node initialization the initialization data is mapped to
+a local instance using the passed identifier from
+\textsf{Config::init}. The model is loaded based on the filename in the
+initialization data. No pipe, window or channel tasks methods are
+executed before \textsf{Node::configInit} has returned.
+
+{\footnotesize\begin{lstlisting}
+bool Node::configInit( const uint32_t initID )
+{
+    eq::Config* config = getConfig();
+    const bool  mapped = config->mapObject( &_initData, initID );
+    EQASSERT( mapped );
+
+    const string& filename = _initData.getFilename();
+    EQINFO << "Loading model " << filename << endl;
+
+    _model = PlyFileIO::read( filename.c_str( ));
+    if( !_model)
+        EQWARN << "Can't load model: " << filename << endl;
+
+    return eq::Node::configInit( initID );
+}
+\end{lstlisting}}%>>
+
+The node config exit deletes the loaded model and unmaps the
+initialization data: 
+
+{\footnotesize\begin{lstlisting}
+bool Node::configExit()
+{
+    delete _model;
+    _model = NULL;
+
+    eq::Config* config = getConfig();
+    config->unmapObject( &_initData );
+
+    return eq::Node::configExit();
+}
+\end{lstlisting}}
+
+\subsubsection{Frame Control}
+
+\begin{wrapfigure}{r}{.6\textwidth}
+  \includegraphics[width=.6\textwidth]{images/mainloop.pdf}
+  {\caption{\small\label{fFrameSync}Synchronization of frame tasks}}
+\end{wrapfigure}
+The application has extended control over the task synchronization
+during a frame. Upon \textsf{Config::startFrame}, Equalizer invokes the
+\textsf{frameStart} task methods of the various entities. The entity
+unlock all its children by calling \textsf{startFrame}, e.g., the
+\textsf{Node::frameStart} has to call \textsf{Node::startFrame} in order
+to unlock the pipe threads. Note that certain \textsf{startFrame} calls
+are currently empty, as the synchronization is implicit due to the
+threading model.
+
+Likewise, \textsf{Config::finishFrame} causes the invokation of the
+\textsf{frameFinish} task methods. These task methods unlock their
+parents by calling \textsf{finishFrame}.
+
+The explicit synchronization of child or parent resources allows the
+application to optimize the processing, by doing certain, independent
+operations when the child or parent resources are already unlocked.
+
+\fig{fFrameSync} outlines the synchronization for the application, node
+and pipe classes. The window and channel synchronization is similar and
+omitted for simplicity. The \textsf{eqPly} example does not override
+\textsf{Node::frameStart} or \textsf{frameFinish}, but it is absolutely
+vital for the execution that \textsf{Node::startFrame} or
+\textsf{Node::finishFrame} are called, respectively. The default
+implementation of the node task methods does take care of that.
+
+\subsection{Pipe}
+
+All task methods for a pipe and its children are executed in a separate
+thread. This approach optimizes usage of the GPU resource, since all
+tasks are executed serially and do not compete for the usage, i.e.,
+context switches are minimized. Later versions of Equalizer might
+introduce threaded windows to allow the parallel and independent
+execution of rendering tasks on a single pipe.
+
+\subsubsection{Initialization and Exit}
+
+Pipe threads are not explicitely synchronized with each other, that is,
+pipes might be rendering different frames at one given time. Therefore
+frame-specific data has to be allocated for each pipe thread, which in
+the \textsf{eqPly} example is the frame data. The frame data is a member
+variable of the \textsf{eqPly::Pipe}, and is mapped to the identifier
+provided by the initialization data. The initialization in
+\textsf{eq::Pipe} does GPU-specific initialization, e.g., the display
+connection is opened when glX/X11 is used:
+
+{\footnotesize\begin{lstlisting}
+bool Pipe::configInit( const uint32_t initID )
+{
+    const Node*     node        = static_cast<Node*>( getNode( ));
+    const InitData& initData    = node->getInitData();
+    const uint32_t  frameDataID = initData.getFrameDataID();
+    eq::Config*     config      = getConfig();
+
+    const bool mapped = config->mapObject( &_frameData, frameDataID );
+    EQASSERT( mapped );
+
+    return eq::Pipe::configInit( initID );
+}
+\end{lstlisting}}
+
+The config exit is again symmetric to the config initialization. The
+frame data is unmapped and GPU-specific data is de-initialized by
+\textsf{eq::Config::exit}:
+
+{\footnotesize\begin{lstlisting}
+bool Pipe::configExit()
+{
+    eq::Config* config = getConfig();
+    config->unmapObject( &_frameData );
+
+    return eq::Pipe::configExit();
+}
+\end{lstlisting}}
+
+\subsubsection{Window System}
+
+Equalizer supports multiple window system interfaces, at the moment
+glX/X11, WGL and AGL/Carbon. Some operating systems, and therefore some
+Equalizer versions, support multiple window systems\footnote{see
+  \htmladdnormallink{http://www.equalizergraphics.com/compatibility.html}{http://www.equalizergraphics.com/compatibility.html}}.
+
+Each pipe might use a different window system for rendering, which is
+determined before \textsf{Pipe::configInit} by
+\textsf{Pipe::selectWindowSystem}. The default implementation of
+\textsf{selectWindowSystem} loops over all window systems and returns
+the first supported window system, determined using
+\textsf{supportsWindowSystem}.
+
+The \textsf{eqPly} examples allows selecting the window system using a
+command line option. Therefore the implementation of
+\textsf{selectWindowSystem} is overwritten, and return the specified
+window system, if it is valid:
+
+{\footnotesize\begin{lstlisting}
+eq::WindowSystem Pipe::selectWindowSystem() const
+{
+    const Node*            node     = static_cast<Node*>( getNode( ));
+    const InitData&        initData = node->getInitData();
+    const eq::WindowSystem ws       = initData.getWindowSystem();
+
+    if( ws == eq::WINDOW_SYSTEM_NONE )
+        return eq::Pipe::selectWindowSystem();
+    if( !supportsWindowSystem( ws ))
+    {
+        EQWARN << "Window system " << ws 
+               << " not supported, using default window system" << endl;
+        return eq::Pipe::selectWindowSystem();
+    }
+
+    return ws;
+}
+\end{lstlisting}}%>>
+
+\subsubsection{Frame Control}
+
+TBD
+
+{\footnotesize\begin{lstlisting}
+void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
+{
+    _frameData.sync( frameID );
+    startFrame( frameNumber );
+}
+\end{lstlisting}}
 
 \if 0
 {\footnotesize\begin{lstlisting}
