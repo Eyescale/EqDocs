@@ -24,12 +24,13 @@
 }
 \date{
   \textbf{INCOMPLETE}\\[\medskipamount]
-  Version 0.5, \today
+  Version 0.6, \today
 }
 
 \newcommand{\tm}{\texttrademark~}
 \newcommand{\rc}{\raise 1ex\hbox{{\tiny\textregistered}}~}
 \newcommand{\fig}[1]{Figure~\ref{#1}}
+\newcommand{\link}[1]{\htmladdnormallink{#1}{#1}}
 
 % suppress  single floating lines on top (widow) and bottom(club)
 %  10000 is infinity
@@ -62,7 +63,8 @@
     \hline
     \bf Version & \bf Date     & \bf Changes \\
     \hline
-    0.5         & Sep 3, 2007  & added config and partly pipe\\
+    0.6         & Sep 14, 2007 & added pipe, window and object manager\\
+    0.5         & Sep 3,  2007 & added config and partly pipe\\
     0.4         & Aug 31, 2007 & added distributed objects\\
     0.3         & Aug 26, 2007 & added application and render client\\
     0.2         & Aug 20, 2007 & added main function\\
@@ -81,19 +83,34 @@
 
 \section{Introduction}
 
-Equalizer provides a framework for the development of parallel OpenGL
+Equalizer provides a framework for the development of parallel
+OpenGL\texttrademark\ 
 applications. Equalizer-based applications can run a single
 shared-memory system with multiple graphics cards (GPU's) or on a
 distributed graphics cluster. This Programming Guide introduces the
-programming interface using the \textsf{eqPly} example shipped with Equalizer.
+programming interface using the \textsf{eqPly} example shipped with
+Equalizer as a guideline.
 
 Any questions related to Equalizer programming and this Programming
 Guide should be directed to the \textsf{eq-dev} mailing
-list\footnote{see
-  \htmladdnormallink{http://www.equalizergraphics.com/lists.html}
-  {http://www.equalizergraphics.com/lists.html}}.
+list\footnote{see \link{http://www.equalizergraphics.com/lists.html}}.
 
+Equalizer is the next evolution of a generic parallel programming
+interface for visualization applications using OpenGL. Existing
+solutions, such as SGI's OpenGL Multipipe\texttrademark\ SDK, VRCO's
+Cavelib\texttrademark\ and VRJuggler, implement a subset of concepts
+similar to Equalizer. In other areas, e.g., tracking device support,
+they provide more functionality.
 
+Equalizer implements the minimum necessary layer to build parallel and
+scalable OpenGL applications. The programmer structures the application
+so that the OpenGL rendering can be executed in parallel, potentially
+across multiple processes for cluster-based execution. Equalizer
+provides the domain-specific parallel rendering know-how and abstracts
+threading, synchronization, windowing and event handling for
+portability. It is a `GLUT on steroids', providing parallel and
+distributed execution, scalable rendering features and fully
+customizable event handling.
 
 \section{Getting Started}
 
@@ -102,7 +119,7 @@ list\footnote{see
 
 A prerequisite for this Programming Guide is a working \textsf{eqPly}
 example. The Quickstart
-Guide\footnote{\htmladdnormallink{http://www.equalizergraphics.com/documents/EqualizerGuide.html}{http://www.equalizergraphics.com/documents/EqualizerGuide.html}}
+Guide\footnote{\link{http://www.equalizergraphics.com/documents/EqualizerGuide.html}}
 explains how to run it. \textsf{eqPly} can also be executed without a
 server, which simplifies the development cycle. In this case it will be
 configured to use one window.
@@ -117,7 +134,7 @@ configured to use one window.
 All functionality of Equalizer is accessed through the Equalizer client
 library, which implements all functionality discussed in this document.
 
-\subsubsection{The Server}
+\subsubsection{Server}
 
 An Equalizer server is responsible for managing one visualization
 system\footnote{a shared memory system or graphics cluster}. Currently
@@ -126,13 +143,13 @@ extended to support multiple applications concurrently and efficiently
 on one system. The server controls and potentially launches the
 application's rendering clients.
 
-\subsubsection{The Application}
+\subsubsection{Application}
 
 The application connects to a server, which chooses a configuration for
 the application. It provides a render client, to be launched by the
 server. The application reacts on events and controls the rendering.
 
-\subsubsection{The Render Client}
+\subsubsection{Render Clients}
 
 The render client implements the rendering part of an application. It is
 passive, and receives all its rendering tasks from the server. The tasks
@@ -169,7 +186,7 @@ OpenGL rendering in \textsf{eq::Chan\-nel::frameDraw}. These task
 methods are in concept similar to C function callbacks. The
 \textsf{eqPly} section will discuss the most important task methods. A
 full list can be found on the
-website\footnote{\htmladdnormallink{http://www.equalizergraphics.com/documents/design/taskMethods.html}{http://www.equalizergraphics.com/documents/design/taskMethods.html}}.
+website\footnote{\link{http://www.equalizergraphics.com/documents/design/taskMethods.html}}.
 
 
 \subsection{The Resource Tree}
@@ -178,10 +195,10 @@ The rendering resources are represented in a hierarchical tree structure
 which corresponds to the physical and logical resources found in a 3D
 rendering environment. 
 
-\begin{wrapfigure}{r}{.6\textwidth}
-  \includegraphics[width=.6\textwidth]{images/cave.pdf}
+\begin{figure}[ht!]\center
+  \includegraphics[width=.9\textwidth]{images/cave.pdf}
   {\caption{\small\label{fConfig}An example configuration}}
-\end{wrapfigure}
+\end{figure}
 
 \fig{fConfig} shows one example configuration for a four-side
 CAVE\texttrademark, running on two machines (node) using three graphics
@@ -218,7 +235,7 @@ unless the pipe's thread hint is set to \textsf{false}. All pipe and
 child window and channel task methods are executed from the pipe thread
 for threaded pipes or from the main application thread for non-threaded
 pipes\footnote{see also
-  \htmladdnormallink{http://www.equalizergraphics.com/documents/design/nonthreaded.html}{http://www.equalizergraphics.com/documents/design/nonthreaded.html}}.
+  \link{http://www.equalizergraphics.com/documents/design/nonthreaded.html}}.
 
 Further versions of Equalizer might introduce threaded windows, where
 all window-related task methods are executed in a separate operating
@@ -245,7 +262,7 @@ rendering tasks. The rendering tasks are computed by the server and send
 to the render clients. At no point the application or render clients
 have or need knowledge of compounds. The configuration of compounds is
 not in the scope of this document\footnote{see
-  \htmladdnormallink{http://www.equalizergraphics.com/documents/design/compounds.html}{http://www.equalizergraphics.com/documents/design/compounds.html}}.
+  \link{http://www.equalizergraphics.com/documents/design/compounds.html}}.
 
 
 
@@ -375,7 +392,7 @@ three run-time behaviours:
   \item \textbf{Resident render client}: Manually pre-started render
     client, listening on a specified port for server commands. This mode
     is selected using the command-line option \textsf{--eq-client} and
-    potentially \textsf{--eq-listen} and \textsf{-r}\footnote{see \htmladdnormallink{http://www.equalizergraphics.com/documents/design/residentNodes.html}{http://www.equalizergraphics.com/documents/design/residentNodes.html}}.
+    potentially \textsf{--eq-listen} and \textsf{-r}\footnote{see \link{http://www.equalizergraphics.com/documents/design/residentNodes.html}}.
 \end{enumerate}
 
 \subsubsection{Main Loop}
@@ -387,7 +404,7 @@ explicitly specifies a server address. If no server was specified,
 local machine using the default port 4242. If that fails, it will create
 a server running within the applications process with a default
 1-channel configuration\footnote{see
-  \htmladdnormallink{http://www.equalizergraphics.com/documents/design/standalone.html}{http://www.equalizergraphics.com/documents/design/standalone.html}}:
+  \link{http://www.equalizergraphics.com/documents/design/standalone.html}}.
 
 {\footnotesize\begin{lstlisting}
 int Application::run()
@@ -677,7 +694,7 @@ responsible for updating the data based on received events, requesting
 new frames to be rendered and to provide the render clients with the
 necessary data.
 
-\subsubsection{Config Initialization and Exit}
+\subsubsection{Initialization and Exit}
 
 \begin{wrapfigure}{r}{.6\textwidth}
   \includegraphics[width=.6\textwidth]{images/configInit.pdf}
@@ -728,7 +745,7 @@ If the configuration was initialized correctly, the configuration tries
 to set up a tracking device for head tracking. Equalizer does not
 provide extensive support for tracking device, as this is an orthogonal
 problem to parallel rendering, and has been solved already by a number
-of implementations\footnote{VRCO trackd, OpenVPRN, etc.}. The example
+of implementations\footnote{VRCO Trackd, VRPN, etc.}. The example
 code in \textsf{eqPly} is one reference implementation for the
 integration of such a tracking library:
 
@@ -786,7 +803,7 @@ If a tracker is used, the current head position and orientation is
 retrieved and given to Equalizer, which uses the head matrix together
 with the wall or projection description to compute the view
 frustra\footnote{see
-  \htmladdnormallink{http://www.equalizergraphics.com/documents/design/immersive.html}{http://www.equalizergraphics.com/documents/design/immersive.html}}. 
+  \link{http://www.equalizergraphics.com/documents/design/immersive.html}}.
 
 The camera position is updated and the frame data is commited, which
 generates a new version. This version is passed to the rendering
@@ -899,18 +916,14 @@ bool Node::configExit()
 
 \subsubsection{Frame Control}
 
-\begin{wrapfigure}{r}{.6\textwidth}
-  \includegraphics[width=.6\textwidth]{images/mainloop.pdf}
-  {\caption{\small\label{fFrameSync}Synchronization of frame tasks}}
-\end{wrapfigure}
 The application has extended control over the task synchronization
 during a frame. Upon \textsf{Config::startFrame}, Equalizer invokes the
 \textsf{frameStart} task methods of the various entities. The entity
-unlock all its children by calling \textsf{startFrame}, e.g., the
+unlock all its children by calling \textsf{startFrame}, e.g.,
 \textsf{Node::frameStart} has to call \textsf{Node::startFrame} in order
-to unlock the pipe threads. Note that certain \textsf{startFrame} calls
-are currently empty, as the synchronization is implicit due to the
-threading model.
+to unlock the pipe threads. Note that certain \textsf{startFrame} calls,
+e.g., \textsf{Window::startFrame}, are currently empty since the
+synchronization is implicit due to the execution within the thread.
 
 Likewise, \textsf{Config::finishFrame} causes the invokation of the
 \textsf{frameFinish} task methods. These task methods unlock their
@@ -919,6 +932,11 @@ parents by calling \textsf{finishFrame}.
 The explicit synchronization of child or parent resources allows the
 application to optimize the processing, by doing certain, independent
 operations when the child or parent resources are already unlocked.
+
+\begin{figure}[ht!]\center
+  \includegraphics[width=.9\textwidth]{images/mainloop.pdf}
+  {\caption{\small\label{fFrameSync}Synchronization of frame tasks}}
+\end{figure}
 
 \fig{fFrameSync} outlines the synchronization for the application, node
 and pipe classes. The window and channel synchronization is similar and
@@ -982,7 +1000,7 @@ bool Pipe::configExit()
 Equalizer supports multiple window system interfaces, at the moment
 glX/X11, WGL and AGL/Carbon. Some operating systems, and therefore some
 Equalizer versions, support multiple window systems\footnote{see
-  \htmladdnormallink{http://www.equalizergraphics.com/compatibility.html}{http://www.equalizergraphics.com/compatibility.html}}.
+  \link{http://www.equalizergraphics.com/compatibility.html}}.
 
 Each pipe might use a different window system for rendering, which is
 determined before \textsf{Pipe::configInit} by
@@ -1018,7 +1036,19 @@ eq::WindowSystem Pipe::selectWindowSystem() const
 
 \subsubsection{Frame Control}
 
-TBD
+All task methods for a given frame of the pipe, window and channel
+entities belonging to the thread are executed in one block, starting
+with \textsf{Pipe::frameStart} and finished by
+\textsf{Pipe::finishFrame}. The frame start callback is therefore the
+natural place to update all frame-specific data to the version belonging
+to the frame. 
+
+In \textsf{eqPly}, the version of the only frame-specific object
+\textsf{FrameData} is passed as the per-frame id from
+\textsf{Config::startFrame} to the frame task methods. The pipe uses
+this version to update its instance of the frame data to the current
+version, and then unlocks its child entities by calling
+\textsf{startFrame}:
 
 {\footnotesize\begin{lstlisting}
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
@@ -1027,6 +1057,157 @@ void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     startFrame( frameNumber );
 }
 \end{lstlisting}}
+
+
+\subsection{Window}
+
+The Equalizer window holds an OpenGL drawable and rendering
+context. Subclassed windows should maintain all data specific to the
+OpenGL context. The Equalizer window creation routines share the OpenGL
+context with the first window of the pipe, this allowing the reuse of
+OpenGL objects, e.g., display lists and textures.
+
+\subsubsection{Initialization and Exit}
+
+\begin{wrapfigure}{r}{.4\textwidth}
+  \includegraphics[width=.4\textwidth]{images/windowInit.pdf}
+  {\caption{\small\label{fWindowInit}Window Initialization Flow Chart}}
+\end{wrapfigure}
+
+The initialization sequence uses multiple, overrideable task
+methods. The main task method \textsf{configInit} executes a `child'
+task method to create the drawable and context. The child task method
+depends on the pipe's window system. The default implementations
+\textsf{configInitGLX}, \textsf{configInitWGL} or \textsf{configInitAGL}
+creates a visible window using OS-specific methods. If the OpenGL
+drawable and context was created successfully, \textsf{configInit} calls
+\textsf{configInitGL}, which performs the generic OpenGL state
+initialization. The default implementation sets up some typical OpenGL
+state, e.g., it enables the depth test.
+
+\fig{fWindowInit} shows a flow chart of the window initialization. The
+colored functions are task methods and can be replaced by
+application-specific implementations.
+
+The window-system specific initialization takes into account various
+attributes set in the configuration file. Attributes include the size of
+various frame buffer attachments (color, alpha, depth, stencil) as well
+as other framebuffer properties, such as quad-buffered stereo,
+doublebuffering, fullscreen mode and window decorations. Some of the
+attributes, such as stereo, doublebuffer and stencil can be set to
+\textsf{eq::AUTO}, in which case the default implementation tries to use
+them and gradually backs off upon failure.
+
+The \textsf{eqPly} window initialization function first calls
+\textsf{eq::Window::configInit} to use the generic window setup. If that
+was successful, it initializes an object manager and an overlay logo:
+
+{\footnotesize\begin{lstlisting}
+bool Window::configInit( const uint32_t initID )
+{
+    if( !eq::Window::configInit( initID ))
+        return false;
+
+    eq::Pipe*  pipe        = getPipe();
+    Window*    firstWindow = static_cast< Window* >( pipe->getWindow( 0 ));
+
+    EQASSERT( !_objects );
+
+    if( firstWindow == this )
+    {
+        _objects = new ObjectManager( getGLFunctions( ));
+        _loadLogo();
+    }
+    else
+    {
+        _objects     = firstWindow->_objects;
+        _logoTexture = firstWindow->_logoTexture;
+        _logoSize    = firstWindow->_logoSize;
+    }
+
+    if( !_objects ) // happens if first window failed to initialize
+        return false;
+
+    return true;
+}
+\end{lstlisting}}
+
+The object manager is used to create OpenGL objects in a multipipe,
+multi-threaded execution environment. It is described in detail
+below. It is used in conjunction with a reference pointer here, since it
+is potentially `owned' by multiple windows at the same time.
+
+The logo texture is loaded from the file system and bound to a texture
+ID used later by the channel for rendering. The details of this code are
+omitted here, since they are pretty straight-forward and not
+Equalizer-specific.
+
+The window exit deallocates all OpenGL objects, if the object manager is
+about to be disposed. The object manager does not delete the object in
+its destructor, since it might now longer have a current OpenGL
+context. In any case, \textsf{eq::Window::configExit} is called to
+destroy the drawable and context:
+
+{\footnotesize\begin{lstlisting}
+bool Window::configExit()
+{
+    if( _objects.isValid() && _objects->getRefCount() == 1 )
+        _objects->deleteAll();
+
+    _objects = 0;
+    return eq::Window::configExit();
+}
+\end{lstlisting}}
+
+\subsubsection{Object Manager}
+
+The object manager is --strictly speaking-- not part of the window. It
+is discussed here since the \textsf{eqPly} window uses an object
+manager.
+
+The object manager (OM) is a utility class and can be used to manage
+OpenGL objects across shared contexts. Typically one OM is used for each
+set of shared contexts, which normally spawns all contexts of a single
+GPU\footnote{\link{http://www.equalizergraphics.com/documents/design/objectManager.html}}.
+
+The OM is a template class. The template type is the key type, by which
+objects can be identified. The same key is used by all contexts to get
+the OpenGL name of an object. In \textsf{eqPly}, a key of type
+\textsf{const void *} is used. The rendering code uses the address of
+the data item to be rendered to obtain the associated OpenGL object.
+
+The usage of objects is reference counted. If an application releases
+the objects properly, they are automatically de-allocated. It is also
+possible to manually manage de-allocation of objects, which is often the
+more convenient use case.
+
+Currently handling for display lists, textures and buffers is
+implemented. For each object, the following functions are available:
+
+\begin{description}
+\item[supportsObjects()]: returns true if the usage for this particular
+  type of objects is supported. For basic objects, which are supported
+  on all OpenGL implementations, this function is not implemented.
+\item[getObject( key )]: returns the object associated with the given
+  key, or FAILED. Increases the reference count of existing objects.
+\item[newObject( key )]: allocates a new object for the given
+  key. Returns FAILED if the object already exists or if the allocation
+  failed. Sets the reference count of a newly created object to one.
+\item[obtainObject( key )]: convenience function which gets or obtains
+  the object associated with the given key. Returns FAILED only if the
+  object allocation failed.
+\item[releaseObject( key \textbar\ name )]: decreases the reference count and
+  deletes the object if the reference count reaches zero.
+\item[deleteObject( key \textbar\ name )]: manually deletes the object. To be
+  used if reference counting is not used.
+\end{description}
+
+
+\subsection{Channel}
+
+The channel is the heart of the application in that it contains the
+actual rendering code. The channel is used to perform various rendering
+operations.
 
 \if 0
 {\footnotesize\begin{lstlisting}
