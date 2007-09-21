@@ -24,7 +24,7 @@
 }
 \date{
   \textbf{INCOMPLETE}\\[\medskipamount]
-  Version 0.6, \today
+  Version 0.7, \today
 }
 
 \newcommand{\tm}{\texttrademark~}
@@ -59,24 +59,28 @@
 %  multipipe visualization systems.
 %}
 
-\vfill{\center\begin{tabularx}{\textwidth}{|l|l|X|}
-    \hline
-    \bf Version & \bf Date     & \bf Changes \\
-    \hline
-    0.6         & Sep 14, 2007 & added pipe, window and object manager\\
-    0.5         & Sep 3,  2007 & added config and partly pipe\\
-    0.4         & Aug 31, 2007 & added distributed objects\\
-    0.3         & Aug 26, 2007 & added application and render client\\
-    0.2         & Aug 20, 2007 & added main function\\
-    0.1         & Aug 19, 2007 & outlined the basic concepts\\
-    \hline
-  \end{tabularx}}
 
 \clearpage
 \tableofcontents
 \thispagestyle{empty}
-
+\vfill{\center\begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \bf Rev & \bf Date     & \bf Changes \\
+    \hline
+    0.7     & Sep 21, 2007 & started channel and image compositing,
+                             added event handling, moved to new eqPly
+                             code base\\
+    0.6     & Sep 14, 2007 & added pipe, window and object manager\\
+    0.5     & Sep 3,  2007 & added config and partly pipe\\
+    0.4     & Aug 31, 2007 & added distributed objects\\
+    0.3     & Aug 26, 2007 & added application and render client\\
+    0.2     & Aug 20, 2007 & added main function\\
+    0.1     & Aug 19, 2007 & outlined the basic concepts\\
+    \hline
+  \end{tabularx}}
+\thispagestyle{empty}
 \clearpage
+
 \pagenumbering{arabic}
 
 
@@ -298,7 +302,7 @@ int main( int argc, char** argv )
 The second step is to initialize the Equalizer library. The
 initialization function of Equalizer also parses the command line, which
 is used to set certain default values based on Equalizer-specific
-options\footnote{Equalizer-specific options always start with --eq-},
+options\footnote{Equalizer-specific options always start with -\,-eq-},
 e.g., the default server location. Furthermore, a node factory is
 provided. The \textsf{EQERROR} macro, and its counterparts
 \textsf{EQWARN}, \textsf{EQINFO} and \textsf{EQVERB} allow selective
@@ -480,11 +484,11 @@ sends them to the appropriate render client nodes. The render client
 nodes dispatch the tasks to the correct node or pipe thread, were they
 are executed in the order they arrive.
 
-\begin{wrapfigure}{r}{.4\textwidth}
+\begin{wrapfigure}{r}{.6\textwidth}
   \subfigure[]{\label{fSync}
-    \includegraphics[width=.18\textwidth]{images/sync}}\hfil
+    \includegraphics[width=.25\textwidth]{images/sync}}\hfil
   \subfigure[]{\label{fAsync}
-    \includegraphics[width=.18\textwidth]{images/async}}%
+    \includegraphics[width=.25\textwidth]{images/async}}%
   {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
 \end{wrapfigure}
 \textsf{Config::finishFrame} synchronizes on the completion of the frame
@@ -494,9 +498,9 @@ tasks are already queued in the node and pipe threads for
 execution. This enables overlapped execution and minimizes idle
 times. The first \textsf{latency Config::finishFrame} return
 immediately, since they have no frame to synchronize
-upon. Figure~\ref{fSyncAsync} shows the execution of (hypothetical)
-rendering tasks without latency~(\ref{fSync}) and with a latency of
-one~(\ref{fAsync}).
+upon. \fig{fSyncAsync} shows the execution of (hypothetical)
+rendering tasks without latency~(\fig{fSync}) and with a latency of
+one~(\fig{fAsync}).
 
 When the main loop is finished, \textsf{Config::finishAllFrames} catches
 up with the latency. It returns after all outstanding frames have been
@@ -608,18 +612,16 @@ a large enough memory buffer, and copying the data into the buffer:
 {\footnotesize\begin{lstlisting}
 const void* InitData::getInstanceData( uint64_t* size )
 {
-    *size = sizeof( uint32_t ) + sizeof( eq::WindowSystem ) +
-            _filename.length() + 1;
+    *size = sizeof( StaticData ) + _filename.length() + 1;
     if( _instanceData )
         return _instanceData;
 
     _instanceData = new char[ *size ];
 
-    reinterpret_cast< uint32_t* >( _instanceData )[0] =  _frameDataID;
-    reinterpret_cast< uint32_t* >( _instanceData )[1] =  _windowSystem;
+    reinterpret_cast< StaticData* >( _instanceData )[0] = _data;
 
     const char* string = _filename.c_str();
-    memcpy( _instanceData + sizeof( uint64_t ), string, _filename.length()+1 );
+    memcpy( _instanceData + sizeof( StaticData ), string, _filename.length()+1);
 
     return _instanceData;
 }
@@ -627,7 +629,8 @@ const void* InitData::getInstanceData( uint64_t* size )
 
 After the data is no longer needed, \textsf{releaseInstanceData} is
 called by Equalizer to allow the object to free the data. Since the data
-is cached for further usage, the release method is not overwritten.
+is cached for further usage, the release method is not overwritten in
+\textsf{InitData}.
 
 The memory buffer returned by \textsf{getInstanceData} is transferred to
 the remote node during object mapping and passed to
@@ -637,14 +640,10 @@ routine reads the data back into its own member variables:
 {\footnotesize\begin{lstlisting}
 void InitData::applyInstanceData( const void* data, const uint64_t size )
 {
-    EQASSERT( size > ( sizeof( _frameDataID ) + sizeof( _windowSystem )));
+    _data     = reinterpret_cast< const StaticData* >( data )[0];
+    _filename = static_cast<const char*>( data ) + sizeof( StaticData );
 
-    _frameDataID  = reinterpret_cast< const uint32_t* >( data )[0];
-    _windowSystem = reinterpret_cast< const eq::WindowSystem* >( data )[1];
-    _filename     = static_cast<const char*>( data ) + sizeof( uint64_t );
-
-    EQASSERT( _frameDataID != EQ_ID_INVALID );
-
+    EQASSERT( _data.frameDataID != EQ_ID_INVALID );
     EQINFO << "New InitData instance" << endl;
 }
 \end{lstlisting}}%>>
@@ -833,7 +832,7 @@ uint32_t Config::startFrame()
 \subsubsection{Event Handling}
 
 Events are send by the render clients to the application using
-{eq::Config::sendEvent}. At the end of the frame,
+\textsf{eq::Config::sendEvent}. At the end of the frame,
 \textsf{Config::finishFrame} calls \textsf{Config::handleEvents} to do
 the event handling. The default implementation processes all pending
 events by calling \textsf{Config::handleEvent} for each of them.
@@ -844,7 +843,9 @@ For event-driven execution, the application can override
 
 The \textsf{eqPly} example continuously renders new frames. It
 implements \textsf{Config::hand\-le\-Event} to provide the various reactions
-to user input:
+to user input, most importantly camera updates based on mouse
+events. The camera position has to be handled correctly with respect to
+latency, and is therefore saved in the frame data:
 
 {\footnotesize\begin{lstlisting}
 bool Config::handleEvent( const eq::ConfigEvent* event )
@@ -856,6 +857,36 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             return true;
 
         [...]
+
+        case eq::ConfigEvent::POINTER_MOTION:
+            if( event->pointerMotion.buttons == eq::PTR_BUTTON_NONE )
+                return true;
+
+            if( event->pointerMotion.buttons == eq::PTR_BUTTON1 )
+            {
+                _spinX = 0;
+                _spinY = 0;
+
+                _frameData.data.rotation.preRotateX( 
+                    -0.005f * event->pointerMotion.dx );
+                _frameData.data.rotation.preRotateY(
+                    -0.005f * event->pointerMotion.dy );
+            }
+            else if( event->pointerMotion.buttons == eq::PTR_BUTTON2 ||
+                     event->pointerMotion.buttons == ( eq::PTR_BUTTON1 |
+                                                       eq::PTR_BUTTON3 ))
+            {
+                _frameData.data.translation.z +=
+                    .005f * event->pointerMotion.dy;
+            }
+            else if( event->pointerMotion.buttons == eq::PTR_BUTTON3 )
+            {
+                _frameData.data.translation.x += 
+                    .0005f * event->pointerMotion.dx;
+                _frameData.data.translation.y -= 
+                    .0005f * event->pointerMotion.dy;
+            }
+            return true;
 
         default:
             break;
@@ -890,10 +921,14 @@ bool Node::configInit( const uint32_t initID )
     const string& filename = _initData.getFilename();
     EQINFO << "Loading model " << filename << endl;
 
-    _model = PlyFileIO::read( filename.c_str( ));
-    if( !_model)
+    _model = new Model();
+    if ( !_model->readFromFile( filename.c_str() ) )
+    {
         EQWARN << "Can't load model: " << filename << endl;
-
+        delete _model;
+        _model = 0;
+    }
+    
     return eq::Node::configInit( initID );
 }
 \end{lstlisting}}%>>
@@ -1071,7 +1106,7 @@ OpenGL objects, e.g., display lists and textures.
 
 \begin{wrapfigure}{r}{.4\textwidth}
   \includegraphics[width=.4\textwidth]{images/windowInit.pdf}
-  {\caption{\small\label{fWindowInit}Window Initialization Flow Chart}}
+  {\caption{\small\label{fWindowInit}Window Initialization}}
 \end{wrapfigure}
 
 The initialization sequence uses multiple, overrideable task
@@ -1079,7 +1114,7 @@ methods. The main task method \textsf{configInit} executes a `child'
 task method to create the drawable and context. The child task method
 depends on the pipe's window system. The default implementations
 \textsf{configInitGLX}, \textsf{configInitWGL} or \textsf{configInitAGL}
-creates a visible window using OS-specific methods. If the OpenGL
+create an on-screen window using OS-specific methods. If the OpenGL
 drawable and context was created successfully, \textsf{configInit} calls
 \textsf{configInitGL}, which performs the generic OpenGL state
 initialization. The default implementation sets up some typical OpenGL
@@ -1100,7 +1135,7 @@ them and gradually backs off upon failure.
 
 The \textsf{eqPly} window initialization function first calls
 \textsf{eq::Window::configInit} to use the generic window setup. If that
-was successful, it initializes an object manager and an overlay logo:
+was successful, it initializes a state object and an overlay logo:
 
 {\footnotesize\begin{lstlisting}
 bool Window::configInit( const uint32_t initID )
@@ -1111,50 +1146,69 @@ bool Window::configInit( const uint32_t initID )
     eq::Pipe*  pipe        = getPipe();
     Window*    firstWindow = static_cast< Window* >( pipe->getWindow( 0 ));
 
-    EQASSERT( !_objects );
+    EQASSERT( !_state );
 
     if( firstWindow == this )
     {
-        _objects = new ObjectManager( getGLFunctions( ));
+        _state = new VertexBufferState( getGLFunctions( ));
         _loadLogo();
+
+        const Node*     node     = static_cast< const Node* >( getNode( ));
+        const InitData& initData = node->getInitData();
+
+        if( initData.useVBOs() )
+        {
+            const eq::GLFunctions* glFunctions = getGLFunctions();
+            // Check if all VBO funcs available, else leave DISPLAY_LIST_MODE on
+            if( glFunctions->hasGenBuffers() && glFunctions->hasBindBuffer() &&
+                glFunctions->hasBufferData() && glFunctions->hasDeleteBuffers())
+            {
+                _state->setRenderMode( mesh::BUFFER_OBJECT_MODE );
+                EQINFO << "VBO rendering enabled" << endl;
+            }
+            else
+                EQWARN << "VBO function pointers missing, using display lists" 
+                       << endl;
+        }
     }
     else
     {
-        _objects     = firstWindow->_objects;
+        _state       = firstWindow->_state;
         _logoTexture = firstWindow->_logoTexture;
         _logoSize    = firstWindow->_logoSize;
     }
 
-    if( !_objects ) // happens if first window failed to initialize
+    if( !_state ) // happens if first window failed to initialize
         return false;
-
+    
     return true;
 }
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
-The object manager is used to create OpenGL objects in a multipipe,
-multi-threaded execution environment. It is described in detail
-below. It is used in conjunction with a reference pointer here, since it
-is potentially `owned' by multiple windows at the same time.
+The state object is used to handle the creation of OpenGL objects in a
+multipipe, multi-threaded execution environment. It uses an object
+manager, which is described in detail below. It is used in conjunction
+with a reference pointer here, since it is potentially `owned' by
+multiple windows at the same time.
 
 The logo texture is loaded from the file system and bound to a texture
 ID used later by the channel for rendering. The details of this code are
 omitted here, since they are pretty straight-forward and not
 Equalizer-specific.
 
-The window exit deallocates all OpenGL objects, if the object manager is
+The window exit deallocates all OpenGL objects if the state object is
 about to be disposed. The object manager does not delete the object in
-its destructor, since it might now longer have a current OpenGL
-context. In any case, \textsf{eq::Window::configExit} is called to
+its destructor, since it does not know if an OpenGL context is still
+current. In any case, \textsf{eq::Window::configExit} is called to
 destroy the drawable and context:
 
 {\footnotesize\begin{lstlisting}
 bool Window::configExit()
 {
-    if( _objects.isValid() && _objects->getRefCount() == 1 )
-        _objects->deleteAll();
+    if( _state.isValid() && _state->getRefCount() == 1 )
+        _state->deleteAll();
 
-    _objects = 0;
+    _state = 0;
     return eq::Window::configExit();
 }
 \end{lstlisting}}
@@ -1162,8 +1216,12 @@ bool Window::configExit()
 \subsubsection{Object Manager}
 
 The object manager is --strictly speaking-- not part of the window. It
-is discussed here since the \textsf{eqPly} window uses an object
-manager.
+is discussed here since the \textsf{eqPly} window uses an object manager.
+
+The state object in \textsf{eqPly} gathers all rendering state, which
+includes an object manager for object state handling. This state object
+can easily be replaced to use the rendering code in a stand-alone
+application, e.g., for an GLUT-based renderer.
 
 The object manager (OM) is a utility class and can be used to manage
 OpenGL objects across shared contexts. Typically one OM is used for each
@@ -1209,6 +1267,416 @@ The channel is the heart of the application in that it contains the
 actual rendering code. The channel is used to perform various rendering
 operations.
 
+\subsubsection{Initialization and Exit}
+
+During channel initialization, the near and far planes are set to
+reasonable values to contain the whole model. During rendering, the near
+and far planes are adjusted to the current model position:
+
+{\footnotesize\begin{lstlisting}
+bool Channel::configInit( const uint32_t initID )
+{
+    setNearFar( 0.1f, 10.0f );
+    return true;
+}
+\end{lstlisting}}
+
+\subsubsection{Rendering}
+
+The central rendering routine is \textsf{Channel::frameDraw}. This
+routine contains the application's OpenGL rendering code, which is being
+rendered using the rendering context provided by Equalizer. 
+
+In \textsf{eqPly}, the OpenGL context is first set up using various
+\textsf{apply} convenience methods from the base Equalizer channel
+class. Each of the \textsf{apply} methods uses the corresponding
+\textsf{get} method(s) and then calls the approriate OpenGL
+function(s). It is also possible to just query the values from Equalizer
+using the \textsf{get} methods, and use them to set up the OpenGL state
+appropriatly, for example by passing the parameters to the renderer used
+by the application.
+
+For example, the implementation for \textsf{eq::Channel::applyBuffer}
+does set up the correct rendering buffer and color mask, which depends
+on the current eye pass and possible anaglyphic stereo parameters:
+
+{\footnotesize\begin{lstlisting}
+void eq::Channel::applyBuffer()
+{
+    glReadBuffer( getReadBuffer( ));
+    glDrawBuffer( getDrawBuffer( ));
+    
+    const ColorMask& colorMask = getDrawBufferMask();
+    glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
+}
+\end{lstlisting}}
+
+The following contextual information has to be used in order to render
+the view expected by Equalizer:
+\begin{description}
+\item[Buffer]: The OpenGL read and draw buffer as well as color mask.
+  These parameters are influenced by the current eye pass, eye
+  seperation and anaglyphic stereo settings.
+\item[Viewport]: The two-dimensional pixel viewport restricting the
+  rendering area within the channel. For correct operations, both
+  \textsf{glViewport} and \textsf{glScissor} have to be used. The pixel
+  viewport is influenced by the destination channel's viewport
+  definition and compound viewports set for sort-first/2D decompositions.
+\item[Frustum]: Frustum parameters as defined by
+  \textsf{glFrustum}. The frustum is influenced by the destination
+  channel's view definition, compound viewports, head matrix and the
+  current eye pass.
+\item[Head Transformation:] A transformation matrix positioning the
+  frustum. This is typically an identity matrix and is used for off-axis
+  frustra in immersive rendering.
+\item[Range]: A one-dimensional range with the interval [0..1]. This
+  parameter is optional and should be used by the application to render
+  only the appropriate subset of its data.
+\end{description}
+
+Consequently, the first part of the \textsf{frameDraw} method in
+\textsf{eqPly} look as follows:
+
+{\footnotesize\begin{lstlisting}
+void Channel::frameDraw( const uint32_t frameID )
+{
+    applyBuffer();
+    applyViewport();
+            
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+
+    applyFrustum();
+
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+    applyHeadTransform();
+\end{lstlisting}}
+
+\begin{wrapfigure}{r}{.4\textwidth}
+  \includegraphics[width=.4\textwidth]{images/DB.pdf}
+  {\caption{\small\label{fDB}Final view of an DB compound}}
+\end{wrapfigure}
+
+After the basic view setup, a directional light is set up, and the model
+is positioned using the camera parameters from the frame data. The
+camera parameters are transported using the the frame data to ensure
+that all channels render the frame from the same position. 
+
+Furthermore, a color is set in case the model does not contain color
+information, or the color information is not to be used. In sort-last
+rendering, \textsf{eqPly} renders the individual parts with different
+colors to illustrate the algorithm, as shown in \fig{fDB}. The Equalizer
+channel provides a method to obtain a random, but unique color for all
+channels in the configuration:
+
+{\footnotesize\begin{lstlisting}
+    glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
+
+    const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData& frameData = pipe->getFrameData();
+
+    glTranslatef( frameData.data.translation.x,
+                  frameData.data.translation.y,
+                  frameData.data.translation.z );
+    glMultMatrixf( frameData.data.rotation.ml );
+
+    Node*            node  = (Node*)getNode();
+    const Model*     model = node->getModel();
+    const eq::Range& range = getRange();
+
+    if( !range.isFull( )) // Color DB-patches
+    {
+        const vmml::Vector3ub color = getUniqueColor();
+        glColor3ub( color.r, color.g, color.b );
+    }
+    else if( !frameData.data.color || (model && !model->hasColors( )) )
+    {
+        glColor3f( 1.0f, 1.0f, 1.0f );
+    }
+    
+\end{lstlisting}}
+
+Finally the model is rendered, if it could be loaded during
+initialization. Otherwise a quad is drawn in its place:
+
+{\footnotesize\begin{lstlisting}
+    if( model )
+    {
+        _drawModel( model );
+    }
+    else
+    {
+        glColor3f( 1.f, 1.f, 0.f );
+        glNormal3f( 0.f, -1.f, 0.f );
+        glBegin( GL_TRIANGLE_STRIP );
+        glVertex3f(  .25f, 0.f,  .25f );
+        glVertex3f(  .25f, 0.f, -.25f );
+        glVertex3f( -.25f, 0.f,  .25f );
+        glVertex3f( -.25f, 0.f, -.25f );
+        glEnd();
+    }
+}
+\end{lstlisting}}
+
+\if 0
+{\footnotesize\begin{lstlisting}
+void Channel::_drawModel( const Model* model )
+{
+    Window*                  window    = static_cast<Window*>( getWindow() );
+    mesh::VertexBufferState& state     = window->getState();
+
+    const Pipe*              pipe      = static_cast<Pipe*>( getPipe( ));
+    const FrameData&         frameData = pipe->getFrameData();
+
+    const eq::Range&         range     = getRange();
+    vmml::FrustumCullerf     culler;
+
+    state.setColors( frameData.data.color && 
+                     range.isFull() && 
+                     model->hasColors() );
+    _initFrustum( culler, model->getBoundingSphere( ));
+
+    model->beginRendering( state );
+        
+\end{lstlisting}}
+
+{\footnotesize\begin{lstlisting}
+\end{lstlisting}}
+
+The model data is organized a in 3-dimensional kD-tree\footnote{See also
+  \link{http://en.wikipedia.org/wiki/Kd-tree}} for efficient view
+frustum culling. During preprocessing, each node of the tree gets a
+database range assigned.
+
+{\footnotesize\begin{lstlisting}
+\end{lstlisting}}
+\fi
+
+\section{Advanced Features}
+
+This section discusses some features of interest which are not covered
+by the \textsf{eqPly} section. Where possible, code examples from the
+Equalizer distribution are used.
+
+
+\subsection{Event Handling}
+
+Event handling is one of the areas which requires a lot of
+flexibility. On one hand, the implementation differs slightly for each
+window system due to conceptual differences in the OS-specific
+implementation. On the other hand, each application and widget set has
+its own model on how events are to be handled. Therefore, event handling
+in Equalizer is customizable in any stage of the processing\footnote{\link{http://www.equalizergraphics.com/documents/design/eventHandling.html}}. 
+
+The default implementation aims to provide a quick and easy
+implementation of event handling, while allowing all necessary
+customizations. It gathers all events in the application main thread, so
+that the developer only has to implement \textsf{Config::processEvent}
+to update its data based on the pre-processed, generic events.
+
+
+\subsubsection{Threading}
+
+Where possible, events are received and processed by a separate per-node
+event thread to allow asynchronous event handling. Currently an event
+thread is only used by the X11/glX window system. WGL receives and
+processes the events from the pipe threads which created the
+windows. AGL receives the events from application or node main
+thread. Whenever the term \textbf{event thread} is used, it refers to
+the thread receiving the event, i.e., a per-node thread for glX, the pipe
+thread for WGL and the main thread for AGL.
+
+\subsubsection{Initialization and Exit}
+
+\begin{wrapfigure}{r}{.4\textwidth}
+  \includegraphics[width=.4\textwidth]{images/eventInit.pdf}
+  {\caption{\small\label{fEventInit}Event Handling Initialization}}
+\end{wrapfigure}
+
+During window and pipe initialization the event handling is set up. For
+both entities, \textsf{initEvent\-Handler} is called to register the pipe
+or window with an event handler. This method may be overwritten to use a
+custom event handler, or to not install an event handler to disable
+event handling in Equalizer. Likewise, \textsf{exitEventHandler} is
+called to de-initialize event handling.
+
+An event handler consists of two parts: the generic base class providing
+the interface and some generic functions, and the window-system-specific
+part providiing the actual implementation. 
+
+Pipe event handling is only used for glX, where one \textsf{Display}
+connection is created to subscribe to window events. Event handling is
+initialized whenever a new, window-system-specific pipe or window handle
+is set. First, \textsf{exitEventHandler} is called to de-initialize
+event handling for the old handle (if set), and then
+\textsf{initEvent\-Handler} is called for the new handle. AGL and glX use
+an event handler singleton, whereas WGL uses one event handler per
+window.
+
+\subsubsection{Message Pump}
+
+WGL and AGL require the application to manually receive and dispatch
+(`pump') events. On WGL, this has to happen on each thread with windows,
+whereas on AGL it has to happen only on the main thread. By default,
+Equalizer pumps these events automatically for the application.
+
+The methods \textsf{Client::useMessagePump} and
+\textsf{Pipe::useMessagePump} can be overriden to return \textsf{false}
+to disable this behaviour for their respective threads. On non-threaded
+pipes, \textsf{Pipe::useMessagePump} is not called.
+
+
+\subsubsection{Event Data Flow}
+
+\begin{wrapfigure}{r}{.4\textwidth}
+  \includegraphics[width=.4\textwidth]{images/eventHandling.pdf}
+  {\caption{\small\label{fEventProcessing}Event Processing}}
+\end{wrapfigure}
+
+Events are received by an event handler. The event handler finds the
+\textsf{eq::Window} associated to the event. It then creates a generic
+\textsf{WindowEvent}, which holds important event data in a format
+independent of the window system. The original event is attached to the
+generic window event.
+
+The event handler then passes the window event to
+\textsf{Window::processEvent}, which is responsible for either handling
+the event locally, or for translating it into a generic
+\textsf{ConfigEvent}. The config events are send to the application
+thread using \textsf{Config::sendEvent}. If the event was processed, the
+function has to return \textsf{true}. If \textsf{false} is returned, the
+event will be passed to a previously installed, window-system-specific
+event handling function. The default implementation of
+\textsf{Window::processEvent} passes most events on to the application.
+
+Events sent using \textsf{Config::sendEvent} are queued in the
+application thread. After a frame has been finished,
+\textsf{Config::finishFrame} calls \textsf{Config::processEvents}. The
+default implementation of this method provides non-blocking event
+processing, that is, it calls \textsf{Config::processEvent} for each
+queued event. By overriding this function, event-driven execution can be
+implemented.
+
+\subsubsection{Custom Events in eqPixelBench}
+
+The \textsf{eqPixelBench} example is a benchmark program to measure the
+pixel transfer rates from and to the framebuffer of all channels within
+a configuration. It uses custom config events to send the gathered data
+to the application. It is much simpler than the \textsf{eqPly} example
+since it does not provide any useful rendering or user interaction.
+
+The rendering routine of \textsf{eqPixelBench} in
+\textsf{Channel::frameDraw} loops through a number of pixel formats and
+types. For each of them, it measures the time to readback and assemble a
+full-channel image. The format, type, size and time is recorded in a
+config event, which is sent to the application.
+
+The \textsf{ConfigEvent} derives from the \textsf{eq::ConfigEvent}
+structure and has the following definition:
+
+{\footnotesize\begin{lstlisting}
+struct ConfigEvent : public eq::ConfigEvent
+{
+public:
+    enum Type
+    {
+        READBACK = eq::ConfigEvent::USER,
+        ASSEMBLE
+    };
+
+    ConfigEvent()
+        {
+            size = sizeof( ConfigEvent );
+        }
+
+    // channel name is in user event data
+    char           formatType[64];
+    vmml::Vector2i area;
+    float          msec;
+};
+\end{lstlisting}}
+
+The \textsf{Config::sendEvent} method transmits a
+\textsf{eq::ConfigEvent} or derived class to the application. The
+ConfigEvent has to be a C-type structure, and its \textsf{size}
+member has to be set to the full size of the event to be transmitted.
+Each event has a type, by which the config processing function can
+identify it. 
+
+User-defined types start at \textsf{eq::ConfigEvent::USER}, and the
+member variable \textsf{ConfigEvent::user} can be used to store
+\textsf{EQ\_USER\_EVENT\_SIZE}\footnote{currently 32 bytes} bytes. In
+this space, the channel's name is stored. Additional variables are used
+to transport the pixel format and type, the size and the time it took
+for rendering.
+
+On the application end, \textsf{Config::handleEvent} uses the ostream
+operator for the derived config event to output these events in a nicely
+formatted way:
+
+{\footnotesize\begin{lstlisting}
+std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
+...
+bool Config::handleEvent( const eq::ConfigEvent* event )
+{
+    switch( event->type )
+    {
+        case ConfigEvent::READBACK:
+        case ConfigEvent::ASSEMBLE:
+            cout << static_cast< const ConfigEvent* >( event ) << endl;
+            return true;
+
+        default:
+            return eq::Config::handleEvent( event );
+    }
+}
+\end{lstlisting}}%>>
+
+
+\subsection{Image Compositing for Scalable Rendering}
+
+Two task methods are responsible for collecting and compositing the
+result image during scalable rendering, when multiple channels are
+rendering for a single view. The source channels producing an
+\textsf{outputFrame} use \textsf{Channel::frameReadback} to read the
+pixel data from the frame buffer. The channels receiving one or multiple
+\textsf{inputFrame} use \textsf{Channel::frameAssemb\-le} to assemble
+the frames into the framebuffer. Equalizer takes care of the network
+transport of frame buffer data between nodes, if needed.
+
+\subsubsection{Frame, FrameData and Images}
+
+A \textsf{eq::Frame} references a \textsf{eq::Fra\-me\-Data}. The frame data
+is the object connecting output with input frames. It is a holder for
+images and is used to signal the availability of the pixel data. An
+\textsf{eq::Image} holds a two-dimensional snapshot of the framebuffer
+and can contain color and/or depth information.
+
+Readback and assemble operations on frames and images are designed to be
+asynchronous. They have a start and finish method for readback and
+assemble to allow the initiation and synchronization of the operation.
+Currently, only synchronous readback and assembly using
+\textsf{glReadPixels} and \textsf{glDrawPixels} is implemented in the
+respective start method of the image.
+
+\if 0
+
+\begin{wrapfigure}{r}{.6\textwidth}
+  \includegraphics[width=.6\textwidth]{images/assembly.pdf}
+  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
+\end{wrapfigure}
+
+The offset of input and output frames characterizes the position of the
+frame data with respect to the framebuffer, that is, the
+\textbf{window's} lower-left corner. For output frames this is the
+position of the channel in 
+\fi
+
+\subsubsection{Custom Assembly in eVolve}
+
+
+\subsection{Head Tracking}
 \if 0
 {\footnotesize\begin{lstlisting}
 \end{lstlisting}}
