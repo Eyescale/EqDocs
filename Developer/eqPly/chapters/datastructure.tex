@@ -213,19 +213,19 @@ Design und in der Implementierung Berücksichtigung finden müssen. Die folgenden
 Anforderungen sind zum Teil neu, und galten zum Teil auch schon für die alte
 Datenstruktur und müssen entsprechend auch von der neuen erfüllt werden.
 
-Als erstes soll die Baumstruktur besser ausbalanciert sein, und eine genauere
+Erstens soll die Baumstruktur besser ausbalanciert sein, und eine genauere
 Kontrolle über die Blattgrössen aufgrund der Verwendung von VBOs beim Rendering
 erreicht werden. Diese beiden Punkte werden direkt durch die kd-Tree Auswahl 
 erfüllt.
 
-Als zweites sollen die Informationen über die Struktur der polygonalen Daten 
-erhalten bleiben, also die Nachbarschaftsbeziehungen zwischen den Triangles. 
-Dies einerseits, damit bei der Speicherung und beim Rendering Vorteile aus
-den gemeinsam genutzten Vertices gezogen werden können, und andererseits um neu
-Vertexnormalen anstelle der Flächennormalen berechnen zu können. Diese erlauben 
-erst die Verwendung besserer Shading Algorithmen.
+Zweitens sollen die Informationen über die Struktur der polygonalen Daten 
+erhalten bleiben, also die Nachbarschaftsbeziehungen zwischen Triangles. Dies 
+einerseits, um bei Speicherung und Rendering Vorteile aus den gemeinsam
+genutzten Vertices ziehen zu können, und andererseits um Vertexnormalen 
+anstatt von Flächennormalen berechnen zu können. Diese erlauben erst die 
+Verwendung besserer Shading Algorithmen.
 
-Als drittes soll der neue Code heutigen objektrientierten Ansprüchen genügen,
+Drittens soll der neue Code heutigen objektrientierten Ansprüchen genügen,
 die Möglichkeiten von C++ besser ausnutzen und natürlich einfach verständlich
 und gut wartbar sein.
 
@@ -624,6 +624,7 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
                                   VertexBufferData& globalData )
 {
     ...
+    
     data.sort( start, length, axis );
     _vertexStart = globalData.vertices.size();
     _vertexLength = 0;
@@ -654,6 +655,7 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
             ++_indexLength; 
         }
     }
+    
     ...
 }
 \end{lstlisting}
@@ -721,13 +723,15 @@ stammen aus \cite{stanford:repository}.
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrr}
-\textbf{Modell} & \textbf{Dateigrösse Octree} & \textbf{Dateigrösse kd-Tree} &
-\textbf{Verhältnis}\\
-Armadillo & 27.72 MB & 6.09 MB & 21.96 \%\\
-Dragon & 69.83 MB & 15.34 MB & 21.97 \%\\
-Happy Buddha & 87.16 MB & 19.05 MB & 21.86 \%\\
-Lucy & n/a & 494.58 MB & n/a\\
-Stanford Bunny & 5.56 MB & 1.20 MB & 21.56 \%\\
+\textbf{Modell} & \textbf{Binary Octree} & 
+\textbf{Binary kd-Tree} & \textbf{Verhältnis}\\
+\textbf{} & \textbf{[MB]} & 
+\textbf{[MB]} & \textbf{[\%]}\\
+Armadillo      &  27.72 &   6.09 & 21.96\\
+Dragon         &  69.83 &  15.34 & 21.97\\
+Happy Buddha   &  87.16 &  19.05 & 21.86\\
+Lucy           &    n/a & 494.58 &   n/a\\
+Stanford Bunny &   5.56 &   1.20 & 21.56\\
 \end{tabular}
 \caption{Unterschied Speicherbedarf der Datenstrukturen}
 \label{tbl:file-sizes}
