@@ -1,0 +1,277 @@
+% Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+% All rights reserved.  
+
+%
+% Kapiteldatei
+%
+
+
+\chapter{Applikationsarchitektur}
+\label{application}
+
+In diesem Kapitel wird die generelle Architektur der Applikation diskutiert.
+Da grosse Teile der Architektur durch das Equalizer Framework beeinflusst
+werden, sollen zu Beginn des Kapitels die wichtigsten Konzepte aus Equalizer 
+kurz vorgestellt werden. Im Anschluss daran wird dann auf die Applikation 
+selbst eingegangen.
+
+\section{Equalizer}
+
+In dieser Sektion sollen einige Aspekte von Equalizer kurz beleuchtet werden, 
+die einen Einfluss auf die Architektur und das Design der Applikation haben. 
+Dies sind zum einen eine handvoll Equalizer Klassen, und die zur Verfügung
+gestellten Dekompositionsmodi zum anderen.
+
+\subsection{Klassen}
+\label{eq-classes}
+
+Equalizer abstrahiert die verschiedenen Systemresourcen in mehreren Klassen. 
+Im folgenden sollen die für das Verständnis der Beispielapplikation 
+notwendigen Klassen kurz vorgestellt werden. Tabelle \ref{tbl:eq-classes}
+stellt die beschriebenen Klassen gegen Ende des Abschnittes zusammengefasst 
+dar.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/sampleConfig.png}
+\caption[Eine Equalizer Beispielkonfiguration]
+{Eine Equalizer Beispielkonfiguration (Quelle: \cite{equalizer:main})}
+\label{fig:sample-config}
+\end{figure}
+
+An oberster Stelle der Resourcenverwaltung steht eine Konfiguration, welche
+von der Klasse \emph{eq::Config} repräsentiert wird. Die Konfiguration enthält 
+zum einen eine Beschreibung der zu verwendenden physikalischen und logischen
+Resourcen, zum anderen eine Definition wie die verschiedenen Arbeitsschritte 
+im Detail auf die einzelnen Resourcen zu verteilen sind.
+
+An nächster Stelle stehen Knoten der Klasse \emph{eq::Node}, welche einzelne
+Computer innerhalb des Rendering Clusters symbolisieren. Jeder solche Knoten 
+besitzt eine oder mehrere Grafikkarten, die von der Klasse \emph{eq::Pipe} 
+repräsentiert werden. \emph{Pipes} enthalten ihrerseits wiederum Fenster der 
+Klasse \emph{eq::Window}, welche einzelne OpenGL \emph{Drawables} und 
+\emph{Contexts} verwalten. Jedes Fenster kann abschliessendend noch mehrere 
+\emph{Viewports} besitzen, die durch die Klasse \emph{eq::Channel} 
+repräsentiert werden. Resourcen auf der selben Pipe teilen sich vorhandene 
+OpenGL Objekte wie beispielsweise Display Listen, Texturen und VBOs.
+
+\glossary{name={Pipe},description={Grafikkarte.}}
+\glossary{name={Drawable},description={OpenGL Zeichenbereich.}}
+\glossary{name={Context},description={OpenGL Kontext.}}
+\glossary{name={Viewport},description={Sichtbereich innerhalb eines Fensters.}}
+
+Abbildung \ref{fig:sample-config} stellt ein Beispiel einer solchen
+Konfiguration dar. Es handelt sich um eine CAVE\texttrademark (Cave Automatic 
+Virtual Environment), mit zwei Computern (Nodes), drei Grafikkarten (Pipes) 
+und zugehörigen Fenstern (Windows), die zusammen vier verschiedene Kanäle 
+(Channels) rendern, die den Projektionen auf die vier Wände entsprechen.
+
+Neben den oben genannten Resourcenklassen spielt noch eine weitere Klasse
+eine wichtige Rolle für das Verständnis der Applikation. Da mehrere Kopien 
+der Applikation im Cluster laufen, müssen sich diese gemeinsam genutzte 
+Daten auf irgend eine Weise teilen können. Equalizer stellt dafür verteilte 
+Objekte der Klasse \emph{eqNet::Object} bereit, die sofern benötigt auch 
+Versionierung unterstützen.
+
+Das Equalizer Framework sieht vor, dass Applikationen eigene Subklassen von
+den genannten Basisklassen ableiten. Innerhalb der verschiedenen Klassen
+stehen eine Reihe von vordefinierten \emph{Task} Methoden zur Verfügung, 
+welche von der Applikation wiederum nach Bedarf überschrieben werden können 
+um die gewünschte Funktionalität zu erreichen. Eine detaillierte Beschreibung 
+der Equalizer Task Methoden findet sich in \cite{equalizer:tasks}.
+
+\glossary{name={Task},description={Aufgabe.}}
+
+\begin{table}[hb]
+\centering
+\begin{tabular}{ll}
+\textbf{Equalizer Klasse} & \textbf{Bedeutung} \\
+eq::Config & Beschreibung der vorhandenen Resourcen und deren Verwendung \\
+eq::Node & Einzelner Computer innerhalb des Rendering Clusters \\
+eq::Pipe & Grafikkarte(n) des jeweiligen Knotens \\
+eq::Window & OpenGL Drawables auf der entsprechenden Pipe\\
+eq::Channel & Viewports innerhalb des zugehörigen Fensters \\
+eqNet::Object & Verteilte Objekte mit Unterstützung für Versionierung\\
+\end{tabular}
+\caption{Wichtige Equalizer Klassen und deren Bedeutung}
+\label{tbl:eq-classes}
+\end{table}
+
+\subsection{Dekompositionsmodi}
+\label{eq-decomposition}
+
+Zum Abschluss dieser Sektion soll noch ein Blick auf die verschiedenen
+Dekompositionsmodi geworfen werden die Equalizer unterstützt, da diese 
+ebenfalls einen gewissen Einfluss auf das Applikationsdesign haben. Zur
+Übersicht sind diese in Tabelle \ref{tbl:eq-decomposition} gegen Ende
+wieder gemeinsam aufgeführt.
+
+\textbf{2D}:~~Im 2D Modus wird der zweidimensionale Bildschirmraum in 
+mehrere Kacheln aufgeteilt (siehe Abbildung \ref{fig:eq-2d}). Verschiedene 
+Rendereinheiten bearbeiten nur ihren eigenen Teil, und die Teilergebnisse 
+werden am Ende zu einem Gesamtbild zusammengefügt. Damit jede Rendereinheit 
+effizient arbeitet, sollte die Applikation View Frustum Culling einsetzen 
+und die Datenstruktur entsprechende Unterstützung bieten.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/2D.png}
+\caption[Equalizer 2D Dekompositionsmodus]
+{Equalizer 2D Dekompositionsmodus (Quelle: \cite{equalizer:main})}
+\label{fig:eq-2d}
+\end{figure}
+
+\textbf{DB}:~~Im DB Modus wird die Datenstruktur aufgeteilt. Jede Rendereinheit
+ist für einen bestimmten Anteil der polygonalen Daten zuständig und rendert nur
+diese (siehe Abbildung \ref{fig:eq-db}). Die Zusammensetzung erfolgt dann mit 
+Hilfe der Tiefenpufferinformation. Damit dieser Modus funktioniert muss die 
+Datenstruktur zusätzliche Informationen enthalten, die Teilbereiche auf
+eindimensionale Intervalle abbilden.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/DB.png}
+\caption[Equalizer DB Dekompositionsmodus]
+{Equalizer DB Dekompositionsmodus (Quelle: \cite{equalizer:main})}
+\label{fig:eq-db}
+\end{figure}
+
+\textbf{Eye}:~~Der Eye Modus wird im Stereo Rendering verwendet, verschiedene
+Rendereinheiten sind für die Ansicht welche jeweils ein bestimmtes Auge sieht
+verantwortlich. Dieser Modus hat keinen Einfluss auf das Applikationsdesign.
+
+Neben diesen einfachen Dekompositionen unterstützt Equalizer auch beliebige
+Kombinationen derselben. Dies hat jedoch auf die Applikation keinen weiteren
+Einfluss und wird darum hier nicht weiter erläutert.
+
+\begin{table}[hb]
+\centering
+\begin{tabular}{ll}
+\textbf{Modus} & \textbf{Auswirkungen} \\
+2D & Applikation und Datenstruktur sollten Frustum Culling unterstützen \\
+DB & Datenstruktur sollte auf eindimensionale Intervalle abbildbar sein \\
+Eye & Keine besonderen Auswirkungen \\
+\end{tabular}
+\caption{Equalizer Dekompositionsmodi und deren Auswirkung auf die Applikation}
+\label{tbl:eq-decomposition}
+\end{table}
+
+\section{eqPly}
+
+Nachdem nun die grundlegenden Aspekte von Equalizer behandelt wurden, welche 
+Einfluss auf Applikationsarchitektur und -design nehmen, wird in dieser Sektion
+nun die Applikation selbst betrachtet. Sie trägt den Namen \textbf{eqPly}.
+
+Aufgrund der relativ klar vorgegebenen Struktur für Equalizer Programme weicht 
+die Architektur der neuen Applikation kaum von der des alten Beispielsprogrammes
+ab. Abbildung \ref{fig:eq-classes} am Ende der Sektion zeigt die Zusammenhänge 
+der Klassen sowohl untereinander als auch in Relation zu Equalizer. Da der 
+Aufbau von \emph{eqPly} in \cite{equalizer:guide} schon ausführlich behandelt 
+wird, beschränken sich die folgenden Ausführungen auf ein Minimum. Die Klassen 
+betreffend Datenstruktur und Rendering (\emph{mesh::Vertex*}) werden gesondert 
+in Kapitel \ref{data-structure} und \ref{rendering} behandelt.
+
+\subsection{Datenklassen}
+
+Die Datenklassen sind verteilte Objekte, und somit von \emph{eqNet::Object}
+abgeleitet. \emph{eqPly::InitData} kapselt den Knoten übergreifenden, aber
+statisch bleibenden Zustand der Applikation. Hauptsächlich sind dies der Pfad 
+zum Modell, ein Schalter ob der neue VBO Rendermodus verwendet werden soll, 
+und die ID des zu verwendenden \emph{Frame} Datenobjektes. 
+
+\glossary{name={Frame},description={Einzelbild einer Bildfolge.}}
+
+\emph{eqPly::LocalInitData} ist von \emph{eqPly::InitData} abgeleitet und 
+enthält den statischen, lokalen Knoten spezifischen Zustand, bespielsweise den 
+Port zur Kommunikation mit einem eventuell vorhandenen \emph{Head Tracker}, 
+oder ob der Knoten beim Rendering Farben des Modells nutzen oder ignorieren 
+soll. Die Klasse ist auch zuständig für das Parsen der Kommandozeilenparameter.
+
+\glossary{name={Head Tracker},description={Gerät zur Verfolgung der 
+Kopfbewegung mit Hilfe externer Referenzpunkte.}}
+
+\emph{eqPly::FrameData} ist ein versioniertes, verteiltes Objekt und enhält 
+dynamische Daten die sich von einem Frame zum anderen verändern können. Dies
+sind in \emph{eqPly} vor allem die Rotations- und Translationsmatrizen für
+die Kameraposition, die sich sowohl durch Benutzerinteraktion als auch durch
+kontinuierliche Animation fortlaufend ändert.
+
+\subsection{Abgeleitete Klassen}
+
+Wie im Abschnitt \ref{eq-classes} bereits beschrieben, leiten Equalizer 
+Applikationen eine Reihe von Basisklassen ab und überschreiben darin die Task 
+Methoden um ihre gewünschte Funktionsweise zu implementieren. Genau dies 
+geschieht in den Klassen \emph{eqPly::Config, eqPly::Node, eqPly::Pipe, 
+eqPly::Window} und \emph{eqPly::Channel}.
+
+\emph{eqPly::Config} ist die Steuerung der Applikation. Die Klasse verwaltet 
+die Primärkopien der \emph{eqPly::InitData} und \emph{eqPly::FrameData} Objekte
+und behandelt die Registrierung dieser verteilten Objekte. Sie initialisiert 
+und kommuniziert mit einem eventuell vorhandenen Head Tracker, ist für die 
+Ereignisbehandlung zuständig und aktualisiert sämtliche Frame relevanten Daten 
+zu Beginn eines neuen Frames. Dazu gehört insbesonders die neue Position der 
+Kamera.
+
+Die Aufgaben von \emph{eqPly::Node} sind das \emph{Mapping} der verteilten 
+statischen \emph{eqPly::InitData} auf eine lokale Kopie sowie das Laden des 
+Polygonmodells aus der in \emph{eqPly::InitData} übermittelten Datei.
+
+\glossary{name={Mapping},description={Abbildung oder Zuordnung.}}
+
+Da nicht von allen Rendereinheiten zur gleichen Zeit derselbe Frame gerendert
+werden muss, unterhält \emph{eqPly::Pipe} ein Mapping des dynamischen 
+\emph{eqPly::FrameData} Objekts. Zu Beginn eines neuen Frames wird die ID des 
+zu rendernden Frames übermittelt, und die Klasse synchronisiert ihre Kopie der
+\emph{eqPly::FrameData} mit der gewünschten Version.
+
+\emph{eqPly::Window} enthält den \emph{VertexBufferState}, welcher den 
+\emph{State} für das Rendering der Datenstruktur sowie die auf der selben Pipe 
+gemeinsam genutzten OpenGL Objekte verwaltet. \emph{eqPly::Window} ist auch 
+zuständig für das Laden des Equalizer Logos, die Initialiserung der OpenGL 
+\emph{Extensions} sowie der Auswahl des zu verwendenden Rendermodus. Auf die 
+State Klasse und OpenGL Extensions wird in Kapitel \ref{rendering} noch näher 
+eingegangen. 
+
+\glossary{name={State},description={Zustand.}}
+\glossary{name={Extensions},description={Erweiterungen von OpenGL, welche den 
+Einzug in den OpenGL Hauptstandard noch nicht geschafft haben.}}
+
+\emph{eqPly::Channel} leistet die Hauptarbeit der Applikation. Die Klasse ist
+zuständig für das Zeichnen des Logos, die Berechnung des Frustums, für die 
+Anwendung der verschiedenen Modell- und Projektionstransformationen sowie das
+View Frustom Culling und Rendering des Modells.
+
+\subsection{Hilfsklassen}
+\label{helper-classes}
+
+Zwei weitere Module sind Bestandteil von \emph{eqPly}. Zum einen handelt es
+sich um die Dateien \emph{ply.h} und \emph{plyfile.cpp}, welche die Bibliothek
+für das Laden der PLY Dateien darstellen. Da sie ursprünglich in reinem C 
+geschrieben wurde, ist die Bibliothek weder objektorientiert noch besonders
+einfach zu verwenden.
+
+Zum anderen sind da noch die Dateien \emph{tracker.h} und \emph{tracker.cpp}.
+Dabei handelt es sich um eine Klasse zur Kommunikation mit einem Head Tracker, 
+der von \emph{eqPly} bei Vorhandensein verwendet werden kann um Kopfbewegungen
+eines Benutzers zu verfolgen und die Ansicht entsprechend anzupassen.
+
+\subsection{Hauptprogramm}
+
+Die \emph{eqPly::Application} Klasse ist das Gerüst der Applikation. Zusammen 
+mit der \emph{main} Funktion werden die notwendigen Klassen instanziert, sowie
+die benötigten Schritte für das Aufsetzen einer Equalizer Applikation in die
+Wege geleitet. Da diese ausführlich in \cite{equalizer:guide} beschrieben
+sind, wird an dieser Stelle nicht weiter darauf eingegangen.
+
+\begin{sidewaysfigure}[hp]
+\centering
+\includegraphics[width=1.00\textheight]{figures/UML.pdf}
+\caption[Zusammenhänge der Klassen von eqPly und Equalizer]
+{Zusammenhänge der Klassen von eqPly und Equalizer (Quelle: \cite{equalizer:guide})}
+\label{fig:eq-classes}
+\end{sidewaysfigure}
+
+
+%
+% EOF
+%

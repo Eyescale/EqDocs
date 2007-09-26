@@ -1,0 +1,738 @@
+% Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+% All rights reserved.  
+
+%
+% Kapiteldatei
+%
+
+\chapter{Datenstruktur}
+\label{data-structure}
+
+In diesem Kapitel wird die erste Teilaufgabe der Arbeit behandelt, die 
+Datenstruktur. In einem ersten Schritt wird die alte Datenstruktur analysiert
+und erläutert sowie deren Probleme aufgezeigt. In einem zweiten Schritt werden
+dann die Anforderungen an die neue Datenstruktur spezifiziert und das gewählte
+Design sowie die schlussendliche Implementierung vorgestellt.
+
+\section{Alte Datenstruktur}
+
+Der Kern der alten Datenstruktur ist ein \emph{Bounding Box Octree 
+\cite{octree:desc}}. Die \emph{Bounding Boxes} sind achsenparallele Quader 
+welche die enthaltenen Daten minimal umschliessen. Der \emph{Octree} ist eine 
+Baumstruktur zur binären Raumpartitionierung bei der ein Knoten entweder 
+keine oder acht Kinder hat.
+
+Ein Knoten des Baumes wird solange mit Daten befüllt, bis eine vordefinierte
+Grenze erreicht ist. Bei Überschreiten dieser Grenze wird die Bounding Box des 
+Knotens in acht gleich grosse Oktanten unterteilt, welche die neuen Kinder des
+Knotens sind. Die im Knoten enthaltenen Daten werden gemäss ihrer neuen 
+Zugehörigkeit auf die Kinder verteilt. Dieser Vorgang wird solange wiederholt, 
+bis ein Blatt genug Platz für die Daten bietet, oder eine gewisse maximale
+Baumtiefe erreicht wurde.
+
+\begin{figure}[hb]
+\centering
+\includegraphics[width=0.32\textwidth]{figures/QuadTree.png}
+\caption{2D Raumaufteilung mittels Quadtree}
+\label{fig:quadtree}
+\end{figure}
+
+Abbildung \ref{fig:quadtree} soll dies anhand eines grafischen Beispiels
+verdeutlichen. Um die Komplexität einer dreidimensionalen Darstellung zu 
+vermeiden, wird der zweidimensionale Fall eines \emph{Quadtree} (Teilung in 
+vier Quadranten) mit einzelnen Punkten als Daten gezeigt. Die Datemenge
+umfasst hier 16 Punkte, und die Grenze pro Knoten beträgt 3 Punkte. Erzeugt 
+wurde die Abbildung mit Hilfe von \cite{spatialdemos}.
+
+\subsection{Analyse}
+
+Das alte Modell wird primär repräsentiert durch eine Klasse \emph{PlyModel}.
+Es handelt sich dabei um eine Template Klasse, die als Template Argument den
+Typ der zu speichernden \emph{Faces} (in diesem Fall Triangles) benötigt. 
+Dieser Typ sieht konkret wie folgt aus:
+
+\glossary{name={Faces},description={Flächen aus denen sich ein Objekt 
+zusammensetzt.}}
+
+\begin{lstlisting}
+template<class VertexType>
+struct NormalFace
+{
+    float       normal[3];
+    VertexType  vertices[3];
+};
+\end{lstlisting}
+
+Es wird nur eine Flächennormale gespeichert, und der Typ der drei Vertices ist
+wiederum ein Template Argument. Es stehen zwei verschiedene Vertextypen zur
+Auswahl, eine erste Variante die nur Vertexpositionen beinhaltet, und eine 
+zweite die zusätzlich noch eine Farbe speichert:
+
+\begin{lstlisting}
+struct Vertex
+{
+    float  pos[3];
+};
+\end{lstlisting}
+
+\begin{lstlisting}
+struct ColorVertex : public Vertex
+{
+    float color[3];
+};
+\end{lstlisting}
+
+Der Kern der Klasse \emph{PlyModel} ist die Kapselung des Bounding Box Octrees,
+entsprechend enthält sie einen eigenen Typ für die Bounding Boxes mit denen die
+polygonalen Daten effektiv verwaltet werden:
+
+\begin{lstlisting}
+struct BBox 
+{
+    BBox*          parent;
+    BBox*          next;
+    BBox*          children;
+
+    Vertex         pos[2];
+    Vertex         cullBox[2];
+
+    vmml::Vector4f cullSphere;
+
+    size_t         nFaces;
+    FaceType*      faces;
+
+    float          range[2];
+
+    void*          userData;
+};
+\end{lstlisting}
+
+Die Datenstruktur enthält Zeiger zu ihrem Elternknoten, dem nächsten Nachbarn
+auf gleicher Baumtiefe sowie den potentiellen Kindern. Darüber hinaus wird 
+die dem Knoten entsprechende Bounding Box und eine davon abgeleitete Bounding 
+Sphere (erlaubt effizienteres View Frustum Culling) gespeichert, ebenso ein 
+dem Anteil der enthaltenen Daten entsprechendes eindimensionales Intervall 
+(benötigt für Equalizer DB Dekomposition) sowie die Anzahl der enthaltenen 
+Triangles und ein Zeiger auf eine Liste derselben.
+
+Die Klasse \emph{PlyModel} bietet basierend auf dieser Struktur eine Reihe von 
+Methoden an. Das Erstellen und Füllen des Bounding Box Octree wird dabei genau 
+so unterstützt wie das Speichern und Laden einer binären Repräsentation. Die
+Klasse verwaltet ebenfalls die Hauptkopie der Liste aller Triangles und bietet 
+eine Reihe von Hilfsfunktionen wie zum Beispiel das Skalieren der Modelldaten
+oder der Berechnung von Flächennormalen und Bounding Spheres.
+
+Die Methoden für das Einlesen der Daten aus PLY Dateien sind in einer eigenen
+Klasse \emph{PlyFileIO} untergebracht, welche die schon in Abschnitt 
+\ref{helper-classes} erwähnte Biobliothek dafür nutzt. Das Rendering der
+alten Datenstrukur ist vollständig von dieser externalisiert, und befindet
+sich in \emph{eqPly::Channel}.
+
+\subsection{Probleme}
+
+Sowohl die verwendete Octree Baumstruktur als auch die Implementierung des
+Polygonmodells offenbart eine Reihe von Schwächen. Im folgenden sollen zunächst
+die Probleme des Octrees aufgezeigt werden.
+
+Bei Überschreiten der Füllgrenze pro Knoten wird der Raum immer in acht gleich
+grosse Oktanten unterteilt, dies geschieht ohne Rücksicht auf die tatsächliche
+Verteilung der Daten. In der Folge ist die Blattgrösse nur sehr schlecht zu
+kontrollieren, sie kann zwischen leer bis hinauf zur Füllgrenze variieren. Ein
+weiterer Effekt dieser fehlenden Kontrolle in Bezug auf die Knotengrössen ist,
+dass die Baumtiefe in verschiedenen Bereichen des Baumes stark schwanken kann,
+je nach Dichte der Daten in diesem Bereich. Das Fazit ist, dass der Octree in
+dieser Form äussert schlecht ausbalanciert ist.
+
+Auch die konkrete Implementierung zeigt eine Reihe von Schwächen. Die PLY 
+Biobliothek alloziert für mehrere Rückgabevariablen Speicher, der von den 
+aufrufenden Methoden in \emph{PlyFileIO} nicht vollständig freigegeben wird. 
+Die Folge sind mögliche Speicherlecks beim Einlesen der PLY Dateien.
+
+Das Modell verwaltet direkt Triangles, und speichert darum gemeinsam genutzte
+Vertices mehrfach. Informationen über den Aufbau der polygonalen Daten wie
+welche Triangles welche Vertices teilen (und entsprechend benachbart sind) 
+gehen verloren. Dies und die Tatsache dass nur Flächennormalen gespeichert 
+werden, führt dazu dass beim Rendering nur Flat Shading verwendet werden kann, 
+und andere Shading Verfahren aufgrund von fehlenden Informationen gar nicht 
+realisiert werden können.
+
+Die mehrfache Template Benutzung führt zur leicht kryptischen Deklaration 
+eines konkreten Modells der Form
+\lstinline!typedef PlyModel< NormalFace< ColorVertex > > Model;!. Darüber 
+hinaus ist der Implementierung die C Herkunft noch deutlich anzusehen 
+(Verwendung von C Arrays, malloc() usw.), und sie ist allgemein eher
+unübersichtlich und ihre Funktionsweise nur schwer nachzuvollziehen. Ein
+letztes Problem ist, dass die alte Datenstruktur in ihrer Implementierung
+sehr viel Speicher verbraucht.
+
+\section{Neue Datenstruktur}
+
+Aufgrund der nicht vorhandenen Balancierung des Octrees und der schlechten
+Kontrolle über die Blattgrössen, wurde ein kd-Tree \cite{kd-tree:desc} als
+neuer Kern der Datenstruktur ausgewählt.
+
+Der kd-Tree ist wie der Octree eine Sruktur zur binären Raumpartitionierung,
+die Aufteilung erfolgt jedoch nach einem anderem Verfahren, was zu einer Reihe
+von Vorteilen führt. Der grundlegende Algorithmus zur Erstellung eines kd-Trees
+läuft wie folgt ab.
+
+In jedem Schritt werden die Daten zunächst entlang einer bestimmten Achse
+sortiert, die Sortierachse rotiert dabei mit der Rekursionstiefe. Danach wird 
+der Median ermittelt, und die Datenmenge in zwei Häften geteilt. Die eine 
+enthält Objekte kleiner als der Median, und die andere Objekte grösser oder 
+gleich dem Median. Beide Hälften werden rekursiv weiter verarbeitet, bis die 
+gewünschte Blattgrösse erreicht wird.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.32\textwidth]{figures/kdTree.png}
+\caption{2D Raumaufteilung mittels kd-Tree}
+\label{fig:kd-tree}
+\end{figure}
+
+Abbildung \ref{fig:kd-tree} soll dies anhand eines grafischen Beispiels
+verdeutlichen. Er wird der zweidimensionale Fall gezeigt. Die verwendeten 
+Daten sind die selben 16 Punkte wie im Quadtree Beispiel in Abbildung 
+\ref{fig:quadtree}, und die Grenze für die Blattgrösse ist ebenfalls wieder 3.
+Die erste Aufteilung spaltet den Raum auf der x-Achse, die zweite auf der
+y-Achse, und die dritte und letzte wiederum auf der x-Achse. 
+
+Wie aus der Beschreibung des Algorithmus und dem Beispiel ersichtlich sein 
+sollte, hat ein so erstellter kd-Tree mehrere Vorteile: Die Anzahl Knoten fällt
+geringer aus als beim Quadtree/Octree, weil keine leeren Bereiche entstehen. Da
+die Raumteilung immer anhand eines Datenwertes erfolgt, sind die geteilten
+Bereiche (fast) gleich gross, und die Baumtiefe ist ebenfalls gleichmässig. Im
+Endeffekt ist dieser Baum also beinahe perfekt ausbalanciert.
+
+\subsection{Anforderungen}
+\label{requirements}
+
+Es werden an die neue Datenstruktur eine Reihe von Anforderungen gestellt, die
+zum Teil schon durch die Wahl des kd-Tree erfüllt werden, zum anderen aber im
+Design und in der Implementierung Berücksichtigung finden müssen. Die folgenden
+Anforderungen sind zum Teil neu, und galten zum Teil auch schon für die alte
+Datenstruktur und müssen entsprechend auch von der neuen erfüllt werden.
+
+Als erstes soll die Baumstruktur besser ausbalanciert sein, und eine genauere
+Kontrolle über die Blattgrössen aufgrund der Verwendung von VBOs beim Rendering
+erreicht werden. Diese beiden Punkte werden direkt durch die kd-Tree Auswahl 
+erfüllt.
+
+Als zweites sollen die Informationen über die Struktur der polygonalen Daten 
+erhalten bleiben, also die Nachbarschaftsbeziehungen zwischen den Triangles. 
+Dies einerseits, damit bei der Speicherung und beim Rendering Vorteile aus
+den gemeinsam genutzten Vertices gezogen werden können, und andererseits um neu
+Vertexnormalen anstelle der Flächennormalen berechnen zu können. Diese erlauben 
+erst die Verwendung besserer Shading Algorithmen.
+
+Als drittes soll der neue Code heutigen objektrientierten Ansprüchen genügen,
+die Möglichkeiten von C++ besser ausnutzen und natürlich einfach verständlich
+und gut wartbar sein.
+
+Da Equalizer selbst Unterstützung für mehrere Betriebssysteme (Mac OS X, 
+Linux, Windows) sowohl in 32 als auch 64 Bit bietet und auf unterschiedlichen
+Prozessorfamilien (mit Little- und Big-Endian Datenformat) läuft, müssen die
+entsprechenden Eigenheiten auch in Hinblick auf die neue Datenstruktur mit 
+berücksichtigt werden.
+
+Schliesslich soll die neue Datenstruktur auch wieder effizientes View Frustum 
+Culling und ein Mapping der Baumbereiche auf ein eindimensionales Intervall 
+für die DB Dekomposition von Equalizer unterstützen.
+
+\subsection{Design}
+
+\subsubsection*{Basistypen}
+
+Um die verwendeten Datentypen flexibel zu halten, aber auf eine übermässige
+Verwendung von Templates zu verzichten, wurde entschieden die Basistypen der
+Datenstruktur in Form von eigenen Typedefs zu bilden.
+
+\begin{lstlisting}
+typedef vmml::Vector3< GLfloat >    Vertex;
+typedef vmml::Vector4< GLubyte >    Color;
+typedef vmml::Vector3< GLfloat >    Normal;
+typedef size_t                      Index;
+typedef GLushort                    ShortIndex;
+\end{lstlisting}
+
+Besondere Erwähnung verdient hierbei die Definition von zwei verschiedenen 
+Indextypen. Grund hierfür ist, dass für effizientes Rendering die verwendeten
+Indices im Bereich eines Short Datentyps liegen sollen. Das Einsortieren der
+polygonalen Daten in den kd-Tree arbeitet noch mit den globalen, grösseren 
+Indices. Sobald jedoch ein Blatt erzeugt wird, werden die darin enthaltenen
+Triangles neu indexiert. Dies impliziert natürlich, dass ein Blatt maximal so
+viele unterschiedliche Vertices enthalten darf wie im Short Bereich Platz 
+finden.
+
+Auf Basis dieser Primärtypen sowie einer Wrapper Hilfsklasse für kleine Arrays
+mit fester Grösse werden dann die folgenden zusammengesetzten Typen definiert.
+
+\begin{lstlisting}
+typedef vmml::Vector3< Index >      Triangle;
+typedef ArrayWrapper< Vertex, 2 >   BoundingBox;
+typedef vmml::Vector4< float >      BoundingSphere;
+typedef ArrayWrapper< float, 2 >    Range;
+\end{lstlisting}
+
+Effizientes View Frustum Culling lässt sich einfacher mit Bounding Spheres als 
+mit Bounding Boxes realisieren, da der Überlappungstest einfacher ausfällt. Die
+Struktur wird selber nur die Bounding Spheres speichern, Boxes kommen aber noch
+beim Aufbau temporär zum Einsatz, da sich diese besser zusammenfassen lassen.
+
+\subsubsection*{Mesh Klassen}
+
+Nachdem die Basistypen vorgestellt wurden, können nun die Klassen betrachtet
+werden. Da die Datenstruktur Polygonmeshes verwaltet, wird für alle Belange 
+der Datenstruktur der eigene Namespace \emph{mesh} verwendet.
+
+\emph{mesh::VertexData} speichert die polygonalen Daten in ihrer Ursprungsform,
+zur Verwendung kommen C++ STL Vektoren. Darüber hinaus besitzt die Klasse alle 
+notwendigen Methoden um PLY Dateien einzulesen, die Bounding Box des gesamten
+Modells zu ermitteln, das Modell zu skalieren, die Normalen zu berechnen sowie
+die Triangles für die Erzeugung des kd-Trees zu sortieren.
+
+\begin{lstlisting}
+class VertexData
+{
+public:
+    VertexData();
+    
+    bool readPlyFile( const char* file, const bool ignoreColors );
+    void sort( const Index start, const Index length, const Axis axis );
+    void scale( const float baseSize );
+    void calculateNormals( const bool vertexNormals );
+    void calculateBoundingBox();
+    const BoundingBox& getBoundingBox() const;
+    
+    std::vector< Vertex >   vertices;
+    std::vector< Color >    colors;
+    std::vector< Normal >   normals;
+    std::vector< Triangle > triangles;
+    
+private:
+    ...
+    
+    BoundingBox _boundingBox;
+};
+\end{lstlisting}
+
+\emph{mesh::VertexBufferData} verwaltet die sortierten und reindexierten Daten
+für den kd-Tree. Während der Erstellung des Baumes werden die Elemente von 
+\emph{mesh::VertexData} in die Vektoren dieser Klasse kopiert, entsprechend 
+kann \emph{mesh::VertexData} nach Erstellen des Baums direkt entsorgt werden.
+Da \emph{mesh::VertexBufferData} Bestandteil des kd-Tree ist, besitzt es wie
+alle Klassen des Baumes selbst Methoden zum Speichern seiner Daten in einen 
+Stream bzw. zum Laden aus einem memory-mapped File.
+
+\begin{lstlisting}
+class VertexBufferData
+{
+public:
+    void clear();
+    void toStream( std::ostream& os );
+    void fromMemory( char** addr );
+    
+    std::vector< Vertex >       vertices;
+    std::vector< Color >        colors;
+    std::vector< Normal >       normals;
+    std::vector< ShortIndex >   indices;
+    
+private:
+    ...
+};
+\end{lstlisting}
+
+\emph{mesh::VertexBufferState} ist eine Hilfsklasse, die den Renderstate für
+den kd-Tree abstrahiert. Dies sind insbesondere der zu verwendende Rendermodus
+(sieht Kapitel \ref{rendermodes}), die Verwendung von Farben sowie die
+Verwaltung von OpenGL Objekten und Erweiterungsfunktionen. Die Klasse selbst 
+ist abstrakt, konkrete Versionen sind für eine stand-alone Nutzung 
+\emph{mesh::VertexBufferStateSimple} und \emph{mesh::EqVertexBufferState} für 
+die Verwendung mit Equalizer.
+
+\begin{lstlisting}
+class VertexBufferState
+{
+public:
+    virtual bool useColors() const;
+    virtual void setColors( const bool colors );
+    virtual RenderMode getRenderMode() const;
+    virtual void setRenderMode( const RenderMode mode );
+    
+    virtual GLuint getDisplayList( const void* key );
+    virtual GLuint newDisplayList( const void* key );
+    virtual GLuint getBufferObject( const void* key );
+    virtual GLuint newBufferObject( const void* key );
+    
+    virtual void deleteAll();
+
+    virtual const GLFunctions* getGLFunctions() const; 
+    
+protected:
+    VertexBufferState( const GLFunctions* glFunctions ); 
+    virtual ~VertexBufferState();
+    
+    const GLFunctions*  _glFunctions;
+    bool                _useColors;
+    RenderMode          _renderMode;
+    
+private:
+};
+\end{lstlisting}
+
+\emph{mesh::VertexBufferBase} ist die abstrakte Basisklasse für alle anderen
+Baumklassen. Sie definiert das Interface welches alle Typen von Knoten anbieten
+müssen, und implementiert bereits Basisfunktionalität soweit dies möglich ist.
+Im Gegensatz zur alten Datenstruktur ist das Rendering nun Bestandteil der
+Struktur selbst. Entsprechend muss jeder Knoten eine Methode für das Rendering 
+zur Verfügung stellen. Weitere öffentliche Methoden sind die Rückgabe der 
+Kinder und der Bounding Spheres für das externe View Frustum Culling sowie des 
+abgedeckten Intervalls für die Equalizer DB Dekomposition.
+
+Zusätzlich besitzt die Klasse Methoden für das Speichern und Laden ihrer Daten,
+für das Erstellen des kd-Trees sowie der Aktualisierung der Bounding Sphere und
+des Intervalls. Da alle diese Methoden von Klienten nur auf dem Wurzelknoten 
+aufgerufen werden sollen sind sie auf allgemeiner Knotenebene \emph{protected}.
+
+\begin{lstlisting}
+class VertexBufferBase
+{
+public:
+    virtual void render( VertexBufferState& state ) const;
+    
+    const BoundingSphere& getBoundingSphere() const; 
+    const float* getRange() const;
+    
+    virtual const VertexBufferBase* getLeft() const;
+    virtual const VertexBufferBase* getRight() const;
+    
+protected:
+    VertexBufferBase();
+    virtual ~VertexBufferBase();
+    
+    virtual void toStream( std::ostream& os );
+    virtual void fromMemory( char** addr, VertexBufferData& globalData );
+    
+    virtual void setupTree( VertexData& data, const Index start,
+                            const Index length, const Axis axis,
+                            VertexBufferData& globalData );
+    virtual BoundingBox updateBoundingSphere();
+    virtual void updateRange();
+    
+    void calculateBoundingSphere( const BoundingBox& bBox );
+    
+    BoundingSphere  _boundingSphere;
+    Range           _range;
+    
+private:
+};
+\end{lstlisting}
+
+\emph{mesh::VertexBufferNode} ist die Klasse für reguläre Knoten die kein Blatt
+sind. Sie ist abgeleitet von \emph{mesh::VertexBufferBase} und selbst 
+Basisklasse für \emph{mesh::VertexBufferRoot}. Die Klasse besitzt mit Ausnahme
+einer Hilfsfunktion keine neuen Methoden, implementiert aber einerseits die
+abstrakten Methoden von \emph{mesh::VertexBufferNode} und überschreibt 
+andererseits sofern notwendig bestehende virtuelle Methoden.
+
+\begin{lstlisting}
+class VertexBufferNode : public VertexBufferBase
+{
+public:
+    ...
+        
+protected:
+    ...
+                                
+private:
+    size_t countUniqueVertices( VertexData& data, const Index start,
+                                const Index length ) const;
+    
+    VertexBufferBase*   _left;
+    VertexBufferBase*   _right;
+};
+\end{lstlisting}
+
+\emph{mesh::VertexBufferRoot} ist die Klasse für den Wurzelknoten des Baumes, 
+und abgeleitet von \emph{mesh::VertexBufferNode}. Sie verwaltet die Hauptkopie 
+der polygonalen Daten, und stellt den öffentlichen Zugang für Klienten dar. 
+Entsprechend zu den \emph{protected} Methoden der Basisklassen bietet sie 
+zugehörige \emph{public} Methoden an. 
+
+Das Rendering der Datenstruktur ist entweder durch einen einzelnen Aufruf der
+entsprechenden Methode auf dem Wurzelknoten möglich, oder durch mehrere direkte
+Aufrufe der \emph{render()} Methoden der regulären bzw. Blattknoten, wie es zum
+Beispiel bei Verwendung des externen View Frustum Culling geschieht. In beiden 
+Fällen ist vor und nach dem Rendering auf der Wurzel \emph{begin-} und 
+\emph{endRendering()} aufzurufen. Diese beiden Methoden kümmern sich um den 
+Auf- und Abbau des für das Rendering notwendigen OpenGL States.
+
+\begin{lstlisting}
+class VertexBufferRoot : public VertexBufferNode
+{
+public:
+    virtual void render( VertexBufferState& state ) const;
+    
+    void beginRendering( VertexBufferState& state ) const;
+    void endRendering( VertexBufferState& state ) const;
+    
+    void setupTree( VertexData& data );
+    bool writeToFile( const char* filename );
+    bool readFromFile( const char* filename );
+    bool hasColors() const;
+    
+protected:
+    virtual void toStream( std::ostream& os );
+    virtual void fromMemory( char* start );
+    
+private:
+    bool constructFromPly( const char* filename );
+    
+    VertexBufferData _data;
+};
+\end{lstlisting}
+
+Die letzte Mesh Klasse ist \emph{mesh::VertexBufferLeaf}, bei welcher es sich
+um die Klasse für Blattknoten handelt. Sie hält Referenzen auf die globalen
+polygonalen Daten in der Wurzel, sowie Start und Länge der Bereiche innerhalb 
+der globalen Daten für welche sie zuständig ist. Während die \emph{render()} 
+Methoden der übrigen Knoten nicht mehr machen als an die Kinder zu delegieren,
+sind die Blätter für das tatsächliche Rendering zuständig.
+
+\begin{lstlisting}
+class VertexBufferLeaf : public VertexBufferBase
+{
+public:
+    ...
+        
+protected:
+    ...
+        
+private:
+    void setupRendering( VertexBufferState& state ) const;
+    void renderImmediate( VertexBufferState& state ) const;
+    void renderDisplayList( VertexBufferState& state ) const;
+    void renderBufferObject( VertexBufferState& state ) const;
+    
+    VertexBufferData&   _globalData;
+    Index               _vertexStart;
+    ShortIndex          _vertexLength;
+    Index               _indexStart;
+    Index               _indexLength;
+    mutable bool        _isSetup;
+};
+\end{lstlisting}
+
+\subsection{Implementierung}
+
+Nachdem das Design der neuen Datenstruktur im Detail erklärt wurde, soll nun 
+auf einige ausgewählte Details der Implementierung eingegangen werden. Für die
+vollständigen Details der Implementierung sei auf den Source Code auf der
+beiliegenden CD-ROM verwiesen.
+
+Die neue Datenstruktur wurde zwar in erster Hinsicht für die Verwendung in der
+Equalizer Beispielapplikation entwickelt, sollte aber dennoch unabhängig von
+Equalizer selbst bleiben um unter Umständen auch in anderen Projekten einsetzbar
+zu sein. Da für beide Einsatzzwecke an einigen Stellen unterschiedlicher Code
+notwendig ist, wurde eine Lösung mit Makros und bedingt compiliertem Code 
+verwendet. Die Datei \emph{typedefs.h} bietet einerseits die Einstellung ob 
+Equalizer verwendet werden soll (\lstinline!#define EQUALIZER!), und 
+andererseits die Definitionen welche Streams für Logausgaben 
+(\lstinline!#define MESHINFO! etc.) und welche Form von Assertions 
+(\lstinline!#define MESHASSERT!) genutzt werden sollen. In der Datei wird auch
+ein NullStream definiert, der bei stand-alone Benutzung verwendet werden kann
+um gewisse Logausgaben komplett zu verwerfen.
+
+Generell ist zur Implementierung zu sagen, dass intern verwendete Methoden im 
+Fehlerfall Ausnahmen vom Typ \emph{mesh::MeshException} werfen, während die 
+vom Klienten aufrufbaren Methoden ihren Erfolg über die Rückgabe von 
+\emph{boolean} Werten signalisieren. Besonders unter Windows verlangsamt der
+Einsatz von Debugging Code verschiedene Bereiche des Baumaufbaus so stark, dass
+selbst mittelgrosse PLY Modelle nicht mehr in nützlicher Frist verarbeitet
+werden.
+
+\subsubsection*{VertexData}
+
+\emph{mesh::VertexData} verwendet für das Einlesen der PLY Dateien die selbe
+Bibliothek wie die alte Beispielapplikation. Der Code selbst wurde aber ganz
+neu geschrieben, und bemüht sich nun Speicherlecks zu vermeiden. In Bezug auf
+die Sortierfunktion für Triangles ist anzumerken, dass diese nach willkürlich 
+festgelegter Art vorgeht (siehe Code). Ein anderes Sortierverfahren würde den
+Zweck ebenfalls erfüllen, es muss nur eine gleichbleibende Ordnung über die 
+Triangles definiert werden.
+
+\subsubsection*{VertexBufferNode}
+
+Aus \emph{mesh::VertexBufferNode} soll kurz betrachtet werden, wie die
+Umsetzung des kd-Tree Algorithmus in der Praxis nun tatsächlich aussieht.
+\emph{countUniqueVertices()} ist eine Hilfsfunktion welche die Anzahl 
+einzigartiger Vertices innerhalb des betrachteten Bereiches ermittelt. Das 
+Reindexieren der Indices und der Aufbau der sortierten polygonalen Daten 
+findet in der \emph{setupTree()} Methode von \emph{mesh::VertexBufferLeaf} 
+statt. Die Konstrukte mit dem \emph{static\_cast} die hier und an einigen 
+anderen Stellen verwendet werden, sind notwendig um die \emph{protected}
+Eigenschaft der verwendeten Methoden zu umgehen.
+
+\begin{lstlisting}
+void VertexBufferNode::setupTree( VertexData& data, const Index start,
+                                  const Index length, const Axis axis,
+                                  VertexBufferData& globalData )
+{
+    ...
+    
+    data.sort( start, length, axis );
+    Index median = start + ( length / 2 );
+    
+    // left child will include elements smaller than the median
+    Index leftLength = length / 2;
+    if( countUniqueVertices( data, start, leftLength ) > LEAF_SIZE )
+        _left = new VertexBufferNode;
+    else
+        _left = new VertexBufferLeaf( globalData );
+    
+    // right child will include elements equal to or greater
+    Index rightLength = ( length + 1 ) / 2;
+    if( countUniqueVertices( data, median, rightLength ) > LEAF_SIZE )
+        _right = new VertexBufferNode;
+    else
+        _right = new VertexBufferLeaf( globalData );
+    
+    // move to next axis and continue construction in the child nodes
+    Axis newAxis = static_cast< Axis >( ( axis + 1 ) % 3 );
+    static_cast< VertexBufferNode* >
+        ( _left )->setupTree( data, start, leftLength, newAxis, 
+                              globalData );
+    static_cast< VertexBufferNode* >
+        ( _right )->setupTree( data, median, rightLength, newAxis, 
+                               globalData );
+}
+\end{lstlisting}
+
+\subsubsection*{VertexBufferLeaf}
+
+Die entsprechende \emph{setupTree()} Methode in \emph{mesh::VertexBufferLeaf}
+sieht wie folgt aus. Sie sortiert die Daten ein letztes Mal nach der neuen
+Achse, und reindexiert die Vertices dann damit alle Indices innerhalb des 
+Short Bereichs liegen. Während dem Reindexieren werden die Daten ebenfalls 
+sortiert in die globale \emph{mesh::VertexBufferData} Struktur eingefügt.
+Werden vereinzelte Vertices auch über Blattgrenzen hinweg noch gemeinsam
+genutzt, werden die entsprechenden Daten durch diesen Schritt dupliziert.
+
+\begin{lstlisting}
+void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
+                                  const Index length, const Axis axis,
+                                  VertexBufferData& globalData )
+{
+    ...
+    data.sort( start, length, axis );
+    _vertexStart = globalData.vertices.size();
+    _vertexLength = 0;
+    _indexStart = globalData.indices.size();
+    _indexLength = 0;
+    
+    const bool hasColors = ( data.colors.size() > 0 ); 
+    
+    // stores the new indices (relative to _start)
+    map< Index, ShortIndex > newIndex;
+    
+    for( Index t = 0; t < length; ++t )
+    {
+        for( Index v = 0; v < 3; ++v )
+        {
+            Index i = data.triangles[start + t][v];
+            if( newIndex.find( i ) == newIndex.end() )
+            {
+                newIndex[i] = _vertexLength++;
+                // assert number does not exceed SmallIndex range
+                MESHASSERT( _vertexLength );
+                globalData.vertices.push_back( data.vertices[i] );
+                if( hasColors )
+                    globalData.colors.push_back( data.colors[i] );
+                globalData.normals.push_back( data.normals[i] );
+            }
+            globalData.indices.push_back( newIndex[i] );
+            ++_indexLength; 
+        }
+    }
+    ...
+}
+\end{lstlisting}
+
+Auf die für das Rendering relevanten Methoden von \emph{mesh::VertexBufferLeaf}
+sei auf Kapitel \ref{rendering} verwiesen, sie werden dort genauer behandelt.
+
+\subsubsection*{VertexBufferRoot}
+
+Der letzte fehlende Bestandteil des Baumaufbaus ist die Methode die der Client
+in \emph{mesh::VertexBufferRoot} aufruft um den Vorgang zu starten. Sie ist
+nicht viel mehr als ein öffentlicher Wrapper für die \emph{protected} Methode.
+Nach dem eigentlichen Baumaufbau werden ebenfalls rekursiv die Bounding Spheres
+sowie die Intervalle für die Equalizer DB Dekomposition berechnet. Anzumerken
+ist hierbei, dass die Methode \emph{updateBoundingSphere()} temporär mit
+Bounding Boxes arbeitet und an den Aufrufer zurückliefert, weil das Verschmelzen
+der Bounding Volumes damit einfacher ist als bei der direkten Verwendung von
+Bounding Spheres.
+
+\begin{lstlisting}
+void VertexBufferRoot::setupTree( VertexData& data )
+{
+    // data is VertexData, _data is VertexBufferData
+    _data.clear();
+    VertexBufferNode::setupTree( data, 0, data.triangles.size(), 
+                                 AXIS_X, _data );
+    VertexBufferNode::updateBoundingSphere();
+    VertexBufferNode::updateRange();
+}
+\end{lstlisting}
+
+Es wurden bereits plattformspezifische Eigenheiten erwähnt, die es bei der
+Implementierung ebenfalls zu berücksichtigen gilt. \emph{mesh::VertexBufferRoot}
+verwendet in der Hinsicht beispielsweise zwei Hilfsfunktionen, um einerseits
+zu testen ob es sich um ein 32 oder 64 Bit System handelt, und andererseits
+ob das System die Daten im Little- oder Big-Endian Format verwaltet. Für jede
+mögliche Kombination werden eigenständige binäre Repräsentationen des kd-Trees
+abgespeichert.
+
+\begin{lstlisting}
+size_t getArchitectureBits()
+{
+    return ( sizeof( void* ) * 8 );
+}
+\end{lstlisting}
+
+\begin{lstlisting}
+bool isArchitectureLittleEndian()
+{
+    unsigned char test[2] = { 1, 0 };
+    short x = *( reinterpret_cast< short* >( test ) );
+    return ( x == 1 );
+}
+\end{lstlisting}
+
+Mit diesen ausgewählten Betrachtungen einzelner Implementierungssdetails ist
+das Ende der ersten Teilaufgabe der vorliegenden Arbeit erreicht. 
+
+Tabelle \ref{tbl:file-sizes} zeigt anhand der Dateigrössen der binären 32 Bit 
+Repräsentationen (es findet keine Komprimierung statt) noch auf, wie sehr der 
+Speicherbedarf durch den Wechsel von der alten auf die neue Datenstruktur 
+reduziert wurde. Die für die Messungen verwendeten PLY Beispielmodelle 
+stammen aus \cite{stanford:repository}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrr}
+\textbf{Modell} & \textbf{Dateigrösse Octree} & \textbf{Dateigrösse kd-Tree} \\
+Armadillo & 27.72 MB & 6.09 MB \\
+Dragon & 69.83 MB & 15.34 MB \\
+Happy Buddha & 87.16 MB & 19.05 MB \\
+Lucy & n/a & 494.58 MB \\
+Stanford Bunny & 5.56 MB & 1.20 MB \\
+\end{tabular}
+\caption{Unterschied Speicherbedarf der Datenstrukturen}
+\label{tbl:file-sizes}
+\end{table}
+
+
+%
+% EOF
+%

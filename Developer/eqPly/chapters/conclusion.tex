@@ -1,0 +1,93 @@
+% Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+% All rights reserved.  
+
+%
+% Kapiteldatei
+%
+
+
+\chapter{Zusammenfassung}
+\label{conclusion}
+
+Diese Semesterarbeit hatte zwei Ziele. Zum ersten die Umsetzung einer neuen 
+Datenstruktur für die effiziente Verwaltung von polygonalen Daten, und zum 
+zweiten ein ebenfalls effizientes aber auch optisch ansprechendes Rendering 
+dieser Daten.
+
+Der erste Teil der Arbeit wurde vollständig umgesetzt, die Implementierung der
+neuen kd-Tree Datenstruktur erfüllt sämtliche in Abschnitt \ref{requirements} 
+gestellten Anforderungen. Der einzige spürbare Nachteil im Vergleich zur alten
+Datenstruktur ist ein bedeutend langsamerer Aufbau des Baumes. Da nach der
+erstmaligen Erstellung aber sowieso binäre Repräsentationen gespeichert werden
+und für weitere Aufrufe verfügbar sind, ist dieser Punkt vernachlässigbar. Der
+Speicherverbraucht wurde auf weniger als ein Viertel reduziert (siehe Tabelle
+\ref{tbl:file-sizes}.
+
+Momentan wird der kd-Tree von jedem Renderknoten vollständig geladen. Eine
+denkbare Erweitung für die Verwendung mit der Equalizer DB Dekomposition wäre
+beispielsweise, ein teilweises Laden nur der benötigen Bereiche zu ermöglichen.
+Die Effizienz des View Frustum Cullings liesse sich unter Umständen verbessern
+indem statt beim Aufbau die Sortierachse zu rotieren jeweils diejenige mit der
+längsten Dimension gewählt würde. 
+
+Des weiteren steht die Ausgliederung der Mesh Klassen in eine eigenstände 
+Biobliothek aus, um diese auch für andere Projekte verwenden zu können. Als 
+Folge daraus wäre auch eine GLUT Applikation denkbar, welche die Benutzung 
+der Mesh Klassen in einer stand-alone Umgebung demonstriert.
+
+Der zweite Teil der Arbeit erreicht die definierten Ziele teilweise. Das neue
+Rendering mit Vertex Buffers Objects ist implementiert und funktioniert. Auch
+Rendering mit Display Listen wird weiterhin angeboten für Umgebungen ohne VBO 
+Unterstützung.
+
+Ein Vergleich der Renderingperformance zwischen der alten und der neuen 
+Applikation findet sich in folgender Tabelle \ref{tbl:render-performance}.
+Die verwendeten Modelle stammen aus \cite{stanford:repository} und 
+\cite{cyberware}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrr}
+\textbf{Modell} & \textbf{eqPly (alt)} & \textbf{eqPly (neu, DL)} & 
+\textbf{eqPly (neu, VBO)}\\
+xyz & 1.0 FPS & 2.0 FPS & 3.0 FPS
+\end{tabular}
+\caption{Vergleich Renderingperformance altes und neues eqPly}
+\label{tbl:render-performance}
+\end{table}
+
+%Leider
+%bleibt die Performance aber in vielen Fällen aus bisher ungeklärten Gründen 
+%hinter den Erwartungen zurück. Das Rendering mit Display Listen steht aber nach
+%wie vor als alternative Lösung zur Verfügung, und bleibt derzeit auch noch das 
+%Standard Verfahren.
+
+Das Rendering ist durch die standardmässige Nutzung von Gouraud anstelle von
+Flat Shading bereits optisch ansprechender als in der alten Applikation. Dies
+ist in Abbildungen \ref{fig:sample-flat} und \ref{fig:sample-smooth} deutlich
+zu sehen. 
+
+\begin{figure}[hb]
+\centering
+\includegraphics[width=0.86\textwidth]{figures/FlatShading.png}
+\caption{RockerArm Modell mit Flat Shading}
+\label{fig:sample-flat}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.86\textwidth]{figures/SmoothShading.png}
+\caption{RockerArm Modell mit Gouraud Shading}
+\label{fig:sample-smooth}
+\end{figure}
+
+Der Einsatz von GLSL Shadern und Phong Shading verbessert dies je nach Licht- 
+und Materialeigenschaften noch einmal. Weitere Algorithmen konnten aufgrund 
+mangelnder Zeit leider nicht mehr realisiert werden, das vorhandene Gerüst 
+sollte das Hinzufügen weiterer Shader Algorithmen zu einem späteren Zeitpunkt 
+jedoch problemlos ermöglichen.
+
+
+%
+% EOF
+%

@@ -1,0 +1,369 @@
+% Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+% All rights reserved.  
+
+%
+% Kapiteldatei
+%
+
+
+\chapter{Rendering}
+\label{rendering}
+
+In diesem Kapitel wird die zweite Teilaufgabe der Arbeit behandelt, das 
+Rendering. In der ersten Sektion werden die drei OpenGL Rendermodi beschrieben
+welche die neue Applikation grundsätzlich unterstützt, sowie die konkrete
+Implementierung der entsprechenden Rendermodi in Bezug auf die Applikation. In
+der zweiten Sektion werden anschliessend die möglichen Shading Algorithmen
+vorgestellt, und zu deren besseren Verständnis kurz das Beleuchtungsmodell
+rekapituliert. Abgeschlossen wird das Kapitel mit einem Ausblick auf weitere
+Algorithmen die das Rendering optisch attraktiver gestalten können. 
+
+\section{OpenGL Rendermodi}
+\label{rendermodes}
+
+Die alte Beispielapplikation hat für das Rendering ausschliesslich Display
+Listen verwendet. Die neue Applikation wird nun um die Möglichkeit erweitert,
+für das Rendering Vertex Buffer Objects \cite{vbo:whitepaper} zu verwenden. 
+
+\subsection{Immediate Mode}
+
+Immediate Mode ist die einfachste Möglichkeit im Umgang mit OpenGL. Kommandos
+werden einzeln abgesetzt und direkt ausgeführt. Dies bedeutet für den konkreten
+Fall des Rendering unserer polygonalen Daten, dass für jedes zu zeichnende 
+Triangle je drei Aufrufe für das Setzen von Vertexpositionen, Normalen und
+Farbinformationen notwendig sind. Im folgenden der entsprechende Auszug aus
+\emph{mesh::VertexBufferLeaf}.
+
+\begin{lstlisting}
+inline
+void VertexBufferLeaf::renderImmediate( VertexBufferState& state )
+{
+    glBegin( GL_TRIANGLES );  
+    for( Index offset = 0; offset < _indexLength; ++offset )
+    {
+        Index i = _vertexStart + 
+                  _globalData.indices[_indexStart + offset];
+        if( state.useColors() )
+            glColor4ubv( &_globalData.colors[i][0] );
+        glNormal3fv( &_globalData.normals[i][0] );
+        glVertex3fv( &_globalData.vertices[i][0] );
+    }
+    glEnd();
+}
+\end{lstlisting}
+
+Immediate Mode hat aber gravierende Nachteile in Hinblick auf die Performance.
+Der Overhead für die häufigen Funktionsaufrufe und das einzelne Durchreichen 
+der Daten ist signifikant. Immediate Mode taugt deshalb in anspruchsvollen
+Anwendungen heute praktisch nur noch zu Testzwecken. Die entsprechende Methode
+ist in \emph{mesh::VertexBufferLeaf} nur für Vergleichszwecke vorhanden, und
+weil der selbe Code auch für die Nutzung von Display Listen Verwendung findet.
+
+\subsection{Display Lists}
+
+Display Listen bilden den ersten Ausweg zur signifikanten Leistungssteigerung.
+Neue Display Listen werden mit \lstinline!glGenLists()! angefordert, und lassen
+sich einfach erstellen indem vorhandener Immediate Mode Code mit den Befehlen
+\lstinline!glNewList()! und \lstinline!glEndList()! umschlossen wird. Sämtliche
+Kommandos die zwischen diesen Zeilen abgesetzt werden, kompiliert OpenGL zu 
+einer Display Liste. Aufgerufen wird eine Display Liste durch einen einzelnen
+Befehl, \lstinline!glCallList()!.
+
+In unserer Applikation lässt sich auf Basis des oben bereits dargestellten
+Immediate Mode Codes ohne Probleme eine neue Display Liste anlegen. Dies wird
+einmalig in der Methode \emph{vertexBufferLeaf::setupRendering()} erledigt,
+danach steht die Display Liste für weitere Rendervorgänge zur Verfügung.
+
+\begin{lstlisting}
+glNewList( displayList, GL_COMPILE );
+renderImmediate( state );
+glEndList();
+\end{lstlisting}
+
+Das Rendering in \emph{mesh::VertexBufferLeaf} reduziert sich damit auf:
+
+\begin{lstlisting}
+inline
+void VertexBufferLeaf::renderDisplayList( VertexBufferState& state )
+{
+    GLuint displayList = state.getDisplayList( this );
+    glCallList( displayList );
+}
+\end{lstlisting}
+
+Aktuelle OpenGL Treiber optimieren die Kommandos beim Kompilieren einer Display
+Liste stark, und speichern die Display Listen direkt auf der Grafikhardware. Das
+Ergebnis ist in vielen Fällen eine kaum zu verbessernde Renderleistung, solange
+die Display Listen nicht signifikant zu gross oder klein sind.
+
+Display Listen haben aber auch Nachteile, auch wenn diese für diese Applikation
+nicht ins Gewicht fallen. Display Listen können keine Befehle enthalten, welche
+den OpenGL Client State verändern. Findet sich solch ein Befehl innerhalb
+eines Display Listen Blocks, wird er direkt ausgeführt, aber nicht mit in die
+Liste kompiliert. Weiterhin taugen Display Listen nur für statische Objekte, da 
+eine kompilierte Display Liste nachträglich nicht mehr verändert werden kann.
+
+\subsection{Vertex Buffer Objects}
+
+Vertex Buffer Objects, kurz VBOs \cite{vbo:whitepaper}, sind ursprünglich eine 
+Extension von OpenGL und ab Version 1.5 fester Bestandteil der Spezifikation. 
+Kurz formuliert erlauben es VBOs, diverse Daten wie Vertexpositionen, Normalen 
+und Farben nicht nur blockweise mit einem Aufruf zu spezifizieren, sondern 
+diese werden im Idealfall auch direkt auf der Grafikhardware gespeichert. VBOs 
+taugen dabei nicht nur für statische Daten, sondern können auch für Daten 
+verwendet werden die sich dynamisch ändern. Damit der Treiber die Zugriffe 
+optimieren kann, wird beim Erstellen eines VBO angegeben um welche Verwendung 
+es sich handelt.
+
+Obwohl praktisch alle aktuellen Grafiktreiber OpenGL in Versionen jenseits von 
+1.5 unterstützen, ist die Methode die VBO Funktionen anzusprechen nicht immer
+die gleiche. Unter Mac OS X sind die Funktionen beispielsweise direkt verfügbar.
+Unter Windows hingegen stellt Microsoft nur veraltete OpenGL Biblioteheken zur
+Verfügung und die Funktionen können nur über Funktionszeiger angesprochen 
+werden, die vor der ersten Verwendung auch noch ermittelt werden müssen. Unter
+Linux hat sich während der Entwicklung dieser Applikation ein gemischtes Bild
+gezeigt. Während auch hier Funktionszeiger ermittelt werden müssen, sind die
+Funktionen in einigen Fällen unter den standard OpenGL Namen (z.B. 
+\lstinline!glBindBuffer()!) anzutreffen, während in anderen Fällen nur das 
+Extension Namensschema (z.B. \lstinline!glBindBufferARB()!) verwendet werden 
+kann.
+
+Um diese Problematik vom Code der die VBOs nutzen möchte in der vorliegenden
+Applikation zu entbinden, wurde die Initialisierung der Funktionszeiger und 
+deren zentrale Speicherung in eine Klasse \emph{GLFunctions} ausgelagert, die 
+von der Applikation über den \emph{VertexBufferState} angesprochen werden kann.
+
+VBOs müssen vor der Verwendung ähnlich zu Display Listen erst initialisiert
+werden. Eine neues VBO wird zunächst über \lstinline!glGenBuffers()!
+angefordert. Danach wird ein VBO mit \lstinline!glBindBuffer()! aktiviert und 
+via \lstinline!glBufferData()! mit Daten gefüllt. Es gibt dabei zwei Arten von 
+Buffer Objects. Die erste Art speichert Vertexdaten wie Positionen, Normalen 
+und Farben, die zweite speichert Indexdaten. Im letzteren Fall spricht man dann 
+auch von Element Buffer Objects, kurz EBOs. Es können entweder einzelne VBOs
+für die verschiedenen Typen von Vertexdaten angelegt werden, oder die Daten
+verwoben in einem einzigen VBO gespeichert werden. Siehe dazu auch 
+\cite{vbo:tutorial}.
+
+Für das Rendering der Daten im kd-Tree wurde der erste Ansatz gewählt. Einmalig
+werden die VBOs in \emph{mesh::VertexBufferLeaf::setupRendering()} 
+initialisiert, und stehen fortan für das Rendering zur Verfügung.
+
+\begin{lstlisting}
+GLuint buffers[4];
+
+buffers[VERTEX_OBJECT] = state.newBufferObject( ... );
+gl->bindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
+gl->bufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Vertex ),
+               &_globalData.vertices[_vertexStart], GL_STATIC_DRAW );
+
+...
+
+buffers[INDEX_OBJECT] = state.newBufferObject( ... );
+gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
+gl->bufferData( GL_ELEMENT_ARRAY_BUFFER, 
+               _indexLength * sizeof( ShortIndex ),
+               &_globalData.indices[_indexStart], GL_STATIC_DRAW );
+\end{lstlisting}
+
+Um die in den VBOs und dem EBO vorbereiteten Daten zu rendern, ist zunächst
+jedes Buffer Object wieder mit \lstinline!glBindBuffer()! zu aktivieren. 
+Für jedes VBO ist danach mit \lstinline!glXYZPointer()! das Format der Daten 
+anzugeben. Nach dem Aktivieren des EBO können die Daten schliesslich mit 
+einem Aufruf von \lstinline!glDrawElements()! gezeichnet werden.
+
+\begin{lstlisting}
+inline
+void VertexBufferLeaf::renderBufferObject( VertexBufferState& state )
+{
+    const GLFunctions* gl = state.getGLFunctions();
+    GLuint buffers[4];
+    for( int i = 0; i < 4; ++i )
+        buffers[i] = state.getBufferObject( ... );
+    
+    if( state.useColors() )
+    {
+        gl->bindBuffer( GL_ARRAY_BUFFER, buffers[COLOR_OBJECT] );
+        glColorPointer( 4, GL_UNSIGNED_BYTE, 0, 0 );
+    }
+    gl->bindBuffer( GL_ARRAY_BUFFER, buffers[NORMAL_OBJECT] );
+    glNormalPointer( GL_FLOAT, 0, 0 );
+    gl->bindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
+    glVertexPointer( 3, GL_FLOAT, 0, 0 );
+    gl->bindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
+    glDrawElements( GL_TRIANGLES, _indexLength, GL_UNSIGNED_SHORT, 0 );
+}
+\end{lstlisting}
+
+Was ebenfalls noch beachtet werden muss ist, dass vor dem Rendering der VBOs
+der Vertex Array State vom Client aktiviert werden muss. Dies erledigt in
+der Applikation die Methode \emph{mesh::VertexBufferRoot::beginRendering()}.
+
+Wie schon beim Vergleich des Rendering Code ersichtlich wird, benötigen VBOs
+bedeutend mehr Funktionsaufrufe als Display Listen. Entsprechend gibt es für
+die Grösse von VBOs eine Untergrenze bei deren Unterschreitung die Leistung
+einbricht. Ebenfalls zu beachten ist dass die Leistung von VBO Rendering stark
+zusammenfällt, wenn die falschen Datentypen verwendet werden. Der Hintergrund 
+ist dabei, dass die Grafikhardware in diesem Fall bei jedem Rendering 
+Konvertierungen ins korrekte, intern verwendete Format vornehmen muss. Für 
+weitere Benchmarks und Hinweise zur Verwendung von VBOs, siehe auch 
+\cite{vbo:benchmarks}.
+
+%Obwohl bei der Entwicklung der vorliegenden Applikation alle Hinweise in Bezug 
+%auf Datenformate und Puffergrössen beachtet wurden, bleibt die Leistung des VBO
+%Rendering in vielen Fällen aus bisher unbekannten Gründen dennoch hinter den 
+%Display Listen zurück. 
+
+\section{Shading Algorithmen}
+
+Nachdem die grundlegenden Rendermöglichkeiten in der letzten Sektion gezeigt
+wurden, sollen in dieser Sektion nun die verschiedenen Shading Algorithmen 
+sowohl in der Theorie erklärt als auch in der praktischen Implementierung 
+vorgestellt werden. Als Hintergrund wird dazu zunächst das Beleuchtungsmodell
+diskutiert, welche in den meisten Echtzeit Computergrafik Systemen verwendet
+wird. Eine ausführliche Behandlung dieser Themen findet sich beispielsweise in
+\cite{angel:icg}.
+
+\subsection{Beleuchtungsmodell}
+
+Das heutzutage in der (Echtzeit) Computergrafik am häufigsten anzutreffende 
+Beleuchtungsmodell stammt von Phong und wurde bereits vor mehr als 30 Jahren
+publiziert. Es bildet die Realität nicht exakt ab, erreicht aber in vielen
+Situationen akzeptable bis gute Ergebnisse.
+
+Das Phong Modell ist ein lokales Beleuchtungsmodell, es berücksichtigt nur 
+Reflektionen die ein Objekt selbst durch direkte Bestrahlung einer Lichtquelle
+erzeugt. Lichtreflektionen die von anderen Objekten stammen werden nicht in
+Betracht gezogen. Um diesen Verlust auszugleichen, enthält das Modell eine
+Komponente für globales \emph{Ambient Light}. Das reflektierte Licht besteht
+aus zwei Komponten, dem \emph{Diffuse Light} sowie dem \emph{Specular Light}).
+\[I_{total} = I_{ambient} + I_{diffuse} + I_{specular}\]
+
+\glossary{name={Light, Ambient},description={Umgebungslicht.}}
+\glossary{name={Light, Diffuse},description={Von rauen Oberflächen 
+gleichmässig in alle Richtungen reflektiertes Licht.}}
+\glossary{name={Light, Specular},description={Von glatten Oberflächen
+spiegelnd reflektiertes Licht.}}
+
+Unterschiedliche Materialien reflektieren Licht auf unterschiedliche Weise. Um
+dies zu modellieren, werden jedem Objekt drei Materialkoeffizienten zugewiesen,
+welche den drei Lichtkomponenten entsprechen und bestimmen welches Licht vom 
+Objekt wie stark reflektiert wird. Neben diesen drei Koeffizienten wird auch
+noch ein vierter verwendet, der beeinflusst wie stark die Objektoberfläche
+spiegelt und \emph{Shininess} genannt wird.
+
+\glossary{name={Shininess},description={Glanz, ein Koeffizient der angibt wie 
+stark eine Objektoberfläche einfallendes Licht spiegelt.}}
+
+\subsubsection*{Ambient Light}
+
+Das Ambient Light ist global, beleuchtet also jeden Punkt eines jeden Objektes
+mit der gleichen Intensität. Wenn die Intensität des Ambient Light $L_{a}$ ist 
+und der entsprechende Materialkoeffizient $k_{a}$, so beträgt die reflektierte 
+Intensität 
+\[I_{a} = k_{a}L_{a}\text{.}\]
+
+\subsubsection*{Diffuse Light}
+
+Diffuse Light wird von einer rauen Oberfläche in alle Richtungen gleichmässig
+reflektiert, und erscheint somit für jeden Beobachter gleich. Allerdings ist 
+die reflektierte Intensität abhängig von der Lage der Oberfläche und des
+Lichtes zueinander. Im Phong Modell wird diese Komponente daher mit Hilfe des 
+Winkels zwischen dem Lichtvektor $l$ und der Flächennormalen $n$ modelliert. 
+Da der Cosinus des Winkels bei Einheitslänge der Vektoren dem Skalarprodukt 
+entspricht, ergibt sich für die Intensität somit
+\[I_{d} = k_{d}L_{d}(l \cdot n)\text{.}\]
+
+\subsubsection*{Specular Light}
+
+Spiegelnde Reflektionen stammen von glatten Oberflächen. Das Licht fällt aus
+Richtung des Lichtvektors $l$ ein, und wird in Richtung des Reflektionsvektors
+$r$ zurückgeworfen. Der davon sichtbare Anteil hängt vom Winkel zwischen dem
+(perfekten) Reflektionsvektor und dem Beobachter ab. Nicht jede Oberfläche
+reflektiert allerdings perfekt, und die daraus resultierende Streuung der 
+tatsächlichen Reflektion und deren Einfluss auf die Intensität wird durch den
+\emph{Shininess} Koeffizienten $\alpha$ modelliert. Mit $v$ als Einheitsvektor 
+in Richtung des Beobachters, beträgt die Intensität also
+\[I_{s} = k_{s}L_{s}(r \cdot v)^{\alpha}\text{.}\]
+
+\subsubsection*{Vollständige Formel}
+
+Wenn die drei verschiedenen Komponenten nun zusammengesetzt werden, und 
+möglicherweise negative Komponenten ausgeschlossen werden, ergibt sich die 
+folgende vollständige Formel für das Phong Beleuchtungsmodell (unter
+Vernachlässigung dass Intensität mit zunehmender Entfernung zwischen der
+Lichtquelle und dem Objekt abfällt):
+
+\[I = k_{a}L_{a} + k_{d}L_{d}max(l \cdot n, 0) + 
+      k_{s}L_{s}max((r \cdot v)^{\alpha}, 0)\]
+
+Um die Berechnung von $r$ zu vermeiden, hat Blinn eine Modifikation des Phong
+Modells vorgeschlagen. Er verwendet den sogenannten \emph{Halfway} Vektor
+$h = \frac{l + v}{\left|l + v\right|}$ und approximiert dann $r \cdot v$ in 
+der Formal mit $n \cdot h$. Um ein optisch ähnliches Ergebnis wie beim reinen
+Phong Modell zu erhalten, muss nach dieser Approximation der \emph{Shininess} 
+Koeffizient $\alpha$ angepasst werden. 
+
+\subsection{Flat Shading}
+
+Theoretisch unterscheiden sich sowohl der Lichtvektor $l$ als auch die Richtung 
+zum Beobachter $v$ für jeden Punkt einer Oberfläche. Um die Shading Berechnung 
+zu vereinfachen, können sowohl die Lichtquelle als auch der Beobachter als 
+unendlich weit entfernt betrachtet werden, womit aus beiden Vektoren konstante 
+Richtungen werden. Für plane Oberflächen ist die Flächennormale $n$ ebenfalls
+an jedem Punkt konstant.
+
+Wenn alle drei Vektoren konstant sind, muss das Shading der Oberfläche nur an
+einem Punkt berechnet werden. Das Ergebnis sind Flächen die über den ganzen
+Bereich dieselbe Farbtönung tragen. Dieser Algorithmus wird als \emph{Flat 
+Shading} bezeichnet.
+
+Weil die alte Datenstruktur nur Flächennormalen gespeichert hat, war Flat 
+Shading der einzige Algorithmus der mit der alten Beispielapplikation 
+realisiert werden konnte. Da dies optisch nicht ansprechend und auch nicht 
+mehr zeitgemäss ist, wird in der neuen Applikation auf Flat Shading ganz 
+verzichtet.
+
+\subsection{Gouraud Shading}
+
+Eür ein korrektes Shading gekrümmter Oberflächen wäre es notwendig, die
+betroffenen Vektoren an jedem einzelnen Punkt zu kennen. Eine brauchbare 
+Approximation ist es, das Shading nur an Vertices zu berechnen und dann 
+über die Oberfläche hinweg zu interpolieren. Dieses Verfahren wird 
+\emph{Gouraud Shading} genannt.
+
+Für Gourauf Shading wird je eine Normale pro Vertex benötigt. Diese lässt 
+sich durch Mittelung der Flächennormalen sämtlicher angrenzender Flächen 
+vernünftig schätzen. Die neue Applikation unterstützt Gouraud Shading direkt, 
+da unmittelbar nach Einlesen des Modells die entsprechenden Vertexnormalen 
+berechnet werden.
+
+\subsection{Phong Shading}
+
+Gouraud Shading hat immer noch einen entscheidenen Nachteil. Weil das Shading
+nur an den Vertices berechnet und über die Öberfläche interpoliert wird, gehen 
+spiegelnde Reflektionen inmitten einer Fläche verloren oder werden über die 
+gesamte Fläche verschmiert.
+
+Eine weitere Verbesserung ist, anstelle des Shading die Normalen selbst zu
+interpolieren. Dieser Algorithmus ist das \emph{Phong Shading}. Das Problem
+mit Phong Shading ist, dass Shading nicht mehr pro Vertex berechnet werden 
+kann, sondern per Pixel berechnet werden muss. Dies war bis zur Einführung von
+programmierbaren Fragment Shadern in der Grafikhardware nicht in Echtzeit
+möglich.
+
+Die neue Applikation enthält ein Gerüst für den Einsatz von Vertex und Fragment
+Shadern, die mit der OpenGL Shading Language geschrieben wurden. Als einfache 
+Beispiele werden Shader mitgeliefert, welche das Phong Shading implementieren.
+
+\section{Weitere Algorithmen}
+
+Aufgrund fehlender Zeit konnten leider keine weiteren Algorithmen recherchiert
+und umgesetzt werden, welche die optische Attraktivität der Darstellung weiter 
+erhöhen würden. Da aber ein Gerüst zur Unterstützung von GLSL Shadern vorhanden
+ist, sollten sich weitere Algorithmen zu einem späteren Zeitpunkt ohne grosse 
+Probleme zur Applikation hinzufügen lassen.
+
+
+%
+% EOF
+%

@@ -1,0 +1,110 @@
+% Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+% All rights reserved.  
+
+%
+% Kapiteldatei
+%
+
+
+\chapter{Einleitung}
+
+Die Leistung von Grafikhardware hat sich in den letzten Jahren kontinuierlich 
+und rasant weiter entwickelt. Mit höherer Leistungsfähigkeit gehen aber auch 
+höhere Ansprüche einher. Es besteht der Wunsch, immer komplexer werdende Daten 
+mit steigendem Datenvolumen in höheren Auflösungen zu visualisieren. Trotz des 
+Fortschrittes gelangen tradionelle Computergrafik Systeme in gewissen 
+Anwendungsgebieten an ihre Grenzen, denn obwohl sich die Hardwareleistung 
+in regelmässigen Abständen verdoppelt, wachsen die produzierten und 
+darzustellenden Datenmengen mindestens genau so schnell 
+\cite{pajarola:datasize}.
+
+Dem ähnlich gelagerten Problem einer zu geringen Rechenleistung einzelner 
+Computersysteme wurde begegnet, indem mehrere verbundene Rechnersysteme die
+gewünschten Berechnungen verteilt aber parallel ausführen. Analog dazu lässt
+sich auch im Bereich der Computergrafik die notwendige Arbeit auf mehrere
+Grafiksysteme verteilen, welche dann einzelne Teilbereiche parallel bearbeiten 
+und die Teilergebnisse wo notwendig wieder zu einem Gesamtbild zusammensetzen.
+
+\section{Aufgabenstellung}
+
+\emph{Equalizer} \cite{equalizer:main}\cite{equalizer:tr} ist ein 
+Lösungsansatz für die im letzten Abschnitt vorgestellte Problematik. Es handelt 
+sich bei Equalizer um ein Open Source Framework für verteiltes, paralleles 
+\emph{Rendering}\footnote{Englische Begriffe werden im Glossar am Ende des
+Dokumentes übersetzt oder erklärt.}, welches sich zur Zeit in Entwicklung 
+befindet. Es setzt auf \emph{OpenGL} \cite{opengl:main} auf, der bedeutendsten 
+Programmierschnittstelle für plattformübergreifende, anspruchsvolle 
+Grafikprogrammierung.
+
+\glossary{name={Rendering},description={Erzeugung eines digitalen Bildes aus 
+einer Bildbeschreibung.}}
+
+Ziel der vorliegenden Semesterarbeit ist die Entwicklung einer Applikation für 
+die effiziente und optisch ansprechende Darstellung von polygonalen Daten, auf
+Basis des Equalizer Frameworks und der OpenGL Programmierschnittstelle. Ein 
+bereits existierendes Beispielprogramm wird als Grundlage verwendet, und soll 
+am Ende durch das Ergebnis dieser Arbeit vollständig ersetzt werden.
+
+Die erste Teilaufgabe besteht darin, eine effiziente Datenstruktur für die 
+Verwaltung von polygonalen Daten umzusetzen. Die Wahl fiel hierbei auf eine 
+besondere Baumstruktur, den sogenannten \emph{kd-Tree} \cite{kd-tree:desc}.
+
+\glossary{name={kd-Tree},description={K-dimensionaler Baum, eine Datenstruktur
+aus der Informatik zur räumlichen Aufteilung.}}
+
+Die polygonalen Daten in Form von \emph{Vertices} und \emph{Triangles} werden 
+aus Dateien im PLY Dateiformat \cite{ply:desc} gelesen, und anschliessend in 
+die Baumstruktur einsortiert. Die fertige Datenstruktur erlaubt sowohl ein 
+einfaches \emph{View Frustum Culling} als auch ein effizientes Rendering. Da 
+das Erstellen des kd-Trees ein sehr aufwändiger Prozess ist, werden die Daten 
+für zukünftige Verwendung in einem eigenen Binärformat zwischengespeichert.
+
+\glossary{name={Vertices},description={Eckpunkte grafischer Objekte.}}
+\glossary{name={Triangles},description={Dreiecke. Elementare Objekte der
+Computergrafik aus denen komplexere Objekte typischerweise zusammengesetzt
+sind.}}
+\glossary{name={View Frustum Culling},description={Eliminierung von 
+Objekten die ausserhalb des sichtbaren Bereiches liegen vor dem Rendering.}}
+
+Die zweite Teilaufgabe schliesslich ist die Implementierung eines Rendering 
+Verfahrens für die optisch ansprechende Darstellung der polygonalen Daten. 
+
+Die Datenstruktur ist optimiert für die Verwendung von \emph{Vertex Buffer 
+Objects} (VBOs) \cite{vbo:whitepaper}, welche entsprechend auch für das
+Rendering verwendet werden sollen. Zur Verbesserung der visuellen Qualität
+sollen verschiedene Algorithmen einsetzt werden, welche mit Hilfe der 
+\emph{Open GL Shader Language} (GLSL) \cite{opengl:glsl} entwickelt werden 
+und direkt auf der Grafikhardware ablaufen. Damit auch ältere OpenGL 
+Umgebungen, welche weder VBOs (ab Version 1.5) noch GLSL (ab Version 2.0) 
+unterstützen, die Applikation ausführen und darstellen können, wird eine 
+OpenGL Version 1.1 kompatible Lösung ebenfalls implementiert.
+
+\section{Gliederung}
+
+Der Aufbau der Arbeit sieht wie folgt aus. Nach der Einführung in diesem
+Kapitel beschäftigt sich Kapitel \ref{application} mit dem grundliegenden
+Aufbau der Applikation. Weil dazu auch ein gewisses Verständnis der Equalizer
+Architektur notwendig ist, werden wichtige Elemente daraus kurz vorgestellt.
+
+Kapitel \ref{data-structure} widmet sich ausführlich dem ersten Teil der 
+Aufgabe. Es wird die bisher verwendete Datenstruktur erklärt und deren
+Schwächen aufgezeigt. Die neue Datenstruktur wird vorgestellt und auch auf
+deren konkrekte Implementierung eingegangen.
+
+Der zweite Teil der Aufgabe wird in Kapitel \ref{rendering} behandelt. Es
+werden zunächst die verschiedenen möglichen OpenGL Rendermodi vorgestellt, 
+und dann deren Verwendung in der bestehenden und neuen Applikation aufgezeigt.
+Anschliessend werden die unterschiedlichen Algorithmen des \emph{Shading} 
+diskutiert, sowie deren Anwendung sowohl in Standard OpenGL als auch mit GLSL.
+
+\glossary{name={Shading},description={Simulation der Oberflächen grafischer
+Objekte anhand der Beleuchtung und Materialeigenschaften.}}
+
+Den Abschluss der Arbeit stellt Kapitel \ref{conclusion} dar, in welchem 
+das Ergebnis der Arbeit kurz zusammengefasst sowie ein Ausblick auf weitere
+zukünftige Erweiterungen der Applikation geworfen wird.
+
+
+%
+% EOF
+%
