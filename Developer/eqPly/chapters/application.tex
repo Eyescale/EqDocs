@@ -50,7 +50,7 @@ Computer innerhalb des Rendering Clusters symbolisieren. Jeder solche Knoten
 besitzt eine oder mehrere Grafikkarten, die von der Klasse \emph{eq::Pipe} 
 repräsentiert werden. \emph{Pipes} enthalten ihrerseits wiederum Fenster der 
 Klasse \emph{eq::Window}, welche einzelne OpenGL \emph{Drawables} und 
-\emph{Contexts} verwalten. Jedes Fenster kann abschliessendend noch mehrere 
+\emph{Contexts} verwalten. Jedes Fenster kann abschliessend noch mehrere 
 \emph{Viewports} besitzen, die durch die Klasse \emph{eq::Channel} 
 repräsentiert werden. Resourcen auf der selben Pipe teilen sich vorhandene 
 OpenGL Objekte wie beispielsweise Display Listen, Texturen und VBOs.
@@ -163,7 +163,7 @@ Einfluss auf Applikationsarchitektur und -design nehmen, wird in dieser Sektion
 nun die Applikation selbst betrachtet. Sie trägt den Namen \textbf{eqPly}.
 
 Aufgrund der relativ klar vorgegebenen Struktur für Equalizer Programme weicht 
-die Architektur der neuen Applikation kaum von der des alten Beispielsprogrammes
+die Architektur der neuen Applikation kaum von der des alten Beispielprogrammes
 ab. Abbildung \ref{fig:eq-classes} am Ende der Sektion zeigt die Zusammenhänge 
 der Klassen sowohl untereinander als auch in Relation zu Equalizer. Da der 
 Aufbau von \emph{eqPly} in \cite{equalizer:guide} schon ausführlich behandelt 
@@ -193,7 +193,7 @@ Kopfbewegung mit Hilfe externer Referenzpunkte.}}
 \emph{eqPly::FrameData} ist ein versioniertes, verteiltes Objekt und enhält 
 dynamische Daten die sich von einem Frame zum anderen verändern können. Dies
 sind in \emph{eqPly} vor allem die Rotations- und Translationsmatrizen für
-die Kameraposition, die sich sowohl durch Benutzerinteraktion als auch durch
+die Kameraposition, welche sich sowohl durch Benutzerinteraktion als auch durch
 kontinuierliche Animation fortlaufend ändert.
 
 \subsection{Abgeleitete Klassen}
@@ -239,7 +239,7 @@ Einzug in den OpenGL Hauptstandard noch nicht geschafft haben.}}
 \emph{eqPly::Channel} leistet die Hauptarbeit der Applikation. Die Klasse ist
 zuständig für das Zeichnen des Logos, die Berechnung des Frustums, für die 
 Anwendung der verschiedenen Modell- und Projektionstransformationen sowie das
-View Frustom Culling und Rendering des Modells.
+View Frustum Culling und Rendering des Modells.
 
 \subsection{Hilfsklassen}
 \label{helper-classes}

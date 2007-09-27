@@ -29,7 +29,7 @@ für das Rendering Vertex Buffer Objects \cite{vbo:whitepaper} zu verwenden.
 
 Immediate Mode ist die einfachste Möglichkeit im Umgang mit OpenGL. Kommandos
 werden einzeln abgesetzt und direkt ausgeführt. Dies bedeutet für den konkreten
-Fall des Rendering unserer polygonalen Daten, dass für jedes zu zeichnende 
+Fall des Renderings unserer polygonalen Daten, dass für jedes zu zeichnende 
 Triangle je drei Aufrufe für das Setzen von Vertexpositionen, Normalen und
 Farbinformationen notwendig sind. Im folgenden der entsprechende Auszug aus
 \emph{mesh::VertexBufferLeaf}.
@@ -118,7 +118,7 @@ es sich handelt.
 Obwohl praktisch alle aktuellen Grafiktreiber OpenGL in Versionen jenseits von 
 1.5 unterstützen, ist die Methode die VBO Funktionen anzusprechen nicht immer
 die gleiche. Unter Mac OS X sind die Funktionen beispielsweise direkt verfügbar.
-Unter Windows hingegen stellt Microsoft nur veraltete OpenGL Biblioteheken zur
+Unter Windows hingegen stellt Microsoft nur veraltete OpenGL Bibliotheken zur
 Verfügung und die Funktionen können nur über Funktionszeiger angesprochen 
 werden, die vor der ersten Verwendung auch noch ermittelt werden müssen. Unter
 Linux hat sich während der Entwicklung dieser Applikation ein gemischtes Bild
@@ -219,7 +219,7 @@ Nachdem die grundlegenden Rendermöglichkeiten in der letzten Sektion gezeigt
 wurden, sollen in dieser Sektion nun die verschiedenen Shading Algorithmen 
 sowohl in der Theorie erklärt als auch in der praktischen Implementierung 
 vorgestellt werden. Als Hintergrund wird dazu zunächst das Beleuchtungsmodell
-diskutiert, welche in den meisten Echtzeit Computergrafik Systemen verwendet
+diskutiert, welches in den meisten Echtzeit Computergrafik Systemen verwendet
 wird. Eine ausführliche Behandlung dieser Themen findet sich beispielsweise in
 \cite{angel:icg}.
 

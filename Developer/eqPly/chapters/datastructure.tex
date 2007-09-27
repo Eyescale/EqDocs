@@ -16,8 +16,8 @@ Design sowie die schlussendliche Implementierung vorgestellt.
 
 \section{Alte Datenstruktur}
 
-Der Kern der alten Datenstruktur ist ein \emph{Bounding Box Octree 
-\cite{octree:desc}}. Die \emph{Bounding Boxes} sind achsenparallele Quader 
+Der Kern der alten Datenstruktur ist ein \emph{Bounding Box Octree} 
+\cite{octree:desc}. Die \emph{Bounding Boxes} sind achsenparallele Quader 
 welche die enthaltenen Daten minimal umschliessen. Der \emph{Octree} ist eine 
 Baumstruktur zur binären Raumpartitionierung bei der ein Knoten entweder 
 keine oder acht Kinder hat.
@@ -116,7 +116,7 @@ dem Anteil der enthaltenen Daten entsprechendes eindimensionales Intervall
 Triangles und ein Zeiger auf eine Liste derselben.
 
 Die Klasse \emph{PlyModel} bietet basierend auf dieser Struktur eine Reihe von 
-Methoden an. Das Erstellen und Füllen des Bounding Box Octree wird dabei genau 
+Methoden an. Das Erstellen und Füllen des Bounding Box Octrees wird dabei genau
 so unterstützt wie das Speichern und Laden einer binären Repräsentation. Die
 Klasse verwaltet ebenfalls die Hauptkopie der Liste aller Triangles und bietet 
 eine Reihe von Hilfsfunktionen wie zum Beispiel das Skalieren der Modelldaten
@@ -225,7 +225,7 @@ genutzten Vertices ziehen zu können, und andererseits um Vertexnormalen
 anstatt von Flächennormalen berechnen zu können. Diese erlauben erst die 
 Verwendung besserer Shading Algorithmen.
 
-Drittens soll der neue Code heutigen objektrientierten Ansprüchen genügen,
+Drittens soll der neue Code heutigen objektorientierten Ansprüchen genügen,
 die Möglichkeiten von C++ besser ausnutzen und natürlich einfach verständlich
 und gut wartbar sein.
 
@@ -344,8 +344,8 @@ private:
 
 \emph{mesh::VertexBufferState} ist eine Hilfsklasse, die den Renderstate für
 den kd-Tree abstrahiert. Dies sind insbesondere der zu verwendende Rendermodus
-(sieht Kapitel \ref{rendermodes}), die Verwendung von Farben sowie die
-Verwaltung von OpenGL Objekten und Erweiterungsfunktionen. Die Klasse selbst 
+(siehe Kapitel \ref{rendermodes}), die Verwendung von Farben sowie die
+Verwaltung von OpenGL Objekten und Extension Functions. Die Klasse selbst 
 ist abstrakt, konkrete Versionen sind für eine stand-alone Nutzung 
 \emph{mesh::VertexBufferStateSimple} und \emph{mesh::EqVertexBufferState} für 
 die Verwendung mit Equalizer.
@@ -392,7 +392,7 @@ abgedeckten Intervalls für die Equalizer DB Dekomposition.
 Zusätzlich besitzt die Klasse Methoden für das Speichern und Laden ihrer Daten,
 für das Erstellen des kd-Trees sowie der Aktualisierung der Bounding Sphere und
 des Intervalls. Da alle diese Methoden von Klienten nur auf dem Wurzelknoten 
-aufgerufen werden sollen sind sie auf allgemeiner Knotenebene \emph{protected}.
+aufgerufen werden sollen, sind sie auf allgemeiner Knotenebene \emph{protected}.
 
 \begin{lstlisting}
 class VertexBufferBase
@@ -660,8 +660,9 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
 }
 \end{lstlisting}
 
-Auf die für das Rendering relevanten Methoden von \emph{mesh::VertexBufferLeaf}
-sei auf Kapitel \ref{rendering} verwiesen, sie werden dort genauer behandelt.
+Die für das Rendering relevanten Methoden von \emph{mesh::VertexBufferLeaf}
+werden in Kapitel \ref{rendering} genauer betrachtet, und entsprechend hier
+nicht weiter behandelt.
 
 \subsubsection*{VertexBufferRoot}
 

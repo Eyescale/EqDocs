@@ -20,13 +20,13 @@ gestellten Anforderungen. Der einzige spürbare Nachteil im Vergleich zur alten
 Datenstruktur ist ein bedeutend langsamerer Aufbau des Baumes. Da nach der
 erstmaligen Erstellung aber sowieso binäre Repräsentationen gespeichert werden
 und für weitere Aufrufe verfügbar sind, ist dieser Punkt vernachlässigbar. Der
-Speicherverbraucht wurde auf weniger als ein Viertel reduziert (siehe Tabelle
+Speicherverbrauch wurde auf weniger als ein Viertel reduziert (siehe Tabelle
 \ref{tbl:file-sizes}).
 
 Momentan wird der kd-Tree von jedem Renderknoten vollständig geladen. Eine
 denkbare Erweitung für die Verwendung mit der Equalizer DB Dekomposition wäre
 beispielsweise, ein teilweises Laden nur der benötigen Bereiche zu ermöglichen.
-Die Effizienz des View Frustum Cullings liesse sich unter Umständen verbessern
+Die Effizienz des View Frustum Cullings liesse sich unter Umständen verbessern,
 indem statt beim Aufbau die Sortierachse zu rotieren jeweils diejenige mit der
 längsten Dimension gewählt würde. 
 
@@ -55,15 +55,18 @@ Leistungsvorteil zeigt. Die verwendeten Modelle stammen aus
 \textbf{eqPly (neu)} & \textbf{eqPly (neu)}\\
 \textbf{} & \textbf{Triangles} & \textbf{DL [FPS]} & 
 \textbf{DL [FPS]} & \textbf{VBO [FPS]} \\
-Stanford Bunny   &     69'451  &  406.82   &   436.67   &   617.00\\
-RockerArm        &     80'354  &  445.61   &   445.57   &   301.67\\
-Goddess1         &    274'822  &  142.20   &   162.45   &    70.94\\
-Armadillo        &    345'944  &  118.30   &   136.43   &    92.17\\
-Boat             &    776'374  &   29.25   &    20.06   &    28.47\\
-Dragon           &    871'414  &   17.06   &    45.02   &    38.19\\
-Goddess2         &  1'047'330  &   10.02   &     9.32   &    42.99\\
-Hip              &  1'060'346  &   11.10   &     9.24   &    29.37\\
-Happy Buddha     &  1'087'716  &    9.54   &    29.27   &    34.88\\
+Stanford Bunny   &      69'451  &  406.82   &   436.67   &   617.00\\
+Rocker Arm       &      80'354  &  445.61   &   445.57   &   301.67\\
+Goddess 1        &     274'822  &  142.20   &   162.45   &    70.94\\
+Armadillo        &     345'944  &  118.30   &   136.43   &    92.17\\
+Ganesh           &     413'236  &           &            &         \\
+Boat             &     776'374  &   29.25   &    20.06   &    28.47\\
+Dragon           &     871'414  &   17.06   &    45.02   &    38.19\\
+Goddess 2        &   1'047'330  &   10.02   &     9.32   &    42.99\\
+Hip              &   1'060'346  &   11.10   &     9.24   &    29.37\\
+Happy Buddha     &   1'087'716  &    9.54   &    29.27   &    34.88\\
+Asian Dragon     &   7'219'045  &           &            &         \\
+Thai Statue      &  10'000'000  &           &            &         \\
 \end{tabular}
 \caption{Vergleich Renderingperformance altes und neues eqPly}
 \label{tbl:render-performance}
