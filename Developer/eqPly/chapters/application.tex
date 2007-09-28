@@ -86,7 +86,7 @@ der Equalizer Task Methoden findet sich in \cite{equalizer:tasks}.
 \centering
 \begin{tabular}{ll}
 \textbf{Equalizer Klasse} & \textbf{Bedeutung} \\
-eq::Config & Beschreibung der vorhandenen Resourcen und deren Verwendung \\
+eq::Config & Beschreibung vorhandener Resourcen und deren Verwendung \\
 eq::Node & Einzelner Computer innerhalb des Rendering Clusters \\
 eq::Pipe & Grafikkarte(n) des jeweiligen Knotens \\
 eq::Window & OpenGL Drawables auf der entsprechenden Pipe\\
@@ -164,12 +164,20 @@ nun die Applikation selbst betrachtet. Sie trägt den Namen \textbf{eqPly}.
 
 Aufgrund der relativ klar vorgegebenen Struktur für Equalizer Programme weicht 
 die Architektur der neuen Applikation kaum von der des alten Beispielprogrammes
-ab. Abbildung \ref{fig:eq-classes} am Ende der Sektion zeigt die Zusammenhänge 
-der Klassen sowohl untereinander als auch in Relation zu Equalizer. Da der 
-Aufbau von \emph{eqPly} in \cite{equalizer:guide} schon ausführlich behandelt 
-wird, beschränken sich die folgenden Ausführungen auf ein Minimum. Die Klassen 
-betreffend Datenstruktur und Rendering (\emph{mesh::Vertex*}) werden gesondert 
-in Kapitel \ref{data-structure} und \ref{rendering} behandelt.
+ab. Abbildung \ref{fig:eq-classes} zeigt die Zusammenhänge der Klassen sowohl 
+untereinander als auch in Relation zu Equalizer. Da der Aufbau von \emph{eqPly}
+in \cite{equalizer:guide} schon ausführlich behandelt wird, beschränken sich 
+die folgenden Ausführungen auf ein Minimum. Die Klassen betreffend 
+Datenstruktur und Rendering (\emph{mesh::Vertex*}) werden gesondert in Kapitel
+\ref{data-structure} und \ref{rendering} behandelt.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=1.00\textwidth]{figures/UML.pdf}
+\caption[Zusammenhänge der Klassen von eqPly und Equalizer]
+{Zusammenhänge der Klassen von eqPly und Equalizer (Quelle: \cite{equalizer:guide})}
+\label{fig:eq-classes}
+\end{figure}
 
 \subsection{Datenklassen}
 
@@ -262,14 +270,6 @@ mit der \emph{main} Funktion werden die notwendigen Klassen instanziert, sowie
 die benötigten Schritte für das Aufsetzen einer Equalizer Applikation in die
 Wege geleitet. Da diese ausführlich in \cite{equalizer:guide} beschrieben
 sind, wird an dieser Stelle nicht weiter darauf eingegangen.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=1.00\textwidth]{figures/UML.pdf}
-\caption[Zusammenhänge der Klassen von eqPly und Equalizer]
-{Zusammenhänge der Klassen von eqPly und Equalizer (Quelle: \cite{equalizer:guide})}
-\label{fig:eq-classes}
-\end{figure}
 
 
 %

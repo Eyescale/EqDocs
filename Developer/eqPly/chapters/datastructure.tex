@@ -298,7 +298,8 @@ public:
     VertexData();
     
     bool readPlyFile( const char* file, const bool ignoreColors );
-    void sort( const Index start, const Index length, const Axis axis );
+    void sort( const Index start, const Index length, 
+               const Axis axis );
     void scale( const float baseSize );
     void calculateNormals( const bool vertexNormals );
     void calculateBoundingBox();
@@ -311,7 +312,6 @@ public:
     
 private:
     ...
-    
     BoundingBox _boundingBox;
 };
 \end{lstlisting}
@@ -411,10 +411,12 @@ protected:
     virtual ~VertexBufferBase();
     
     virtual void toStream( std::ostream& os );
-    virtual void fromMemory( char** addr, VertexBufferData& globalData );
+    virtual void fromMemory( char** addr, 
+                             VertexBufferData& globalData );
     
     virtual void setupTree( VertexData& data, const Index start,
                             const Index length, const Axis axis,
+                            const size_t depth,
                             VertexBufferData& globalData );
     virtual BoundingBox updateBoundingSphere();
     virtual void updateRange();
@@ -438,12 +440,8 @@ andererseits sofern notwendig bestehende virtuelle Methoden.
 \begin{lstlisting}
 class VertexBufferNode : public VertexBufferBase
 {
-public:
     ...
         
-protected:
-    ...
-                                
 private:
     size_t countUniqueVertices( VertexData& data, const Index start,
                                 const Index length ) const;
@@ -502,10 +500,6 @@ sind die Blätter für das tatsächliche Rendering zuständig.
 \begin{lstlisting}
 class VertexBufferLeaf : public VertexBufferBase
 {
-public:
-    ...
-        
-protected:
     ...
         
 private:
@@ -576,35 +570,42 @@ Eigenschaft der verwendeten Methoden zu umgehen.
 \begin{lstlisting}
 void VertexBufferNode::setupTree( VertexData& data, const Index start,
                                   const Index length, const Axis axis,
+                                  const size_t depth,
                                   VertexBufferData& globalData )
 {
-    ...
-    
     data.sort( start, length, axis );
-    Index median = start + ( length / 2 );
+    const Index median = start + ( length / 2 );
     
     // left child will include elements smaller than the median
-    Index leftLength = length / 2;
-    if( countUniqueVertices( data, start, leftLength ) > LEAF_SIZE )
+    const Index leftLength    = length / 2;
+    const bool  subdivideLeft = 
+        countUniqueVertices( data, start, leftLength ) > LEAF_SIZE ||
+        depth < 3;
+
+    if( subdivideLeft )
         _left = new VertexBufferNode;
     else
         _left = new VertexBufferLeaf( globalData );
     
-    // right child will include elements equal to or greater
-    Index rightLength = ( length + 1 ) / 2;
-    if( countUniqueVertices( data, median, rightLength ) > LEAF_SIZE )
+    // right child will include elements equal or greater median
+    const Index rightLength    = ( length + 1 ) / 2;
+    const bool  subdivideRight = 
+        countUniqueVertices( data, median, rightLength ) > LEAF_SIZE ||
+        depth < 3;
+
+    if( subdivideRight )
         _right = new VertexBufferNode;
     else
         _right = new VertexBufferLeaf( globalData );
     
-    // move to next axis and continue construction in the child nodes
-    Axis newAxis = static_cast< Axis >( ( axis + 1 ) % 3 );
+    // move to next axis and continue contruction in the child nodes
+    const Axis newAxis = static_cast< Axis >( ( axis + 1 ) % 3 );
     static_cast< VertexBufferNode* >
         ( _left )->setupTree( data, start, leftLength, newAxis, 
-                              globalData );
+                              depth + 1, globalData );
     static_cast< VertexBufferNode* >
         ( _right )->setupTree( data, median, rightLength, newAxis, 
-                               globalData );
+                               depth + 1, globalData );
 }
 \end{lstlisting}
 
@@ -621,10 +622,9 @@ genutzt, werden die entsprechenden Daten durch diesen Schritt dupliziert.
 \begin{lstlisting}
 void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
                                   const Index length, const Axis axis,
+                                  const size_t depth,
                                   VertexBufferData& globalData )
 {
-    ...
-    
     data.sort( start, length, axis );
     _vertexStart = globalData.vertices.size();
     _vertexLength = 0;
@@ -655,8 +655,6 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
             ++_indexLength; 
         }
     }
-    
-    ...
 }
 \end{lstlisting}
 
@@ -682,7 +680,7 @@ void VertexBufferRoot::setupTree( VertexData& data )
     // data is VertexData, _data is VertexBufferData
     _data.clear();
     VertexBufferNode::setupTree( data, 0, data.triangles.size(), 
-                                 AXIS_X, _data );
+                                 AXIS_X, 0, _data );
     VertexBufferNode::updateBoundingSphere();
     VertexBufferNode::updateRange();
 }
@@ -714,29 +712,6 @@ bool isArchitectureLittleEndian()
 
 Mit diesen ausgewählten Betrachtungen einzelner Implementierungssdetails ist
 das Ende der ersten Teilaufgabe der vorliegenden Arbeit erreicht. 
-
-Tabelle \ref{tbl:file-sizes} zeigt anhand der Dateigrössen der binären 32 Bit 
-Repräsentationen (es findet keine Komprimierung statt) noch auf, wie sehr der 
-Speicherbedarf durch den Wechsel von der alten auf die neue Datenstruktur 
-reduziert wurde. Die für die Messungen verwendeten PLY Beispielmodelle 
-stammen aus \cite{stanford:repository}.
-
-\begin{table}[ht]
-\centering
-\begin{tabular}{lrrr}
-\textbf{Modell} & \textbf{Binary Octree} & 
-\textbf{Binary kd-Tree} & \textbf{Verhältnis}\\
-\textbf{} & \textbf{[MB]} & 
-\textbf{[MB]} & \textbf{[\%]}\\
-Armadillo      &  27.72 &   6.09 & 21.96\\
-Dragon         &  69.83 &  15.34 & 21.97\\
-Happy Buddha   &  87.16 &  19.05 & 21.86\\
-Lucy           &    n/a & 494.58 &   n/a\\
-Stanford Bunny &   5.56 &   1.20 & 21.56\\
-\end{tabular}
-\caption{Unterschied Speicherbedarf der Datenstrukturen}
-\label{tbl:file-sizes}
-\end{table}
 
 
 %

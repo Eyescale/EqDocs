@@ -20,8 +20,27 @@ gestellten Anforderungen. Der einzige spürbare Nachteil im Vergleich zur alten
 Datenstruktur ist ein bedeutend langsamerer Aufbau des Baumes. Da nach der
 erstmaligen Erstellung aber sowieso binäre Repräsentationen gespeichert werden
 und für weitere Aufrufe verfügbar sind, ist dieser Punkt vernachlässigbar. Der
-Speicherverbrauch wurde auf weniger als ein Viertel reduziert (siehe Tabelle
-\ref{tbl:file-sizes}).
+Speicherverbrauch wurde auf weniger als ein Viertel reduziert, wie die folgende
+Tabelle \ref{tbl:file-sizes} anhand der Grösse binärer 32 Bit Repräsentationen
+aufzeigt. Es findet keine Kompression statt. Die für die Messungen verwendeten 
+Modelle stammen aus \cite{stanford:repository}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrr}
+\textbf{Modell} & \textbf{Binary Octree} & 
+\textbf{Binary kd-Tree} & \textbf{Verhältnis}\\
+\textbf{} & \textbf{[MB]} & 
+\textbf{[MB]} & \textbf{[\%]}\\
+Armadillo      &  27.72 &   6.09 & 21.96\\
+Dragon         &  69.83 &  15.34 & 21.97\\
+Happy Buddha   &  87.16 &  19.05 & 21.86\\
+Lucy           &    n/a & 494.58 &   n/a\\
+Stanford Bunny &   5.56 &   1.20 & 21.56\\
+\end{tabular}
+\caption{Unterschied Speicherbedarf der Datenstrukturen}
+\label{tbl:file-sizes}
+\end{table}
 
 Momentan wird der kd-Tree von jedem Renderknoten vollständig geladen. Eine
 denkbare Erweitung für die Verwendung mit der Equalizer DB Dekomposition wäre
@@ -45,8 +64,8 @@ Ein Vergleich der Renderingperformance zwischen der alten und der neuen
 Applikation findet sich in folgender Tabelle \ref{tbl:render-performance}. 
 In einigen Fällen bleibt die VBO Performance aus bisher ungeklärten Gründen 
 hinter den Erwartungen zurück, während sie in anderen Fällen einen markanten
-Leistungsvorteil zeigt. Die verwendeten Modelle stammen aus 
-\cite{stanford:repository} und \cite{cyberware}.
+Leistungsvorteil zeigt. Neben den Modellen aus \cite{stanford:repository} 
+wurden hierfür auch Modelle von \cite{cyberware} verwendet.
 
 \begin{table}[ht]
 \centering
@@ -59,17 +78,40 @@ Stanford Bunny   &      69'451  &  406.82   &   436.67   &   617.00\\
 Rocker Arm       &      80'354  &  445.61   &   445.57   &   301.67\\
 Goddess 1        &     274'822  &  142.20   &   162.45   &    70.94\\
 Armadillo        &     345'944  &  118.30   &   136.43   &    92.17\\
-Ganesh           &     413'236  &           &            &         \\
 Boat             &     776'374  &   29.25   &    20.06   &    28.47\\
 Dragon           &     871'414  &   17.06   &    45.02   &    38.19\\
 Goddess 2        &   1'047'330  &   10.02   &     9.32   &    42.99\\
 Hip              &   1'060'346  &   11.10   &     9.24   &    29.37\\
 Happy Buddha     &   1'087'716  &    9.54   &    29.27   &    34.88\\
-Asian Dragon     &   7'219'045  &           &            &         \\
-Thai Statue      &  10'000'000  &           &            &         \\
 \end{tabular}
 \caption{Vergleich Renderingperformance altes und neues eqPly}
 \label{tbl:render-performance}
+\end{table}
+
+Um den möglichen Performance Unterschieden des VBO Renderings auf die Spur zu
+kommen, wurde noch die erzeugte Anzahl Blattknoten sowie die durchschnittliche
+Anzahl Vertices und Triangles pro Blatt ermittelt. Die Ergebnisse in Tabelle
+\ref{tbl:tree-data} erlauben aber auch keine gesicherten Rückschlüsse.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrr}
+\textbf{Modell} & \textbf{Anzahl} & \textbf{Anzahl} & 
+\textbf{Triangles} & \textbf{Vertices}\\
+\textbf{} & \textbf{Triangles} & \textbf{Blätter} & 
+\textbf{pro Blatt} & \textbf{pro Blatt} \\
+Stanford Bunny   &      69'451  &   16   &    4'340   &    2'329\\
+Rocker Arm       &      80'354  &   16   &    5'022   &    2'797\\
+Goddess 1        &     274'822  &   16   &   17'176   &    9'252\\
+Armadillo        &     345'944  &   16   &   21'621   &   11'218\\
+Boat             &     776'374  &   32   &   24'261   &   12'769\\
+Dragon           &     871'414  &   32   &   27'231   &   14'138\\
+Goddess 2        &   1'047'330  &   32   &   32'729   &   17'430\\
+Hip              &   1'060'346  &   32   &   33'135   &   17'307\\
+Happy Buddha     &   1'087'716  &   32   &   33'991   &   17'509\\
+\end{tabular}
+\caption{Statistische Daten über die Ausnutzung der Blätter im kd-Tree}
+\label{tbl:tree-data}
 \end{table}
 
 Das Rendering ist durch die standardmässige Nutzung von Gouraud anstelle 
@@ -77,18 +119,11 @@ von Flat Shading bereits optisch deutlich ansprechender als in der alten
 Applikation. Dies ist in Abbildungen \ref{fig:sample-flat} und 
 \ref{fig:sample-smooth} am Beispiel des RockerArm Modells zu sehen. 
 
-\begin{figure}[hb]
-\centering
-\includegraphics[width=0.86\textwidth]{figures/FlatShading.png}
-\caption{RockerArm Modell mit Flat Shading}
-\label{fig:sample-flat}
-\end{figure}
-
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.86\textwidth]{figures/SmoothShading.png}
-\caption{RockerArm Modell mit Gouraud Shading}
-\label{fig:sample-smooth}
+\includegraphics[width=0.60\textwidth]{figures/FlatShading.png}
+\caption{RockerArm Modell mit Flat Shading}
+\label{fig:sample-flat}
 \end{figure}
 
 Der Einsatz von GLSL Shadern und Phong Shading verbessert dies je nach Licht- 
@@ -96,6 +131,13 @@ und Materialeigenschaften noch einmal. Weitere Algorithmen konnten aufgrund
 mangelnder Zeit leider nicht mehr realisiert werden, das vorhandene Gerüst 
 sollte das Hinzufügen weiterer Shader Algorithmen zu einem späteren Zeitpunkt 
 jedoch problemlos ermöglichen.
+
+\begin{figure}[hb]
+\centering
+\includegraphics[width=0.60\textwidth]{figures/SmoothShading.png}
+\caption{RockerArm Modell mit Gouraud Shading}
+\label{fig:sample-smooth}
+\end{figure}
 
 
 %
