@@ -57,8 +57,12 @@
 				<dict>
 					<key>HeadArrow</key>
 					<string>DimensionArrow</string>
+					<key>HeadScale</key>
+					<real>1.5000001192092896</real>
 					<key>TailArrow</key>
 					<string>DimensionArrow</string>
+					<key>TailScale</key>
+					<real>1.5</real>
 				</dict>
 			</dict>
 		</dict>
@@ -85,14 +89,18 @@
 				<dict>
 					<key>HeadArrow</key>
 					<string>DimensionArrow</string>
+					<key>HeadScale</key>
+					<real>1.5000001192092896</real>
 					<key>TailArrow</key>
 					<string>DimensionArrow</string>
+					<key>TailScale</key>
+					<real>1.5</real>
 				</dict>
 			</dict>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{285.681, 252.865}, {51, 44}}</string>
+			<string>{{285.858, 252.692}, {51, 44}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -171,7 +179,7 @@ PVP}</string>
 			<key>Points</key>
 			<array>
 				<string>{269.291, 315.591}</string>
-				<string>{353.972, 233.262}</string>
+				<string>{354.33, 232.913}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -180,7 +188,7 @@ PVP}</string>
 					<key>HeadArrow</key>
 					<string>FilledArrow</string>
 					<key>TailArrow</key>
-					<string>FilledArrow</string>
+					<string>0</string>
 				</dict>
 			</dict>
 		</dict>
@@ -303,8 +311,12 @@ PVP}</string>
 				<dict>
 					<key>HeadArrow</key>
 					<string>DimensionArrow</string>
+					<key>HeadScale</key>
+					<real>1.5000001192092896</real>
 					<key>TailArrow</key>
 					<string>DimensionArrow</string>
+					<key>TailScale</key>
+					<real>1.5</real>
 				</dict>
 			</dict>
 		</dict>
@@ -331,8 +343,12 @@ PVP}</string>
 				<dict>
 					<key>HeadArrow</key>
 					<string>DimensionArrow</string>
+					<key>HeadScale</key>
+					<real>1.5000001192092896</real>
 					<key>TailArrow</key>
 					<string>DimensionArrow</string>
+					<key>TailScale</key>
+					<real>1.5</real>
 				</dict>
 			</dict>
 		</dict>
@@ -419,7 +435,7 @@ PVP}</string>
 					<key>HeadArrow</key>
 					<string>FilledArrow</string>
 					<key>TailArrow</key>
-					<string>FilledArrow</string>
+					<string>0</string>
 				</dict>
 			</dict>
 		</dict>
@@ -473,7 +489,7 @@ PVP}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{36.7517, 397.422}, {53, 44}}</string>
+			<string>{{36.7519, 397.422}, {53, 44}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -551,7 +567,7 @@ Offset}</string>
 			<integer>1017</integer>
 			<key>Points</key>
 			<array>
-				<string>{14.1732, 453.543}</string>
+				<string>{14.1732, 453.544}</string>
 				<string>{113.386, 384.567}</string>
 			</array>
 			<key>Style</key>
@@ -802,7 +818,7 @@ Offset}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-09-20 19:31:53 +0200</string>
+	<string>2007-09-27 19:10:20 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
