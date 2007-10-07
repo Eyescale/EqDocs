@@ -15,16 +15,23 @@
 \fi
 
 \title{Equalizer Programming Guide\\
-  {\footnotesize\mdseries
+  {\footnotesize\sffamily\mdseries
     \htmladdnormallink{http://www.equalizergraphics.com/documents/Developer/ProgrammingGuide.pdf}
     {http://www.equalizergraphics.com/documents/ProgrammingGuide.pdf}}
 }
-\author{Stefan Eilemann\thanks{eile@eyescale.ch}\\[\medskipamount]
-  % Eyescale Software Sarl
+\author{Stefan Eilemann\\{\footnotesize Eyescale Software GmbH}
 }
 \date{
-  \textbf{INCOMPLETE}\\[\medskipamount]
-  Version 0.8, \today
+  \vfill
+  \vfill
+  \begin{figure}[ht]
+    \hspace{-4.5cm}\includegraphics[width=22cm]{images/teaser.pdf}
+  \end{figure}
+  \vfill
+  \vfill
+  \textbf{DRAFT}\\[\medskipamount]
+  Version 0.9 for Equalizer v0.4\\[\medskipamount]
+  \today
 }
 
 \newcommand{\tm}{\texttrademark~}
@@ -46,18 +53,6 @@
 \lstset{language=C++}
 
 \thispagestyle{empty}
-\begin{figure}[ht]
-  \center
-  \includegraphics[width=4cm]{images/logo.pdf}
-%  {\small\htmladdnormallink{www.eyescale.ch}{http://www.eyescale.ch}}
-\end{figure}
-\vfill
-\begin{figure}[ht]
-  \center
-  \includegraphics[width=4cm]{images/vmml.pdf}
-%  {\small\htmladdnormallink{www.eyescale.ch}{http://www.eyescale.ch}}
-\end{figure}
-\vfill
 
 %\abstract{
 %  Equalizer is a project to develop software to simplify the creation of
@@ -73,17 +68,18 @@
     \hline
     \bf Rev & \bf Date     & \bf Changes \\
     \hline
-    0.8     & Sep 28, 2007 & added head tracking, finished channel,
+    0.9     & Oct 7, 2007  & add eqHello, draft assembly in eVolve\\
+    0.8     & Sep 28, 2007 & add head tracking, finish channel,
                              proof-reading pass\\
-    0.7     & Sep 21, 2007 & started channel and image compositing,
-                             added event handling, moved to new eqPly
+    0.7     & Sep 21, 2007 & start channel and image compositing,
+                             add event handling, move to new eqPly
                              code base\\
-    0.6     & Sep 14, 2007 & added pipe, window and object manager\\
-    0.5     & Sep 3,  2007 & added config and partly pipe\\
-    0.4     & Aug 31, 2007 & added distributed objects\\
-    0.3     & Aug 26, 2007 & added application and render client\\
-    0.2     & Aug 20, 2007 & added main function\\
-    0.1     & Aug 19, 2007 & outlined the basic concepts\\
+    0.6     & Sep 14, 2007 & add pipe, window and object manager\\
+    0.5     & Sep 3,  2007 & add config and partly pipe\\
+    0.4     & Aug 31, 2007 & add distributed objects\\
+    0.3     & Aug 26, 2007 & add application and render client\\
+    0.2     & Aug 20, 2007 & add main function\\
+    0.1     & Aug 19, 2007 & outline the basic concepts\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -128,12 +124,16 @@ customizable event handling.
 
 \subsection{Compiling and running \textsf{eqPly}}
 
-A prerequisite for this Programming Guide is a working \textsf{eqPly}
-example. The Quickstart
+It is recommended to have a compiled version of Equalizer and the
+examples for this Programming Guide. The Quickstart
 Guide\footnote{\link{http://www.equalizergraphics.com/documents/EqualizerGuide.html}}
-explains how to run it. \textsf{eqPly} can also be executed without a
-server, which simplifies the development cycle. In this case it will be
-configured to use one window.
+should be executed once to get familar with the capabilities of the
+\textsf{eqPly} example.
+
+Compiling Equalizer is as simple as running \textsf{make} on Linux or
+building the Equalizer solution on Windows. On Mac OS X, some
+prerequisites have to be installed before running \textsf{make}, as
+explained in \textsf{README.Darwin}.
 
 
 \subsection{Equalizer Processes}
@@ -184,6 +184,50 @@ applications often implement a separate, light-weight rendering client.
 
 
 
+\section{Hello, World!}
+
+\begin{wrapfigure}{r}{.6\textwidth}
+  \includegraphics[width=.6\textwidth]{images/eqHello.png}
+  {\caption{\small\label{fHello}Hello, World!}}
+\end{wrapfigure}
+
+The \textsf{eqHello} example is a minimal example to illustrate the
+basic principle of an Equalizer application: The application developer
+has to implement the rendering method \textsf{Channel::frameDraw},
+similar to the \textsf{glutDisplayFunc} in GLUT applications. It can be
+run as a stand-alone application from the command line.
+
+The \textsf{eqHello} redraw function renders six rotating, colored quads
+around the origin, where the viewer is usually positioned. The Equalizer
+\textsf{frameDraw} meth\-od is used as a convience function to setup the
+frustum and other OpenGL state. After setting up some additional
+lighting parameter, \textsf{eqHello} rotates the scene and render the
+quads using immediate mode:
+
+{\footnotesize\begin{lstlisting}
+void Channel::frameDraw( const uint32_t spin )
+{
+    // setup OpenGL State
+    eq::Channel::frameDraw( spin );
+    
+    const float lightPos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
+    glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
+
+    const float lightAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
+
+    // rotate scene around the origin
+    glRotatef( static_cast< float >( spin ) * 0.5f, 1.0f, 0.5f, 0.25f );
+
+    // render six axis-aligned colored quads around the origin
+    [...]
+}
+\end{lstlisting}}
+
+The \textsf{eqHello} main function sets up the communication with the
+server, initializes and drives the rendering. The details of this setup
+are explained in \sref{sEqPly}.
+
 \section{The Programming Interface}
 
 Equalizer uses a C++ programming interface. The API is minimally
@@ -211,7 +255,7 @@ full list can be found on the
 website\footnote{\link{http://www.equalizergraphics.com/documents/design/taskMethods.html}}.
 
 
-\subsection{The Resource Tree}
+\subsection{\label{sResource}The Resource Tree}
 
 The rendering resources are represented in a hierarchical tree structure
 which corresponds to the physical and logical resources found in a 3D
@@ -335,21 +379,28 @@ Equalizer website\footnote{see
 
 
 
-\section{The \textsf{eqPly} polygonal renderer}
+\section{\label{sEqPly}The eqPly polygonal renderer}
 
 The \textsf{eqPly} example is shipped with the Equalizer distribution
 and serves as a reference implementation of an Equalizer-based
-application. Its focus is not on rendering features or visual quality,
-but it is used as a test bed for most of the Equalizer features.
+application of medium complexity. Its focus is not on rendering features
+or visual quality, but it is used as a show case for the integration of
+most of the Equalizer features.
 
 In this section the source code of \textsf{eqPly} is discussed in
 detail, and relevant design decision and remarks are raised.
 
 All classes in the example are in the \textsf{eqPly} namespace to avoid
-type name ambiguities, in particular for the \textsf{Window}
-class. \fig{fUml} shows the most important Equalizer classes and how
-they are subclassed in the \textsf{eqPly} example. Each of the classes
-in the \textsf{eqPly} namespace will be discussed in this section.
+type name ambiguities, in particular for the \textsf{Window} class which
+is frequently used as a type by windowing systems. \fig{fUml} shows the
+most important Equalizer classes and how they are subclassed in the
+\textsf{eqPly} example. 
+
+The derived classes fall into two categories: The subclassed rendering
+entities as discussed in \sref{sResource}, and two classes for
+distributing data. For each of the rendering entities, its function and
+typical usage will be discussed. The distributed data classes illustrate
+the typical usage of static and dynamic, frame-specific data.
 
 \begin{figure}[ht!]\center
   \includegraphics[width=\textwidth]{images/uml}
@@ -678,49 +729,29 @@ otherwise.
 The \textsf{InitData} class contains a string of variable
 length. Therefore it uses the second approach of manually serializing
 and deserializing its data. The serialization is done in
-\textsf{getInstanceData}. The serialized data is cached using a
-(non-distributed) member variable, which is cleared by each setter of
-distributed data. Serializing the data is a simple matter of allocating
-a large enough memory buffer, and copying the data into the buffer:
+\textsf{getInstanceData} and deserialization in
+\textsf{applyInstanceData} by streaming all member variable to or from
+the provided data streams. The data transport between nodes is
+implemented in the data streams and various other Equalizer classes:
 
 {\footnotesize\begin{lstlisting}
-const void* InitData::getInstanceData( uint64_t* size )
+void InitData::getInstanceData( eqNet::DataOStream& os )
 {
-    *size = sizeof( StaticData ) + _filename.length() + 1;
-    if( _instanceData )
-        return _instanceData;
-
-    _instanceData = new char[ *size ];
-
-    reinterpret_cast< StaticData* >( _instanceData )[0] = _data;
-
-    const char* string = _filename.c_str();
-    memcpy( _instanceData + sizeof( StaticData ), string, _filename.length()+1);
-
-    return _instanceData;
+    os << _frameDataID << _windowSystem << _useVBOs << _useShaders << _filename;
 }
-\end{lstlisting}}
 
-After the data is no longer needed, \textsf{releaseInstanceData} is
-called by Equalizer to allow the object to free the data. Since the data
-is cached for further usage, the release method is not overwritten in
-\textsf{InitData}.
-
-The memory buffer returned by \textsf{getInstanceData} is transferred to
-the remote node during object mapping and passed to
-\textsf{applyInstanceData} for deserialization. The deserialization
-routine reads the data back into its own member variables:
-
-{\footnotesize\begin{lstlisting}
-void InitData::applyInstanceData( const void* data, const uint64_t size )
+void InitData::applyInstanceData( eqNet::DataIStream& is )
 {
-    _data     = reinterpret_cast< const StaticData* >( data )[0];
-    _filename = static_cast<const char*>( data ) + sizeof( StaticData );
+    is >> _frameDataID >> _windowSystem >> _useVBOs >> _useShaders >> _filename;
 
-    EQASSERT( _data.frameDataID != EQ_ID_INVALID );
+    EQASSERT( _frameDataID != EQ_ID_INVALID );
     EQINFO << "New InitData instance" << endl;
 }
 \end{lstlisting}}%>>
+
+The data output and input streams perform no type checking on the
+variables. It is the application's responsibility to match the order and
+types of variables during serialization and deserialization exactly.
 
 \subsubsection{FrameData - a Versioned Distributed Object}
 
@@ -775,10 +806,6 @@ necessary data.
 
 \subsubsection{Initialization and Exit}
 
-\begin{wrapfigure}{r}{.6\textwidth}
-  \includegraphics[width=.6\textwidth]{images/configInit.pdf}
-  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
-\end{wrapfigure}
 The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
 execution is synchronized later. 
@@ -790,6 +817,10 @@ the configuration on large-scale graphics clusters. On the other hand,
 it means that initialization functions are called even if the parent's
 initialization has failed.
 
+\begin{wrapfigure}{r}{.6\textwidth}
+  \includegraphics[width=.6\textwidth]{images/configInit.pdf}
+  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
+\end{wrapfigure}
 The \textsf{eqPly::Config} class holds the master versions of the
 initialization and frame data. Both objects are registered with the
 \textsf{eq::Config}, which is the \textsf{eqNet::Session} used for
@@ -1196,11 +1227,6 @@ OpenGL objects, e.g., display lists and textures.
 
 \subsubsection{Initialization and Exit}
 
-\begin{wrapfigure}{r}{.4\textwidth}
-  \includegraphics[width=.4\textwidth]{images/windowInit.pdf}
-  {\caption{\small\label{fWindowInit}Window Initialization}}
-\end{wrapfigure}
-
 The initialization sequence uses multiple, overrideable task
 methods. The main task method \textsf{configInit} executes a `child'
 task method to create the drawable and context. The child task method
@@ -1212,6 +1238,10 @@ drawable and context was created successfully, \textsf{configInit} calls
 initialization. The default implementation sets up some typical OpenGL
 state, e.g., it enables the depth test.
 
+\begin{wrapfigure}{r}{.4\textwidth}
+  \includegraphics[width=.4\textwidth]{images/windowInit.pdf}
+  {\caption{\small\label{fWindowInit}Window Initialization}}
+\end{wrapfigure}
 \fig{fWindowInit} shows a flow chart of the window initialization. The
 colored functions are task methods and can be replaced by
 application-specific implementations.
@@ -1386,7 +1416,7 @@ major scene graph implementations.
 In \textsf{eqPly}, the OpenGL context is first set up using various
 \textsf{apply} convenience methods from the base Equalizer channel
 class. Each of the \textsf{apply} methods uses the corresponding
-\textsf{get} method(s) and then calls the approriate OpenGL
+\textsf{get} method(s) and then calls the appropriate OpenGL
 function(s). It is also possible to just query the values from Equalizer
 using the \textsf{get} methods, and use them to set up the OpenGL state
 appropriatly, for example by passing the parameters to the renderer used
@@ -1407,8 +1437,11 @@ void eq::Channel::applyBuffer()
 }
 \end{lstlisting}}
 
-The following contextual information has to be used in order to render
-the view expected by Equalizer:
+The contextual information has to be used in order to render the view as
+expected by Equalizer. Failure to use certain information will result in
+incorrect rendering for some or all configurations. The channel render
+context consist of:
+
 \begin{description}
 \item[Buffer]: The OpenGL read and draw buffer as well as color mask.
   These parameters are influenced by the current eye pass, eye
@@ -1423,7 +1456,7 @@ the view expected by Equalizer:
   projection matrix. The frustum is influenced by the destination
   channel's view definition, compound viewports, head matrix and the
   current eye pass.
-\item[Head Transformation:] A transformation matrix positioning the
+\item[Head Transformation]: A transformation matrix positioning the
   frustum. This is typically an identity matrix and is used for off-axis
   frustra in immersive rendering. It is normally used to set up the
   `view' part of the modelview matrix, before static light sources are
@@ -1433,44 +1466,62 @@ the view expected by Equalizer:
   only the appropriate subset of its data.
 \end{description}
 
-Consequently, the first part of the \textsf{frameDraw} method in
-\textsf{eqPly} look as follows:
+The \textsf{frameDraw} method in \textsf{eqPly} calls the
+\textsf{frameDraw} method from the parent class, the Equalizer
+channel. The default \textsf{frameDraw} method uses the apply
+convenience functions to setup the OpenGL state for all render context
+information, with the exception of the range which will be used later
+during rendering:
 
 {\footnotesize\begin{lstlisting}
-void Channel::frameDraw( const uint32_t frameID )
+void eq::Channel::frameDraw( const uint32_t frameID )
 {
     applyBuffer();
     applyViewport();
-            
+    
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
-
     applyFrustum();
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     applyHeadTransform();
+}
+
+void Channel::frameDraw( const uint32_t frameID )
+{
+    // Setup OpenGL state
+    eq::Channel::frameDraw( frameID );
 \end{lstlisting}}
 
 \begin{wrapfigure}{r}{.4\textwidth}
   \includegraphics[width=.4\textwidth]{images/DB.pdf}
   {\caption{\small\label{fDB}Destination view of an DB compound}}
 \end{wrapfigure}
-
 After the basic view setup, a directional light is configured, and the
 model is positioned using the camera parameters from the frame data. The
 camera parameters are transported using the the frame data to ensure
-that all channels render the frame in the same position.
+that all channels render a given frame using the same position.
 
-Furthermore, a color is set in case the model does not contain color
-information, or the color information is not to be used. In sort-last
-rendering, \textsf{eqPly} renders the individual parts with different
-colors to illustrate the algorithm, as shown in \fig{fDB}. The Equalizer
-channel provides a method to obtain a random, but unique color for all
-channels in the configuration:
+Furthermore, a white color is set in case the model does not contain
+color information, or the color information is not to be used. In
+sort-last rendering, \textsf{eqPly} uses a different color for each
+channell to illustrate the database decomposition, as shown in
+\fig{fDB}. The Equalizer channel provides a method to obtain a random,
+but unique color for all channels in the configuration. This color is
+determined by the server to ensure uniqueness across all channels of the
+configuration:
 
 {\footnotesize\begin{lstlisting}
-    glLightfv( GL_LIGHT0, GL_POSITION, lightpos );
+    glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
+    glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
+    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
+    glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
+
+    glMaterialfv( GL_FRONT, GL_AMBIENT,   materialAmbient );
+    glMaterialfv( GL_FRONT, GL_DIFFUSE,   materialDiffuse );
+    glMaterialfv( GL_FRONT, GL_SPECULAR,  materialSpecular );
+    glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
 
     const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
@@ -1496,8 +1547,8 @@ channels in the configuration:
     
 \end{lstlisting}}
 
-Finally the model is rendered, if it could be loaded during
-node initialization. Otherwise a quad is drawn in its place:
+Finally the model loaded by the node is rendered. If the model was not
+loaded during node initialization, a quad is drawn in its place:
 
 {\footnotesize\begin{lstlisting}
     if( model )
@@ -1824,37 +1875,47 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
 Two task methods are responsible for collecting and compositing the
 result image during scalable rendering, when multiple channels are
-rendering for a single view. The source channels producing an
-\textsf{outputFrame} use \textsf{Channel::frameReadback} to read the
+rendering for a single view. The source channels producing one or more
+\textsf{outputFrame}s use \textsf{Channel::frameReadback} to read the
 pixel data from the frame buffer. The channels receiving one or multiple
-\textsf{inputFrame} use \textsf{Channel::frameAssemb\-le} to assemble
-the frames into the framebuffer. Equalizer takes care of the network
+\textsf{inputFrame}s use \textsf{Channel::frameAssemb\-le} to assemble
+the pixel data into the framebuffer. Equalizer takes care of the network
 transport of frame buffer data between nodes, if needed.
+
+Normally the programmer does not need to interfere with the image
+compositing, or only at a high level, for example to order the input
+frames or to optimize the readback. The following sections provide a
+detailed description of the image compositing API in Equalizer.
 
 \subsubsection{Parallel Direct Send Compositing}
 
 In order to provide a motivation for the design of the image compositing
-API, the parallel compositing algorithm for direct send is introduced
-here. 
+API, the direct send parallel compositing algorithm is introduced in this
+section.
 
-The motivation for direct send is to parallelize the costly reassembly
-for database (sort-last) decomposition. With each additional source
-channel, the amount of pixel data to be composited grows
-linearly. Direct send distributes this workload evenly across all source
-channels, and thereby keeps the compositing work per channel constant.
+The motivation for direct send is to parallelize the costly
+recomposition for database (sort-last) decomposition. With each
+additional source channel, the amount of pixel data to be composited
+grows linearly. When using the naive approach of compositing all frames
+on the destination channel, this channel quickly becomes the bottleneck
+in the system. Direct send distributes this workload evenly across all
+source channels, and thereby keeps the compositing work per channel
+constant.
 
 \begin{wrapfigure}{r}{.6\textwidth}
   \includegraphics[width=.6\textwidth]{images/directSend.pdf}
   {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
 \end{wrapfigure}
-Each channel is responsible for the sort-last compositing of one 2D
-tile. He receives the framebuffer pixels for his tike from all the other
-channels. The size of this tile decreases linearly with the number of
-source channels. 
+In direct send compositing, each rendering channel is also responsible
+for the sort-last composition of one screen-space tile. He receives the
+framebuffer pixels for his tile from all the other channels. The size of
+one tile decreases linearly with the number of source channels, which
+keeps the total amount of pixel data per channel constant.
 
 After performing the sort-last compositing, the color information is
 transferred to the destination channel, similarly to an 2D (sort-first)
-compound.
+compound. The amount of pixel data for this part of the compositing
+pipeline also approaches a constant value, i.e., the full frame buffer.
 
 \fig{fDirectSend} illustrates this algorithm for three channels. The
 Equalizer website contains a presentation for this
@@ -1863,8 +1924,8 @@ algorithm\footnote{\link{http://www.equalizergraphics.com/documents/EGPGV07.pdf}
 The following operations have to be possible in order to perform this
 algorithm:
 \begin{itemize}
-\item Selection of color and/or depth readback
-\item Restricting the read back to a part of the rendered area
+\item Selection of frame buffer attachments: color and/or depth
+\item Restricting the read back area to a part of the rendered area
 \item Positioning the pixel data correctly on the receiving channels
 \end{itemize}
 
@@ -1873,7 +1934,7 @@ read back of only the relevant region of interest, that is, the 2D area
 of the framebuffer actually updated during rendering. This optimization
 will be fully supported by later versions of Equalizer.
 
-\subsubsection{Frame, FrameData and Images}
+\subsubsection{Frame, Frame Data and Images}
 
 An \textsf{eq::Frame} references an \textsf{eq::Fra\-me\-Data}. The
 frame data is the object connecting output with input frames. Output and
@@ -1896,15 +1957,15 @@ Currently, only synchronous readback and assembly using
 \textsf{glReadPixels} and \textsf{glDrawPixels} is implemented in the
 respective start method of the image.
 
+\begin{wrapfigure}{r}{.6\textwidth}
+  \includegraphics[width=.6\textwidth]{images/assembly.pdf}
+  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
+\end{wrapfigure}
 The offset of input and output frames characterizes the position of the
 frame data with respect to the framebuffer, that is, the
 \textbf{window's} lower-left corner. For output frames this is the
 position of the channel with respect to the window.
 
-\begin{wrapfigure}{r}{.6\textwidth}
-  \includegraphics[width=.6\textwidth]{images/assembly.pdf}
-  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
-\end{wrapfigure}
 For output frames, the frame data's pixel viewport (pvp) is the area of
 the frame buffer to read back. It will transport the offset from the
 source to the destination channel, that is, the frame data pvp for input
@@ -1921,7 +1982,73 @@ and images.
 
 \subsubsection{Custom Assembly in eVolve}
 
-The \textsf{eVolve} example is a scalable volume renderer.
+\begin{wrapfigure}{r}{.4\textwidth}
+  \includegraphics[width=.4\textwidth]{images/slices.pdf}
+  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
+      Volume Rendering}}
+\end{wrapfigure}
+The \textsf{eVolve} example is a scalable volume renderer. It uses 3D
+texture-based volume rendering, where the 3D texture is intersected by
+view-aligned slices. The slices are rendered back-to-front and blended
+together to produce the final image, as shown in
+\fig{fSlices}\footnote{Volume Data Set courtesy of: SFB-382 of the German
+  Research Council (DFG)}.
+
+When using 2D (sort-first) or stereo decompositions, no special
+programming is needed to achieve good scalability, as \textsf{eVolve} is
+mostly fill-limited and therefore scales nicely in this mode. 
+
+The full power of scalable volume rendering is however in DB (sort-last)
+compounds, where the full volume is divided into separate bricks. Each
+of the bricks is rendered the same as in the other modes. For
+recomposition, the \textsf{RGBA} frame buffer data resulting from these
+render passes then has to be assembled correctly.
+
+DB compounds have the advantage of scaling any part of the volume
+rendering pipeline: texture and main memory (smaller bricks for each
+channel), fill rate (less samples per channel) and IO bandwidth for
+time-dependend data (less data per time step and channel).
+
+\begin{figure}[h!t]
+  \subfigure[]{\label{fBlendOrtho}
+    \includegraphics[width=.45\textwidth]{images/b2f_ortho.pdf}
+  }\hfil
+  \subfigure[]{\label{fBlendPerspective}
+    \includegraphics[width=.55\textwidth]{images/b2f_perspective.pdf}
+  }%
+  {\caption{\small\label{fBlend}Back-to-Front Com\-po\-siting for
+      Orthogonal and Perspective View Frustra}}
+\end{figure}
+For recomposition, the 2D frame buffer contents are blended together to
+form a seamless picture. For currect blending, the frames are ordered in
+the same back-to-front order as the slices used for rendering using the
+same blending parameters. Simplified, the frame buffer images are
+`thick' slices which are `rendered' by writing their content to the
+destination frame buffer using the correct order. 
+
+\begin{wrapfigure}{r}{.4\textwidth}
+  \includegraphics[width=.4\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
+For orthographic rendering, determining the compositing order of the
+input frames is trivial. The screen-space orientation of the volume
+bricks determines the order in which they have to be composited. The
+bricks in \textsf{eVolve} are created by slicing the volume along one
+dimension. Therefore the range of the resulting frame buffer images,
+together with the sorting order, is used to arrange the frames during
+compositing. \fig{fBlendOrtho} shows this composition for one view.
+
+Finding the correct assembly order for a perspective frustra is more
+complex. The perspective distortion invalidates a simple orientation
+criteria like the one used for orthographic frustra. For the view and
+frustum setup shown in \fig{fBlendPerspective}\footnote{Volume Data Set
+  courtesy of: AVS, USA} the correct compositing order is 4-3-1-2 or
+1-4-3-2. In order to compute the assembly order, \textsf{eVolve} uses
+the angle between the origin$\rightarrow$slice vector and the near
+plane, as shown in \fig{fBlendPerspective}. The result image naturally
+looks the same as the volume rendering would when rendered n a singly
+channel, as shown in \fig{fVolResult}.
+
 
 \subsection{Head Tracking}
 
@@ -1929,7 +2056,7 @@ The \textsf{eqPly} example contains rudimentary support for head
 tracking, in order to show how head tracking can be integrated with
 Equalizer. Supporting a wide range of tracking devices is not within the
 scope of Equalizer. Other open source and commercial implementations
-cover this functionality sufficiently and can be integrated with
+cover this functionality sufficiently and can easily be integrated with
 Equalizer.
 
 \begin{figure}[h!t]
