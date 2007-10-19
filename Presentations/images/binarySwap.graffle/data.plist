@@ -4,6 +4,11 @@
 <dict>
 	<key>ActiveLayerIndex</key>
 	<integer>0</integer>
+	<key>ApplicationVersion</key>
+	<array>
+		<string>com.omnigroup.OmniGrafflePro</string>
+		<string>129.15</string>
+	</array>
 	<key>AutoAdjust</key>
 	<true/>
 	<key>CanvasColor</key>
@@ -51,12 +56,25 @@
 				<string>{-1, 0}</string>
 			</array>
 			<key>Shape</key>
-			<string>RoundRect</string>
+			<string>Rectangle</string>
 			<key>Style</key>
 			<dict>
 				<key>fill</key>
 				<dict>
 					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>0.289952</string>
+						<key>g</key>
+						<string>0.595392</string>
+						<key>r</key>
+						<string>0.377249</string>
+					</dict>
+					<key>FillType</key>
+					<integer>2</integer>
+					<key>GradientAngle</key>
+					<real>90</real>
+					<key>GradientColor</key>
 					<dict>
 						<key>b</key>
 						<string>0.164706</string>
@@ -65,15 +83,33 @@
 						<key>r</key>
 						<string>0.188235</string>
 					</dict>
+					<key>MiddleColor</key>
+					<dict>
+						<key>b</key>
+						<string>0.164706</string>
+						<key>g</key>
+						<string>0.364706</string>
+						<key>r</key>
+						<string>0.188235</string>
+					</dict>
+					<key>TrippleBlend</key>
+					<string>YES</string>
 				</dict>
-				<key>stroke</key>
+				<key>shadow</key>
 				<dict>
 					<key>Draws</key>
 					<string>NO</string>
 				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>CornerRadius</key>
+					<real>4</real>
+				</dict>
 			</dict>
 			<key>Text</key>
 			<dict>
+				<key>Pad</key>
+				<integer>3</integer>
 				<key>Text</key>
 				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
 {\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;}
@@ -105,12 +141,25 @@
 				<string>{-1, 0}</string>
 			</array>
 			<key>Shape</key>
-			<string>RoundRect</string>
+			<string>Rectangle</string>
 			<key>Style</key>
 			<dict>
 				<key>fill</key>
 				<dict>
 					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>0.387274</string>
+						<key>g</key>
+						<string>0.813245</string>
+						<key>r</key>
+						<string>0.974136</string>
+					</dict>
+					<key>FillType</key>
+					<integer>2</integer>
+					<key>GradientAngle</key>
+					<real>90</real>
+					<key>GradientColor</key>
 					<dict>
 						<key>b</key>
 						<string>0.184314</string>
@@ -119,17 +168,33 @@
 						<key>r</key>
 						<string>0.752941</string>
 					</dict>
+					<key>MiddleColor</key>
+					<dict>
+						<key>b</key>
+						<string>0.184314</string>
+						<key>g</key>
+						<string>0.576471</string>
+						<key>r</key>
+						<string>0.752941</string>
+					</dict>
+					<key>TrippleBlend</key>
+					<string>YES</string>
 				</dict>
-				<key>stroke</key>
+				<key>shadow</key>
 				<dict>
 					<key>Draws</key>
 					<string>NO</string>
+				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>CornerRadius</key>
+					<real>4</real>
 				</dict>
 			</dict>
 			<key>Text</key>
 			<dict>
 				<key>Pad</key>
-				<integer>0</integer>
+				<integer>3</integer>
 				<key>Text</key>
 				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
 {\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;}
@@ -162,12 +227,25 @@
 				<string>{-1, 0}</string>
 			</array>
 			<key>Shape</key>
-			<string>RoundRect</string>
+			<string>Rectangle</string>
 			<key>Style</key>
 			<dict>
 				<key>fill</key>
 				<dict>
 					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>0.454139</string>
+						<key>g</key>
+						<string>0.444465</string>
+						<key>r</key>
+						<string>0.793606</string>
+					</dict>
+					<key>FillType</key>
+					<integer>2</integer>
+					<key>GradientAngle</key>
+					<real>90</real>
+					<key>GradientColor</key>
 					<dict>
 						<key>b</key>
 						<string>0.290196</string>
@@ -176,15 +254,33 @@
 						<key>r</key>
 						<string>0.54902</string>
 					</dict>
+					<key>MiddleColor</key>
+					<dict>
+						<key>b</key>
+						<string>0.290196</string>
+						<key>g</key>
+						<string>0.27451</string>
+						<key>r</key>
+						<string>0.54902</string>
+					</dict>
+					<key>TrippleBlend</key>
+					<string>YES</string>
 				</dict>
-				<key>stroke</key>
+				<key>shadow</key>
 				<dict>
 					<key>Draws</key>
 					<string>NO</string>
 				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>CornerRadius</key>
+					<real>4</real>
+				</dict>
 			</dict>
 			<key>Text</key>
 			<dict>
+				<key>Pad</key>
+				<integer>3</integer>
 				<key>Text</key>
 				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
 {\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;}
@@ -216,12 +312,25 @@
 				<string>{-1, 0}</string>
 			</array>
 			<key>Shape</key>
-			<string>RoundRect</string>
+			<string>Rectangle</string>
 			<key>Style</key>
 			<dict>
 				<key>fill</key>
 				<dict>
 					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>0.641794</string>
+						<key>g</key>
+						<string>0.498985</string>
+						<key>r</key>
+						<string>0.366537</string>
+					</dict>
+					<key>FillType</key>
+					<integer>2</integer>
+					<key>GradientAngle</key>
+					<real>90</real>
+					<key>GradientColor</key>
 					<dict>
 						<key>b</key>
 						<string>0.4</string>
@@ -230,15 +339,33 @@
 						<key>r</key>
 						<string>0.207843</string>
 					</dict>
+					<key>MiddleColor</key>
+					<dict>
+						<key>b</key>
+						<string>0.4</string>
+						<key>g</key>
+						<string>0.305882</string>
+						<key>r</key>
+						<string>0.207843</string>
+					</dict>
+					<key>TrippleBlend</key>
+					<string>YES</string>
 				</dict>
-				<key>stroke</key>
+				<key>shadow</key>
 				<dict>
 					<key>Draws</key>
 					<string>NO</string>
 				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>CornerRadius</key>
+					<real>4</real>
+				</dict>
 			</dict>
 			<key>Text</key>
 			<dict>
+				<key>Pad</key>
+				<integer>3</integer>
 				<key>Text</key>
 				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
 {\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;}
@@ -263,7 +390,7 @@
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>49.942802429199219</real>
+			<real>49.942787170410156</real>
 			<key>Points</key>
 			<array>
 				<string>{687.401, 240.945}</string>
@@ -493,7 +620,7 @@
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>49.942825317382812</real>
+			<real>49.94281005859375</real>
 			<key>Points</key>
 			<array>
 				<string>{488.977, 453.543}</string>
@@ -1738,7 +1865,7 @@
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>42.8563232421875</real>
+			<real>42.856300354003906</real>
 			<key>Points</key>
 			<array>
 				<string>{290.551, 212.598}</string>
@@ -2278,19 +2405,19 @@
 	</array>
 	<key>ImageList</key>
 	<array>
-		<string>image2.rgb</string>
-		<string>image3.rgb</string>
-		<string>image4.rgb</string>
-		<string>image5.rgb</string>
-		<string>image6.rgb</string>
-		<string>image7.rgb</string>
-		<string>image8.rgb</string>
-		<string>image9.rgb</string>
-		<string>image10.rgb</string>
-		<string>image11.rgb</string>
-		<string>image12.rgb</string>
-		<string>image13.rgb</string>
 		<string>image14.rgb</string>
+		<string>image13.rgb</string>
+		<string>image12.rgb</string>
+		<string>image11.rgb</string>
+		<string>image10.rgb</string>
+		<string>image9.rgb</string>
+		<string>image8.rgb</string>
+		<string>image7.rgb</string>
+		<string>image6.rgb</string>
+		<string>image5.rgb</string>
+		<string>image4.rgb</string>
+		<string>image3.rgb</string>
+		<string>image2.rgb</string>
 	</array>
 	<key>IsPalette</key>
 	<string>NO</string>
@@ -2390,7 +2517,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2006-12-18 16:04:48 +0100</string>
+	<string>2007-09-21 19:33:37 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -2457,9 +2584,7 @@
 	<key>WindowInfo</key>
 	<dict>
 		<key>CurrentSheet</key>
-		<string>0</string>
-		<key>DrawerOpen</key>
-		<false/>
+		<integer>0</integer>
 		<key>DrawerTab</key>
 		<string>Outline</string>
 		<key>DrawerWidth</key>
@@ -2468,14 +2593,10 @@
 		<true/>
 		<key>Frame</key>
 		<string>{{308, 70}, {922, 702}}</string>
-		<key>ShowRuler</key>
-		<false/>
-		<key>ShowStatusBar</key>
-		<true/>
 		<key>VisibleRegion</key>
 		<string>{{-22, 0}, {952.5, 635}}</string>
 		<key>Zoom</key>
-		<string>1.056868</string>
+		<real>1.0568679571151733</real>
 	</dict>
 </dict>
 </plist>

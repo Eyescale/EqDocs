@@ -4,6 +4,11 @@
 <dict>
 	<key>ActiveLayerIndex</key>
 	<integer>0</integer>
+	<key>ApplicationVersion</key>
+	<array>
+		<string>com.omnigroup.OmniGrafflePro</string>
+		<string>129.15</string>
+	</array>
 	<key>AutoAdjust</key>
 	<true/>
 	<key>CanvasColor</key>
@@ -37,7 +42,7 @@
 			<key>ID</key>
 			<integer>842</integer>
 			<key>ImageID</key>
-			<integer>15</integer>
+			<integer>25</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -66,7 +71,7 @@
 			<key>ID</key>
 			<integer>827</integer>
 			<key>ImageID</key>
-			<integer>14</integer>
+			<integer>24</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -95,7 +100,7 @@
 			<key>ID</key>
 			<integer>833</integer>
 			<key>ImageID</key>
-			<integer>13</integer>
+			<integer>23</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -128,7 +133,7 @@
 			<integer>856</integer>
 			<key>Points</key>
 			<array>
-				<string>{410.565, 540.145}</string>
+				<string>{410.565, 540.144}</string>
 				<string>{382.677, 580.797}</string>
 			</array>
 			<key>Style</key>
@@ -726,7 +731,7 @@
 			<key>ID</key>
 			<integer>828</integer>
 			<key>ImageID</key>
-			<integer>16</integer>
+			<integer>26</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -762,7 +767,7 @@
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>29.13873291015625</real>
+			<real>29.138763427734375</real>
 			<key>Points</key>
 			<array>
 				<string>{312.491, 539.821}</string>
@@ -853,7 +858,7 @@
 			<integer>835</integer>
 			<key>Points</key>
 			<array>
-				<string>{205.983, 722.518}</string>
+				<string>{205.983, 722.519}</string>
 				<string>{242.371, 636.025}</string>
 			</array>
 			<key>Style</key>
@@ -894,7 +899,7 @@
 			<key>Points</key>
 			<array>
 				<string>{242.371, 565.157}</string>
-				<string>{213.038, 549.315}</string>
+				<string>{213.039, 549.315}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -971,7 +976,7 @@
 			<key>ID</key>
 			<integer>851</integer>
 			<key>ImageID</key>
-			<integer>19</integer>
+			<integer>27</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -1000,7 +1005,7 @@
 			<key>ID</key>
 			<integer>852</integer>
 			<key>ImageID</key>
-			<integer>20</integer>
+			<integer>28</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -1029,7 +1034,7 @@
 			<key>ID</key>
 			<integer>853</integer>
 			<key>ImageID</key>
-			<integer>18</integer>
+			<integer>29</integer>
 			<key>Scale</key>
 			<real>0.15000000596046448</real>
 			<key>Shape</key>
@@ -1113,13 +1118,13 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{85.0394, 28.3465}, {453.543, 340.157}}</string>
+			<string>{{85.0394, 32.7259}, {453.543, 325.984}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
 			<integer>857</integer>
 			<key>ImageID</key>
-			<integer>21</integer>
+			<integer>22</integer>
 			<key>Magnets</key>
 			<array>
 				<string>{0, 1}</string>
@@ -1169,7 +1174,7 @@
 	<key>HPages</key>
 	<integer>1</integer>
 	<key>ImageCounter</key>
-	<integer>22</integer>
+	<integer>30</integer>
 	<key>ImageLinkBack</key>
 	<array>
 		<dict/>
@@ -1185,14 +1190,14 @@
 	</array>
 	<key>ImageList</key>
 	<array>
-		<string>image21.png</string>
-		<string>image20.png</string>
-		<string>image19.png</string>
-		<string>image18.png</string>
-		<string>image16.png</string>
-		<string>image15.png</string>
-		<string>image14.png</string>
-		<string>image13.png</string>
+		<string>image29.png</string>
+		<string>image28.png</string>
+		<string>image27.png</string>
+		<string>image26.png</string>
+		<string>image25.png</string>
+		<string>image24.png</string>
+		<string>image23.png</string>
+		<string>image22.png</string>
 		<string>image2.pdf</string>
 		<string>image1.png</string>
 	</array>
@@ -1294,7 +1299,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-04-10 18:44:45 +0200</string>
+	<string>2007-10-07 17:40:59 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -1362,9 +1367,9 @@
 		<key>DrawerWidth</key>
 		<real>209</real>
 		<key>Frame</key>
-		<string>{{409, 57}, {690, 929}}</string>
+		<string>{{372, 0}, {595, 878}}</string>
 		<key>VisibleRegion</key>
-		<string>{{-52, 0}, {739.079, 909.889}}</string>
+		<string>{{0, 0}, {635.061, 854.047}}</string>
 		<key>Zoom</key>
 		<real>1.0147758722305298</real>
 	</dict>
