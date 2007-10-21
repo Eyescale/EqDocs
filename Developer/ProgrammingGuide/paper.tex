@@ -15,12 +15,12 @@
 \fi
 
 \title{Equalizer Programming Guide\\
-  {\footnotesize\sffamily\mdseries
+  {\vspace{-1ex}\footnotesize\sffamily\mdseries
     \htmladdnormallink{http://www.equalizergraphics.com/documents/Developer/ProgrammingGuide.pdf}
     {http://www.equalizergraphics.com/documents/ProgrammingGuide.pdf}}
 }
-\author{Stefan Eilemann\\{\footnotesize Eyescale Software GmbH}
-}
+\author{Eyescale Software GmbH}
+
 \date{
   \vspace{4cm}
   \begin{figure}[ht]
@@ -28,7 +28,7 @@
   \end{figure}
   \vspace{1cm}
   \textbf{DRAFT}\\[\medskipamount]
-  Version 0.9.2 for Equalizer v0.4\\[\medskipamount]
+  Version 0.9.3 for Equalizer 0.4\\[\medskipamount]
   \today
 }
 
@@ -58,14 +58,48 @@
 %  multipipe visualization systems.
 %}
 
+\clearpage
+
+\thispagestyle{empty}
+\section*{Equalizer 0.4 Programming Guide}
+\subsection*{Contributors}
+
+Written by Stefan Eilemann.\\
+Engineering contributions by Maxim Makhinya and Jonas B\"osch.
+
+\subsection*{Copyright}
+
+\textcopyright 2007 Eyescale Software GmbH. All rights reserved. No
+permission is granted to copy, distribute, or create derivative works
+from the contents of this electronic documentation in any manner, in
+whole or in part, without the prior written permission of Eyescale
+Software GmbH.
+
+\subsection*{Trademarks and Attributions}
+
+OpenGL is a registered trademark, OpenGL Multipipe is a trademark of
+Silicon Graphics, Inc. Linux is a registered trademark of Linus
+Torvalds. CAVELib is a registered trademark of the University of
+Illinois. The CAVE is a registered trademark of the Board of Trustees of
+the University of Illinois at Chicago. All other trademarks and
+copyrights herein are the property of their respective owners.
+
+\subsection*{Feedback}
+
+If you have comments about the content, accuracy or comprehensibility of
+this programming guide, please contact
+\htmladdnormallink{eile@equalizergraphics.com}
+{mailto:eile@equalizergraphics.com?subject=Equalizer\%20Programming\%20Guide}.
+
 
 \clearpage
-\tableofcontents
 \thispagestyle{empty}
+\tableofcontents
 \vfill{\center\begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
     \bf Rev & \bf Date     & \bf Changes \\
     \hline
+    0.9.3   & Oct 21, 2007 & update title page, add front matter\\
     0.9.2   & Oct 19, 2007 & Jonas' feedback, changes related to
                              per-node frame sync\\
     0.9.1   & Oct 8,  2007 & review pass\\
@@ -88,24 +122,20 @@
 
 \pagenumbering{arabic}
 
-
-
 \section{Introduction}
 
-Equalizer provides a framework for the development of parallel
-OpenGL\texttrademark\ applications. Equalizer-based applications can run
-a single shared-memory system with multiple graphics cards (GPU's) or on
-graphics clusters. This Programming Guide introduces the programming
-interface using the \textsf{eqPly} example shipped with Equalizer as a
-guideline.
+Equalizer provides a framework for the development of parallel OpenGL
+applications. Equalizer-based applications can run a single
+shared-memory system with multiple graphics cards (GPU's) or on graphics
+clusters. This Programming Guide introduces the programming interface
+using the \textsf{eqPly} example shipped with Equalizer as a guideline.
 
 Equalizer is the next step in the evolution of generic parallel programming
 interfaces for visualization applications using OpenGL. Existing
 % rephrase ( aber ich weiss auch nicht wie :) )
-solutions, such as SGI's OpenGL Multipipe\texttrademark\ SDK, VRCO's
-Cavelib\texttrademark\ and VRJuggler, implement a subset of concepts
-similar to Equalizer. In other areas, e.g., tracking device support,
-they provide more functionality.
+solutions, such as OpenGL Multipipe SDK, Cavelib and VRJuggler,
+implement a subset of concepts similar to Equalizer. In other areas,
+e.g., tracking device support, they provide more functionality.
 
 Equalizer implements the minimum necessary layer to build parallel and
 scalable OpenGL applications. The programmer structures the application
@@ -292,7 +322,7 @@ rendering environment.
 \end{figure}
 
 \fig{fConfig} shows one example configuration for a four-side
-CAVE\texttrademark, running on two machines (nodes) using three graphics
+CAVE, running on two machines (nodes) using three graphics
 cards (pipes) with one window each to render to the four output channels
 connected to the projectors for each of the walls. The compound
 description is only used by the server to compute the rendering
@@ -778,12 +808,14 @@ implemented in the data streams and various other Equalizer classes:
 {\footnotesize\begin{lstlisting}
 void InitData::getInstanceData( eqNet::DataOStream& os )
 {
-    os << _frameDataID << _windowSystem << _useVBOs << _useShaders << _filename;
+    os << _frameDataID << _windowSystem << _precision << _brightness << _useGLSL
+       << _filename;
 }
 
 void InitData::applyInstanceData( eqNet::DataIStream& is )
 {
-    is >> _frameDataID >> _windowSystem >> _useVBOs >> _useShaders >> _filename;
+    is >> _frameDataID >> _windowSystem >> _precision >> _brightness >> _useGLSL
+       >> _filename;
 
     EQASSERT( _frameDataID != EQ_ID_INVALID );
     EQINFO << "New InitData instance" << endl;
