@@ -46,14 +46,10 @@
 			</dict>
 			<key>ID</key>
 			<integer>1031</integer>
-			<key>OrthogonalBarAutomatic</key>
-			<true/>
-			<key>OrthogonalBarPosition</key>
-			<real>2.2731590270996094</real>
 			<key>Points</key>
 			<array>
-				<string>{219.685, 70.8662}</string>
-				<string>{212.599, 99.2125}</string>
+				<string>{212.598, 70.8661}</string>
+				<string>{212.599, 98.7125}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -63,20 +59,11 @@
 					<integer>0</integer>
 					<key>HeadArrow</key>
 					<string>FilledArrow</string>
-					<key>LineType</key>
-					<integer>2</integer>
 					<key>Pattern</key>
 					<integer>24</integer>
 					<key>TailArrow</key>
 					<string>0</string>
 				</dict>
-			</dict>
-			<key>Tail</key>
-			<dict>
-				<key>ID</key>
-				<integer>1030</integer>
-				<key>Info</key>
-				<integer>1</integer>
 			</dict>
 		</dict>
 		<dict>
@@ -122,11 +109,11 @@ finishFrame}</string>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>1.1370086669921875</real>
+			<real>1.1370162963867188</real>
 			<key>Points</key>
 			<array>
-				<string>{219.685, 283.465}</string>
-				<string>{269.291, 269.291}</string>
+				<string>{219.685, 269.292}</string>
+				<string>{269.291, 255.118}</string>
 				<string>{255.118, 113.386}</string>
 			</array>
 			<key>Style</key>
@@ -135,6 +122,8 @@ finishFrame}</string>
 				<dict>
 					<key>Cap</key>
 					<integer>0</integer>
+					<key>CornerRadius</key>
+					<real>4</real>
 					<key>HeadArrow</key>
 					<string>FilledArrow</string>
 					<key>LineType</key>
@@ -280,7 +269,7 @@ finishFrame}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{170.079, 283.465}, {99.2126, 28.3465}}</string>
+			<string>{{170.079, 269.292}, {99.2126, 28.3465}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FontInfo</key>
@@ -1188,7 +1177,7 @@ handleEvents}</string>
 			<key>Points</key>
 			<array>
 				<string>{127.559, 340.157}</string>
-				<string>{219.685, 311.811}</string>
+				<string>{219.685, 297.638}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -1196,6 +1185,8 @@ handleEvents}</string>
 				<dict>
 					<key>Cap</key>
 					<integer>0</integer>
+					<key>CornerRadius</key>
+					<real>4</real>
 					<key>HeadArrow</key>
 					<string>FilledArrow</string>
 					<key>LineType</key>
@@ -2144,7 +2135,7 @@ processEvent}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-10-04 10:05:29 +0200</string>
+	<string>2007-10-21 20:55:32 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -2214,11 +2205,11 @@ processEvent}</string>
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{412, 40}, {544, 838}}</string>
+		<string>{{452, 99}, {476, 759}}</string>
 		<key>VisibleRegion</key>
-		<string>{{-3, 0}, {308.107, 431}}</string>
+		<string>{{0, 0}, {301, 430.933}}</string>
 		<key>Zoom</key>
-		<real>0.90365123748779297</real>
+		<real>0.80608499050140381</real>
 	</dict>
 </dict>
 </plist>

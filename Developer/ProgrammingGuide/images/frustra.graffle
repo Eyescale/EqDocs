@@ -218,30 +218,6 @@
 			<key>Class</key>
 			<string>LineGraphic</string>
 			<key>ID</key>
-			<integer>38</integer>
-			<key>Points</key>
-			<array>
-				<string>{255.118, 170.079}</string>
-				<string>{268.041, 190.887}</string>
-				<string>{255.118, 226.772}</string>
-			</array>
-			<key>Style</key>
-			<dict>
-				<key>stroke</key>
-				<dict>
-					<key>HeadArrow</key>
-					<string>FilledArrow</string>
-					<key>LineType</key>
-					<integer>1</integer>
-					<key>TailArrow</key>
-					<string>FilledArrow</string>
-				</dict>
-			</dict>
-		</dict>
-		<dict>
-			<key>Class</key>
-			<string>LineGraphic</string>
-			<key>ID</key>
 			<integer>37</integer>
 			<key>Points</key>
 			<array>
@@ -255,6 +231,10 @@
 				<dict>
 					<key>HeadArrow</key>
 					<string>FilledArrow</string>
+					<key>HopLines</key>
+					<true/>
+					<key>HopType</key>
+					<integer>101</integer>
 					<key>LineType</key>
 					<integer>1</integer>
 					<key>TailArrow</key>
@@ -900,6 +880,30 @@
 			</dict>
 		</dict>
 		<dict>
+			<key>Class</key>
+			<string>LineGraphic</string>
+			<key>ID</key>
+			<integer>38</integer>
+			<key>Points</key>
+			<array>
+				<string>{255.118, 170.079}</string>
+				<string>{268.041, 190.887}</string>
+				<string>{255.118, 226.772}</string>
+			</array>
+			<key>Style</key>
+			<dict>
+				<key>stroke</key>
+				<dict>
+					<key>HeadArrow</key>
+					<string>FilledArrow</string>
+					<key>LineType</key>
+					<integer>1</integer>
+					<key>TailArrow</key>
+					<string>FilledArrow</string>
+				</dict>
+			</dict>
+		</dict>
+		<dict>
 			<key>Bounds</key>
 			<string>{{240.946, 14.1731}, {170.079, 283.465}}</string>
 			<key>Class</key>
@@ -1059,7 +1063,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-09-27 22:16:33 +0200</string>
+	<string>2007-10-21 18:34:51 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
