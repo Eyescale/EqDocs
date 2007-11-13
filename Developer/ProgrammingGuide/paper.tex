@@ -28,7 +28,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.0.1 for Equalizer 0.4\\[\medskipamount]
+  Version 1.1.0 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -115,6 +115,7 @@ right].
     \hline
     1.0     & Oct 28, 2007 & Initial Version for Equalizer 0.4\\
     1.0.1   & Nov 06, 2007 & Fixed Typo\\
+    1.1     & Nov 12, 2007 & Adapted distributed objects\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -836,6 +837,31 @@ initial data to all rendering nodes, as well as a versioned object to
 provide frame-specific data such as the camera position to the
 rendering methods.
 
+\subsubsection{Change Handling}
+
+The way changes are to be handled is determined by calling
+\textsf{Object::getChangeType} during the registration of the master
+version of a distributed object . The change type determines the memory
+footprint and the contract for calling the serialization methods. The
+following change types are possible:
+
+\begin{description}
+  \item[STATIC] The object is not versioned. The instance data is
+    serialized whenever a new slave instance is mapped. No additional
+    data is stored.
+  \item[INSTANCE] The object is versioned, and the instance and delta
+    data is identical, that is, only instance data is
+    serialized. Previous instance data is saved to be able to map old
+    versions.
+  \item[DELTA] The object is versioned, and the delta data is typically
+    smaller than the instance data. Both the delta and instance data are
+    serialized and saved to map old versions.
+  \item[DELTA\_UNBUFFERED] The object is versioned, and delta data is
+    used to update slave instances. No data is stored, and no previous
+    versions can be mapped. The instance data is serialized whenever a
+    new slave instance is mapped.
+\end{description}
+
 \subsubsection{\label{sInitData}InitData - a Static Distributed Object}
 
 The \textsf{InitData} class holds a couple of parameters needed during
@@ -882,8 +908,8 @@ types of variables during serialization and de-serialization.
 
 \subsubsection{FrameData - a Versioned Distributed Object}
 
-Versioned objects have to override \textsf{isStatic} to return
-\textsf{false}, which indicates that they are versioned. The current
+Versioned objects have to override \textsf{getChangeType} to indicate
+how they want to have changes to be handled. The current
 implementation has the following characteristics:
 \begin{itemize}
 \item Only the master instance of the object is writable, that is,
@@ -915,8 +941,9 @@ instance data if no delta data has been specified.
 The \textsf{eqPly} frame data is layed out in one anonymous structure in
 memory. It also does not track changes since it is relatively small in
 size and changes frequently. Therefore, the instance and delta data are
-the same and set in the constructor. The default implementation will
-take care of the distribution of the data:
+the same and set in the constructor. Furthermore, the change type is
+\textsf{INSTANCE}. The default \textsf{Object} implementation will take
+care of the distribution of the data:
 
 {\footnotesize\begin{lstlisting}
         FrameData()
@@ -1698,7 +1725,7 @@ void Channel::frameDraw( const uint32_t frameID )
 \end{lstlisting}}
 
 \begin{wrapfigure}{r}{.382\textwidth}
-  \vspace{-8ex}\includegraphics[width=.382\textwidth]{images/DB.png}
+  \includegraphics[width=.382\textwidth]{images/DB.png}
   {\caption{\small\label{fDB}Destination view of an DB compound}}
 \end{wrapfigure}
 After the basic view setup, a directional light is configured, and the
@@ -1814,10 +1841,6 @@ has the range [0, 1], its left child [0, 0.5] and its right child [0.5,
 1], and so on for all nodes in the tree. The preprocessed model is saved
 in a binary format for accelerating subsequent use.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Rendering Loop}}
-\end{wrapfigure}
 The rendering loop maintains a list of candidates to render, which
 initially contains the root node. Each candidate of this list is tested
 for full visiblity against the frustum and range, and rendered if
@@ -1827,6 +1850,10 @@ the node are added to the candidate list. \fig{fRender} shows a flow
 chart of the rendering algorithm, which performs efficient view frustum
 and range culling.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\small\label{fRender}Main Rendering Loop}}
+\end{wrapfigure}
 The actual rendering uses display lists or vertex buffer objects. These
 OpenGL objects are allocated using the object manager. The rendering is
 done by the leaf nodes, which are small enough to store the vertex
@@ -2180,6 +2207,10 @@ The frame synchronization through the frame data allows the input frame
 to wait for the pixel data to become ready, which is signalled by the
 output frame after readback.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
+  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
+\end{wrapfigure}
 Furthermore, the frame data transports the inherited range of the output
 frame's compound. The range can be used to compute the assembly order of
 multiple input frames, e.g., for sorted-blend compositing in volume
@@ -2193,10 +2224,6 @@ Currently, only synchronous readback and assembly using
 respective start method of the image. Later versions of Equalizer will
 implement asynchronous pixel transfers.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
-\end{wrapfigure}
 The offset of input and output frames characterizes the position of the
 frame data with respect to the framebuffer, that is, the
 \textbf{window's} lower-left corner. For output frames this is the
