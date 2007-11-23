@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.2 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.3 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -114,6 +114,7 @@ right].
     1.1     & Nov 12, 2007 & Adapted distributed objects\\
     1.1.1   & Nov 16, 2007 & Minor improvements based on lulu.com print\\
     1.1.2   & Nov 19, 2007 & Minor improvements based on feedback\\
+    1.1.3   & Nov 23, 2007 & Add OpenGL extension handling\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -1966,10 +1967,6 @@ thread for glX, the pipe thread for WGL and the main thread for AGL.
 
 \subsubsection{Initialization and Exit}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/eventInit.pdf}
-  {\caption{\small\label{fEventInit}Event Handling Initialization}}
-\end{wrapfigure}
 During window and pipe initialization the event handling is set up. For
 both entities, \textsf{initEvent\-Handler} is called to register the
 pipe or window with an event handler. This method may be overwritten to
@@ -1977,6 +1974,10 @@ use a custom event handler, or to not install an event handler at all
 and so disable event handling. Likewise, \textsf{exitEventHandler} is
 called to de-initialize event handling.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/eventInit.pdf}
+  {\caption{\small\label{fEventInit}Event Handling Initialization}}
+\end{wrapfigure}
 An event handler consists of two parts: the generic base class providing
 the interface and generic functions, and the window-system-specific
 part providing the actual implementation. 
@@ -2120,6 +2121,88 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 \end{lstlisting}}%>>
 
 
+\subsection{OpenGL Extension Handling}
+
+Equalizer uses GLEW\footnote{\link{http://glew.sourceforge.net}} for
+OpenGL extension handling, particularly the GLEW MX implementation for
+multi-context support.
+
+Each \textsf{eq::Window} has a \textsf{GLEWContext}. This context can be
+obtained by using \textsf{glewGetContext} on the window or channel. GLEW
+MX uses this function to dispatch the functions to the correct
+context. Equalizer (re-)initializes the GLEW context whenever a new
+OpenGL context is set on the window.
+
+Extended OpenGL functions called from a window or channel instance can
+be called directly. GLEW will call the object's \textsf{glewGetContext}
+to obtain the correct context:
+
+{\footnotesize\begin{lstlisting}
+void eqPly::Channel::_drawModel( const Model* model )
+{
+    ...
+    glUseProgram( program );
+    ...
+}
+\end{lstlisting}}
+
+Functions called from another place need to have the macro or function
+\textsf{glewGetContext} that returns the pointer to the GLEWContext of
+the appropriate window.
+
+{\footnotesize\begin{lstlisting}
+// state has GLEWContext* from window
+#define glewGetContext state.glewGetContext
+
+/*  Set up rendering of the leaf nodes.  */
+void VertexBufferLeaf::setupRendering( VertexBufferState& state,
+                                       GLuint* data ) const
+{
+    ...
+    glBindBuffer( GL_ARRAY_BUFFER, data[VERTEX_OBJECT] );
+    glBufferData( GL_ARRAY_BUFFER, _vertexLength * sizeof( Normal ),
+                    &_globalData.normals[_vertexStart], GL_STATIC_DRAW );
+    ...
+}
+\end{lstlisting}}
+
+
+\subsection{\label{sTracking}Head Tracking}
+
+The \textsf{eqPly} example contains rudimentary support for head
+tracking, in order to show how head tracking can be integrated with
+Equalizer. Support for a wide range of tracking devices is not within the
+scope of Equalizer. Other open source and commercial implementations
+cover this functionality sufficiently and can easily be integrated with
+Equalizer.
+
+\begin{figure}[h!t]
+  \subfigure[]{\label{fMono}
+    \includegraphics[height=3cm]{images/mono}}\hfil
+  \subfigure[]{\label{fStereo}
+    \includegraphics[height=3cm]{images/stereo}}\hfil
+  \subfigure[]{\label{fTracked}
+    \includegraphics[height=3cm]{images/tracked}}%
+  {\caption{\small\label{fImmersive}Monoscopic, Stereoscopic and Tracked
+    frustra}}
+\end{figure}
+
+\fig{fMono} illustrates a monoscopic view frustum. The viewer is
+positioned at the origin of the global coordinate system, and the
+frustum is completely symmetric. This is the typical view frustum for
+non-stereoscopic applications.
+
+In stereo rendering, the scene is rendered twice, with the two frustra
+'moved' by the distance between the eyes, as shown in \fig{fStereo}.
+
+In immersive visualization, the observer is tracked in and the view
+frustra are adapted to the viewer's position and orientation, as shown
+in \fig{fTracked}. The transformation origin $\rightarrow$ viewer is set by
+the application using \textsf{Config::setHeadMatrix}, which is used by
+the server to compute the frustra. The resulting off-axis frustra are
+positioned using the channel's head transformation.
+
+
 \subsection{\label{sCompositing}Image Compositing for Scalable Rendering}
 
 Two task methods are responsible for collecting and compositing the
@@ -2146,10 +2229,6 @@ In order to provide a motivation for the design of the image compositing
 API, the direct send parallel compositing algorithm is introduced in this
 section.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
-\end{wrapfigure}
 The main idea for direct send is to parallelize the costly recomposition
 for database (sort-last) decomposition. With each additional source
 channel, the amount of pixel data to be composited grows linearly. When
@@ -2174,10 +2253,14 @@ pipeline also approaches a constant value, i.e., the full frame buffer.
 Equalizer website contains a presentation explaining this
 algorithm\footnote{\link{http://www.equalizergraphics.com/documents/EGPGV07.pdf}}.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
+\end{wrapfigure}
 The following operations have to be possible in order to perform this
 algorithm:
 \begin{itemize}
-\item Selection of frame buffer attachments: color and/or depth
+\item Selection of color and/or depth frame buffer attachments
 \item Restricting the read back area to a part of the rendered area
 \item Positioning the pixel data correctly on the receiving channels
 \end{itemize}
@@ -2201,14 +2284,14 @@ An \textsf{eq::Image} holds a
 two-dimensional snapshot of the framebuffer and can contain color and/or
 depth information.
 
-The frame synchronization through the frame data allows the input frame
-to wait for the pixel data to become ready, which is signalled by the
-output frame after readback.
-
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/assembly.pdf}
   {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
 \end{wrapfigure}
+The frame synchronization through the frame data allows the input frame
+to wait for the pixel data to become ready, which is signalled by the
+output frame after readback.
+
 Furthermore, the frame data transports the inherited range of the output
 frame's compound. The range can be used to compute the assembly order of
 multiple input frames, e.g., for sorted-blend compositing in volume
@@ -2303,6 +2386,10 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 Finding the correct assembly order for perspective frustra is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frustra. For the view and
@@ -2310,10 +2397,6 @@ frustum setup shown in \fig{fBlendPerspective}\footnote{Volume Data Set
   courtesy of: AVS, USA} the correct compositing order is 4-3-1-2 or
 1-4-3-2.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \vspace{-4ex}\includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 In order to compute the assembly order, \textsf{eVolve} uses the angle
 between the origin$\rightarrow$slice vector and the near plane, as shown
 in \fig{fBlendPerspective}. When the angle becomes greater than
@@ -2326,40 +2409,6 @@ channel. \fig{fVolResult} shows the result of the composition from
 The assembly algorithm described in this section also works with parallel
 compositing algorithms such as direct-send. 
 
-\subsection{\label{sTracking}Head Tracking}
-
-The \textsf{eqPly} example contains rudimentary support for head
-tracking, in order to show how head tracking can be integrated with
-Equalizer. Support for a wide range of tracking devices is not within the
-scope of Equalizer. Other open source and commercial implementations
-cover this functionality sufficiently and can easily be integrated with
-Equalizer.
-
-\begin{figure}[h!t]
-  \subfigure[]{\label{fMono}
-    \includegraphics[height=3cm]{images/mono}}\hfil
-  \subfigure[]{\label{fStereo}
-    \includegraphics[height=3cm]{images/stereo}}\hfil
-  \subfigure[]{\label{fTracked}
-    \includegraphics[height=3cm]{images/tracked}}%
-  {\caption{\small\label{fImmersive}Monoscopic, Stereoscopic and Tracked
-    frustra}}
-\end{figure}
-
-\fig{fMono} illustrates a monoscopic view frustum. The viewer is
-positioned at the origin of the global coordinate system, and the
-frustum is completely symmetric. This is the typical view frustum for
-non-stereoscopic applications.
-
-In stereo rendering, the scene is rendered twice, with the two frustra
-'moved' by the distance between the eyes, as shown in \fig{fStereo}.
-
-In immersive visualization, the observer is tracked in and the view
-frustra are adapted to the viewer's position and orientation, as shown
-in \fig{fTracked}. The transformation origin $\rightarrow$ viewer is set by
-the application using \textsf{Config::setHeadMatrix}, which is used by
-the server to compute the frustra. The resulting off-axis frustra are
-positioned using the channel's head transformation.
 
 \if 0
 {\footnotesize\begin{lstlisting}
