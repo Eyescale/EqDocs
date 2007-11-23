@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.1 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.2 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -61,7 +61,7 @@
 \subsection*{Contributors}
 
 Written by Stefan Eilemann.\\
-Engineering contributions by Maxim Makhinya and Jonas B\"osch.
+Engineering contributions by Maxim Makhinya, Jonas B\"osch and Christian Marten.
 
 \subsection*{Copyright}
 
@@ -113,6 +113,7 @@ right].
     1.0.1   & Nov 06, 2007 & Fixed Typo\\
     1.1     & Nov 12, 2007 & Adapted distributed objects\\
     1.1.1   & Nov 16, 2007 & Minor improvements based on lulu.com print\\
+    1.1.2   & Nov 19, 2007 & Minor improvements based on feedback\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -229,11 +230,11 @@ has to implement the rendering method \textsf{Channel::frameDraw},
 similar to the \textsf{glutDisplayFunc} in GLUT applications. It can be
 run as a stand-alone application from the command line.
 
-The \textsf{eqHello} redraw function renders six rotating, colored quads
+The \textsf{eqHello} redraw function renders six colored quads, rotating
 around the origin. The \textsf{frameDraw} meth\-od provided by the
 \textsf{eq::Channel} can be used as a convience function to setup the
 frustum and other OpenGL state. After setting up some additional
-lighting parameter, \textsf{eqHello} rotates the scene and render the
+lighting parameter, \textsf{eqHello} rotates the scene and renders the
 quads using immediate mode:
 
 {\footnotesize\begin{lstlisting}
@@ -680,7 +681,7 @@ Finally it is time to initialize the configuration. For statistics, the
 time for this operation is measured and printed. During initialization
 the server launches and connects all render client nodes, and calls the
 appropriate initialization task methods, as explained in later
-sections. \textsf{Config::init} does return after all nodes, pipes,
+sections. \textsf{Config::init} returns after all nodes, pipes,
 windows and channels are initialized. It returns \textsf{true} only if
 all initialization task methods were successful.
 
@@ -708,9 +709,9 @@ variable \textsf{EQ\_LOG\_TOPICS}:
 \end{lstlisting}}%>>
 
 When the configuration was successfully initialized, the main rendering
-loop is executed. The main loop runs until the user exits the
+loop is executed. It runs until the user exits the
 configuration, or when a maximum number of frames has been rendered,
-when specified by a command-line argument. The latter is useful for
+specified by a command-line argument. The latter is useful for
 benchmarks. The \textsf{Clock} is reused for measuring the overall
 performance. A new frame is started using \textsf{Config::startFrame}
 and a frame is finished using \textsf{Config::finishFrame}.
