@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.3 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.4 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -115,6 +115,7 @@ right].
     1.1.1   & Nov 16, 2007 & Minor improvements based on lulu.com print\\
     1.1.2   & Nov 19, 2007 & Minor improvements based on feedback\\
     1.1.3   & Nov 23, 2007 & Add OpenGL extension handling\\
+    1.1.4   & Nov 26, 2007 & Changes caused by removal of glX event thread\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -1956,14 +1957,13 @@ to use and similar to an GLUT-based implementation.
 
 \subsubsection{Threading}
 
-Where possible events are received and processed by a separate per-node
-event thread to allow asynchronous\footnote{with respect to the
-  rendering} event handling. Currently an event thread is only used by
-the X11/glX window system. WGL receives and processes the events from
-the pipe threads that created the windows. AGL receives the events from
-application or node main thread. Whenever the term \textbf{event thread}
-is used, it refers to the thread receiving the event, such as a per-node
-thread for glX, the pipe thread for WGL and the main thread for AGL.
+In general, events are received and processed by the pipe thread a
+window belongs to. An exception to this rule is AGL, where all events
+are dispatched from the main node thread. WGL and GLX receive and
+process the events from the pipe threads that created the
+windows. Whenever the term \textbf{event thread} is used, it refers to
+the thread receiving the event, i.e., the pipe thread for WGL and GLX,
+and the main thread for AGL.
 
 \subsubsection{Initialization and Exit}
 
@@ -1974,10 +1974,6 @@ use a custom event handler, or to not install an event handler at all
 and so disable event handling. Likewise, \textsf{exitEventHandler} is
 called to de-initialize event handling.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/eventInit.pdf}
-  {\caption{\small\label{fEventInit}Event Handling Initialization}}
-\end{wrapfigure}
 An event handler consists of two parts: the generic base class providing
 the interface and generic functions, and the window-system-specific
 part providing the actual implementation. 
@@ -1987,17 +1983,16 @@ pipe or window handle is set. First, \textsf{exitEventHandler} is called
 to de-initialize event handling for the old handle (if set), and then
 \textsf{initEvent\-Handler} is called for the new handle. 
 
-AGL and glX use an event handler singleton, whereas WGL uses one event
-handler per window. Pipe event handling is only used for glX, where one
-\textsf{Display} connection is created and used to subscribe to window
-events.
+AGL uses an event handler singleton, GLX uses one event handler per pipe
+and WGL uses one event handler per window.
 
 \subsubsection{Message Pump}
 
-For the WGL and AGL window systems, it is required to manually receive and
-dispatch (`pump') events. On WGL, this has to happen on each thread with
-windows, whereas on AGL it has to happen only on the main thread. By
-default, Equalizer pumps these events automatically for the application.
+In order to dispatch the events, Equalizer 'pumps' the native events. On
+WGL and GLX, this has happens on each thread with windows, whereas on
+AGL it has to happen only on the main thread. By default, Equalizer
+pumps these events automatically for the application in-between
+executing task methods.
 
 The methods \textsf{Client::useMessagePump} and
 \textsf{Pipe::useMessagePump} can be overridden to return \textsf{false}
@@ -2033,7 +2028,7 @@ passed to a previously installed, window-system-specific event handling
 function. The default implementation of \textsf{Window::processEvent}
 passes most events on to the application.
 
-Events sent using \textsf{Config::sendEvent} are queued in the
+Events send using \textsf{Config::sendEvent} are queued in the
 application thread. After a frame has been finished,
 \textsf{Config::finishFrame} calls \textsf{Config::handleEvents}. The
 default implementation of this method provides non-blocking event
@@ -2229,13 +2224,18 @@ In order to provide a motivation for the design of the image compositing
 API, the direct send parallel compositing algorithm is introduced in this
 section.
 
-The main idea for direct send is to parallelize the costly recomposition
-for database (sort-last) decomposition. With each additional source
-channel, the amount of pixel data to be composited grows linearly. When
-using the simple approach of compositing all frames on the destination
-channel, this channel quickly becomes the bottleneck in the
-system. Direct send distributes this workload evenly across all source
-channels, and thereby keeps the compositing work per channel constant.
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
+\end{wrapfigure}
+The main idea behind direct send is to parallelize the costly
+recomposition for database (sort-last) decomposition. With each
+additional source channel, the amount of pixel data to be composited
+grows linearly. When using the simple approach of compositing all frames
+on the destination channel, this channel quickly becomes the bottleneck
+in the system. Direct send distributes this workload evenly across all
+source channels, and thereby keeps the compositing work per channel
+constant.
 
 In direct send compositing, each rendering channel is also responsible
 for the sort-last composition\footnote{depth-based for polygonal data or
@@ -2253,10 +2253,6 @@ pipeline also approaches a constant value, i.e., the full frame buffer.
 Equalizer website contains a presentation explaining this
 algorithm\footnote{\link{http://www.equalizergraphics.com/documents/EGPGV07.pdf}}.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
-\end{wrapfigure}
 The following operations have to be possible in order to perform this
 algorithm:
 \begin{itemize}
