@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.4 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.5 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -116,6 +116,7 @@ right].
     1.1.2   & Nov 19, 2007 & Minor improvements based on feedback\\
     1.1.3   & Nov 23, 2007 & Add OpenGL extension handling\\
     1.1.4   & Nov 26, 2007 & Changes caused by removal of glX event thread\\
+    1.1.5   & Dec 10, 2007 & NodeFactory API changes\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -561,11 +562,16 @@ created during initialization:
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig()  { return new eqPly::Config; }
-    virtual eq::Node*    createNode()    { return new eqPly::Node; }
-    virtual eq::Pipe*    createPipe()    { return new eqPly::Pipe; }
-    virtual eq::Window*  createWindow()  { return new eqPly::Window; }
-    virtual eq::Channel* createChannel() { return new eqPly::Channel; }
+    virtual eq::Config*  createConfig()  
+        { return new eqPly::Config; }
+    virtual eq::Node*    createNode( eq::Config* parent )  
+        { return new eqPly::Node( parent ); }
+    virtual eq::Pipe*    createPipe( eq::Node* parent )
+        { return new eqPly::Pipe( parent ); }
+    virtual eq::Window*  createWindow( eq::Pipe* parent )
+        { return new eqPly::Window( parent ); }
+    virtual eq::Channel* createChannel( eq::Window* parent )
+        { return new eqPly::Channel( parent ); }
 };
 \end{lstlisting}}
 
