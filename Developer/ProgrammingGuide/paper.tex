@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.5 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.6 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -117,6 +117,7 @@ right].
     1.1.3   & Nov 23, 2007 & Add OpenGL extension handling\\
     1.1.4   & Nov 26, 2007 & Changes caused by removal of glX event thread\\
     1.1.5   & Dec 10, 2007 & NodeFactory API changes\\
+    1.1.6   & Dec 17, 2007 & Add Scalable Rendering chapter\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -152,6 +153,8 @@ If you have any question regarding Equalizer programming, this
 programming guide, or other specific problems you encountered, please
 direct them to the \textsf{eq-dev} mailing list\footnote{see
   \link{http://www.equalizergraphics.com/lists.html}}.
+
+
 
 \section{Getting Started}
 
@@ -226,7 +229,6 @@ rendering client.
   \includegraphics[width=.618\textwidth]{images/eqHello.png}
   {\caption{\small\label{fHello}Hello, World!}}
 \end{wrapfigure}
-
 The \textsf{eqHello} example is a minimal application to illustrate the
 basic principle of an Equalizer application: The application developer
 has to implement the rendering method \textsf{Channel::frameDraw},
@@ -263,6 +265,137 @@ void Channel::frameDraw( const uint32_t spin )
 The \textsf{eqHello} main function sets up the communication with the
 server, initializes and drives the rendering. The details of this setup
 are explained in \sref{sEqPly}.
+
+
+\section{Scalable Rendering}
+
+Real-time visualization is an inherently parallel
+problem. Unfortunately, different applications have different rendering
+algorithms, which require different scalable rendering modes to address
+the right bottlenecks. Equalizer supports the most important algorithms,
+and will continue to add new ones over time to meet application
+requirements.
+
+This section gives an introduction to scalable rendering, in order to
+provide some background for application developers. The scalability
+modes offered by Equalizer are discussed, along with their advantages
+and disadvantages. 
+
+Choosing the right mode for the application profile is critical for
+performance. Equalizer uses the concept of compounds to describe the
+task decomposition and result recomposition. It allows the combination
+of the different compound modes in any possible way, which allows the
+address different bottlenecks in a flexible way.
+
+
+\subsection{2D or Sort-First Compounds}
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/2D.pdf}
+  {\caption{\small A 2D compound}}
+\end{wrapfigure}
+2D or sort-first decomposes the rendering in screen-space, that is, each
+contributing rendering unit processes a tile of the final view. The
+recomposition simply assembles the tiles side-by-side on the destination
+view. 
+
+The advantage of this mode is a low, constant IO overhead for the pixel
+transfers, since only color information has to be transmitted. The upper
+limit is the number of pixels of the destination view.
+
+It's disadvantage is that it relies on view frustum culling to reduce
+the amount of data rendered. Depending on the application data
+structure, the overlap of some primitives between individual tiles
+limits the scalability of this mode, typically to around eight graphics
+cards. Each node has to potentially hold the full database for rendering.
+
+2D decompositions can be used by all types of applications, but should
+be combined with DB compounds to reduce the data per node, if possible.
+
+
+\subsection{DB or Sort-Last Compounds}
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/DB.pdf}
+  {\caption{\small A database compound}}
+\end{wrapfigure}
+DB or sort-last\footnote{3D model courtesy of AVS, USA.} decomposes the
+rendered database so that all rendering units process a part of the
+scene in parallel.
+
+Volume rendering applications use an ordered alpha-based blending to
+composite the result image. The depth buffer information is used to
+composite the individual images correctly for polygonal data. 
+
+This mode provides very good scalability, since each rendering unit
+processes a part of the database. This allows to lower the requirements
+on all parts of the rendering pipeline: main memory usage, IO bandwidth,
+GPU memory usage, vertex processing and fill rate.
+
+Unfortunately, the database recomposition has linear increasing IO
+requirements for the pixel transfer. Parallel recomposition algorithms,
+such as direct-send address this problem by keeping the per-node IO
+constant (see \fig{fDirectSend}).
+
+The application has to partion the database so that the rendering units
+render only part of the database. Some OpenGL features, do not work
+correctly (anti-aliasing) or need special attention (transparency).
+
+The best use of database compounds is to divide the data to a managable
+size, and then to use other decomposition modes to achieve more
+scalability. Volume rendering is one of the applications which can
+profit from database compounds.
+
+
+\subsection{Stereo Compounds}
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/EYE.pdf}
+  {\caption{\small A stereo compound}}
+\end{wrapfigure}
+Stereo compounds\footnote{3D model courtesy of Stereolithography Archive
+  at Clemson University.} assign each eye pass to individual rendering
+units. The resulting images are copied to the appropriate stereo
+buffer. This modes supports a variety of stereo modes, including active
+(quad-buffered) stereo, anaglyphic stereo and auto-stereo displays with
+multiple eye passes.
+
+Due to the frame consistency between the eye views, this modes scales
+very well. The IO requirements for pixel transfer are small and
+constant.
+
+The number of rendering resources used by stereo compounds is limited by
+the number of eye passes, typically two. 
+
+Stereo compounds are used by all applications when rendering in stereo,
+and is often combined with other modes.
+
+
+\subsection{Pixel Compounds}
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/Pixel.pdf}
+  {\caption{\small A pixel compound}}
+\end{wrapfigure}
+Pixel compounds are similar to 2D compounds. The frustra of the
+source rendering units are modified so that each unit renders an evenly
+distributed subset of pixels. 
+
+As 2D compounds, pixels compounds have low, constant IO requirements for
+the pixel transfers during recomposition.
+
+Pixel compounds only work very well for purely fill-limited
+applications, techniques like frustum culling do not reduce the rendered
+data for the source rendering resources.
+
+OpenGL functionality influenced by the raster position will not work
+correctly with pixel compounds, or needs at least special
+attention. Among them are: lines, points, sprites, glDrawPixels,
+glBitmap, glPolygonStipple.
+
+Pixel compounds are ideal for raytracing, which is highly fill-limited
+and needs the full database for rendering anyway. Volume rendering
+applications should choose this mode over 2D compounds.
 
 
 
@@ -980,10 +1113,6 @@ speedy startup of the configuration on large-scale graphics clusters. On
 the other hand, it means that initialization functions are called even
 if the parent's initialization has failed.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
-  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
-\end{wrapfigure}
 The \textsf{eqPly::Config} class holds the master versions of the
 initialization and frame data. Both objects are registered with the
 \textsf{eq::Config}, which is the \textsf{eqNet::Session} used for
@@ -1015,6 +1144,10 @@ bool Config::init()
         return false;
 \end{lstlisting}}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
+  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
+\end{wrapfigure}
 If the configuration was initialized correctly, the configuration tries
 to set up a tracking device for head tracking. Equalizer does not
 provide extensive support for tracking devices, as this is an orthogonal
@@ -1475,14 +1608,14 @@ drawable and context were created successfully, \textsf{configInit} calls
 state initialization. The default implementation sets up some typical
 OpenGL state, e.g., it enables the depth test.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/windowInit.pdf}
-  {\caption{\small\label{fWindowInit}Window Initialization}}
-\end{wrapfigure}
 \fig{fWindowInit} shows a flow chart of the window initialization. The
 colored functions are task methods and can be replaced by
 application-specific implementations.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/windowInit.pdf}
+  {\caption{\small\label{fWindowInit}Window Initialization}}
+\vspace{-4ex}\end{wrapfigure}
 The window-system specific initialization takes into account various
 attributes set in the configuration file. Attributes include the size of
 various frame buffer attachments (color, alpha, depth, stencil) as well
@@ -1495,6 +1628,7 @@ enable them if possible.
 The \textsf{eqPly} window initialization function first calls
 \textsf{eq::Window::configInit} to use the generic window setup. If that
 was successful, it initializes a state object and an overlay logo:
+\vspace{4ex}
 
 {\footnotesize\begin{lstlisting}
 bool Window::configInit( const uint32_t initID )
@@ -1503,24 +1637,21 @@ bool Window::configInit( const uint32_t initID )
         return false;
 
     eq::Pipe*  pipe        = getPipe();
-    Window*    firstWindow = static_cast< Window* >( pipe->getWindow( 0 ));
+    Window*    firstWindow = static_cast< Window* >( pipe->getWindows()[0] );
 
     EQASSERT( !_state );
 
     if( firstWindow == this )
     {
-        _state = new VertexBufferState( getGLFunctions( ));
-        _loadLogo();
+        _state = new VertexBufferState( glewGetContext( ));
 
         const Node*     node     = static_cast< const Node* >( getNode( ));
         const InitData& initData = node->getInitData();
 
         if( initData.useVBOs() )
         {
-            const eq::GLFunctions* glFunctions = getGLFunctions();
-            // Check if all VBO funcs available, else leave DISPLAY_LIST_MODE on
-            if( glFunctions->hasGenBuffers() && glFunctions->hasBindBuffer() &&
-                glFunctions->hasBufferData() && glFunctions->hasDeleteBuffers())
+            // Check if VBO funcs available, else leave DISPLAY_LIST_MODE on
+            if( GLEW_VERSION_1_5 )
             {
                 _state->setRenderMode( mesh::BUFFER_OBJECT_MODE );
                 EQINFO << "VBO rendering enabled" << endl;
@@ -1529,6 +1660,21 @@ bool Window::configInit( const uint32_t initID )
                 EQWARN << "VBO function pointers missing, using display lists" 
                        << endl;
         }
+        
+        if( initData.useGLSL() )
+        {
+            // Check if all functions are available
+            if( GLEW_VERSION_2_0 )
+            {
+                EQINFO << "Shaders supported, attempting to load" << endl;
+                _loadShaders();
+            }
+            else
+                EQWARN << "Shader function pointers missing, using fixed "
+                       << "pipeline" << endl;
+        }
+
+        _loadLogo();
     }
     else
     {
@@ -1538,8 +1684,15 @@ bool Window::configInit( const uint32_t initID )
     }
 
     if( !_state ) // happens if first window failed to initialize
+    {
+        setErrorMessage( "No state handler object" );
         return false;
-    
+    }
+
+    // turn off OpenGL lighting if we are using our own shaders
+    if( _state->getProgram( pipe ) != VertexBufferState::FAILED )
+        glDisable( GL_LIGHTING );
+
     return true;
 }
 \end{lstlisting}}%>>
@@ -1838,6 +1991,10 @@ void Channel::_drawModel( const Model* model )
         
 \end{lstlisting}}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\small\label{fRender}Main Rendering Loop}}
+\end{wrapfigure}
 The model data is spatially organized in an 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
 for efficient view frustum culling. When the model is loaded by
@@ -1856,10 +2013,6 @@ the node are added to the candidate list. \fig{fRender} shows a flow
 chart of the rendering algorithm, which performs efficient view frustum
 and range culling.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Rendering Loop}}
-\end{wrapfigure}
 The actual rendering uses display lists or vertex buffer objects. These
 OpenGL objects are allocated using the object manager. The rendering is
 done by the leaf nodes, which are small enough to store the vertex
