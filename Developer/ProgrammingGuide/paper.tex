@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.6 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.7 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -118,6 +118,7 @@ right].
     1.1.4   & Nov 26, 2007 & Changes caused by removal of glX event thread\\
     1.1.5   & Dec 10, 2007 & NodeFactory API changes\\
     1.1.6   & Dec 17, 2007 & Add Scalable Rendering chapter\\
+    1.1.7   & Dec 20, 2007 & Per-window object manager changes\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -1740,14 +1741,25 @@ GPU\footnote{\link{http://www.equalizergraphics.com/documents/design/objectManag
 
 The OM is a template class. The template type is the key used to
 identify objects. The same key is used by all contexts to get the
-OpenGL name of an object. In \textsf{eqPly}, a key of type \textsf{const
-  void *} is used. The rendering code uses the address of the data item
-to be rendered as the key to obtain the associated OpenGL object.
+OpenGL name of an object.
 
-All objects managed by the OM are reference counted. If an application
-releases the objects properly, they are automatically de-allocated. It
-is also possible to manually manage de-allocation of objects, which
-might be more convenient in some cases.
+
+Each \textsf{eq::Window} has an object manager with the key type
+\textsf{const void*} for as long as it has an OpenGL context. The OM is
+shared between all windows of a pipe, if the windows are created using
+the default \textsf{configInit} functions. If the window is created by
+the application, the OM is not shared since no assumption can be made
+about OpenGL context sharing. Later version of Equalizer will introduce
+an API to configure OpenGL context sharing, and therefore OM sharing, for
+application-created windows.
+
+\textsf{eqPly} uses the window's object manager in the rendering code to
+obtain the OpenGL objects for a given data item. The address of the data
+item to be rendered is used as the key. All objects managed by the OM
+are reference counted. If an application releases the objects properly,
+they are automatically de-allocated. It is also possible to manually
+manage de-allocation of objects, which might be more convenient in some
+cases.
 
 Currently, support for display lists, VBO's, textures and shaders is
 implemented. For each object, the following functions are available:
