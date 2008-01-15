@@ -7,7 +7,7 @@
 	<key>ApplicationVersion</key>
 	<array>
 		<string>com.omnigroup.OmniGrafflePro</string>
-		<string>129.15</string>
+		<string>129.18</string>
 	</array>
 	<key>AutoAdjust</key>
 	<false/>
@@ -49,8 +49,15 @@
 			<dict>
 				<key>fill</key>
 				<dict>
-					<key>Draws</key>
-					<string>NO</string>
+					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>0</string>
+						<key>g</key>
+						<string>0</string>
+						<key>r</key>
+						<string>1</string>
+					</dict>
 				</dict>
 				<key>shadow</key>
 				<dict>
@@ -125,8 +132,15 @@
 			<dict>
 				<key>fill</key>
 				<dict>
-					<key>Draws</key>
-					<string>NO</string>
+					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>0</string>
+						<key>g</key>
+						<string>0</string>
+						<key>r</key>
+						<string>1</string>
+					</dict>
 				</dict>
 				<key>shadow</key>
 				<dict>
@@ -461,7 +475,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-11-16 13:10:09 +0100</string>
+	<string>2008-01-15 16:53:34 +0100</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -536,11 +550,11 @@
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{302, 112}, {944, 766}}</string>
+		<string>{{247, 178}, {911, 700}}</string>
 		<key>VisibleRegion</key>
-		<string>{{0, -19}, {1947, 1400}}</string>
+		<string>{{-38, 0}, {2024.19, 1360}}</string>
 		<key>Zoom</key>
-		<real>1.13605797290802</real>
+		<real>1.0539215803146362</real>
 	</dict>
 </dict>
 </plist>

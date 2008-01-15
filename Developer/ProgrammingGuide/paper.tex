@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.7 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.8 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -119,6 +119,8 @@ right].
     1.1.5   & Dec 10, 2007 & NodeFactory API changes\\
     1.1.6   & Dec 17, 2007 & Add Scalable Rendering chapter\\
     1.1.7   & Dec 20, 2007 & Per-window object manager changes\\
+    1.1.8   & Jan 15, 2007 & Detailed window initialization based on
+                             latest refactoring\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -1545,7 +1547,7 @@ eq::WindowSystem Pipe::selectWindowSystem() const
 }
 \end{lstlisting}}%>>
 
-\subsubsection{Carbon/AGL Thread Safety}
+\subsubsection{\label{sCarbonThread}Carbon/AGL Thread Safety}
 
 Parts of the Carbon API used for window and event handling in the AGL
 window system are not thread safe. The application has to call
@@ -2004,8 +2006,8 @@ void Channel::_drawModel( const Model* model )
 \end{lstlisting}}
 
 \begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Rendering Loop}}
+  \vspace{-2.5ex}\includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\small\label{fRender}Main Rendering Loop}\vspace{-2ex}}
 \end{wrapfigure}
 The model data is spatially organized in an 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
@@ -2333,6 +2335,195 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
 \end{lstlisting}}
 
 
+\subsection{Advanced Window Initialization}
+
+This section explains window initialization in detail. It discussed in
+detail the handling on the different window systems. The entry point for
+the window initialization is the task method
+\textsf{Window::configInit}. This task method first calls a
+window-system-specific task method, and then
+\textsf{Window::configInitGL} to do generic OpenGL state setup, as shown
+in \fig{fWindowInit}.
+
+Since window initialization is notoriously error-prone and hard to
+debug, the default Equalizer functions propagate the reason for errors
+from the render clients back to the application. The \textsf{Pipe} and
+\textsf{Window} classes have a \textsf{setErrorMessage} method, which is
+used to set an error string. This string is passed to the
+\textsf{Config} instance on the application node, where it can be
+queried using \textsf{getErrorMessage}.
+
+The window-system-specific initialization methods use overrideable
+methods for all sub-tasks. This allows partial customization, without
+the need of rewriting tedious window initialization code, e.g., the
+OpenGL pixel format selection.
+
+\subsubsection{AGL Window Initialization}
+
+AGL initialization happens in three steps: choosing a pixel format,
+creating the context and creating a drawable. 
+
+Most AGL and Carbon calls are not thread-safe. The Equalizer methods
+calling these functions use \textsf{Global::enterCarbon} and
+\textsf{Global::leaveCarbon} to protect the API calls. Please refer to
+\sref{sCarbonThread} for more details.
+
+The pixel format is chosen based on the window's attributes. Some
+attributes set to auto, e.g., stereo, cause the method first to request
+the feature and then to back off and retry if it is not available. The
+returned pixel format has to be destroyed using
+\textsf{Window::destroyAGLPixelFormat}. When no matching pixel format is
+found, \textsf{chooseAGLPixelFormat} returns \textsf{0} and the AGL
+window initialization returns with a failure.
+
+The context creation also uses the global Carbon lock. Furthermore, it
+sets up the swap buffer synchronization with the vertical retrace, if
+enabled by the corresponding window attribute hint. Again the window
+initialization fails if the context could not be created.
+
+The drawable creation method \textsf{configInitAGLDrawable} calls either
+\textsf{configInitAGLFullscreen} or \textsf{configInitAGLWindow}.
+
+The top-level AGL window initialization code therefore looks as follows:
+
+{\footnotesize\begin{lstlisting}
+bool Window::configInitAGL()
+{
+    AGLPixelFormat pixelFormat = chooseAGLPixelFormat();
+    if( !pixelFormat )
+        return false;
+
+    AGLContext context = createAGLContext( pixelFormat );
+    destroyAGLPixelFormat ( pixelFormat );
+    setAGLContext( context );
+
+    if( !context )
+        return false;
+
+    const bool success = configInitAGLDrawable();
+    if( success && !_xDrawable )
+    {
+        setErrorMessage( "configInitAGLDrawable did set no AGL drawable" );
+        return false;
+    }
+
+    return success;
+}
+\end{lstlisting}}
+
+
+\subsubsection{GLX Window Initialization}
+
+GLX initialization is very similar to AGL initialization. Again the
+steps are: choose visual (pixel format), create OpenGL context and then
+create drawable. The only difference is that the data returned by
+\textsf{chooseXVisualInfo} has to be freed using \textsf{XFree}:
+
+{\footnotesize\begin{lstlisting}
+bool Window::configInitGLX()
+{
+    XVisualInfo* visualInfo = chooseXVisualInfo();
+    if( !visualInfo )
+        return false;
+
+    GLXContext context = createGLXContext( visualInfo );
+    setGLXContext( context );
+
+    if( !context )
+        return false;
+
+    const bool success = configInitGLXDrawable( visualInfo );
+    XFree( visualInfo );
+
+    if( success && !_xDrawable )
+    {
+        setErrorMessage( "configInitGLXDrawable did set no X11 drawable" );
+        return false;
+    }
+
+    return success;    
+}
+\end{lstlisting}}
+
+
+\subsubsection{WGL Window Initialization}
+
+The WGL initialization requires another order of operations compared to
+AGL or GLX. The following functions are used to initialize a WGL window:
+
+\begin{enumerate}
+\item\textsf{getWGLDeviceContext} is used to get a device context which
+  might be needed for window creation. Ordinary windows do not need a
+  device context during creation, but PBuffers do need one. If a context
+  is returned, a function pointer to delete the returned device context
+  is set as well.
+\item\textsf{configInitWGLDrawable} creates the drawable. The device
+  context passed to \textsf{configInitWGLDrawable} is not used when
+  creating a window. On success, it sets the window handle.
+\item\textsf{chooseWGLPixelFormat} chooses a pixel format based on the
+  window attributes. If no device context is given, it uses the device
+  context from this window's window handle. The chosen pixel format is
+  set on the window's device context as well as on the passed device
+  context. The window needs a window handle set before this method is
+  called.
+\item\textsf{createWGLContext} creates an OpenGL rendering context using
+  the given device context. The device context can not be 0. It does not
+  set the window's OpenGL context.
+\end{enumerate}
+
+The full \textsf{configInitWGL} task method, including error handling
+and cleanup, looks as follows:
+
+{\footnotesize\begin{lstlisting}
+bool Window::configInitWGL()
+{
+    PFNEQDELETEDCPROC deleteDCProc = 0;
+    HDC dc = getWGLDeviceContext( deleteDCProc );
+    EQASSERT( !dc || deleteDCProc );
+
+    if( !configInitWGLDrawable( dc ))
+    {
+        if( dc )
+            deleteDCProc( dc );
+        return false;
+    }
+
+    if( !_wglWindowHandle )
+    {
+        if( dc )
+            deleteDCProc( dc );
+        setErrorMessage( "configInitWGLDrawable did set no WGL drawable" );
+        return false;
+    }
+
+    int pixelFormat = chooseWGLPixelFormat( dc );
+    if( pixelFormat == 0 )
+    {
+        if( dc )
+            deleteDCProc( dc );
+        return false;
+    }
+
+    HDC windowDC = GetDC( _wglWindowHandle );
+    HGLRC context = createWGLContext( dc ? dc : windowDC );
+    ReleaseDC( _wglWindowHandle, windowDC );
+
+    setWGLContext( context );
+
+    if( !context )
+    {
+        if( dc )
+            deleteDCProc( dc );
+        return false;
+    }
+
+    if( dc )
+        deleteDCProc( dc );
+    return true;
+}
+\end{lstlisting}}
+
+
 \subsection{\label{sTracking}Head Tracking}
 
 The \textsf{eqPly} example contains rudimentary support for head
@@ -2395,10 +2586,6 @@ In order to provide a motivation for the design of the image compositing
 API, the direct send parallel compositing algorithm is introduced in this
 section.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
-\end{wrapfigure}
 The main idea behind direct send is to parallelize the costly
 recomposition for database (sort-last) decomposition. With each
 additional source channel, the amount of pixel data to be composited
@@ -2408,6 +2595,10 @@ in the system. Direct send distributes this workload evenly across all
 source channels, and thereby keeps the compositing work per channel
 constant.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
+\end{wrapfigure}
 In direct send compositing, each rendering channel is also responsible
 for the sort-last composition\footnote{depth-based for polygonal data or
   sorted-blend for volume data} of one screen-space tile. He receives
@@ -2451,10 +2642,6 @@ An \textsf{eq::Image} holds a
 two-dimensional snapshot of the framebuffer and can contain color and/or
 depth information.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
-\end{wrapfigure}
 The frame synchronization through the frame data allows the input frame
 to wait for the pixel data to become ready, which is signalled by the
 output frame after readback.
@@ -2464,6 +2651,10 @@ frame's compound. The range can be used to compute the assembly order of
 multiple input frames, e.g., for sorted-blend compositing in volume
 rendering applications.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
+  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
+\end{wrapfigure}
 Readback and assemble operations on frames and images are designed to be
 asynchronous. They have a start and finish method for both readback and
 assemble to allow the initiation and synchronization of the operation.
@@ -2493,6 +2684,11 @@ and images.
 
 \subsubsection{Custom Assembly in eVolve}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
+      Volume Rendering}}
+\end{wrapfigure}
 The \textsf{eVolve} example is a scalable volume renderer. It uses 3D
 texture-based volume rendering, where the 3D texture is intersected by
 view-aligned slices. The slices are rendered back-to-front and blended
@@ -2504,11 +2700,6 @@ When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
 mostly fill-limited and therefore scales nicely in this mode. 
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
-      Volume Rendering}}
-\end{wrapfigure}
 The full power of scalable volume rendering is however in DB (sort-last)
 compounds, where the full volume is divided into separate bricks. Each
 of the bricks is rendered like a separate volume. For recomposition, the
@@ -2545,6 +2736,10 @@ same blending parameters. Simplified, the frame buffer images are
 `thick' slices which are `rendered' by writing their content to the
 destination frame buffer using the correct order. 
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -2553,10 +2748,6 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 Finding the correct assembly order for perspective frustra is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frustra. For the view and
