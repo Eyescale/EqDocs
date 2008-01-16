@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.8 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.9 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -121,6 +121,7 @@ right].
     1.1.7   & Dec 20, 2007 & Per-window object manager changes\\
     1.1.8   & Jan 15, 2007 & Detailed window initialization based on
                              latest refactoring\\
+    1.1.9   & Jan 16, 2007 & Detail distributed object usage\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -439,6 +440,10 @@ are executed from this thread. This threading model is the OpenGL
 thread. If structured correctly, the application rarely has to take care
 of thread synchonization or protection of shared data.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/model.pdf}
+  {\caption{\small\label{fModel}Simplified execution model}}
+\end{wrapfigure}
 The main thread is responsible for maintaining the application logic. It
 reacts on user events, updates the data model and requests new frames to
 be rendered. It drives the whole application, as shown in \fig{fModel}.
@@ -448,10 +453,6 @@ database. The data\-base should be accessed in a read-only fashion
 during rendering to avoid threading problems. This is normally the case,
 for example all modern scene graphs use read-only render traversals.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/model.pdf}
-  {\caption{\small\label{fModel}Simplified execution model}}
-\end{wrapfigure}
 All rendering threads in the configuration run asynchronously to the
 application's main thread. Depending on the configuration's latency,
 they can fall $n$ frames behind the last frame finished by the
@@ -565,13 +566,13 @@ initialization. The rendering tasks for the channels are computed by the
 server and send to the appropriate render clients.
 
 \subsubsection{Frustum}
+Compounds have a frustum description to define the physical layout of
+the display environment. 
+
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/frustra.pdf}
   {\caption{\small\label{fFrustra}Wall and projection parameters}}
 \end{wrapfigure}
-Compounds have a frustum description to define the physical layout of
-the display environment. 
-
 The frustum description is inherited by the children, therefore the
 frustum is typically defined on the top-most compound. 
 
@@ -871,13 +872,6 @@ configuration file, and allows several outstanding frames. This allows
 overlapping execution in the node and pipe threads and minimizes idle
 times. 
 
-By default, \textsf{Config::finish\-Fra\-me} also synchronizes the
-completion of all local rendering tasks for the current frame. This
-facilitates porting of exising rendering codes, since the database does
-not have to be multi-buffered. Applications such as \textsf{eqPly}, which
-do not need this per-node frame synchronization can disable it, as
-explained in \sref{sNodeFrame}.
-
 \begin{wrapfigure}{r}{.618\textwidth}
   \subfigure[]{\label{fSync}
     \includegraphics[width=.25\textwidth]{images/sync}}\hfil
@@ -885,6 +879,13 @@ explained in \sref{sNodeFrame}.
     \includegraphics[width=.25\textwidth]{images/async}}%
   {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
 \end{wrapfigure}
+By default, \textsf{Config::finish\-Fra\-me} also synchronizes the
+completion of all local rendering tasks for the current frame. This
+facilitates porting of exising rendering codes, since the database does
+not have to be multi-buffered. Applications such as \textsf{eqPly}, which
+do not need this per-node frame synchronization can disable it, as
+explained in \sref{sNodeFrame}.
+
 \fig{fSyncAsync} shows the execution of (hypothetical) rendering tasks
 without latency (\fig{fSync}) and with a latency of
 one frame (\fig{fAsync}). With \textsf{eqPly}, a speedup of 15\% has been
@@ -978,6 +979,51 @@ The \textsf{eqPly} example has a static distributed object to provide
 initial data to all rendering nodes, as well as a versioned object to
 provide frame-specific data such as the camera position to the
 rendering methods.
+
+\subsubsection{Best Practices}
+
+Distributed objects are addressed using session-unique identifiers,
+because pointers to other objects can not be distributed directly, since
+they have no meaning on remote nodes. The session with which distributed
+objects are registered is normally the \textsf{eq::Config}.
+
+The shared data entry point for the render clients is the identifier
+passed by the application to \textsf{Config::init}. This identifier
+typically contains the identifier of a static distributed object, and is
+passed by Equalizer to all \textsf{configInit} task methods. Normally
+this initial object is mapped by the \textsf{eq::Node}, and contains
+identifiers to other shared data objects.
+
+The distributed data objects referenced by the initial data object are
+often versioned objects, to keep them in sync with the rendered
+frames. Similar to the initial identifier passed to
+\textsf{Config::init}, an object identifier or version can be passed to
+\textsf{Config::startFrame}. Equalizer will pass this identifier to all
+\textsf{frameStart} task methods. In \textsf{eqPly}, the frame-specific
+data, e.g., the global camera data, is versioned. The frame data
+identifier is passed in the initial data, and the frame data version is
+passed with each start frame request.
+
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/objects.pdf}
+  {\caption{\small\label{fObjects}Distributed Data Handling}}
+\end{wrapfigure}
+Applications distributing their scene graph, rather then relying on a
+shared filesystem like \textsf{eqPly}, use the frame data also as an
+entry point to their scene graph data structure. \fig{fObjects} shows
+one possible implementation, where the identifier and version of the
+scene graph root are transported using the frame data. The scene graph
+root then serializes and de-serializes his immediate children by
+transferring their identifier and current version.
+
+The objects are still created by the application, and then registered or
+mapped with the session in order to distribute them. When mapping
+objects in a hierarchical data structure, their type often has to be
+known in order to create them. Equalizer does not currently provide
+object typing, this has to be done by the application, either implicitly
+in the current implementation context, or by transferring a type
+identifier. In \textsf{eqPly}, object typing is implicit since it is
+well-defined which object is mapped in which task method.
 
 \subsubsection{Change Handling}
 
@@ -1105,6 +1151,10 @@ necessary data.
 
 \subsubsection{Initialization and Exit}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
+  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
+\end{wrapfigure}
 The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
 completion is synchronized afterwards. 
@@ -1147,10 +1197,6 @@ bool Config::init()
         return false;
 \end{lstlisting}}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
-  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
-\end{wrapfigure}
 If the configuration was initialized correctly, the configuration tries
 to set up a tracking device for head tracking. Equalizer does not
 provide extensive support for tracking devices, as this is an orthogonal
@@ -1600,6 +1646,10 @@ all data specific to the OpenGL context.
 
 \subsubsection{Initialization and Exit}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/windowInit.pdf}
+  {\caption{\small\label{fWindowInit}Window Initialization}}
+\end{wrapfigure}
 The initialization sequence uses multiple, overrideable task
 methods. The main task method \textsf{configInit} executes a `child'
 task method to create the drawable and context. The child task method
@@ -1615,10 +1665,6 @@ OpenGL state, e.g., it enables the depth test.
 colored functions are task methods and can be replaced by
 application-specific implementations.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/windowInit.pdf}
-  {\caption{\small\label{fWindowInit}Window Initialization}}
-\vspace{-4ex}\end{wrapfigure}
 The window-system specific initialization takes into account various
 attributes set in the configuration file. Attributes include the size of
 various frame buffer attachments (color, alpha, depth, stencil) as well
@@ -1631,7 +1677,6 @@ enable them if possible.
 The \textsf{eqPly} window initialization function first calls
 \textsf{eq::Window::configInit} to use the generic window setup. If that
 was successful, it initializes a state object and an overlay logo:
-\vspace{4ex}
 
 {\footnotesize\begin{lstlisting}
 bool Window::configInit( const uint32_t initID )
@@ -2006,8 +2051,8 @@ void Channel::_drawModel( const Model* model )
 \end{lstlisting}}
 
 \begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-2.5ex}\includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Rendering Loop}\vspace{-2ex}}
+  \includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\small\label{fRender}Main Rendering Loop}}
 \end{wrapfigure}
 The model data is spatially organized in an 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
@@ -2584,7 +2629,8 @@ Equalizer.
 
 In order to provide a motivation for the design of the image compositing
 API, the direct send parallel compositing algorithm is introduced in this
-section.
+section. Other parallel compositing algorithms, e.g. binary-swap, can
+also be expressed through an Equalizer configuration file.
 
 The main idea behind direct send is to parallelize the costly
 recomposition for database (sort-last) decomposition. With each
