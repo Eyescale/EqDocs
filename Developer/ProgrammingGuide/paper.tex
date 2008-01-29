@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.9 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.10 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -122,6 +122,7 @@ right].
     1.1.8   & Jan 15, 2007 & Detailed window initialization based on
                              latest refactoring\\
     1.1.9   & Jan 16, 2007 & Detail distributed object usage\\
+    1.1.10  & Jan 28, 2007 & Add creation thread for NodeFactory entities\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -693,7 +694,9 @@ provided \textsf{eq::NodeFactory} base class instantiates 'plain'
 Equalizer objects, thus making it possible to selectively subclass
 individual entity types, as it is done by \textsf{eqHello}. For each
 rendering resources used in the configuration, one C++ object will be
-created during initialization:
+created during initialization. Config, node and pipe objects are created and
+destroyed in the node thread, whereas window and channel objects are
+created and destroyed in the pipe thread:
 
 {\footnotesize\begin{lstlisting}
 class NodeFactory : public eq::NodeFactory
