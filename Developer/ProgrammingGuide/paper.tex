@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.10 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.11 for Equalizer 0.4+svn\\[\medskipamount]
   \today
 }
 
@@ -65,7 +65,7 @@ Engineering contributions by Maxim Makhinya, Jonas B\"osch and Christian Marten.
 
 \subsection*{Copyright}
 
-\textcopyright 2007 Eyescale Software GmbH. All rights reserved. No
+\textcopyright 2007-2008 Eyescale Software GmbH. All rights reserved. No
 permission is granted to copy, distribute, or create derivative works
 from the contents of this electronic documentation in any manner, in
 whole or in part, without the prior written permission of Eyescale
@@ -119,10 +119,11 @@ right].
     1.1.5   & Dec 10, 2007 & NodeFactory API changes\\
     1.1.6   & Dec 17, 2007 & Add Scalable Rendering chapter\\
     1.1.7   & Dec 20, 2007 & Per-window object manager changes\\
-    1.1.8   & Jan 15, 2007 & Detailed window initialization based on
+    1.1.8   & Jan 15, 2008 & Detailed window initialization based on
                              latest refactoring\\
-    1.1.9   & Jan 16, 2007 & Detail distributed object usage\\
-    1.1.10  & Jan 28, 2007 & Add creation thread for NodeFactory entities\\
+    1.1.9   & Jan 16, 2008 & Detail distributed object usage\\
+    1.1.10  & Jan 28, 2008 & Add creation thread for NodeFactory entities\\
+    1.1.11  & Feb 20, 2008 & Add advanced chapter for thread synchronization\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -226,6 +227,27 @@ render client, the Equalizer initialization routine does not return and
 takes over the control by calling the render client task
 methods. Complex applications usually implement a separate, light-weight
 rendering client.
+
+\subsubsection{Parallel Rendering}
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-1em}
+  \includegraphics[width=.618\textwidth]{images/executionFlow.pdf}
+  {\caption{\small\label{fExecutionFlow}Parallel Rendering}}
+  \vspace{-1em}
+\end{wrapfigure}
+
+\fig{fExecutionFlow} illustrates the basic principle of any parallel
+rendering application. The typical OpenGL application, for example
+GLUT-based applications, has an event loop which redraws the scene,
+updates data based on received events, and eventually redraws a new
+frame.
+
+Any parallel rendering application keeps this basic execution model and
+extends it by separating the rendering code from the main event
+loop. This rendering coded is then executed in parallel on different
+resources. This model is followed by Equalizer, thus making application
+development as easy as possible.
 
 
 \section{Hello, World!}
@@ -431,8 +453,12 @@ methods are similar in concept to C function callbacks. The
 full list can be found on the website\footnote{see
   \link{http://www.equalizergraphics.com/documents/design/taskMethods.html}}.
 
-\subsection{Execution Model and Thread Safety}
+\subsection{\label{sExecution}Execution Model and Thread Safety}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/model.pdf}
+  {\caption{\small\label{fModel}Simplified execution model}}
+\end{wrapfigure}
 Using threading correctly in OpenGL-based applications is easy with
 Equalizer. Equalizer creates one rendering thread for each graphics
 card. All task methods for a pipe, and therefore all OpenGL commands,
@@ -441,10 +467,6 @@ are executed from this thread. This threading model is the OpenGL
 thread. If structured correctly, the application rarely has to take care
 of thread synchonization or protection of shared data.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/model.pdf}
-  {\caption{\small\label{fModel}Simplified execution model}}
-\end{wrapfigure}
 The main thread is responsible for maintaining the application logic. It
 reacts on user events, updates the data model and requests new frames to
 be rendered. It drives the whole application, as shown in \fig{fModel}.
@@ -471,7 +493,7 @@ This per-node frame synchronization does not inhibit latency across
 rendering nodes. Furthermore, advanced rendering software which
 multi-buffers the dynamic parts of the database can disable the per-node
 frame synchronization, as explained in \sref{sNodeFrame}. Some scene
-graphs do implement multi-buffered data.
+graphs for example do implement multi-buffered data.
 
 
 
@@ -875,13 +897,6 @@ configuration file, and allows several outstanding frames. This allows
 overlapping execution in the node and pipe threads and minimizes idle
 times. 
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \subfigure[]{\label{fSync}
-    \includegraphics[width=.25\textwidth]{images/sync}}\hfil
-  \subfigure[]{\label{fAsync}
-    \includegraphics[width=.25\textwidth]{images/async}}%
-  {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
-\end{wrapfigure}
 By default, \textsf{Config::finish\-Fra\-me} also synchronizes the
 completion of all local rendering tasks for the current frame. This
 facilitates porting of exising rendering codes, since the database does
@@ -889,6 +904,13 @@ not have to be multi-buffered. Applications such as \textsf{eqPly}, which
 do not need this per-node frame synchronization can disable it, as
 explained in \sref{sNodeFrame}.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \subfigure[]{\label{fSync}
+    \includegraphics[width=.25\textwidth]{images/sync}}\hfil
+  \subfigure[]{\label{fAsync}
+    \includegraphics[width=.25\textwidth]{images/async}}%
+  {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
+\end{wrapfigure}
 \fig{fSyncAsync} shows the execution of (hypothetical) rendering tasks
 without latency (\fig{fSync}) and with a latency of
 one frame (\fig{fAsync}). With \textsf{eqPly}, a speedup of 15\% has been
@@ -983,8 +1005,12 @@ initial data to all rendering nodes, as well as a versioned object to
 provide frame-specific data such as the camera position to the
 rendering methods.
 
-\subsubsection{Best Practices}
+\subsubsection{Object Usage for Rendering}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/objects.pdf}
+  {\caption{\small\label{fObjects}Distributed Data Handling}}
+\end{wrapfigure}
 Distributed objects are addressed using session-unique identifiers,
 because pointers to other objects can not be distributed directly, since
 they have no meaning on remote nodes. The session with which distributed
@@ -1007,10 +1033,6 @@ data, e.g., the global camera data, is versioned. The frame data
 identifier is passed in the initial data, and the frame data version is
 passed with each start frame request.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/objects.pdf}
-  {\caption{\small\label{fObjects}Distributed Data Handling}}
-\end{wrapfigure}
 Applications distributing their scene graph, rather then relying on a
 shared filesystem like \textsf{eqPly}, use the frame data also as an
 entry point to their scene graph data structure. \fig{fObjects} shows
@@ -1408,87 +1430,10 @@ bool Node::configExit()
 }
 \end{lstlisting}}
 
-\subsubsection{\label{sNodeFrame}Frame Control}
-
-The application has extended control over the task synchronization
-during a frame. Upon \textsf{Config::startFrame}, Equalizer invokes the
-\textsf{frameStart} task methods of the various entities. The entities
-unlock all its children by calling \textsf{startFrame}, e.g.,
-\textsf{Node::frameStart} has to call \textsf{Node::startFrame} in order
-to unlock the pipe threads. Note that certain \textsf{startFrame} calls,
-e.g., \textsf{Window::startFrame}, are currently empty since the
-synchronization is implicit due to the sequential execution within the
-thread.
-
-Likewise, \textsf{Config::finishFrame} causes the invokation of the
-\textsf{frameFinish} task methods. These task methods unlock their
-parents by calling \textsf{releaseFrame}.
-
-The explicit synchronization of child or parent resources allows the
-application to optimize the processing, by performing certain, independent
-operations when the child or parent resources are already unlocked.
-
-The default thread synchronization synchronizes all
-\textsf{Channel::frameDraw} operations on a \textbf{single} node with
-the node's main thread. This facilitates porting, since the scene
-database does not have to be multi-buffered as all threads of the node
-process render the same frame.
-
-The per-node frame synchronization does not break the asynchronous
-execution across rendering nodes.  Advanced applications can remove per-node
-frame synchronization.
-
-The per-node frame synchronization is achieved through the
-\textsf{startFrame\textrightarrow wait\-Fra\-me\-Started} and
-\textsf{releaseFrameLocal\textrightarrow waitFrameLocal} synchronization
-points. Note that this synchronization is only per-node, different nodes
-in the cluster still run asynchronously.
-
-The first synchronization point ensures that the application (node)
-thread is done modifiying the data, typically during event
-processing. The pipe threads call \textsf{Node::waitFrameStarted} which
-blocks until the node calls \textsf{startFrame} in
-\textsf{Node::frame\-Start}.
-
-The second pair ensures that after \textsf{Config::finishFrame} all pipe
-threads are done rendering the current frame, and therefore do not
-access shared data. At this point the application thread can safely
-modify scene data. The node's \textsf{frameDrawFinish} waits for all
-local pipes to release the synchronization by calling
-\textsf{Pipe::release\-Fra\-me\-Lo\-cal}, which happens by default in
-\textsf{Pipe::frameDrawFinish}. The \textsf{frameDrawFinish} methods are
-called after all \textsf{Channel::frameDraw} of the corresponding thread
-have been executed.
-
-\begin{figure}[ht!]\center
-  \includegraphics[width=\textwidth]{images/mainloop.pdf}
-  {\caption{\small\label{fFrameSync}Synchronization of frame tasks}}
-\end{figure}
-
-\fig{fFrameSync} outlines the synchronization for the application, node
-and pipe classes. Please note that \textsf{Config::finishFrame} does
-block until the current frame has been released locally and until the
-frame \textsf{current - latency} has been released by all nodes. The
-window and channel synchronization are similar and omitted for
-simplicity.
-
-It is absolutely vital for the execution that \textsf{Node::start\-Fra\-me}
-and \textsf{Node::release\-Fra\-me} are called, respectively. The default
-implementation of the node task methods does take care of that.
-
-Since \textsf{eqPly} multi-buffers all dynamic data, it can completely
-remove frame synchronization by:
-
-\begin{itemize}
-\item releasing the local synchronization early in \textsf{Node::frameStart}
-\item not waiting for the node to start the frame by not calling
-  \textsf{Node::waitFrameStarted} in \textsf{Pipe::frameStart}
-\item not waiting for the pipe synchronization in \textsf{Node::frameDrawFinish}
-\end{itemize}
-
-Releasing the local synchronization early is done by calling
-\textsf{releaseFrameLocal}, and \textsf{Node::frameDrawFinish} is
-overwritten with an empty implementation:
+The two remaining functions in the node relax the thread synchronization
+between the node and pipe threads, since all dynamic data is
+multi-buffered in \textsf{eqPly}. \sref{sThreads} provides a detailed
+explanation of thread synchronization in Equalizer:
 
 {\footnotesize\begin{lstlisting}
 void Node::frameDrawFinish( const uint32_t frameID,
@@ -1649,10 +1594,6 @@ all data specific to the OpenGL context.
 
 \subsubsection{Initialization and Exit}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/windowInit.pdf}
-  {\caption{\small\label{fWindowInit}Window Initialization}}
-\end{wrapfigure}
 The initialization sequence uses multiple, overrideable task
 methods. The main task method \textsf{configInit} executes a `child'
 task method to create the drawable and context. The child task method
@@ -1668,23 +1609,29 @@ OpenGL state, e.g., it enables the depth test.
 colored functions are task methods and can be replaced by
 application-specific implementations.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/windowInit.pdf}
+  {\caption{\small\label{fWindowInit}Window Initialization}}
+\end{wrapfigure}
 The window-system specific initialization takes into account various
 attributes set in the configuration file. Attributes include the size of
-various frame buffer attachments (color, alpha, depth, stencil) as well
-as other framebuffer properties, such as quad-buffered stereo,
+the various frame buffer planes  (color, alpha, depth, stencil) as well
+as other framebuffer attributes, such as quad-buffered stereo,
 doublebuffering, fullscreen mode and window decorations. Some of the
 attributes, such as stereo, doublebuffer and stencil can be set to
 \textsf{eq::AUTO}, in which case Equalizer will test for their availability and 
 enable them if possible.
 
-The \textsf{eqPly} window initialization function first calls
-\textsf{eq::Window::configInit} to use the generic window setup. If that
-was successful, it initializes a state object and an overlay logo:
+For the window-system specific initialization, \textsf{eqPly} uses the
+default Equalizer implemenation. The \textsf{eqPly} window
+initialization only overrides the OpenGL-specific initialization
+function in order to initialize a state object and an overlay logo. This
+function is only called if an OpenGL context was created and made current:
 
 {\footnotesize\begin{lstlisting}
-bool Window::configInit( const uint32_t initID )
+bool Window::configInitGL( const uint32_t initID )
 {
-    if( !eq::Window::configInit( initID ))
+    if( !eq::Window::configInitGL( initID ))
         return false;
 
     eq::Pipe*  pipe        = getPipe();
@@ -2054,8 +2001,10 @@ void Channel::_drawModel( const Model* model )
 \end{lstlisting}}
 
 \begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-2em}
   \includegraphics[width=.618\textwidth]{images/render.pdf}
   {\caption{\small\label{fRender}Main Rendering Loop}}
+  \vspace{-2em}
 \end{wrapfigure}
 The model data is spatially organized in an 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
@@ -2227,16 +2176,16 @@ widget sets such as Qt.
 
 \subsubsection{Event Data Flow}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
-  {\caption{\small\label{fEventProcessing}Event Processing}}
-\end{wrapfigure}
 Events are received by an event handler. The event handler finds the
 \textsf{eq::Window} associated to the event. It then creates a generic
 \textsf{WindowEvent}, which holds important event data in a 
 window system-independent format. The original event is attached to the
 generic window event.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
+  {\caption{\small\label{fEventProcessing}Event Processing}}
+\end{wrapfigure}
 The event handler then passes the window event to
 \textsf{Window::processEvent}, which is responsible for either handling
 the event locally, or for translating it into a generic
@@ -2246,7 +2195,7 @@ thread using \textsf{Config::sendEvent}.
 If the event was processed by \textsf{processEvent}, the function has to
 return \textsf{true}. If \textsf{false} is returned, the event will be
 passed to a previously installed, window-system-specific event handling
-function. The default implementation of \textsf{Window::processEvent}
+function. The default implementation of \textsf{Window::pro\-cess\-Event}
 passes most events on to the application.
 
 Events send using \textsf{Config::sendEvent} are queued in the
@@ -2257,7 +2206,7 @@ processing, that is, it calls \textsf{Config::handleEvent} for each
 queued event. By overriding \textsf{handleEvents}, event-driven
 execution can be implemented.
 
-Later Equalizer versions will introduce \textsf{Pipe::processEvent} and
+Later Equalizer versions will introduce \textsf{Pipe::pro\-cess\-Event} and
 \textsf{PipeEvent} to communicate pipe-specific events, e.g., monitor
 resolution changes.
 
@@ -2335,6 +2284,152 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
     }
 }
 \end{lstlisting}}%>>
+
+
+\subsection{\label{sThreads}Multi-Threading and Synchronization}
+
+Equalizer applications use multiple, asynchronous execution threads. The
+default execution model is focused on making the porting of existing
+applications as easy as possible, as described in \sref{sExecution}. The
+default, per-node thread synchronization provided by Equalizer can
+gradually be relaxed by advanced applications to gain better performance
+through higher asynchronicity.
+
+This section explains the multi-threading in Equalizer in detail and
+gives advice on how to optimize applications for performance.
+
+\subsubsection{Threads}
+
+The application or node main thread is the primary thread of each
+process and executes the \textsf{main} function. The application and
+render clients initialize the local node for communications with other
+nodes, including the server, using \textsf{Client::initLocal}.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/threads.pdf}
+  {\caption{\small\label{fThreads}Threads within one node process}}
+\end{wrapfigure}
+During this initialization, Equalizer creates and manages two threads
+for communication, the receiver thread and the command thread. Normally
+no application code is executed from these two threads.
+
+The receiver thread manages the network connections to other nodes and
+receives data. It dispatches the received data either to the application
+threads, or to the command thread.
+
+The command thread processes Equalizer-related request from other nodes,
+for example during \textsf{eqNet::Object} mapping. In some special cases
+the command thread executes application code, for example when a remote
+node maps a static or unbuffered object,
+\textsf{Object::getInstanceData} is called from the command thread.
+
+The receiver and command thread are terminated when the application
+stops network communications using \textsf{Client::exitLocal}.
+
+During config initialization, one pipe thread is created for each
+pipe. The pipe threads execute all render task methods for this pipe,
+and therefore executes the application's rendering code. The pipe
+threads are terminated during \textsf{Config::exit}.
+
+The rest of this section discusses the thread synchronization between
+the main thread and the pipe threads.
+
+
+\subsubsection{\label{sNodeFrame}Thread Synchronization Model}
+
+The node main thread and the pipe threads are synchronized with each
+other, so that all draw task methods of one rendered frame are executed
+at the same time. This model allows to use the same database for
+rendering, and safe modifications of this database are possible from the
+node thread, since the pipe threads do not execute any rendering tasks
+between frames.
+
+Please note that the default thread synchronization synchronizes all
+\textsf{Channel::frameDraw} operations on a \textbf{single} node with
+the node's main thread. The per-node frame synchronization does not
+break the asynchronous execution across nodes. Advanced applications can
+remove the per-node frame synchronization.
+
+The application has extended control over the task synchronization
+during a frame. Upon \textsf{Config::startFrame}, Equalizer invokes the
+\textsf{frameStart} task methods of the various entities. The entities
+unlock all their children by calling \textsf{startFrame}, e.g.,
+\textsf{Node::frameStart} has to call \textsf{Node::startFrame} in order
+to unlock the pipe threads. Note that certain \textsf{startFrame} calls,
+e.g., \textsf{Window::startFrame}, are currently empty since the
+synchronization is implicit due to the sequential execution within the
+thread.
+
+Each entity uses \textsf{waitFrameStarted} to block on the parent's
+\textsf{startFrame}, e.g., \textsf{Pipe::\-frame\-Start} calls
+\textsf{Node::waitFrameStarted} to wait for the corresponding
+\textsf{Node::start\-Fra\-me}. This explicit synchronization allows to
+update non-critical data before synchronizing with
+\textsf{waitFrameStarted}, or after unlocking using
+\textsf{start\-Fra\-me}. \fig{fFrameSync} illustrates this
+synchronization model.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
+  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
+\end{wrapfigure}
+At the end of the frame, two similar sets of synchronization methods are
+used. The first set synchronizes the local execution, while the second
+set synchronizes the global execution.
+
+The local synchronization consists of \textsf{releaseFrameLocal} to
+unlock the local frame, and of \textsf{waitFrameLocal} to wait for the
+unlock. For the default synchronization model, Equalizer uses the task
+method \textsf{frameDrawFinish} which is called on each resource entity
+after the last \textsf{Channel::frameDraw} invocation for this
+frame. Consequently, \textsf{Pipe::frameDrawFinish} calls
+\textsf{Pipe::releaseFrame\-Lo\-cal} to signal that it is done drawing the
+current frame, and \textsf{Node::frameDrawFinish} calls
+\textsf{Pipe::waitFrameLocal} for each of its pipes to block the node
+thread until the current frame has been drawn. 
+
+\fig{fFrameSync} illustrates the local frame synchronization. By
+removing the calls to \textsf{waitFrameLocal}, the node thread can
+disable the synchronization with the pipe threads, which causes the node
+operations to overlap with the rendering.
+
+The second, global synchronization is used for the frame completion
+during \textsf{Config::finishFrame}, which causes \textsf{frameFinish}
+to be called on all entities, passing the oldest frame number, i.e., frame
+\textsf{current-latency}. The \textsf{frameFinish} task methods have to
+call \textsf{releaseFrame} to signal that the entitity is done with the
+frame. The release causes the parent's \textsf{frameFinish} to be
+invoked, which is so far synchronized internally. Once all
+\textsf{Node::releaseFrame} have been called,
+\textsf{Config::finishFrame} returns.
+
+\begin{figure}[ht!]\center
+  \includegraphics[width=\textwidth]{images/mainloop.pdf}
+  {\caption{\small\label{fMainLoop}Synchronization of frame tasks}}
+\end{figure}
+
+\fig{fMainLoop} outlines the synchronization for the application, node
+and pipe classes for an application node and one render client. Please
+note that \textsf{Config::finishFrame} does block until the current
+frame has been released locally and until the frame \textsf{current -
+  latency} has been released by all nodes. The window and channel
+synchronization are similar and omitted for simplicity.
+
+It is absolutely vital for the execution that \textsf{Node::start\-Fra\-me}
+and \textsf{Node::release\-Fra\-me} are called, respectively. The default
+implementation of the node task methods does take care of that.
+
+Since \textsf{eqPly} multi-buffers all dynamic data, it completely
+removes frame synchronization by:
+
+\begin{itemize}
+\item releasing the local synchronization early in \textsf{Node::frameStart}
+\item not waiting for the node to start the frame by not calling
+  \textsf{Node::waitFrame\-Star\-ted} in \textsf{Pipe::frameStart}
+\item not waiting for the pipe synchronization in
+  \textsf{Node::frameDrawFinish} by not calling \textsf{Pipe::waitFrameLocal}
+\end{itemize}
+
 
 
 \subsection{OpenGL Extension Handling}
@@ -2635,6 +2730,10 @@ API, the direct send parallel compositing algorithm is introduced in this
 section. Other parallel compositing algorithms, e.g. binary-swap, can
 also be expressed through an Equalizer configuration file.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
+\end{wrapfigure}
 The main idea behind direct send is to parallelize the costly
 recomposition for database (sort-last) decomposition. With each
 additional source channel, the amount of pixel data to be composited
@@ -2644,10 +2743,6 @@ in the system. Direct send distributes this workload evenly across all
 source channels, and thereby keeps the compositing work per channel
 constant.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
-\end{wrapfigure}
 In direct send compositing, each rendering channel is also responsible
 for the sort-last composition\footnote{depth-based for polygonal data or
   sorted-blend for volume data} of one screen-space tile. He receives
@@ -2691,6 +2786,10 @@ An \textsf{eq::Image} holds a
 two-dimensional snapshot of the framebuffer and can contain color and/or
 depth information.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
+  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
+\end{wrapfigure}
 The frame synchronization through the frame data allows the input frame
 to wait for the pixel data to become ready, which is signalled by the
 output frame after readback.
@@ -2700,10 +2799,6 @@ frame's compound. The range can be used to compute the assembly order of
 multiple input frames, e.g., for sorted-blend compositing in volume
 rendering applications.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
-\end{wrapfigure}
 Readback and assemble operations on frames and images are designed to be
 asynchronous. They have a start and finish method for both readback and
 assemble to allow the initiation and synchronization of the operation.
