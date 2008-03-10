@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>ActiveLayerIndex</key>
@@ -7,7 +7,7 @@
 	<key>ApplicationVersion</key>
 	<array>
 		<string>com.omnigroup.OmniGrafflePro</string>
-		<string>129.15</string>
+		<string>129.18</string>
 	</array>
 	<key>AutoAdjust</key>
 	<true/>
@@ -85,8 +85,8 @@
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -97,23 +97,16 @@ finishFrame}</string>
 		<dict>
 			<key>Class</key>
 			<string>LineGraphic</string>
-			<key>Head</key>
-			<dict>
-				<key>ID</key>
-				<integer>1023</integer>
-				<key>Info</key>
-				<integer>3</integer>
-			</dict>
 			<key>ID</key>
 			<integer>1029</integer>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>1.1370162963867188</real>
+			<real>-1</real>
 			<key>Points</key>
 			<array>
-				<string>{219.685, 269.292}</string>
-				<string>{269.291, 255.118}</string>
+				<string>{255.118, 340.157}</string>
+				<string>{269.291, 340.157}</string>
 				<string>{255.118, 113.386}</string>
 			</array>
 			<key>Style</key>
@@ -131,13 +124,6 @@ finishFrame}</string>
 					<key>TailArrow</key>
 					<string>0</string>
 				</dict>
-			</dict>
-			<key>Tail</key>
-			<dict>
-				<key>ID</key>
-				<integer>1026</integer>
-				<key>Info</key>
-				<integer>2</integer>
 			</dict>
 		</dict>
 		<dict>
@@ -259,8 +245,8 @@ finishFrame}</string>
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -269,22 +255,20 @@ finishFrame}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{170.079, 269.292}, {99.2126, 28.3465}}</string>
+			<string>{{170.079, 325.985}, {85.0396, 28.3465}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
 				<dict>
-					<key>b</key>
-					<string>1</string>
-					<key>g</key>
-					<string>1</string>
-					<key>r</key>
+					<key>w</key>
 					<string>1</string>
 				</dict>
 				<key>Font</key>
 				<string>Helvetica</string>
+				<key>NSKern</key>
+				<real>0.0</real>
 				<key>Size</key>
 				<real>12</real>
 			</dict>
@@ -305,216 +289,12 @@ finishFrame}</string>
 				<dict>
 					<key>Color</key>
 					<dict>
-						<key>tiff</key>
-						<data>
-						TU0AKgAAAMhQnEZQnEZQnEZQnEZQ
-						nEZQnEZQnEZQnEZQnEZQnEZQnEZQ
-						nEZQnEZQnEZQnEZQnEZQnEZQnEZQ
-						nEZQnEZQnEZQnEZQnEZQnEZQnEZQ
-						nEZQnEZQnEZQnEZQnEZQnEZQnEZQ
-						nEZQnEZQnEZQnEZQnEZQnEZQnEZQ
-						nEZQnEZQnEZQnEZQnEZQnEZQnEZQ
-						nEZQnEZQnEZQnEZQnEZQnEZQnEZQ
-						nEZQnEZQnEYAAAAAAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAADQEAAAMAAAAB
-						AAgAAAEBAAMAAAABAAgAAAECAAMA
-						AAADAAABagEDAAMAAAABAAEAAAEG
-						AAMAAAABAAIAAAERAAQAAAABAAAA
-						CAESAAMAAAABAAEAAAEVAAMAAAAB
-						AAMAAAEWAAMAAAABFVUAAAEXAAQA
-						AAABAAAAwAEcAAMAAAABAAEAAAFT
-						AAMAAAADAAABcIdzAAcAAA+AAAAB
-						dgAAAAAACAAIAAgAAQABAAEAAA+A
-						YXBwbAIAAABtbnRyUkdCIFhZWiAH
-						1gALAA4ADQAbADdhY3NwQVBQTAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAA9tYAAQAAAADTLWFwcGwzHBb4
-						MJkEetuqWuT53gxkAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AA5yWFlaAAABLAAAABRnWFlaAAAB
-						QAAAABRiWFlaAAABVAAAABR3dHB0
-						AAABaAAAABRjaGFkAAABfAAAACxy
-						VFJDAAABqAAAAA5nVFJDAAABuAAA
-						AA5iVFJDAAAByAAAAA52Y2d0AAAB
-						2AAABhJuZGluAAAH7AAABj5kZXNj
-						AAAOLAAAAGRkc2NtAAAOkAAAAJht
-						bW9kAAAPKAAAAChjcHJ0AAAPUAAA
-						AC1YWVogAAAAAAAAZPcAADoEAAAG
-						2lhZWiAAAAAAAABqIQAArbUAABwh
-						WFlaIAAAAAAAACe+AAAYYQAAsCpY
-						WVogAAAAAAAA81IAAQAAAAEWz3Nm
-						MzIAAAAAAAEMQgAABd7///MmAAAH
-						kgAA/ZH///ui///9owAAA9wAAMBs
-						Y3VydgAAAAAAAAABAc0AAGN1cnYA
-						AAAAAAAAAQHNAABjdXJ2AAAAAAAA
-						AAEBzQAAdmNndAAAAAAAAAAAAAMB
-						AAACAAACLwNOBGgFfQaZB7AIwgnY
-						CusL8g0KDhcPIRAtEToSQRNMFFQV
-						VxZeF2MYaRlwGnMbdBx1HXgeex+A
-						IIQhhCKHI4okjiWVJpsnoCioKa8q
-						uCvHLNUt4S72MAoxIjIzM1U0ezWg
-						Nso3+DkpOmE7mzzdPh8/aUC3QgxD
-						XUSzRhJHckjRSi9LjUzxTkxPrlEP
-						UmxTylUbVmxXvlkOWl9bqFz0XkNf
-						imDNYg9jT2SSZc9nCmhBaXVqrmvh
-						bRNuRG93cKxx2nMEdDB1X3aMd7x4
-						6HoRez58cH2ffsd/3IDigeWC7IPw
-						hPKF9ob9iASJDIoRixWMHY0ojjOP
-						O5BBkUiSUZNWlFqVXpZjl2mYa5lr
-						mmmbaZxqnWieYZ9aoFOhS6JAozGk
-						KaUnpiWnIqggqR2qGasVrBGtEK4M
-						rwWv/rD4sfOy7bPltNu10bbMt8O4
-						ubmxuqy7qbyhvZa+jr+KwITBgcJ6
-						w3LEbsVuxmzHYchDyRbJ4sqyy3/M
-						Ss0XzebOtM+E0FLRH9Ht0sDTkdRf
-						1S3V+tbL15fYYdkt2fnaxtuP3Fbd
-						Hd3k3q3fcuA24PnhuuJ74zrj9uS2
-						5XzmQecD58nojOlO6hDq0+uX7Fjt
-						GO3Y7pjvWPAY8NXxkfJO8w3zyfSE
-						9UH1//a+93r4Nfjw+a36a/sp++b8
-						ov1g/h/+2v9x//8AAAIEAxIEFgUU
-						BhUHDwgLCQgJ/Qr5C+8M5A3ZDs0P
-						wRCxEaISlBOFFHcVaxZdF08YQxk5
-						GjYbLBwvHS4eNh8+IEUhPyI4Iy0k
-						LCUsJionMCgsKTAqNitDLEotWC5p
-						L3kwiTGdMrYzzzTuNhE3NDhTOXo6
-						pzvXPQg+NT9xQK1B6EMrRGtFr0b4
-						SEVJi0rYTDFNfE7RUBtRZ1K2VAFV
-						TVaSV9xZKVpwW7Jc9144X31gv2H9
-						YztkdmW3ZvNoLmlqaqpr6m0mblxv
-						mHDWchNzVHSRdcp3CHhMeY56xXvj
-						fOt97371f/mA+oH+gwWEDIUThhmH
-						HYgkiTCKOotCjEmNT45Yj1yQYJFk
-						kmqTb5RwlXKWb5dumHCZbZpmm2Cc
-						WJ1QnkWfNqAtoS2iLKMppCmlKKYm
-						pySoI6kkqiOrH6wcrRquGa8YsBWx
-						ErIPsw+0DrUNtg23EbgWuRi6GLsb
-						vCC9J74uvzXAOcFCwk7DWsRbxUfG
-						IMbyx8nInMltykHLF8vtzMXNmc5t
-						z0PQHdD20c3SotN31E7VItX11snX
-						nNhv2UHaEdrd26zcfN1I3hHe29+i
-						4GrhLuHw4rjjkORo5T/mF+bt58To
-						melu6kXrGevq7Lztje5d7y7v+/DH
-						8ZLyXvMp8/L0u/WG9lD3GPfc+KL5
-						afow+vj7vPyA/UX+Dv7P/23//wAA
-						AgQC9wPwBPQF7wbtB+0I7QneCtsL
-						1AzLDb0Org+fEIsRdxJkE0wUMBUP
-						FfMW0RerGIQZXBowGwUb1xylHXUe
-						RR8PH90gpSFtIjojBiPWJKklfiZV
-						JywoCCjnKccqqCuNLHQtWy5CLy4w
-						HDEJMfcy5TPRNMA1sDadN4k4djlh
-						Okw7PDwgPQY98D7VP7VAk0F2QmlD
-						V0RGRThGJkcYSAVI9knpStlLyEy2
-						TaZOmE+JUHhRZ1JWU0xUO1UsVh9X
-						FlgNWQJZ9FrpW+Jc2l3UXs1fw2C+
-						Yb1iumOyZKNliWZyZ19oSGkvahpr
-						B2v1bORt0W6+b65wonGWcohzeHRo
-						dV52Tnc+eC95IXoUewR783zgfc5+
-						vn+rgJSBf4Jmg0+ENIUWhgGG94ft
-						iOOJ2orQi8eMuo2vjqiPnJCLkX+S
-						cJNklFWVRpY0lySYFZkFmfSa5ZvY
-						nM2dvp6sn52gk6GFonyjb6RhpVem
-						UadJqDupIqoAqtyrvKyYrXKuT68u
-						sA6w7rHNsqmzi7RvtVO2NbcWt/e4
-						3Lm9up27frxhvUO+Jb8Fv+PAw8Gm
-						woTDYcQ9xRrF9sbQx6XIi8mcysHL
-						4sz/zhrPOdBa0XzSnNPI1O3WHNdP
-						2IvZzNsT3GDdud8T4H/h9OOB5Q7m
-						p+hQ6hHr1u2u75bxkfOd9bH35vog
-						/GD+fv//AABuZGluAAAAAAAABjYA
-						AJh1AABY4QAAUqUAAI/9AAAoDAAA
-						FqgAAFANAABUOQABwo8AAauFAAFC
-						jwADAQAAAgAAAAAAAgAIABEAHgAt
-						AD8AVABsAIYAowDEAOUBCgEyAVwB
-						iAG4AekCHQJVAo4CygMIA0gDiwPR
-						BBoEZASxBP8FTwWjBfkGUAaqBwQH
-						YQfACCEIgwjoCU0JsQoaCoQK7AtX
-						C8IMMgydDQcNdQ3iDk8OvQ8rD5gQ
-						BxBzEOERUBG9EisSmBMFE3UT5RRT
-						FMEVMBWgFhIWhRb5F2wX4BhZGM8Z
-						RxnAGjwaths2G7ocPhzCHUgd0B5Y
-						HuUfch//IIwhHiGzIkki4SN7JBQk
-						sSVQJfImlyc+J+MojCk5KeYqlStE
-						K/Mspi1eLhgu0C+JMEUxADG9Mn8z
-						QjQDNMI1hTZMNx44AjjuOdc6wjuz
-						PKU9lD6FP3dAakFjQl1DU0RIRUJG
-						P0dASEBJQEpHS1BMWk1lTnBPg1CX
-						UbFSyVPhVQFWJ1dNWHdZolrXXA9d
-						Ol5jX5RgwmHzYydkXmWXZs1oBmlH
-						aolrzW0QblZvoHDvckFzi3TfdjR3
-						iXjcei17h3zofkR/nYD7glaDuYUf
-						hn6H2ok/irWMXI4cj9WRmZNilSOW
-						6piumn6cTZ4Tn+GhtqORpWSnSKku
-						qxSs+67usOey5LTetui49bsMvSO/
-						TsFvw3/FoMe6yd7MB84w0FjSkNTI
-						1wbZQ9uL3dzgJuJ85NXnKul96+Pu
-						SvCp8wv1c/fk+kb8vP//AAAAAAAD
-						AAoAFQAkADYATABlAIEAoQDDAOkB
-						EgE+AW0BnwHVAg0CSAKGAsYDCQNP
-						A5cD4QQrBHoExwUYBWgFugYOBmkG
-						xwcpB4kH6whQCLQJHgmHCfEKWgrI
-						CzULogwSDIMM9g1nDdoOTw7BDzUP
-						qhAjEJoREBGHEf4SdhLyE2kT4RRb
-						FNYVThXKFkYWwRc9F7gYNxi3GTMZ
-						rhoxGq8bMRu4HD4cwx1LHdUeXx7u
-						H3wgCSCYISohwCJVIuwjhiQeJLkl
-						ViX2JpcnOyfbKIApJynPKngrICvI
-						LHMtIS3ULoQvMy/kMJcxSDH9MrYz
-						bjQkNNg1kDZNNxY39jjiOcs6tjun
-						PJo9iT56P2xAX0FXQlFDSEQ9RTdG
-						NEc0SDZJNUo9S0ZMUE1aTmZPeVCM
-						UaZSv1PXVPdWHVdCWG1ZmFrMXAVd
-						MF5XX4dgtGHiYxRkSGV+ZrFn5mkj
-						amFrn2zebhxvX3Clce5zMnR5dcR3
-						DnhWeZx65Xw2fYZ+0oAfgWyCuYQN
-						hWGGrof6iU2KsoxJjf2PqJFekxmU
-						zJaDmDeZ9Zu2nW6fKKDoorCkd6ZA
-						qBOp56u8rZWvdrFis0u1NrcxuS67
-						NL09v1jBZMNBxTHHGskMyv3M+M7u
-						0OnS9NT81wvZGts03Vffe+Gi49Pm
-						BOg06mvstO738T3zgfXS+Cn6cvzU
-						//8AAAAAAAMACwAXACYAOQBPAGgA
-						hAClAMcA7QEWAUMBcwGmAd4CFwJV
-						ApcC3gMmA3QDxgQcBHcE1QU4BaAG
-						CgZ7Bu0HaAfiCGAI3gldCd4KYgrl
-						C2kL8Ax3DP8NiQ4WDqIPLw+/EFEQ
-						5RF9EhQSrhNNE+0UkRU3FdwWjBc8
-						F+wYpBliGiQa1RuOHEgdAR3AHn4f
-						QiAEIMchkCJbIygj9STDJZYmaydD
-						KBYo8SnMKqcrgSxcLT4uIi8DL+Uw
-						yTGtMpczgTRmNU42PDcxODc5PTpA
-						O0k8Vz1hPms/dkCDQZVCp0OzRMJF
-						1UbrSARJGEo1S1RMc02STrRP21EG
-						UjRTX1SPVclXAVhBWX9ax1wVXUxe
-						fl+4YO5iKWNkZKZl6GcmaGxpumsE
-						bFRtoW70cEtxpnL/dFl1uXcZeHd5
-						0ns0fJ9+Bn9ogNCCNIOfhQ6Gdofb
-						iUeKwYxWjfePkZEzkt2Uf5Yil8WZ
-						a5sbnMGeY6ALobmjaqUUpsiogKo2
-						q+ytpa9ksSmy7rSttnm4S7oeu/K9
-						zr+3wXnC6MROxbzHMMiqyh7Lk80G
-						znnP89FZ0s7UONWf1wDYWdmw2wTc
-						Vd2e3t7gJOFc4o3ju+TY5fXnFOgr
-						6UDqTutS7E/tTe5K7z/wMvEg8gry
-						7/PR9K71jPZp90L4EPje+az6evtJ
-						/Bf83f2d/sP//wAAZGVzYwAAAAAA
-						AAAKQ29sb3IgTENEAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAAAAAAAG1sdWMAAAAAAAAAAwAA
-						AAxlblVTAAAAEgAAADRmckZSAAAA
-						QgAAAEZkZURFAAAAEAAAAIgAQwBv
-						AGwAbwByACAATABDAEQAyQBjAHIA
-						YQBuACAA4AAgAGMAcgBpAHMAdABh
-						AHUAeAAgAGwAaQBxAHUAaQBkAGUA
-						cwAgAGMAbwB1AGwAZQB1AHIARgBh
-						AHIAYgAtAEwAQwBEbW1vZAAAAAAA
-						AAYQAACcYAAAAAC/+HuAAAAAAAAA
-						AAAAAAAAAAAAAHRleHQAAAAAQ29w
-						eXJpZ2h0IEFwcGxlIENvbXB1dGVy
-						LCBJbmMuLCAyMDA1AAAAAA==
-						</data>
+						<key>b</key>
+						<string>0.289952</string>
+						<key>g</key>
+						<string>0.595392</string>
+						<key>r</key>
+						<string>0.377249</string>
 					</dict>
 					<key>FillType</key>
 					<integer>2</integer>
@@ -522,429 +302,21 @@ finishFrame}</string>
 					<real>90</real>
 					<key>GradientColor</key>
 					<dict>
-						<key>tiff</key>
-						<data>
-						TU0AKgAAAMghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCgAAAAAAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAADQEAAAMAAAAB
-						AAgAAAEBAAMAAAABAAgAAAECAAMA
-						AAADAAABagEDAAMAAAABAAEAAAEG
-						AAMAAAABAAIAAAERAAQAAAABAAAA
-						CAESAAMAAAABAAEAAAEVAAMAAAAB
-						AAMAAAEWAAMAAAABFVUAAAEXAAQA
-						AAABAAAAwAEcAAMAAAABAAEAAAFT
-						AAMAAAADAAABcIdzAAcAAA+AAAAB
-						dgAAAAAACAAIAAgAAQABAAEAAA+A
-						YXBwbAIAAABtbnRyUkdCIFhZWiAH
-						1gALAA4ADQAbADdhY3NwQVBQTAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAA9tYAAQAAAADTLWFwcGwzHBb4
-						MJkEetuqWuT53gxkAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AA5yWFlaAAABLAAAABRnWFlaAAAB
-						QAAAABRiWFlaAAABVAAAABR3dHB0
-						AAABaAAAABRjaGFkAAABfAAAACxy
-						VFJDAAABqAAAAA5nVFJDAAABuAAA
-						AA5iVFJDAAAByAAAAA52Y2d0AAAB
-						2AAABhJuZGluAAAH7AAABj5kZXNj
-						AAAOLAAAAGRkc2NtAAAOkAAAAJht
-						bW9kAAAPKAAAAChjcHJ0AAAPUAAA
-						AC1YWVogAAAAAAAAZPcAADoEAAAG
-						2lhZWiAAAAAAAABqIQAArbUAABwh
-						WFlaIAAAAAAAACe+AAAYYQAAsCpY
-						WVogAAAAAAAA81IAAQAAAAEWz3Nm
-						MzIAAAAAAAEMQgAABd7///MmAAAH
-						kgAA/ZH///ui///9owAAA9wAAMBs
-						Y3VydgAAAAAAAAABAc0AAGN1cnYA
-						AAAAAAAAAQHNAABjdXJ2AAAAAAAA
-						AAEBzQAAdmNndAAAAAAAAAAAAAMB
-						AAACAAACLwNOBGgFfQaZB7AIwgnY
-						CusL8g0KDhcPIRAtEToSQRNMFFQV
-						VxZeF2MYaRlwGnMbdBx1HXgeex+A
-						IIQhhCKHI4okjiWVJpsnoCioKa8q
-						uCvHLNUt4S72MAoxIjIzM1U0ezWg
-						Nso3+DkpOmE7mzzdPh8/aUC3QgxD
-						XUSzRhJHckjRSi9LjUzxTkxPrlEP
-						UmxTylUbVmxXvlkOWl9bqFz0XkNf
-						imDNYg9jT2SSZc9nCmhBaXVqrmvh
-						bRNuRG93cKxx2nMEdDB1X3aMd7x4
-						6HoRez58cH2ffsd/3IDigeWC7IPw
-						hPKF9ob9iASJDIoRixWMHY0ojjOP
-						O5BBkUiSUZNWlFqVXpZjl2mYa5lr
-						mmmbaZxqnWieYZ9aoFOhS6JAozGk
-						KaUnpiWnIqggqR2qGasVrBGtEK4M
-						rwWv/rD4sfOy7bPltNu10bbMt8O4
-						ubmxuqy7qbyhvZa+jr+KwITBgcJ6
-						w3LEbsVuxmzHYchDyRbJ4sqyy3/M
-						Ss0XzebOtM+E0FLRH9Ht0sDTkdRf
-						1S3V+tbL15fYYdkt2fnaxtuP3Fbd
-						Hd3k3q3fcuA24PnhuuJ74zrj9uS2
-						5XzmQecD58nojOlO6hDq0+uX7Fjt
-						GO3Y7pjvWPAY8NXxkfJO8w3zyfSE
-						9UH1//a+93r4Nfjw+a36a/sp++b8
-						ov1g/h/+2v9x//8AAAIEAxIEFgUU
-						BhUHDwgLCQgJ/Qr5C+8M5A3ZDs0P
-						wRCxEaISlBOFFHcVaxZdF08YQxk5
-						GjYbLBwvHS4eNh8+IEUhPyI4Iy0k
-						LCUsJionMCgsKTAqNitDLEotWC5p
-						L3kwiTGdMrYzzzTuNhE3NDhTOXo6
-						pzvXPQg+NT9xQK1B6EMrRGtFr0b4
-						SEVJi0rYTDFNfE7RUBtRZ1K2VAFV
-						TVaSV9xZKVpwW7Jc9144X31gv2H9
-						YztkdmW3ZvNoLmlqaqpr6m0mblxv
-						mHDWchNzVHSRdcp3CHhMeY56xXvj
-						fOt97371f/mA+oH+gwWEDIUThhmH
-						HYgkiTCKOotCjEmNT45Yj1yQYJFk
-						kmqTb5RwlXKWb5dumHCZbZpmm2Cc
-						WJ1QnkWfNqAtoS2iLKMppCmlKKYm
-						pySoI6kkqiOrH6wcrRquGa8YsBWx
-						ErIPsw+0DrUNtg23EbgWuRi6GLsb
-						vCC9J74uvzXAOcFCwk7DWsRbxUfG
-						IMbyx8nInMltykHLF8vtzMXNmc5t
-						z0PQHdD20c3SotN31E7VItX11snX
-						nNhv2UHaEdrd26zcfN1I3hHe29+i
-						4GrhLuHw4rjjkORo5T/mF+bt58To
-						melu6kXrGevq7Lztje5d7y7v+/DH
-						8ZLyXvMp8/L0u/WG9lD3GPfc+KL5
-						afow+vj7vPyA/UX+Dv7P/23//wAA
-						AgQC9wPwBPQF7wbtB+0I7QneCtsL
-						1AzLDb0Org+fEIsRdxJkE0wUMBUP
-						FfMW0RerGIQZXBowGwUb1xylHXUe
-						RR8PH90gpSFtIjojBiPWJKklfiZV
-						JywoCCjnKccqqCuNLHQtWy5CLy4w
-						HDEJMfcy5TPRNMA1sDadN4k4djlh
-						Okw7PDwgPQY98D7VP7VAk0F2QmlD
-						V0RGRThGJkcYSAVI9knpStlLyEy2
-						TaZOmE+JUHhRZ1JWU0xUO1UsVh9X
-						FlgNWQJZ9FrpW+Jc2l3UXs1fw2C+
-						Yb1iumOyZKNliWZyZ19oSGkvahpr
-						B2v1bORt0W6+b65wonGWcohzeHRo
-						dV52Tnc+eC95IXoUewR783zgfc5+
-						vn+rgJSBf4Jmg0+ENIUWhgGG94ft
-						iOOJ2orQi8eMuo2vjqiPnJCLkX+S
-						cJNklFWVRpY0lySYFZkFmfSa5ZvY
-						nM2dvp6sn52gk6GFonyjb6RhpVem
-						UadJqDupIqoAqtyrvKyYrXKuT68u
-						sA6w7rHNsqmzi7RvtVO2NbcWt/e4
-						3Lm9up27frxhvUO+Jb8Fv+PAw8Gm
-						woTDYcQ9xRrF9sbQx6XIi8mcysHL
-						4sz/zhrPOdBa0XzSnNPI1O3WHNdP
-						2IvZzNsT3GDdud8T4H/h9OOB5Q7m
-						p+hQ6hHr1u2u75bxkfOd9bH35vog
-						/GD+fv//AABuZGluAAAAAAAABjYA
-						AJh1AABY4QAAUqUAAI/9AAAoDAAA
-						FqgAAFANAABUOQABwo8AAauFAAFC
-						jwADAQAAAgAAAAAAAgAIABEAHgAt
-						AD8AVABsAIYAowDEAOUBCgEyAVwB
-						iAG4AekCHQJVAo4CygMIA0gDiwPR
-						BBoEZASxBP8FTwWjBfkGUAaqBwQH
-						YQfACCEIgwjoCU0JsQoaCoQK7AtX
-						C8IMMgydDQcNdQ3iDk8OvQ8rD5gQ
-						BxBzEOERUBG9EisSmBMFE3UT5RRT
-						FMEVMBWgFhIWhRb5F2wX4BhZGM8Z
-						RxnAGjwaths2G7ocPhzCHUgd0B5Y
-						HuUfch//IIwhHiGzIkki4SN7JBQk
-						sSVQJfImlyc+J+MojCk5KeYqlStE
-						K/Mspi1eLhgu0C+JMEUxADG9Mn8z
-						QjQDNMI1hTZMNx44AjjuOdc6wjuz
-						PKU9lD6FP3dAakFjQl1DU0RIRUJG
-						P0dASEBJQEpHS1BMWk1lTnBPg1CX
-						UbFSyVPhVQFWJ1dNWHdZolrXXA9d
-						Ol5jX5RgwmHzYydkXmWXZs1oBmlH
-						aolrzW0QblZvoHDvckFzi3TfdjR3
-						iXjcei17h3zofkR/nYD7glaDuYUf
-						hn6H2ok/irWMXI4cj9WRmZNilSOW
-						6piumn6cTZ4Tn+GhtqORpWSnSKku
-						qxSs+67usOey5LTetui49bsMvSO/
-						TsFvw3/FoMe6yd7MB84w0FjSkNTI
-						1wbZQ9uL3dzgJuJ85NXnKul96+Pu
-						SvCp8wv1c/fk+kb8vP//AAAAAAAD
-						AAoAFQAkADYATABlAIEAoQDDAOkB
-						EgE+AW0BnwHVAg0CSAKGAsYDCQNP
-						A5cD4QQrBHoExwUYBWgFugYOBmkG
-						xwcpB4kH6whQCLQJHgmHCfEKWgrI
-						CzULogwSDIMM9g1nDdoOTw7BDzUP
-						qhAjEJoREBGHEf4SdhLyE2kT4RRb
-						FNYVThXKFkYWwRc9F7gYNxi3GTMZ
-						rhoxGq8bMRu4HD4cwx1LHdUeXx7u
-						H3wgCSCYISohwCJVIuwjhiQeJLkl
-						ViX2JpcnOyfbKIApJynPKngrICvI
-						LHMtIS3ULoQvMy/kMJcxSDH9MrYz
-						bjQkNNg1kDZNNxY39jjiOcs6tjun
-						PJo9iT56P2xAX0FXQlFDSEQ9RTdG
-						NEc0SDZJNUo9S0ZMUE1aTmZPeVCM
-						UaZSv1PXVPdWHVdCWG1ZmFrMXAVd
-						MF5XX4dgtGHiYxRkSGV+ZrFn5mkj
-						amFrn2zebhxvX3Clce5zMnR5dcR3
-						DnhWeZx65Xw2fYZ+0oAfgWyCuYQN
-						hWGGrof6iU2KsoxJjf2PqJFekxmU
-						zJaDmDeZ9Zu2nW6fKKDoorCkd6ZA
-						qBOp56u8rZWvdrFis0u1NrcxuS67
-						NL09v1jBZMNBxTHHGskMyv3M+M7u
-						0OnS9NT81wvZGts03Vffe+Gi49Pm
-						BOg06mvstO738T3zgfXS+Cn6cvzU
-						//8AAAAAAAMACwAXACYAOQBPAGgA
-						hAClAMcA7QEWAUMBcwGmAd4CFwJV
-						ApcC3gMmA3QDxgQcBHcE1QU4BaAG
-						CgZ7Bu0HaAfiCGAI3gldCd4KYgrl
-						C2kL8Ax3DP8NiQ4WDqIPLw+/EFEQ
-						5RF9EhQSrhNNE+0UkRU3FdwWjBc8
-						F+wYpBliGiQa1RuOHEgdAR3AHn4f
-						QiAEIMchkCJbIygj9STDJZYmaydD
-						KBYo8SnMKqcrgSxcLT4uIi8DL+Uw
-						yTGtMpczgTRmNU42PDcxODc5PTpA
-						O0k8Vz1hPms/dkCDQZVCp0OzRMJF
-						1UbrSARJGEo1S1RMc02STrRP21EG
-						UjRTX1SPVclXAVhBWX9ax1wVXUxe
-						fl+4YO5iKWNkZKZl6GcmaGxpumsE
-						bFRtoW70cEtxpnL/dFl1uXcZeHd5
-						0ns0fJ9+Bn9ogNCCNIOfhQ6Gdofb
-						iUeKwYxWjfePkZEzkt2Uf5Yil8WZ
-						a5sbnMGeY6ALobmjaqUUpsiogKo2
-						q+ytpa9ksSmy7rSttnm4S7oeu/K9
-						zr+3wXnC6MROxbzHMMiqyh7Lk80G
-						znnP89FZ0s7UONWf1wDYWdmw2wTc
-						Vd2e3t7gJOFc4o3ju+TY5fXnFOgr
-						6UDqTutS7E/tTe5K7z/wMvEg8gry
-						7/PR9K71jPZp90L4EPje+az6evtJ
-						/Bf83f2d/sP//wAAZGVzYwAAAAAA
-						AAAKQ29sb3IgTENEAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAAAAAAAG1sdWMAAAAAAAAAAwAA
-						AAxlblVTAAAAEgAAADRmckZSAAAA
-						QgAAAEZkZURFAAAAEAAAAIgAQwBv
-						AGwAbwByACAATABDAEQAyQBjAHIA
-						YQBuACAA4AAgAGMAcgBpAHMAdABh
-						AHUAeAAgAGwAaQBxAHUAaQBkAGUA
-						cwAgAGMAbwB1AGwAZQB1AHIARgBh
-						AHIAYgAtAEwAQwBEbW1vZAAAAAAA
-						AAYQAACcYAAAAAC/+HuAAAAAAAAA
-						AAAAAAAAAAAAAHRleHQAAAAAQ29w
-						eXJpZ2h0IEFwcGxlIENvbXB1dGVy
-						LCBJbmMuLCAyMDA1AAAAAA==
-						</data>
+						<key>b</key>
+						<string>0.164706</string>
+						<key>g</key>
+						<string>0.364706</string>
+						<key>r</key>
+						<string>0.188235</string>
 					</dict>
 					<key>MiddleColor</key>
 					<dict>
-						<key>tiff</key>
-						<data>
-						TU0AKgAAAMghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCghYCghYCghYCghYCgh
-						YCghYCghYCgAAAAAAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAADQEAAAMAAAAB
-						AAgAAAEBAAMAAAABAAgAAAECAAMA
-						AAADAAABagEDAAMAAAABAAEAAAEG
-						AAMAAAABAAIAAAERAAQAAAABAAAA
-						CAESAAMAAAABAAEAAAEVAAMAAAAB
-						AAMAAAEWAAMAAAABFVUAAAEXAAQA
-						AAABAAAAwAEcAAMAAAABAAEAAAFT
-						AAMAAAADAAABcIdzAAcAAA+AAAAB
-						dgAAAAAACAAIAAgAAQABAAEAAA+A
-						YXBwbAIAAABtbnRyUkdCIFhZWiAH
-						1gALAA4ADQAbADdhY3NwQVBQTAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAA9tYAAQAAAADTLWFwcGwzHBb4
-						MJkEetuqWuT53gxkAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AA5yWFlaAAABLAAAABRnWFlaAAAB
-						QAAAABRiWFlaAAABVAAAABR3dHB0
-						AAABaAAAABRjaGFkAAABfAAAACxy
-						VFJDAAABqAAAAA5nVFJDAAABuAAA
-						AA5iVFJDAAAByAAAAA52Y2d0AAAB
-						2AAABhJuZGluAAAH7AAABj5kZXNj
-						AAAOLAAAAGRkc2NtAAAOkAAAAJht
-						bW9kAAAPKAAAAChjcHJ0AAAPUAAA
-						AC1YWVogAAAAAAAAZPcAADoEAAAG
-						2lhZWiAAAAAAAABqIQAArbUAABwh
-						WFlaIAAAAAAAACe+AAAYYQAAsCpY
-						WVogAAAAAAAA81IAAQAAAAEWz3Nm
-						MzIAAAAAAAEMQgAABd7///MmAAAH
-						kgAA/ZH///ui///9owAAA9wAAMBs
-						Y3VydgAAAAAAAAABAc0AAGN1cnYA
-						AAAAAAAAAQHNAABjdXJ2AAAAAAAA
-						AAEBzQAAdmNndAAAAAAAAAAAAAMB
-						AAACAAACLwNOBGgFfQaZB7AIwgnY
-						CusL8g0KDhcPIRAtEToSQRNMFFQV
-						VxZeF2MYaRlwGnMbdBx1HXgeex+A
-						IIQhhCKHI4okjiWVJpsnoCioKa8q
-						uCvHLNUt4S72MAoxIjIzM1U0ezWg
-						Nso3+DkpOmE7mzzdPh8/aUC3QgxD
-						XUSzRhJHckjRSi9LjUzxTkxPrlEP
-						UmxTylUbVmxXvlkOWl9bqFz0XkNf
-						imDNYg9jT2SSZc9nCmhBaXVqrmvh
-						bRNuRG93cKxx2nMEdDB1X3aMd7x4
-						6HoRez58cH2ffsd/3IDigeWC7IPw
-						hPKF9ob9iASJDIoRixWMHY0ojjOP
-						O5BBkUiSUZNWlFqVXpZjl2mYa5lr
-						mmmbaZxqnWieYZ9aoFOhS6JAozGk
-						KaUnpiWnIqggqR2qGasVrBGtEK4M
-						rwWv/rD4sfOy7bPltNu10bbMt8O4
-						ubmxuqy7qbyhvZa+jr+KwITBgcJ6
-						w3LEbsVuxmzHYchDyRbJ4sqyy3/M
-						Ss0XzebOtM+E0FLRH9Ht0sDTkdRf
-						1S3V+tbL15fYYdkt2fnaxtuP3Fbd
-						Hd3k3q3fcuA24PnhuuJ74zrj9uS2
-						5XzmQecD58nojOlO6hDq0+uX7Fjt
-						GO3Y7pjvWPAY8NXxkfJO8w3zyfSE
-						9UH1//a+93r4Nfjw+a36a/sp++b8
-						ov1g/h/+2v9x//8AAAIEAxIEFgUU
-						BhUHDwgLCQgJ/Qr5C+8M5A3ZDs0P
-						wRCxEaISlBOFFHcVaxZdF08YQxk5
-						GjYbLBwvHS4eNh8+IEUhPyI4Iy0k
-						LCUsJionMCgsKTAqNitDLEotWC5p
-						L3kwiTGdMrYzzzTuNhE3NDhTOXo6
-						pzvXPQg+NT9xQK1B6EMrRGtFr0b4
-						SEVJi0rYTDFNfE7RUBtRZ1K2VAFV
-						TVaSV9xZKVpwW7Jc9144X31gv2H9
-						YztkdmW3ZvNoLmlqaqpr6m0mblxv
-						mHDWchNzVHSRdcp3CHhMeY56xXvj
-						fOt97371f/mA+oH+gwWEDIUThhmH
-						HYgkiTCKOotCjEmNT45Yj1yQYJFk
-						kmqTb5RwlXKWb5dumHCZbZpmm2Cc
-						WJ1QnkWfNqAtoS2iLKMppCmlKKYm
-						pySoI6kkqiOrH6wcrRquGa8YsBWx
-						ErIPsw+0DrUNtg23EbgWuRi6GLsb
-						vCC9J74uvzXAOcFCwk7DWsRbxUfG
-						IMbyx8nInMltykHLF8vtzMXNmc5t
-						z0PQHdD20c3SotN31E7VItX11snX
-						nNhv2UHaEdrd26zcfN1I3hHe29+i
-						4GrhLuHw4rjjkORo5T/mF+bt58To
-						melu6kXrGevq7Lztje5d7y7v+/DH
-						8ZLyXvMp8/L0u/WG9lD3GPfc+KL5
-						afow+vj7vPyA/UX+Dv7P/23//wAA
-						AgQC9wPwBPQF7wbtB+0I7QneCtsL
-						1AzLDb0Org+fEIsRdxJkE0wUMBUP
-						FfMW0RerGIQZXBowGwUb1xylHXUe
-						RR8PH90gpSFtIjojBiPWJKklfiZV
-						JywoCCjnKccqqCuNLHQtWy5CLy4w
-						HDEJMfcy5TPRNMA1sDadN4k4djlh
-						Okw7PDwgPQY98D7VP7VAk0F2QmlD
-						V0RGRThGJkcYSAVI9knpStlLyEy2
-						TaZOmE+JUHhRZ1JWU0xUO1UsVh9X
-						FlgNWQJZ9FrpW+Jc2l3UXs1fw2C+
-						Yb1iumOyZKNliWZyZ19oSGkvahpr
-						B2v1bORt0W6+b65wonGWcohzeHRo
-						dV52Tnc+eC95IXoUewR783zgfc5+
-						vn+rgJSBf4Jmg0+ENIUWhgGG94ft
-						iOOJ2orQi8eMuo2vjqiPnJCLkX+S
-						cJNklFWVRpY0lySYFZkFmfSa5ZvY
-						nM2dvp6sn52gk6GFonyjb6RhpVem
-						UadJqDupIqoAqtyrvKyYrXKuT68u
-						sA6w7rHNsqmzi7RvtVO2NbcWt/e4
-						3Lm9up27frxhvUO+Jb8Fv+PAw8Gm
-						woTDYcQ9xRrF9sbQx6XIi8mcysHL
-						4sz/zhrPOdBa0XzSnNPI1O3WHNdP
-						2IvZzNsT3GDdud8T4H/h9OOB5Q7m
-						p+hQ6hHr1u2u75bxkfOd9bH35vog
-						/GD+fv//AABuZGluAAAAAAAABjYA
-						AJh1AABY4QAAUqUAAI/9AAAoDAAA
-						FqgAAFANAABUOQABwo8AAauFAAFC
-						jwADAQAAAgAAAAAAAgAIABEAHgAt
-						AD8AVABsAIYAowDEAOUBCgEyAVwB
-						iAG4AekCHQJVAo4CygMIA0gDiwPR
-						BBoEZASxBP8FTwWjBfkGUAaqBwQH
-						YQfACCEIgwjoCU0JsQoaCoQK7AtX
-						C8IMMgydDQcNdQ3iDk8OvQ8rD5gQ
-						BxBzEOERUBG9EisSmBMFE3UT5RRT
-						FMEVMBWgFhIWhRb5F2wX4BhZGM8Z
-						RxnAGjwaths2G7ocPhzCHUgd0B5Y
-						HuUfch//IIwhHiGzIkki4SN7JBQk
-						sSVQJfImlyc+J+MojCk5KeYqlStE
-						K/Mspi1eLhgu0C+JMEUxADG9Mn8z
-						QjQDNMI1hTZMNx44AjjuOdc6wjuz
-						PKU9lD6FP3dAakFjQl1DU0RIRUJG
-						P0dASEBJQEpHS1BMWk1lTnBPg1CX
-						UbFSyVPhVQFWJ1dNWHdZolrXXA9d
-						Ol5jX5RgwmHzYydkXmWXZs1oBmlH
-						aolrzW0QblZvoHDvckFzi3TfdjR3
-						iXjcei17h3zofkR/nYD7glaDuYUf
-						hn6H2ok/irWMXI4cj9WRmZNilSOW
-						6piumn6cTZ4Tn+GhtqORpWSnSKku
-						qxSs+67usOey5LTetui49bsMvSO/
-						TsFvw3/FoMe6yd7MB84w0FjSkNTI
-						1wbZQ9uL3dzgJuJ85NXnKul96+Pu
-						SvCp8wv1c/fk+kb8vP//AAAAAAAD
-						AAoAFQAkADYATABlAIEAoQDDAOkB
-						EgE+AW0BnwHVAg0CSAKGAsYDCQNP
-						A5cD4QQrBHoExwUYBWgFugYOBmkG
-						xwcpB4kH6whQCLQJHgmHCfEKWgrI
-						CzULogwSDIMM9g1nDdoOTw7BDzUP
-						qhAjEJoREBGHEf4SdhLyE2kT4RRb
-						FNYVThXKFkYWwRc9F7gYNxi3GTMZ
-						rhoxGq8bMRu4HD4cwx1LHdUeXx7u
-						H3wgCSCYISohwCJVIuwjhiQeJLkl
-						ViX2JpcnOyfbKIApJynPKngrICvI
-						LHMtIS3ULoQvMy/kMJcxSDH9MrYz
-						bjQkNNg1kDZNNxY39jjiOcs6tjun
-						PJo9iT56P2xAX0FXQlFDSEQ9RTdG
-						NEc0SDZJNUo9S0ZMUE1aTmZPeVCM
-						UaZSv1PXVPdWHVdCWG1ZmFrMXAVd
-						MF5XX4dgtGHiYxRkSGV+ZrFn5mkj
-						amFrn2zebhxvX3Clce5zMnR5dcR3
-						DnhWeZx65Xw2fYZ+0oAfgWyCuYQN
-						hWGGrof6iU2KsoxJjf2PqJFekxmU
-						zJaDmDeZ9Zu2nW6fKKDoorCkd6ZA
-						qBOp56u8rZWvdrFis0u1NrcxuS67
-						NL09v1jBZMNBxTHHGskMyv3M+M7u
-						0OnS9NT81wvZGts03Vffe+Gi49Pm
-						BOg06mvstO738T3zgfXS+Cn6cvzU
-						//8AAAAAAAMACwAXACYAOQBPAGgA
-						hAClAMcA7QEWAUMBcwGmAd4CFwJV
-						ApcC3gMmA3QDxgQcBHcE1QU4BaAG
-						CgZ7Bu0HaAfiCGAI3gldCd4KYgrl
-						C2kL8Ax3DP8NiQ4WDqIPLw+/EFEQ
-						5RF9EhQSrhNNE+0UkRU3FdwWjBc8
-						F+wYpBliGiQa1RuOHEgdAR3AHn4f
-						QiAEIMchkCJbIygj9STDJZYmaydD
-						KBYo8SnMKqcrgSxcLT4uIi8DL+Uw
-						yTGtMpczgTRmNU42PDcxODc5PTpA
-						O0k8Vz1hPms/dkCDQZVCp0OzRMJF
-						1UbrSARJGEo1S1RMc02STrRP21EG
-						UjRTX1SPVclXAVhBWX9ax1wVXUxe
-						fl+4YO5iKWNkZKZl6GcmaGxpumsE
-						bFRtoW70cEtxpnL/dFl1uXcZeHd5
-						0ns0fJ9+Bn9ogNCCNIOfhQ6Gdofb
-						iUeKwYxWjfePkZEzkt2Uf5Yil8WZ
-						a5sbnMGeY6ALobmjaqUUpsiogKo2
-						q+ytpa9ksSmy7rSttnm4S7oeu/K9
-						zr+3wXnC6MROxbzHMMiqyh7Lk80G
-						znnP89FZ0s7UONWf1wDYWdmw2wTc
-						Vd2e3t7gJOFc4o3ju+TY5fXnFOgr
-						6UDqTutS7E/tTe5K7z/wMvEg8gry
-						7/PR9K71jPZp90L4EPje+az6evtJ
-						/Bf83f2d/sP//wAAZGVzYwAAAAAA
-						AAAKQ29sb3IgTENEAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-						AAAAAAAAAG1sdWMAAAAAAAAAAwAA
-						AAxlblVTAAAAEgAAADRmckZSAAAA
-						QgAAAEZkZURFAAAAEAAAAIgAQwBv
-						AGwAbwByACAATABDAEQAyQBjAHIA
-						YQBuACAA4AAgAGMAcgBpAHMAdABh
-						AHUAeAAgAGwAaQBxAHUAaQBkAGUA
-						cwAgAGMAbwB1AGwAZQB1AHIARgBh
-						AHIAYgAtAEwAQwBEbW1vZAAAAAAA
-						AAYQAACcYAAAAAC/+HuAAAAAAAAA
-						AAAAAAAAAAAAAHRleHQAAAAAQ29w
-						eXJpZ2h0IEFwcGxlIENvbXB1dGVy
-						LCBJbmMuLCAyMDA1AAAAAA==
-						</data>
+						<key>b</key>
+						<string>0.164706</string>
+						<key>g</key>
+						<string>0.364706</string>
+						<key>r</key>
+						<string>0.188235</string>
 					</dict>
 					<key>TrippleBlend</key>
 					<string>YES</string>
@@ -965,12 +337,13 @@ finishFrame}</string>
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf1 EventQueue}</string>
+\f0\fs24 \cf1 \expnd0\expndtw0\kerning0
+EventQueue}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -1025,8 +398,8 @@ finishFrame}</string>
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -1053,8 +426,8 @@ handleEvent}</string>
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -1150,24 +523,17 @@ handleEvents}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf1 App Thread}</string>
+\f0\fs24 \cf1 Main Thread}</string>
 			</dict>
 		</dict>
 		<dict>
 			<key>Class</key>
 			<string>LineGraphic</string>
-			<key>Head</key>
-			<dict>
-				<key>ID</key>
-				<integer>1026</integer>
-				<key>Info</key>
-				<integer>1</integer>
-			</dict>
 			<key>ID</key>
 			<integer>1020</integer>
 			<key>OrthogonalBarAutomatic</key>
@@ -1176,8 +542,8 @@ handleEvents}</string>
 			<real>-1</real>
 			<key>Points</key>
 			<array>
-				<string>{127.559, 340.157}</string>
-				<string>{219.685, 297.638}</string>
+				<string>{128.059, 340.157}</string>
+				<string>{170.079, 340.157}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -1289,8 +655,8 @@ handleEvents}</string>
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -1351,8 +717,8 @@ handleEvents}</string>
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -1449,8 +815,8 @@ sendEvent}</string>
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -1579,8 +945,8 @@ processEvent}</string>
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -1673,8 +1039,8 @@ processEvent}</string>
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -1767,8 +1133,8 @@ processEvent}</string>
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -1831,8 +1197,8 @@ processEvent}</string>
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -1925,8 +1291,8 @@ processEvent}</string>
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
-{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
@@ -2135,7 +1501,7 @@ processEvent}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2007-10-21 20:55:32 +0200</string>
+	<string>2008-03-10 10:41:20 +0100</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -2152,13 +1518,13 @@ processEvent}</string>
 	<dict>
 		<key>NSBottomMargin</key>
 		<array>
-			<string>float</string>
-			<string>0</string>
+			<string>coded</string>
+			<string>BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU051bWJlcgCEhAdOU1ZhbHVlAISECE5TT2JqZWN0AIWEASqEhAFklwCG</string>
 		</array>
 		<key>NSLeftMargin</key>
 		<array>
-			<string>float</string>
-			<string>0</string>
+			<string>coded</string>
+			<string>BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU051bWJlcgCEhAdOU1ZhbHVlAISECE5TT2JqZWN0AIWEASqEhAFklwCG</string>
 		</array>
 		<key>NSPaperSize</key>
 		<array>
@@ -2167,13 +1533,13 @@ processEvent}</string>
 		</array>
 		<key>NSRightMargin</key>
 		<array>
-			<string>float</string>
-			<string>0</string>
+			<string>coded</string>
+			<string>BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU051bWJlcgCEhAdOU1ZhbHVlAISECE5TT2JqZWN0AIWEASqEhAFklwCG</string>
 		</array>
 		<key>NSTopMargin</key>
 		<array>
-			<string>float</string>
-			<string>0</string>
+			<string>coded</string>
+			<string>BAtzdHJlYW10eXBlZIHoA4QBQISEhAhOU051bWJlcgCEhAdOU1ZhbHVlAISECE5TT2JqZWN0AIWEASqEhAFklwCG</string>
 		</array>
 	</dict>
 	<key>ReadOnly</key>

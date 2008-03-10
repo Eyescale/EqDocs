@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.1.11 for Equalizer 0.4+svn\\[\medskipamount]
+  Version 1.1.12 for Equalizer 0.5-RC\\[\medskipamount]
   \today
 }
 
@@ -57,7 +57,7 @@
 \clearpage
 
 \thispagestyle{empty}
-\section*{Equalizer 0.4 Programming Guide}
+\section*{Equalizer 0.5 Programming Guide}
 \subsection*{Contributors}
 
 Written by Stefan Eilemann.\\
@@ -124,6 +124,7 @@ right].
     1.1.9   & Jan 16, 2008 & Detail distributed object usage\\
     1.1.10  & Jan 28, 2008 & Add creation thread for NodeFactory entities\\
     1.1.11  & Feb 20, 2008 & Add advanced chapter for thread synchronization\\
+    1.1.12  & Mar 10, 2008 & General review for 0.5 release\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -137,7 +138,7 @@ Equalizer provides a framework for the development of parallel OpenGL
 applications. Equalizer-based applications can run from a single
 shared-memory system with one or multiple graphics cards up to
 large-scale graphics clusters. This Programming Guide introduces the
-programming interface, often using the Equalizer \textsf{eqPly} example
+programming interface, often using the Equalizer example \textsf{eqPly}
 as a guideline.
 
 Equalizer is the next step in the evolution of generic parallel programming
@@ -174,11 +175,11 @@ look at the Quickstart
 Guide\footnote{\link{http://www.equalizergraphics.com/documents/EqualizerGuide.html}}
 to get familiar with the capabilities of the \textsf{eqPly} example.
 
-Compiling Equalizer is as simple as running \textsf{make} on Linux or
-building the Equalizer Visual Studio 2005 solution on Windows. On Mac OS
-X 10.4 (Tiger), some prerequisites have to be installed before running
-\textsf{make}, as explained in \textsf{README.Darwin}. Mac OS X 10.5
-Leopard does have all the prerequisites installed by default.
+Compiling Equalizer is as simple as running \textsf{make} on Linux and
+Mac OS X or building the Equalizer Visual Studio 2005 solution on
+Windows. Note that on Mac OS X 10.4 (Tiger), some prerequisites have to
+be installed before running \textsf{make}, as explained in
+\textsf{README.Darwin}.
 
 
 \subsection{Equalizer Processes}
@@ -243,11 +244,11 @@ GLUT-based applications, has an event loop which redraws the scene,
 updates data based on received events, and eventually redraws a new
 frame.
 
-Any parallel rendering application keeps this basic execution model and
+A parallel rendering application uses the same basic execution model and
 extends it by separating the rendering code from the main event
-loop. This rendering coded is then executed in parallel on different
-resources. This model is followed by Equalizer, thus making application
-development as easy as possible.
+loop. The rendering code is then executed in parallel on different
+resources. This model is naturally followed by Equalizer, thus making
+application development as easy as possible.
 
 
 \section{Hello, World!}
@@ -265,9 +266,9 @@ run as a stand-alone application from the command line.
 The \textsf{eqHello} redraw function renders six colored quads, rotating
 around the origin. The \textsf{frameDraw} meth\-od provided by the
 \textsf{eq::Channel} can be used as a convience function to setup the
-frustum and other OpenGL state. After setting up some additional
-lighting parameter, \textsf{eqHello} rotates the scene and renders the
-quads using immediate mode:
+frustum and other OpenGL state. After setting up some lighting
+parameters, \textsf{eqHello} rotates the scene and renders the quads
+using immediate mode:
 
 {\footnotesize\begin{lstlisting}
 void Channel::frameDraw( const uint32_t spin )
@@ -311,7 +312,7 @@ and disadvantages.
 Choosing the right mode for the application profile is critical for
 performance. Equalizer uses the concept of compounds to describe the
 task decomposition and result recomposition. It allows the combination
-of the different compound modes in any possible way, which allows the
+of the different compound modes in any possible way, which allows to
 address different bottlenecks in a flexible way.
 
 
@@ -328,13 +329,14 @@ view.
 
 The advantage of this mode is a low, constant IO overhead for the pixel
 transfers, since only color information has to be transmitted. The upper
-limit is the number of pixels of the destination view.
+limit is the amount of pixel data for the destination view.
 
-It's disadvantage is that it relies on view frustum culling to reduce
-the amount of data rendered. Depending on the application data
-structure, the overlap of some primitives between individual tiles
+Its disadvantage is that it relies on view frustum culling to reduce the
+amount of data submitted for rendering. Depending on the application
+data structure, the overlap of some primitives between individual tiles
 limits the scalability of this mode, typically to around eight graphics
-cards. Each node has to potentially hold the full database for rendering.
+cards. Each node has to potentially hold the full database for
+rendering.
 
 2D decompositions can be used by all types of applications, but should
 be combined with DB compounds to reduce the data per node, if possible.
@@ -355,9 +357,9 @@ composite the result image. The depth buffer information is used to
 composite the individual images correctly for polygonal data. 
 
 This mode provides very good scalability, since each rendering unit
-processes a part of the database. This allows to lower the requirements
-on all parts of the rendering pipeline: main memory usage, IO bandwidth,
-GPU memory usage, vertex processing and fill rate.
+processes only a part of the database. This allows to lower the
+requirements on all parts of the rendering pipeline: main memory usage,
+IO bandwidth, GPU memory usage, vertex processing and fill rate.
 
 Unfortunately, the database recomposition has linear increasing IO
 requirements for the pixel transfer. Parallel recomposition algorithms,
@@ -365,11 +367,11 @@ such as direct-send address this problem by keeping the per-node IO
 constant (see \fig{fDirectSend}).
 
 The application has to partion the database so that the rendering units
-render only part of the database. Some OpenGL features, do not work
+render only part of the database. Some OpenGL features do not work
 correctly (anti-aliasing) or need special attention (transparency).
 
 The best use of database compounds is to divide the data to a managable
-size, and then to use other decomposition modes to achieve more
+size, and then to use other decomposition modes to achieve further
 scalability. Volume rendering is one of the applications which can
 profit from database compounds.
 
@@ -411,9 +413,9 @@ distributed subset of pixels.
 As 2D compounds, pixels compounds have low, constant IO requirements for
 the pixel transfers during recomposition.
 
-Pixel compounds only work very well for purely fill-limited
-applications, techniques like frustum culling do not reduce the rendered
-data for the source rendering resources.
+Pixel compounds work well for purely fill-limited applications,
+techniques like frustum culling do not reduce the rendered data for the
+source rendering resources.
 
 OpenGL functionality influenced by the raster position will not work
 correctly with pixel compounds, or needs at least special
@@ -493,7 +495,8 @@ This per-node frame synchronization does not inhibit latency across
 rendering nodes. Furthermore, advanced rendering software which
 multi-buffers the dynamic parts of the database can disable the per-node
 frame synchronization, as explained in \sref{sNodeFrame}. Some scene
-graphs for example do implement multi-buffered data.
+graphs for example do implement multi-buffered data, and can profit from
+relaxing the frame synchronization.
 
 
 
@@ -527,8 +530,8 @@ concern itself with the parallel rendering logics of a configuration.
 
 For testing and development purposes it is possible to use multiple
 instances for one resource, e.g. to run multiple render client nodes on
-one computer. For deployment, one node and pipe should be used for each
-computer and graphics card, respectively.
+one computer. For optimal performance during deployment, one node and
+pipe should be used for each computer and graphics card, respectively.
 
 \subsubsection{Node}
 
@@ -557,19 +560,18 @@ system thread.
 \subsubsection{Window}
 
 The \textsf{eq::Window} class holds a drawable and an OpenGL
-context. The drawable can be an on-screen window or an
-off-screen\footnote{Off-screen drawables are not implemented yet, but
-  can be created by the application and used with Equalizer} PBuffer or
-framebuffer object (FBO). The window holds window-system-specific
-handles to the drawable and context, e.g., an X11 window \textsf{XID} and
+context. The drawable can be an on-screen window or an off-screen
+PBuffer. Framebuffer object (FBO) support will be implement by later
+version of Equalizer. The window holds window-system-specific handles to
+the drawable and context, e.g., an X11 window \textsf{XID} and
 \textsf{GLXContext} for the glX window system.
 
 \subsubsection{Channel}
 
 The \textsf{eq::Channel} class is the abstraction of an OpenGL viewport
 within its parent window. It is the entity executing the actual
-rendering. The channel's viewport might be overwritten when it is
-rendering for another channel during scalable rendering.
+rendering. The channel's viewport is overwritten when it is rendering
+for another channel during scalable rendering.
 
 
 \subsection{\label{compounds}Compounds}
@@ -613,7 +615,7 @@ field-of-view and distance of the projection wall.
 \subsubsection{Compound Classification}
 The channels of the leaf compounds in the compound tree are designated
 as source channels. The top-most channel in the tree is the destination
-channel. Only source channels execute rendering task. All channels in a
+channel. Only source channels execute rendering tasks. All channels in a
 compound tree work for the destination channel. The destination channel
 defines the 2D pixel viewport rendered by all leaf compounds. The
 destination channel and pixel viewport can not be overridden by child
@@ -625,10 +627,12 @@ destination's channel viewport, frustum and database. A
 \textsf{viewport} decomposes the destination channel and frustum in
 screen space. A \textsf{range} tells the application to render a part of
 its database, and an \textsf{eye} rendering pass can selectively render
-different stereo passes. Setting one or multiple attributes causes the
-parent's view to be decomposed accordingly. Attributes are cumulative,
-that is, intermediate compound attributes affect and therefore decompose
-the rendering of all their children.
+different stereo passes. A \textsf{pixel} parameter adapts the frustum
+so that the source channel renders every n$th$ line out of m
+lines. Setting one or multiple attributes causes the parent's view to be
+decomposed accordingly. Attributes are cumulative, that is, intermediate
+compound attributes affect and therefore decompose the rendering of all
+their children.
 
 \subsubsection{Recomposition - Frames}
 Compounds use output and input frames to configure the recomposition of
@@ -878,6 +882,13 @@ variable \textsf{EQ\_LOG\_TOPICS}:
                             << endl;
 \end{lstlisting}}%>>
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \subfigure[]{\label{fSync}
+    \includegraphics[width=.25\textwidth]{images/sync}}\hfil
+  \subfigure[]{\label{fAsync}
+    \includegraphics[width=.25\textwidth]{images/async}}%
+  {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
+\end{wrapfigure}
 When the configuration was successfully initialized, the main rendering
 loop is executed. It runs until the user exits the
 configuration, or when a maximum number of frames has been rendered,
@@ -904,13 +915,6 @@ not have to be multi-buffered. Applications such as \textsf{eqPly}, which
 do not need this per-node frame synchronization can disable it, as
 explained in \sref{sNodeFrame}.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \subfigure[]{\label{fSync}
-    \includegraphics[width=.25\textwidth]{images/sync}}\hfil
-  \subfigure[]{\label{fAsync}
-    \includegraphics[width=.25\textwidth]{images/async}}%
-  {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
-\end{wrapfigure}
 \fig{fSyncAsync} shows the execution of (hypothetical) rendering tasks
 without latency (\fig{fSync}) and with a latency of
 one frame (\fig{fAsync}). With \textsf{eqPly}, a speedup of 15\% has been
@@ -1176,14 +1180,14 @@ necessary data.
 
 \subsubsection{Initialization and Exit}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
-  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
-\end{wrapfigure}
 The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
 completion is synchronized afterwards. 
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
+  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
+\end{wrapfigure}
 The tasks are executed by the node and pipe threads in parallel. The
 parent's initialization methods are always executed before any child
 initialization method. This parallelization is necessary to allow a
@@ -2098,15 +2102,16 @@ The main rendering loop in \textsf{eqPly} looks like this:
 \section{Advanced Features}
 
 This section discusses some additional important features not covered
-by the previous \textsf{eqPly} section. Where possible code examples
-from the Equalizer distribution are used.
+by the previous \textsf{eqPly} section. Where possible, code examples
+from the Equalizer distribution are used to illustrate one use case of
+the feature.
 
 
 \subsection{Event Handling}
 
 Event handling requires a lot of flexibility. On one hand, the
 implementation differs slightly for each operating and window system due
-to conceptual differences in the OS-specific implementation. On the
+to conceptual differences in the specific implementation. On the
 other hand, each application and widget set has its own model on how
 events are to be handled. Therefore, event handling in Equalizer is
 customizable at any stage of the processing, to the extreme of making it
@@ -2140,8 +2145,8 @@ and the main thread for AGL.
 During window and pipe initialization the event handling is set up. For
 both entities, \textsf{initEvent\-Handler} is called to register the
 pipe or window with an event handler. This method may be overwritten to
-use a custom event handler, or to not install an event handler at all
-and so disable event handling. Likewise, \textsf{exitEventHandler} is
+use a custom event handler, or to not install an event handler at all in
+order to disable event handling. Likewise, \textsf{exitEventHandler} is
 called to de-initialize event handling.
 
 An event handler consists of two parts: the generic base class providing
@@ -2178,9 +2183,8 @@ widget sets such as Qt.
 
 Events are received by an event handler. The event handler finds the
 \textsf{eq::Window} associated to the event. It then creates a generic
-\textsf{WindowEvent}, which holds important event data in a 
-window system-independent format. The original event is attached to the
-generic window event.
+\textsf{WindowEvent}, which holds important event data in an independent
+format. The original event is attached to the generic window event.
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
@@ -2257,7 +2261,7 @@ Each event has a type which is used to identify it by the config
 processing function.
 
 User-defined types start at \textsf{eq::ConfigEvent::USER}, and the
-member variable \textsf{ConfigEvent::user} can be used to store
+member variable \textsf{ConfigEvent::user} can be used to store up to
 \textsf{EQ\_USER\_EVENT\_SIZE}\footnote{currently 32 bytes} bytes. In
 this space, the channel's name is stored. Additional variables are used
 to transport the pixel format and type, the size and the time it took
@@ -2345,7 +2349,7 @@ node thread, since the pipe threads do not execute any rendering tasks
 between frames.
 
 Please note that the default thread synchronization synchronizes all
-\textsf{Channel::frameDraw} operations on a \textbf{single} node with
+\textsf{Channel::frame\-Draw} operations on a \textbf{single} node with
 the node's main thread. The per-node frame synchronization does not
 break the asynchronous execution across nodes. Advanced applications can
 remove the per-node frame synchronization.
@@ -2380,7 +2384,7 @@ set synchronizes the global execution.
 The local synchronization consists of \textsf{releaseFrameLocal} to
 unlock the local frame, and of \textsf{waitFrameLocal} to wait for the
 unlock. For the default synchronization model, Equalizer uses the task
-method \textsf{frameDrawFinish} which is called on each resource entity
+method \textsf{frameDrawFinish} which is called on each resource
 after the last \textsf{Channel::frameDraw} invocation for this
 frame. Consequently, \textsf{Pipe::frameDrawFinish} calls
 \textsf{Pipe::releaseFrame\-Lo\-cal} to signal that it is done drawing the
@@ -2399,7 +2403,7 @@ to be called on all entities, passing the oldest frame number, i.e., frame
 \textsf{current-latency}. The \textsf{frameFinish} task methods have to
 call \textsf{releaseFrame} to signal that the entitity is done with the
 frame. The release causes the parent's \textsf{frameFinish} to be
-invoked, which is so far synchronized internally. Once all
+invoked, which is synchronized internally. Once all
 \textsf{Node::releaseFrame} have been called,
 \textsf{Config::finishFrame} returns.
 
@@ -2435,8 +2439,8 @@ removes frame synchronization by:
 \subsection{OpenGL Extension Handling}
 
 Equalizer uses GLEW\footnote{\link{http://glew.sourceforge.net}} for
-OpenGL extension handling, particularly the GLEW MX implementation for
-multi-context support.
+OpenGL extension handling, particularly the GLEW MX implementation
+providing multi-context support.
 
 Each \textsf{eq::Window} has a \textsf{GLEWContext}. This context can be
 obtained by using \textsf{glewGetContext} on the window or channel. GLEW
@@ -2457,9 +2461,9 @@ void eqPly::Channel::_drawModel( const Model* model )
 }
 \end{lstlisting}}
 
-Functions called from another place need to have the macro or function
+Functions called from another place need to define a macro or function
 \textsf{glewGetContext} that returns the pointer to the GLEWContext of
-the appropriate window.
+the appropriate window:
 
 {\footnotesize\begin{lstlisting}
 // state has GLEWContext* from window
@@ -2480,7 +2484,7 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
 
 \subsection{Advanced Window Initialization}
 
-This section explains window initialization in detail. It discussed in
+This section explains window initialization in detail. It discusses in
 detail the handling on the different window systems. The entry point for
 the window initialization is the task method
 \textsf{Window::configInit}. This task method first calls a
@@ -2525,7 +2529,7 @@ enabled by the corresponding window attribute hint. Again the window
 initialization fails if the context could not be created.
 
 The drawable creation method \textsf{configInitAGLDrawable} calls either
-\textsf{configInitAGLFullscreen} or \textsf{configInitAGLWindow}.
+\textsf{configInitAGLFullscreen}, \textsf{configInitAGLWindow} or \textsf{configInitAGLPBuffer}
 
 The top-level AGL window initialization code therefore looks as follows:
 
@@ -2543,14 +2547,7 @@ bool Window::configInitAGL()
     if( !context )
         return false;
 
-    const bool success = configInitAGLDrawable();
-    if( success && !_xDrawable )
-    {
-        setErrorMessage( "configInitAGLDrawable did set no AGL drawable" );
-        return false;
-    }
-
-    return success;
+    return configInitAGLDrawable();
 }
 \end{lstlisting}}
 
@@ -2595,23 +2592,24 @@ The WGL initialization requires another order of operations compared to
 AGL or GLX. The following functions are used to initialize a WGL window:
 
 \begin{enumerate}
-\item\textsf{getWGLDeviceContext} is used to get a device context which
-  might be needed for window creation. Ordinary windows do not need a
-  device context during creation, but PBuffers do need one. If a context
-  is returned, a function pointer to delete the returned device context
-  is set as well.
-\item\textsf{configInitWGLDrawable} creates the drawable. The device
-  context passed to \textsf{configInitWGLDrawable} is not used when
-  creating a window. On success, it sets the window handle.
+\item\textsf{getWGLPipeDC} is used to get an affinity device context,
+  which might be needed for window creation. If a context is returned, a
+  function pointer to delete the returned device context is set as
+  well. This function might return 0, which is not an error.
 \item\textsf{chooseWGLPixelFormat} chooses a pixel format based on the
-  window attributes. If no device context is given, it uses the device
-  context from this window's window handle. The chosen pixel format is
-  set on the window's device context as well as on the passed device
-  context. The window needs a window handle set before this method is
-  called.
+  window attributes. If no device context is given, it uses the system
+  device context. The chosen pixel format is set on the passed device
+  context.
+\item\textsf{configInitWGLDrawable} creates the drawable. The device
+  context passed to \textsf{configInitWGLDrawable} is used to query the
+  pixel format and is used as the device context for creating a
+  PBuffer. If no device context is given, the display device context is
+  used. On success, it sets the window handle. Setting a window handle
+  also sets the window's device context.
 \item\textsf{createWGLContext} creates an OpenGL rendering context using
-  the given device context. The device context can not be 0. It does not
-  set the window's OpenGL context.
+  the given device context. If no device context is given, the window's
+  device context is used. This function does not set the window's OpenGL
+  context.
 \end{enumerate}
 
 The full \textsf{configInitWGL} task method, including error handling
@@ -2621,23 +2619,8 @@ and cleanup, looks as follows:
 bool Window::configInitWGL()
 {
     PFNEQDELETEDCPROC deleteDCProc = 0;
-    HDC dc = getWGLDeviceContext( deleteDCProc );
+    HDC dc = getWGLPipeDC( deleteDCProc );
     EQASSERT( !dc || deleteDCProc );
-
-    if( !configInitWGLDrawable( dc ))
-    {
-        if( dc )
-            deleteDCProc( dc );
-        return false;
-    }
-
-    if( !_wglWindowHandle )
-    {
-        if( dc )
-            deleteDCProc( dc );
-        setErrorMessage( "configInitWGLDrawable did set no WGL drawable" );
-        return false;
-    }
 
     int pixelFormat = chooseWGLPixelFormat( dc );
     if( pixelFormat == 0 )
@@ -2647,10 +2630,22 @@ bool Window::configInitWGL()
         return false;
     }
 
-    HDC windowDC = GetDC( _wglWindowHandle );
-    HGLRC context = createWGLContext( dc ? dc : windowDC );
-    ReleaseDC( _wglWindowHandle, windowDC );
+    if( !configInitWGLDrawable( dc, pixelFormat ))
+    {
+        if( dc )
+            deleteDCProc( dc );
+        return false;
+    }
 
+    if( !_wglDC )
+    {
+        if( dc )
+            deleteDCProc( dc );
+        setErrorMessage( "configInitWGLDrawable did not set a WGL drawable" );
+        return false;
+    }
+
+    HGLRC context = createWGLContext( dc );
     setWGLContext( context );
 
     if( !context )
@@ -2697,10 +2692,11 @@ In stereo rendering, the scene is rendered twice, with the two frustra
 
 In immersive visualization, the observer is tracked in and the view
 frustra are adapted to the viewer's position and orientation, as shown
-in \fig{fTracked}. The transformation origin $\rightarrow$ viewer is set by
+in \fig{fTracked}. The transformation $origin \rightarrow viewer$ is set by
 the application using \textsf{Config::setHeadMatrix}, which is used by
 the server to compute the frustra. The resulting off-axis frustra are
-positioned using the channel's head transformation.
+positioned using the channel's head transformation, which can be
+retrieved using \textsf{Channel::getHeadTransform}.
 
 
 \subsection{\label{sCompositing}Image Compositing for Scalable Rendering}
@@ -2715,7 +2711,7 @@ The source channels producing one or more \textsf{outputFrame}s use
 buffer. The channels receiving one or multiple \textsf{inputFrame}s use
 \textsf{Channel::frameAssemb\-le} to assemble the pixel data into the
 framebuffer. Equalizer takes care of the network transport of frame
-buffer data between nodes, if needed.
+buffer data between nodes.
 
 Normally the programmer does not need to interfere with the image
 compositing. Changes are sometimes required at a high level, for example
@@ -2744,26 +2740,26 @@ source channels, and thereby keeps the compositing work per channel
 constant.
 
 In direct send compositing, each rendering channel is also responsible
-for the sort-last composition\footnote{depth-based for polygonal data or
-  sorted-blend for volume data} of one screen-space tile. He receives
+for the sort-last composition of one screen-space tile. He receives
 the framebuffer pixels for his tile from all the other channels. The
 size of one tile decreases linearly with the number of source channels,
 which keeps the total amount of pixel data per channel constant.
 
 After performing the sort-last compositing, the color information is
-transferred to the destination channel, similarly to an 2D (sort-first)
+transferred to the destination channel, similarly to a 2D (sort-first)
 compound. The amount of pixel data for this part of the compositing
 pipeline also approaches a constant value, i.e., the full frame buffer.
 
 \fig{fDirectSend} illustrates this algorithm for three channels. The
-Equalizer website contains a presentation explaining this
-algorithm\footnote{\link{http://www.equalizergraphics.com/documents/EGPGV07.pdf}}.
+Equalizer website contains a
+presentation\footnote{\link{http://www.equalizergraphics.com/documents/EGPGV07.pdf}}
+explaining and comparing this algorithm with the binary-swap algorithm.
 
 The following operations have to be possible in order to perform this
 algorithm:
 \begin{itemize}
 \item Selection of color and/or depth frame buffer attachments
-\item Restricting the read back area to a part of the rendered area
+\item Restricting the read-back area to a part of the rendered area
 \item Positioning the pixel data correctly on the receiving channels
 \end{itemize}
 
@@ -2842,7 +2838,7 @@ together to produce the final image, as shown in
 
 When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
-mostly fill-limited and therefore scales nicely in this mode. 
+mostly fill-limited and therefore scales nicely in these modes. 
 
 The full power of scalable volume rendering is however in DB (sort-last)
 compounds, where the full volume is divided into separate bricks. Each
@@ -2853,8 +2849,13 @@ has to be assembled correctly.
 Conceptually, the individual volume bricks of each of the source
 channels produces pixel data which can be handled like one big 'slice'
 through the full texture. Therefore they have to be blen\-ded
-back-to-front in the same way as the slice planes during rendering.
+back-to-front in the same way as the slice planes are blended during
+rendering.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 DB compounds have the advantage of scaling any part of the volume
 rendering pipeline: texture and main memory (smaller bricks for each
 channel), fill rate (less samples per channel) and IO bandwidth for
@@ -2880,10 +2881,6 @@ same blending parameters. Simplified, the frame buffer images are
 `thick' slices which are `rendered' by writing their content to the
 destination frame buffer using the correct order. 
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -2900,7 +2897,7 @@ frustum setup shown in \fig{fBlendPerspective}\footnote{Volume Data Set
 1-4-3-2.
 
 In order to compute the assembly order, \textsf{eVolve} uses the angle
-between the origin$\rightarrow$slice vector and the near plane, as shown
+between the $origin \rightarrow slice$ vector and the near plane, as shown
 in \fig{fBlendPerspective}. When the angle becomes greater than
 90\textdegree, the compositing order of the remaining frames has to be
 changed. The result image of this composition naturally looks the same
