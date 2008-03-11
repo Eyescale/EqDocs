@@ -332,8 +332,15 @@
 				</dict>
 				<key>stroke</key>
 				<dict>
-					<key>Draws</key>
-					<string>NO</string>
+					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>0</string>
+						<key>g</key>
+						<string>0</string>
+						<key>r</key>
+						<string>1</string>
+					</dict>
 				</dict>
 			</dict>
 		</dict>
@@ -475,7 +482,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2008-01-15 16:53:34 +0100</string>
+	<string>2008-03-11 16:02:33 +0100</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -550,11 +557,11 @@
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{247, 178}, {911, 700}}</string>
+		<string>{{430, 381}, {555, 477}}</string>
 		<key>VisibleRegion</key>
-		<string>{{-38, 0}, {2024.19, 1360}}</string>
+		<string>{{0, -2.99999}, {1947, 1366.51}}</string>
 		<key>Zoom</key>
-		<real>1.0539215803146362</real>
+		<real>0.66035664081573486</real>
 	</dict>
 </dict>
 </plist>

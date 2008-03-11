@@ -1,0 +1,41 @@
+\NeedsTeXFormat{LaTeX2e}
+\documentclass[10pt]{scrartcl}
+
+\usepackage{tabularx,graphicx,listings,wrapfig,color}
+
+\usepackage[vcentering,pdftex]{geometry}
+
+\geometry{papersize={1208pt,860pt}}
+
+\newcommand{\boxwidth}{5in}
+\newcommand{\spacewidth}{604pt}
+\setlength{\evensidemargin}{39.76274pt}
+\setlength{\oddsidemargin}{39.76274pt}
+
+\pdfcompresslevel=9
+\def\pdfBorderAttrs{/Border [0 0 0] } % No border around Links
+\usepackage{hyperref}
+
+\begin{document}
+\thispagestyle{empty}
+
+\vfill
+\parbox[t]{\spacewidth}{\hfill}
+\parbox[t]{\boxwidth}{
+  \center
+  \textsf{\textbf{\huge Equalizer Programming Guide}}\\[\bigskipamount]
+  {\Large Eyescale Software GmbH}
+}\\
+\vfill
+\hspace{-122pt}\colorbox{red}{
+  \hspace{604pt}\includegraphics[width=604pt]{images/teaser.pdf}
+}\\
+\vfill
+\parbox[t]{\spacewidth}{\hfill}
+\parbox[t]{\boxwidth}{
+  \center
+  {\Large Version 1.2 for Equalizer 0.5}\\[\bigskipamount]
+  {\Large \today}
+}
+
+\end{document}
