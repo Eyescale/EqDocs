@@ -14,7 +14,19 @@
   \usepackage{hyperref}
 \fi
 
-\include{title}
+\title{Equalizer Programming Guide}
+\author{Eyescale Software GmbH}
+
+\date{
+  \vspace{2cm}
+  \begin{figure}[ht]
+    \hspace{-4.5cm}\includegraphics[width=22cm]{images/teaser.pdf}
+  \end{figure}
+  \vspace{1cm}
+%  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
+  Version 1.2 for Equalizer 0.5\\[\medskipamount]
+  \today
+}
 
 \newcommand{\tm}{\texttrademark~}
 \newcommand{\rc}{\raise 1ex\hbox{{\tiny\textregistered}}~}
@@ -35,12 +47,7 @@
 \lstset{language=C++}
 
 \thispagestyle{empty}
-
-%\abstract{
-%  Equalizer is a project to develop software to simplify the creation of
-%  scalable graphics applications and to improve the usability of
-%  multipipe visualization systems.
-%}
+\maketitle
 
 \clearpage
 
@@ -98,21 +105,7 @@ right].
     \bf Rev & \bf Date     & \bf Changes \\
     \hline
     1.0     & Oct 28, 2007 & Initial Version for Equalizer 0.4\\
-    1.0.1   & Nov 06, 2007 & Fixed Typo\\
-    1.1     & Nov 12, 2007 & Adapted distributed objects\\
-    1.1.1   & Nov 16, 2007 & Minor improvements based on lulu.com print\\
-    1.1.2   & Nov 19, 2007 & Minor improvements based on feedback\\
-    1.1.3   & Nov 23, 2007 & Add OpenGL extension handling\\
-    1.1.4   & Nov 26, 2007 & Changes caused by removal of glX event thread\\
-    1.1.5   & Dec 10, 2007 & NodeFactory API changes\\
-    1.1.6   & Dec 17, 2007 & Add Scalable Rendering chapter\\
-    1.1.7   & Dec 20, 2007 & Per-window object manager changes\\
-    1.1.8   & Jan 15, 2008 & Detailed window initialization based on
-                             latest refactoring\\
-    1.1.9   & Jan 16, 2008 & Detail distributed object usage\\
-    1.1.10  & Jan 28, 2008 & Add creation thread for NodeFactory entities\\
-    1.1.11  & Feb 20, 2008 & Add advanced chapter for thread synchronization\\
-    1.1.12  & Mar 10, 2008 & General review for 0.5 release\\
+    1.2     & Apr 15, 2008 & Version for Equalizer 0.5\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -146,8 +139,8 @@ fully customizable event handling.
 
 If you have any question regarding Equalizer programming, this
 programming guide, or other specific problems you encountered, please
-direct them to the \textsf{eq-dev} mailing list\footnote{see
-  \link{http://www.equalizergraphics.com/lists.html}}.
+direct them to the \textsf{eq-dev} mailing
+list\footnote{\link{http://www.equalizergraphics.com/lists.html}}.
 
 
 
