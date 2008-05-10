@@ -156,13 +156,15 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{722.834, 722.835}, {311.811, 311.811}}</string>
+			<string>{{297.638, 396.85}, {467.717, 311.811}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
 			<integer>852</integer>
 			<key>ImageID</key>
-			<integer>26</integer>
+			<integer>36</integer>
+			<key>Scale</key>
+			<real>0.5</real>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -184,6 +186,15 @@
 				</dict>
 				<key>stroke</key>
 				<dict>
+					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>1</string>
+						<key>g</key>
+						<string>1</string>
+						<key>r</key>
+						<string>1</string>
+					</dict>
 					<key>CornerRadius</key>
 					<real>8</real>
 					<key>Width</key>
@@ -220,6 +231,15 @@
 				</dict>
 				<key>stroke</key>
 				<dict>
+					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>1</string>
+						<key>g</key>
+						<string>1</string>
+						<key>r</key>
+						<string>1</string>
+					</dict>
 					<key>CornerRadius</key>
 					<real>8</real>
 					<key>Width</key>
@@ -252,6 +272,15 @@
 				</dict>
 				<key>stroke</key>
 				<dict>
+					<key>Color</key>
+					<dict>
+						<key>b</key>
+						<string>1</string>
+						<key>g</key>
+						<string>1</string>
+						<key>r</key>
+						<string>1</string>
+					</dict>
 					<key>CornerRadius</key>
 					<real>8</real>
 					<key>Width</key>
@@ -261,13 +290,19 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{297.634, 396.85}, {411.024, 311.811}}</string>
+			<string>{{722.835, 722.835}, {311.811, 311.811}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
 			<integer>4</integer>
 			<key>ImageID</key>
 			<integer>1</integer>
+			<key>ManualSizeImage</key>
+			<string>YES</string>
+			<key>Offset</key>
+			<string>{0.1, 0}</string>
+			<key>Scale</key>
+			<real>0.25</real>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -363,7 +398,7 @@
 	<key>HPages</key>
 	<integer>1</integer>
 	<key>ImageCounter</key>
-	<integer>36</integer>
+	<integer>37</integer>
 	<key>ImageLinkBack</key>
 	<array>
 		<dict/>
@@ -376,10 +411,10 @@
 	</array>
 	<key>ImageList</key>
 	<array>
+		<string>image36.png</string>
 		<string>image35.pdf</string>
 		<string>image33.jpg</string>
 		<string>image28.pdf</string>
-		<string>image26.png</string>
 		<string>image25.png</string>
 		<string>image12.jpg</string>
 		<string>image1.png</string>
@@ -482,7 +517,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2008-03-11 16:02:33 +0100</string>
+	<string>2008-05-07 13:36:06 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -557,11 +592,11 @@
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{430, 381}, {555, 477}}</string>
+		<string>{{162, 404}, {1034, 894}}</string>
 		<key>VisibleRegion</key>
-		<string>{{0, -2.99999}, {1947, 1366.51}}</string>
+		<string>{{0, -80}, {1947, 1519}}</string>
 		<key>Zoom</key>
-		<real>0.66035664081573486</real>
+		<real>1.2461174726486206</real>
 	</dict>
 </dict>
 </plist>

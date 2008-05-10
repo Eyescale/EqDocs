@@ -1,7 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \documentclass[10pt,a4]{scrartcl}
 
-\usepackage{tabularx,graphicx,a4,listings,wrapfig,subfigure,textcomp}
+\usepackage{tabularx,longtable,graphicx,a4,listings,wrapfig,subfigure,textcomp}
 
 \ifx\pdfoutput\undefined
   % We're not running pdftex
@@ -87,16 +87,18 @@ this programming guide, please contact
 
 \vfill
 
-\subsection*{Previous Page}
+\subsection*{Front Page}
 
-The images on the front page show: a terrain rendering application on a
-six-node display wall [top left], the \textsf{eqPly} polygonal renderer
-in a three-sided CAVE [middle], two volume rendering results from
-eVolve\footnote{Data sets courtesy of General Electric, USA and AVS,
-  USA} [bottom left and middle] and a six-node sort-last database
-decomposition with parallel direct-send recomposition\footnote{Data set
-  courtesy of Stanford University Computer Graphics Laboratory} [bottom
-right].
+The images on the front page show the following Equalizer applications:
+a terrain rendering application on a six-node display wall [top left], a
+flow visualization application for climate research\footnote{Image
+  courtesy of Computer Graphics and Multimedia Systems, University of
+  Siegen}, the \textsf{eVolve} volume renderer\footnote{Data sets
+  courtesy of General Electric, USA and AVS, USA} [bottom left] the
+\textsf{eqPly} polygonal renderer in a three-sided CAVE [bottom center],
+and a six-node sort-last database decomposition with parallel
+direct-send recomposition\footnote{Data set courtesy of Stanford
+  University Computer Graphics Laboratory} [bottom right].
 
 \clearpage
 \thispagestyle{empty}
@@ -109,6 +111,7 @@ right].
     1.2     & Apr 15, 2008 & Version for Equalizer 0.5\\
     1.3.1   & May 02, 2008 & Add statistics, improved images based on 1.2 print\\
     1.3.2   & May 05, 2008 & Add network distribution on eqPly model data\\
+    1.3.3   & May 10, 2008 & File Format Appendix [incomplete]\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -497,7 +500,7 @@ rendering environment.
 
 The resource usage is configured using a compound tree, which is a
 hierarchical representation of the rendering decomposition and
-recomposition across the resources. It is explained in \sref{compounds}.
+recomposition across the resources. It is explained in \sref{sCompounds}.
 
 \begin{figure}[ht!]\center
   \includegraphics[width=\textwidth]{images/cave.pdf}
@@ -558,7 +561,7 @@ rendering. The channel's viewport is overwritten when it is rendering
 for another channel during scalable rendering.
 
 
-\subsection{\label{compounds}Compounds}
+\subsection{\label{sCompounds}Compounds}
 
 Usage of the rendering resources is configured using a compound
 tree. Although the API does not currently expose compounds, the basic
@@ -3099,6 +3102,470 @@ vertical retrace of the display, and enforced by \textsf{glFinish}
 before sampling the end time of the event. In release builds, this does
 not happen and all OpenGL commands are pipelined with the execution on
 the CPU.
+
+
+
+\newpage
+\appendix
+\section{File Format}
+
+The currently used file format is the one-to-one representation of the
+server's internal data structures. Its purpose is intermediate, that
+is, it will gradually be replaced by automatic resource dedection and
+configuration. However the core scalability engine will always use a
+similar structure as currently exposed by the file format.
+
+The file format represents an ascii deserialization of the
+server. Streaming an \textsf{eqs::Server} to an \textsf{eqBase::Log}
+ostream produces a valid configuration file. Likewise, loading a
+configuration file produces an \textsf{eqs::Server}.
+
+The file format uses the same syntactical structure as VRML. If your
+editor supports syntax highlighting and formatting for VRML, you can use
+this mode for \textsf{.eqc} files.
+
+The configuration file consist of an optional global section and a
+server configuration. The global section defines default values for
+various attributes. The server section represents an
+\textsf{eqs::Server}.
+
+
+\subsection{Global Section}
+
+The global section defines default values for attributes used by the
+individual entities of the server section. The naming convention for
+attributes is:
+
+{\footnotesize\begin{lstlisting}
+EQ_<ENTITY>_<DATATYPE>ATTR_<ATTR_NAME>
+\end{lstlisting}}
+
+The entity is the capitalized name of the corresponding section later in
+the configuration file: connection, config, pipe, window, channel or
+compound. The connection is used by the server and nodes.
+
+The datatype is one capital letter for the type of the attribute's
+value: \textsf{S} for strings, \textsf{C} for a character, \textsf{I}
+for an integer and \textsf{F} for floating-point values. Enumation
+values are handled as integers. Strings have always to be surrounded by
+double quotes '\textsf{''}'. A character has to surrounded by single
+quotes '\textsf{'}'.
+
+The attribute name is the capitalized name of the entities attribute, as
+discussed in the following sections.
+
+Global attribute values have useful default parameters, which can be
+overriden with an environment variable of the same name. For enumeration
+values the corresponding integer value has to be used. The global values
+in the config file override these defaults, and are in turn overriden by
+the corresponding attributes sections of the associated entities.
+
+The globals section starts with the token \textsf{global} and an open
+curly brace '\textsf{\{}', and is terminated with a closing curly brace
+'\textsf{\}}'. Within the braces, globals are set using the attribute's
+name followed by its value. The following attributes are available:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_CONNECTION\_SATTR\_HOSTNAME\\
+  \textbf{Value} & string\\
+  \textbf{Default} & ''localhost''\\
+  \textbf{Description} & The hostname or IP address used to connect the
+  server or node. When used for the server, the listening port of the
+  server is bound to this address. When used for a node, the server
+  first tries to connect to the render client node using this hostname,
+  and then tries to launch the render client executable on this host.\\
+  \hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_CONNECTION\_SATTR\_LAUNCH\_COMMAND\\
+  \textbf{Value} & string\\
+  \textbf{Default} & ssh -n \%h \%c \textgreater\& \%h.\%n.log [POSIX]\\
+                   & ssh -n \%h \%c [WIN32]\\
+  \textbf{Description} & The command used by the server to launch nodes
+  which could not be connected. The launch command is executed from a
+  process forked of the server process. The \% tokens are replaced by the
+  server at runtime with concrete data: \%h is replaced by the hostname,
+  \%c by the command to launch, including command line arguments and \%n
+  by a node-unique identifier. Each command line argument are surrounded
+  by launch command quotes.\\
+  \hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_CONNECTION\_CATTR\_LAUNCH\_COMMAND\_QUOTE\\
+  \textbf{Value} & character\\
+  \textbf{Default} & ' [POSIX]\\
+                   & '' [WIN32]\\
+  \textbf{Description} & The server uses command line arguments to
+  launch render client nodes correctly. This arguments might contain
+  white spaces, and therefore have to be surrounded by quotes to
+  identify their borders. Certain launch commands or shells use
+  different conventions to separate command line arguments.\\
+  \hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_CONNECTION\_IATTR\_TYPE\\
+  \textbf{Value} & TCPIP \textbar \ SDP\\
+  \textbf{Default} & TCPIP\\
+  \textbf{Description} & The protocol for connections. SDP
+  programmatically selects the socket direct protocol (AF\_INET\_SDP)
+  provided by most InfiniBand protocol stacks.\\
+  \hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_CONNECTION\_IATTR\_TCPIP\_PORT\\
+  \textbf{Value} & unsigned\\
+  \textbf{Default} & 0\\
+  \textbf{Description} & The listening port used by the server or
+  node. For nodes, the port can be used to contact pre-started, resident
+  render client nodes or to use a specific port for the node. If 0 is
+  specified, a random port is chosen. Note that a server with no
+  connections automatically creates a default connection using the
+  server's default port.\\
+  \hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_CONNECTION\_IATTR\_LAUNCH\_TIMEOUT\\
+\textbf{Value} & unsigned\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_CONFIG\_FATTR\_EYE\_BASE\\
+\textbf{Value} & float\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_PIPE\_IATTR\_HINT\_THREAD\\
+\textbf{Value} & OFF \textbar \ ON\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_STEREO\\
+\textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DOUBLEBUFFER\\
+\textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DECORATION\\
+\textbf{Value} & OFF \textbar \ ON\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_FULLSCREEN\\
+\textbf{Value} & OFF \textbar \ ON\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_SWAPSYNC\\
+\textbf{Value} & OFF \textbar \ ON // AGL, WGL only\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DRAWABLE\\
+\textbf{Value} & window \textbar \ pbuffer\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_STATISTICS\\
+\textbf{Value} & off \textbar \ fastest [on] \textbar \ nicest\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_COLOR\\
+\textbf{Value} & unsigned\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_ALPHA\\
+\textbf{Value} & unsigned\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_DEPTH\\
+\textbf{Value} & unsigned\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_STENCIL\\
+\textbf{Value} & unsigned\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_CHANNEL\_IATTR\_HINT\_STATISTICS\\
+\textbf{Value} & OFF \textbar \ FASTEST [ ON ] \textbar \ NICEST\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
+\textbf{Value} & QUAD \textbar \ ANAGLYPH\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_ANAGLYPH\_LEFT\_MASK\\
+\textbf{Value} & [ RED GREEN BLUE ]\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_ANAGLYPH\_RIGHT\_MASK\\
+\textbf{Value} & [ RED GREEN BLUE ]\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Name} & EQ\_COMPOUND\_IATTR\_UPDATE\_FOV\\
+\textbf{Value} & HORIZONTAL [ON] \textbar \ VERTICAL \textbar \ OFF\\
+\textbf{Default} & \\
+\textbf{Description} & \\
+\hline
+\end{tabularx}\\[\smallskipamount]
+\end{center}
+
+\subsection{Server Section}
+
+{\footnotesize\begin{lstlisting}
+server
+{
+    connection // 0-n times, listening connections of the server
+    {
+        type       TCPIP | SDP
+        TCPIP_port unsigned
+        hostname   string
+    }
+
+    config {...} // 1-n times, currently only the first one is used by the server
+}
+\end{lstlisting}}
+
+For an introduction on the concepts of nodes, pipes, windows, channels
+and compounds please refer to \sref{sConfig} and \sref{sCompounds}.
+
+\subsubsection{Config Section}
+
+{\footnotesize\begin{lstlisting}
+config
+{
+    latency int    // # of frames nodes may fall behind application
+    attributes
+    {
+         eye_base float // distance between left and right eye
+    }
+
+    (node|appNode) {...}// 1-n times, a system in the cluster
+                   // 0|1 appNode: launches render thread within app process
+    compound {...} // 1-n times
+}
+\end{lstlisting}}
+
+\subsubsection{Node Section}
+
+{\footnotesize\begin{lstlisting}
+{
+    name     string
+    connection // 0-n times, possible connections to this node
+    {
+        type          TCPIP | SDP
+        TCPIP_port    unsigned
+        hostname      string
+        command       string      // render client launch command
+        command_quote 'character' // launch command argument quote char
+        timeout       unsigned    // timeout in milliseconds for launch
+    }
+    pipe {...} // 1-n times
+}
+\end{lstlisting}}
+
+\subsubsection{Pipe Section}
+
+{\footnotesize\begin{lstlisting}
+pipe
+{
+    name     string
+    port     unsigned     // X server number or ignored
+    device   unsigned     // graphics adapter number
+    viewport [ viewport ] // default: autodetect
+    attributes
+    {
+        hint_thread   OFF | ON   // default ON
+    }
+
+    window {...} // 1-n times
+}
+\end{lstlisting}}
+
+\subsubsection{Window Section}
+
+{\footnotesize\begin{lstlisting}
+window
+{
+    name     string
+    viewport [ viewport ] // wrt pipe, default full screen
+
+    attributes
+    {
+        hint_stereo         OFF | ON | AUTO
+        hint_doublebuffer   OFF | ON | AUTO
+        hint_decoration     OFF | ON
+        hint_fullscreen     OFF | ON
+        hint_swapsync       OFF | ON         // AGL, WGL only
+        hint_drawable       window | pbuffer
+        hint_statistics     off | fastest [on] | nicest
+        planes_color        unsigned
+        planes_alpha        unsigned
+        planes_depth        unsigned
+        planes_stencil      unsigned
+    }
+
+    channel {...} // 1-n times
+}
+\end{lstlisting}}
+
+\subsubsection{Channel Section}
+
+{\footnotesize\begin{lstlisting}
+channel
+{
+    name     string
+    viewport [ viewport ] //wrt window, default full window
+
+    attributes
+    {
+        hint_statistics     OFF | FASTEST [ON] | NICEST
+    }
+}
+\end{lstlisting}}
+
+\subsubsection{Compound Section}
+
+{\footnotesize\begin{lstlisting}
+compound
+{
+    name     string
+    channel  string   // where the compound's tasks are executed
+    task     [ CLEAR DRAW READBACK ASSEMBLE ] // CULL later
+    buffer   [ COLOR DEPTH ]         // default COLOR
+    viewport [ viewport ]            // wrt parent compound, sort-first
+    range    [ float float ]         // DB-range for sort-last
+    pixel    [ int int ]             // pixel decomposition (step size)
+    eye      [ CYCLOP LEFT RIGHT ]   // monoscopic or stereo view
+    attributes
+    {
+        stereo_mode                  QUAD | ANAGLYPH    // default QUAD
+        // enable visible color components
+        stereo_anaglyph_left_mask    [ RED GREEN BLUE ] // default red
+        stereo_anaglyph_right_mask   [ RED GREEN BLUE ] // df green blue
+        update_FOV                   HORIZONTAL [ON] | VERTICAL | OFF
+        assemble                     GPU | CPU          // default GPU
+    }
+
+    wall                             // frustum description
+    {
+        bottom_left  [ float float float ]
+        bottom_right [ float float float ]
+        top_left     [ float float float ]
+    }
+    
+    child-compounds
+
+    swapbarrier  // compounds with the same barriername sync swap
+    {
+        name string
+    }
+    outputframe
+    {
+        name string
+    }
+    inputframe
+    {
+        name string // corresponding output frame
+    }
+}
+\end{lstlisting}}
 
 \if 0
 {\footnotesize\begin{lstlisting}
