@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.2 for Equalizer 0.5+svn\\[\medskipamount]
+  Version 1.3.3 for Equalizer 0.5+svn\\[\medskipamount]
   \today
 }
 
@@ -111,7 +111,7 @@ direct-send recomposition\footnote{Data set courtesy of Stanford
     1.2     & Apr 15, 2008 & Version for Equalizer 0.5\\
     1.3.1   & May 02, 2008 & Add statistics, improved images based on 1.2 print\\
     1.3.2   & May 05, 2008 & Add network distribution on eqPly model data\\
-    1.3.3   & May 10, 2008 & File Format Appendix [incomplete]\\
+    1.3.3   & May 10-13, 2008 & File Format Appendix [incomplete]\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -3171,13 +3171,13 @@ name followed by its value. The following attributes are available:
   \textbf{Name} & EQ\_CONNECTION\_SATTR\_HOSTNAME\\
   \textbf{Value} & string\\
   \textbf{Default} & ''localhost''\\
-  \textbf{Description} & The hostname or IP address used to connect the
+  \textbf{Details} & The hostname or IP address used to connect the
   server or node. When used for the server, the listening port of the
   server is bound to this address. When used for a node, the server
   first tries to connect to the render client node using this hostname,
   and then tries to launch the render client executable on this host.\\
   \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
@@ -3185,7 +3185,7 @@ name followed by its value. The following attributes are available:
   \textbf{Value} & string\\
   \textbf{Default} & ssh -n \%h \%c \textgreater\& \%h.\%n.log [POSIX]\\
                    & ssh -n \%h \%c [WIN32]\\
-  \textbf{Description} & The command used by the server to launch nodes
+  \textbf{Details} & The command used by the server to launch nodes
   which could not be connected. The launch command is executed from a
   process forked of the server process. The \% tokens are replaced by the
   server at runtime with concrete data: \%h is replaced by the hostname,
@@ -3193,7 +3193,7 @@ name followed by its value. The following attributes are available:
   by a node-unique identifier. Each command line argument are surrounded
   by launch command quotes.\\
   \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
@@ -3201,209 +3201,233 @@ name followed by its value. The following attributes are available:
   \textbf{Value} & character\\
   \textbf{Default} & ' [POSIX]\\
                    & '' [WIN32]\\
-  \textbf{Description} & The server uses command line arguments to
+  \textbf{Details} & The server uses command line arguments to
   launch render client nodes correctly. This arguments might contain
   white spaces, and therefore have to be surrounded by quotes to
   identify their borders. Certain launch commands or shells use
   different conventions to separate command line arguments.\\
   \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
   \textbf{Name} & EQ\_CONNECTION\_IATTR\_TYPE\\
   \textbf{Value} & TCPIP \textbar \ SDP\\
   \textbf{Default} & TCPIP\\
-  \textbf{Description} & The protocol for connections. SDP
+  \textbf{Details} & The protocol for connections. SDP
   programmatically selects the socket direct protocol (AF\_INET\_SDP)
   provided by most InfiniBand protocol stacks.\\
   \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
   \textbf{Name} & EQ\_CONNECTION\_IATTR\_TCPIP\_PORT\\
   \textbf{Value} & unsigned\\
   \textbf{Default} & 0\\
-  \textbf{Description} & The listening port used by the server or
+  \textbf{Details} & The listening port used by the server or
   node. For nodes, the port can be used to contact pre-started, resident
   render client nodes or to use a specific port for the node. If 0 is
   specified, a random port is chosen. Note that a server with no
   connections automatically creates a default connection using the
   server's default port.\\
   \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_CONNECTION\_IATTR\_LAUNCH\_TIMEOUT\\
-\textbf{Value} & unsigned\\
-\textbf{Default} & \\
-\textbf{Description} & \\
-\hline
-\end{tabularx}\\[\smallskipamount]
+  \hline
+  \textbf{Name} & EQ\_CONNECTION\_IATTR\_LAUNCH\_TIMEOUT\\
+  \textbf{Value} & unsigned\\
+  \textbf{Default} & 60'000\\
+  \textbf{Details} & Defines the timeout in milliseconds to wait for
+  an auto-launched node. If the render client process did not contact
+  the server within that time, the node is considered to be unreachable
+  and the initialization of the configuration fails.\\
+  \hline
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_CONFIG\_FATTR\_EYE\_BASE\\
-\textbf{Value} & float\\
-\textbf{Default} & \\
-\textbf{Description} & \\
-\hline
-\end{tabularx}\\[\smallskipamount]
+  \hline
+  \textbf{Name} & EQ\_CONFIG\_FATTR\_EYE\_BASE\\
+  \textbf{Value} & float\\
+  \textbf{Default} & 0.05\\
+  \textbf{Details} & The distance in meters between the left and the
+  right eye, i.e., the eye separation. The eye base influences the
+  frustum during stereo rendering. See \sref{sTracking} for details.\\
+  \hline
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_PIPE\_IATTR\_HINT\_THREAD\\
-\textbf{Value} & OFF \textbar \ ON\\
-\textbf{Default} & \\
-\textbf{Description} & \\
-\hline
-\end{tabularx}\\[\smallskipamount]
+  \hline
+  \textbf{Name} & EQ\_PIPE\_IATTR\_HINT\_THREAD\\
+  \textbf{Value} & OFF \textbar \ ON\\
+  \textbf{Default} & ON\\
+  \textbf{Details} & Determines if all task methods for a pipe and its
+  children are executed from a separate operating system thread
+  (default) or from the node main thread. Non-threaded pipes have
+  certain performance
+  limitations and should only be used if really necessary.\\
+  \hline
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_STEREO\\
-\textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
-\textbf{Default} & \\
-\textbf{Description} & \\
-\hline
-\end{tabularx}\\[\smallskipamount]
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_STEREO\\
+  \textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
+  \textbf{Default} & AUTO\\
+  \textbf{Details} & Determines if the window selects a quad-buffered
+  stereo visual. When set to AUTO, the window initialization methods try
+  to allocate a stereo visual, but fall back to a mono visual if
+  allocation fails.\\
+  \hline
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DOUBLEBUFFER\\
-\textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
-\textbf{Default} & \\
-\textbf{Description} & \\
-\hline
-\end{tabularx}\\[\smallskipamount]
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DOUBLEBUFFER\\
+  \textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
+  \textbf{Default} & AUTO\\
+  \textbf{Details} & Determines if the window selects a double-buffered
+  stereo visual. When set to AUTO, the window initialization methods try
+  to allocate a double-buffered visual, but fall back to a
+  single-buffered visual if allocation fails.\\
+  \hline
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DECORATION\\
-\textbf{Value} & OFF \textbar \ ON\\
-\textbf{Default} & \\
-\textbf{Description} & \\
-\hline
-\end{tabularx}\\[\smallskipamount]
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DECORATION\\
+  \textbf{Value} & OFF \textbar \ ON\\
+  \textbf{Default} & ON\\
+  \textbf{Details} & When set to OFF, window borders and other
+  decorations are disabled, and typically the window can not be moved or
+  resized. This option is useful for source windows during
+  decomposition. The implementation is window-system specific.\\
+  \hline
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_FULLSCREEN\\
-\textbf{Value} & OFF \textbar \ ON\\
-\textbf{Default} & \\
-\textbf{Description} & \\
-\hline
-\end{tabularx}\\[\smallskipamount]
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_FULLSCREEN\\
+  \textbf{Value} & OFF \textbar \ ON\\
+  \textbf{Default} & OFF\\
+  \textbf{Details} & When set to ON, the window displays in
+  fullscreen. This option forces window decorations to be OFF. The
+  implementation is window-system specific.\\
+  \hline
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_SWAPSYNC\\
-\textbf{Value} & OFF \textbar \ ON // AGL, WGL only\\
-\textbf{Default} & \\
-\textbf{Description} & \\
-\hline
-\end{tabularx}\\[\smallskipamount]
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_SWAPSYNC\\
+  \textbf{Value} & OFF \textbar \ ON\\
+  \textbf{Default} & ON\\
+  \textbf{Details} & Determines if the buffer swap is synchronized with
+  the vertical retrace of the display. This option is currently not
+  implemented for GLX. For WGL, the WGL\_EXT\_swap\_control extension is
+  required. For optimal performance, set swap synchronization to OFF for
+  source-only windows.\\
+  \hline
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DRAWABLE\\
 \textbf{Value} & window \textbar \ pbuffer\\
-\textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Default} & window\\
+\textbf{Details} & Selects the window's drawable type.\\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_STATISTICS\\
 \textbf{Value} & off \textbar \ fastest [on] \textbar \ nicest\\
 \textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Details} & \\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_COLOR\\
 \textbf{Value} & unsigned\\
 \textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Details} & \\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_ALPHA\\
 \textbf{Value} & unsigned\\
 \textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Details} & \\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_DEPTH\\
 \textbf{Value} & unsigned\\
 \textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Details} & \\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_STENCIL\\
 \textbf{Value} & unsigned\\
 \textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Details} & \\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_CHANNEL\_IATTR\_HINT\_STATISTICS\\
 \textbf{Value} & OFF \textbar \ FASTEST [ ON ] \textbar \ NICEST\\
 \textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Details} & \\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
 \textbf{Value} & QUAD \textbar \ ANAGLYPH\\
 \textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Details} & \\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_ANAGLYPH\_LEFT\_MASK\\
 \textbf{Value} & [ RED GREEN BLUE ]\\
 \textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Details} & \\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_ANAGLYPH\_RIGHT\_MASK\\
 \textbf{Value} & [ RED GREEN BLUE ]\\
 \textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Details} & \\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
 \textbf{Name} & EQ\_COMPOUND\_IATTR\_UPDATE\_FOV\\
 \textbf{Value} & HORIZONTAL [ON] \textbar \ VERTICAL \textbar \ OFF\\
 \textbf{Default} & \\
-\textbf{Description} & \\
+\textbf{Details} & \\
 \hline
-\end{tabularx}\\[\smallskipamount]
+\end{tabularx}\\
 \end{center}
 
 \subsection{Server Section}
