@@ -111,7 +111,7 @@ direct-send recomposition\footnote{Data set courtesy of Stanford
     1.2     & Apr 15, 2008 & Version for Equalizer 0.5\\
     1.3.1   & May 02, 2008 & Add statistics, improved images based on 1.2 print\\
     1.3.2   & May 05, 2008 & Add network distribution on eqPly model data\\
-    1.3.3   & May 10-13, 2008 & File Format Appendix [incomplete]\\
+    1.3.3   & May 10-16, 2008 & File Format Appendix [incomplete]\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -573,9 +573,10 @@ compounds can be found on the Equalizer website\footnote{see
 \subsubsection{Compound Channels}
 Each compound has a channel, which is used by the compound to execute
 the rendering tasks. One channel might be used by multiple
-compounds. Unused channels are not instantiated during
-initialization. The rendering tasks for the channels are computed by the
-server and send to the appropriate render clients.
+compounds. Unused channels, windows, pipes and nodes are not
+instantiated during config initialization. The rendering tasks for the
+channels are computed by the server and send to the appropriate render
+client nodes at the beginning of each frame.
 
 \subsubsection{Frustum}
 Compounds have a frustum description to define the physical layout of
@@ -602,7 +603,7 @@ field-of-view and distance of the projection wall.
 \subsubsection{Compound Classification}
 The channels of the leaf compounds in the compound tree are designated
 as source channels. The top-most channel in the tree is the destination
-channel. Only source channels execute rendering tasks. All channels in a
+channel. Only source channels execute the draw task. All channels in a
 compound tree work for the destination channel. The destination channel
 defines the 2D pixel viewport rendered by all leaf compounds. The
 destination channel and pixel viewport can not be overridden by child
@@ -628,9 +629,25 @@ connects to an input frame of the same name. The selected frame buffer
 data is transported from the output channel to the input channel. The
 assembly routine of the input channel will block on the availability of
 the output frame. This composition process is extensively described in
-\sref{sCompositing}.
+\sref{sCompositing}. Frame names are only valid within the compound
+tree, that is, an output frame from one compound tree can not be used as
+an input frame of another compound tree.
 
+\subsubsection{Synchronization - Swapbarrier}
+Compounds may have a swapbarrier to synchronize the buffer swap of
+multiple channels. Windows with a swapbarrier of the same name enter a
+barrier before executing the swap buffer task. Before entering the
+barrier, \textsf{Window::finish} is called to ensure that all OpenGL
+commands have been executed.
 
+Note that this software swap barrier is not accurate enough for
+edge-blended projection system. Such installations typically use a
+hardware synchronization, e.g., nVidia G-Sync cards. It is however
+sufficient for display walls made out of LCD's.
+
+Swapbarrier names are only valid within the compound tree, that is, a
+compound from one compound tree can not be synchronized with a compound
+from another compound tree.
 
 \section{\label{sEqPly}The eqPly polygonal renderer}
 
@@ -869,13 +886,6 @@ variable \textsf{EQ\_LOG\_TOPICS}:
                             << endl;
 \end{lstlisting}}%>>
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \subfigure[]{\label{fSync}
-    \includegraphics[width=.25\textwidth]{images/sync}}\hfil
-  \subfigure[]{\label{fAsync}
-    \includegraphics[width=.25\textwidth]{images/async}}%
-  {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
-\end{wrapfigure}
 When the configuration was successfully initialized, the main rendering
 loop is executed. It runs until the user exits the
 configuration, or when a maximum number of frames has been rendered,
@@ -895,6 +905,13 @@ configuration file, and allows several outstanding frames. This allows
 overlapping execution in the node and pipe threads and minimizes idle
 times. 
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \subfigure[]{\label{fSync}
+    \includegraphics[width=.25\textwidth]{images/sync}}\hfil
+  \subfigure[]{\label{fAsync}
+    \includegraphics[width=.25\textwidth]{images/async}}%
+  {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
+\end{wrapfigure}
 By default, \textsf{Config::finish\-Fra\-me} also synchronizes the
 completion of all local rendering tasks for the current frame. This
 facilitates porting of exising rendering codes, since the database does
@@ -1147,10 +1164,6 @@ prefer to load the data only on the application process, and use
 distributed objects to synchronize the scene data with the render
 clients.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
-  {\caption{\small\label{fModelDist}Scene Data in eqPly}}
-\end{wrapfigure}
 \textsf{eqPly} uses static distributed objects to distribute the model
 loaded by the application. This model can be easily extended to
 versioned objects, in order to support dynamic data changes.
@@ -1162,6 +1175,10 @@ separation, an external 'mirror' hierarchy is constructed around the
 tree. This hierarchy of \textsf{VertexBufferDist} nodes is responsible
 for cloning the model data on the remote render clients.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
+  {\caption{\small\label{fModelDist}Scene Data in eqPly}}
+\end{wrapfigure}
 The identifer of the root object of this distributed hierarchy is passed
 as part of the \textsf{InitData}, and used during remote node
 initialization to map the model. \fig{fModelDist} shows the UML
@@ -1217,10 +1234,6 @@ void VertexBufferDist::getInstanceData( eqNet::DataOStream& os )
 }
 \end{lstlisting}}%>>
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/objects.pdf}
-  {\caption{\small\label{fObjects}Distributed Data Handling}}
-\end{wrapfigure}
 Applications distributing a dynamic scene graph use the frame data
 instead of the init data as the entry point to their scene graph data
 structure. \fig{fObjects} shows one possible implementation, where the
@@ -1229,6 +1242,11 @@ frame data. The scene graph root then serializes and de-serializes his
 immediate children by transferring their identifier and current version,
 similar to the static distribution done by \textsf{eqPly}.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/objects.pdf}
+  {\caption{\small\label{fObjects}Scene Graph Distribution}}
+  \vspace{-4em}
+\end{wrapfigure}
 The objects are still created by the application, and then registered or
 mapped with the session in order to distribute them. When mapping
 objects in a hierarchical data structure, their type often has to be
@@ -1706,10 +1724,6 @@ drawable and context were created successfully, \textsf{configInit} calls
 state initialization. The default implementation sets up some typical
 OpenGL state, e.g., it enables the depth test.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/windowInit.pdf}
-  {\caption{\small\label{fWindowInit}Window Initialization}}
-\end{wrapfigure}
 \fig{fWindowInit} shows a flow chart of the window initialization. The
 colored functions are task methods and can be replaced by
 application-specific implementations.
@@ -1796,6 +1810,11 @@ bool Window::configInitGL( const uint32_t initID )
 }
 \end{lstlisting}}%>>
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/windowInit.pdf}
+  {\caption{\small\label{fWindowInit}Window Initialization}}
+%  \vspace{-1em}
+\end{wrapfigure}
 The state object is used to handle the creation of OpenGL objects in a
 multipipe, multi-threaded execution environment. It uses an object
 manager, which is described in detail in \sref{sObjectManager}. It is
@@ -1993,6 +2012,10 @@ void Channel::frameDraw( const uint32_t frameID )
     eq::Channel::frameDraw( frameID );
 \end{lstlisting}}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/DB.png}
+  {\caption{\small\label{fDB}Destination view of a DB compound}}
+\end{wrapfigure}
 After the basic view setup, a directional light is configured, and the
 model is positioned using the camera parameters from the frame data. The
 camera parameters are transported using the the frame data to ensure
@@ -2065,10 +2088,6 @@ its place:
 }
 \end{lstlisting}}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/DB.png}
-  {\caption{\small\label{fDB}Destination view of a DB compound}}
-\end{wrapfigure}
 In order to draw the model, a helper class for view frustum culling is
 set up using the view frustum from Equalizer and the camera position
 from the frame data. The frustum helper computes the six frustum planes
@@ -2102,8 +2121,10 @@ void Channel::_drawModel( const Model* model )
 \end{lstlisting}}
 
 \begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-1em}
   \includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Rendering Loop}}
+  {\caption{\small\label{fRender}Main Render Loop}}
+  \vspace{-2em}
 \end{wrapfigure}
 The model data is spatially organized in an 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
@@ -2443,10 +2464,6 @@ rendering, and safe modifications of this database are possible from the
 node thread, since the pipe threads do not execute any rendering tasks
 between frames.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
-  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
-\end{wrapfigure}
 Please note that the default thread synchronization synchronizes all
 \textsf{Channel::frame\-Draw} operations on a \textbf{single} node with
 the node's main thread. The per-node frame synchronization does not
@@ -2463,7 +2480,11 @@ e.g., \textsf{Window::startFrame}, are currently empty since the
 synchronization is implicit due to the sequential execution within the
 thread.
 
-Each entity uses \textsf{waitFrameStarted} to block on the parent's
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
+  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
+\end{wrapfigure}
+Each entity uses \textsf{waitFrame\-Started} to block on the parent's
 \textsf{startFrame}, e.g., \textsf{Pipe::\-frame\-Start} calls
 \textsf{Node::wait\-Frame\-Started} to wait for the corresponding
 \textsf{Node::start\-Fra\-me}. This explicit synchronization allows to
@@ -2919,6 +2940,11 @@ and images.
 
 \subsubsection{Custom Assembly in eVolve}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
+      Volume Rendering}}
+\end{wrapfigure}
 The \textsf{eVolve} example is a scalable volume renderer. It uses 3D
 texture-based volume rendering, where the 3D texture is intersected by
 view-aligned slices. The slices are rendered back-to-front and blended
@@ -2930,11 +2956,6 @@ When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
 mostly fill-limited and therefore scales nicely in these modes. 
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
-      Volume Rendering}}
-\end{wrapfigure}
 The full power of scalable volume rendering is however in DB (sort-last)
 compounds, where the full volume is divided into separate bricks. Each
 of the bricks is rendered like a separate volume. For recomposition, the
@@ -2947,6 +2968,10 @@ through the full texture. Therefore they have to be blen\-ded
 back-to-front in the same way as the slice planes are blended during
 rendering.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 DB compounds have the advantage of scaling any part of the volume
 rendering pipeline: texture and main memory (smaller bricks for each
 channel), fill rate (less samples per channel) and IO bandwidth for
@@ -2980,10 +3005,6 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 Finding the correct assembly order for perspective frustra is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frustra. For the view and
@@ -3008,16 +3029,16 @@ compositing algorithms such as direct-send.
 
 \subsubsection{Statistics Gathering}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/statistics.png}
+  {\caption{\small\label{fStatistics}Statistics for a two-node 2D compound}}
+\end{wrapfigure}
 Statistics are measured in milliseconds since the configuration was
 initialized. On each node, the global configuration clock is reset at
 the same time by the server during \textsf{Config::init}. Each statistic
 event records the originator's (channel, window or config) unique
 identifier.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/statistics.png}
-  {\caption{\small\label{fStatistics}Statistics for a two-node 2D compound}}
-\end{wrapfigure}
 Statistics are enabled per entity using an attribute hint. The hint
 determines how precise the gathered statistics are. When set to
 \textsf{fastest}, the per-frame clock is sampled directly when the event
@@ -3130,7 +3151,7 @@ various attributes. The server section represents an
 \textsf{eqs::Server}.
 
 
-\subsection{Global Section}
+\subsection{\label{sGlobal}Global Section}
 
 The global section defines default values for attributes used by the
 individual entities of the server section. The naming convention for
@@ -3331,107 +3352,177 @@ name followed by its value. The following attributes are available:
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DRAWABLE\\
-\textbf{Value} & window \textbar \ pbuffer\\
-\textbf{Default} & window\\
-\textbf{Details} & Selects the window's drawable type.\\
-\hline
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DRAWABLE\\
+  \textbf{Value} & window \textbar \ pbuffer\\
+  \textbf{Default} & window\\
+  \textbf{Details} & Selects the window's drawable type. A window is an
+  on-screen, window system-dependent window with a full-window OpenGL
+  drawable. PBuffers are off-screen drawables created using window
+  system-dependent PBuffer API's. In order to calculate the PBuffer size
+  on unconnected devices, a pipe viewport size of 4096x4096 is assumed,
+  unless specified otherwise.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_STATISTICS\\
-\textbf{Value} & off \textbar \ fastest [on] \textbar \ nicest\\
-\textbf{Default} & \\
-\textbf{Details} & \\
-\hline
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_STATISTICS\\
+  \textbf{Value} & OFF \textbar \ FASTEST [ON] \textbar \ NICEST\\
+  \textbf{Default} & FASTEST [Release Build]\\
+                   & NICEST [Debug Build]\\
+  \textbf{Details} & Determines how statistics are gathered. OpenGL
+  buffers commands, which causes the rendering to be executed at an
+  arbitrary point in time. Nicest statistics gathering executes a
+  \textsf{Window::finish}, which calls by default \textsf{glFinish}, in
+  order to accurately account the rendering operations to the sampled
+  task method. However, calling \textsf{glFinish} has a performance
+  impact. Therefore, the fastest statistics gathering samples the task
+  statistics directly, without finishing the OpenGL commands.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_COLOR\\
-\textbf{Value} & unsigned\\
-\textbf{Default} & \\
-\textbf{Details} & \\
-\hline
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_COLOR\\
+  \textbf{Value} & unsigned\\
+  \textbf{Default} & AUTO\\
+  \textbf{Details} & Determines the number of color planes for the
+  window. The interpretation of this value is window system-specific, as
+  some window systems select a visual with the closest match to this
+  value, and some select a visual with at least the number of color
+  planes specified. AUTO select a visual with a reasonable quality,
+  typically eight bits per color.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_ALPHA\\
-\textbf{Value} & unsigned\\
-\textbf{Default} & \\
-\textbf{Details} & \\
-\hline
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_ALPHA\\
+  \textbf{Value} & unsigned\\
+  \textbf{Default} & UNDEFINED\\
+  \textbf{Details} & Determines the number of alpha planes for the
+  window. The interpretation of this value is window system-specific, as
+  some window systems select a visual with the closest match to this
+  value, and some select a visual with at least the number of alpha
+  planes specified. By default no alpha planes are requested.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_DEPTH\\
-\textbf{Value} & unsigned\\
-\textbf{Default} & \\
-\textbf{Details} & \\
-\hline
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_DEPTH\\
+  \textbf{Value} & unsigned\\
+  \textbf{Default} & AUTO\\
+  \textbf{Details} & Determines the precision of the depth buffer. The
+  interpretation of this value is window system-specific, as some window
+  systems select a visual with the closest match to this value, and some
+  select a visual with at least the number of depth bits specified. AUTO
+  select a visual with a reasonable depth precision, typically 24 bits.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_STENCIL\\
-\textbf{Value} & unsigned\\
-\textbf{Default} & \\
-\textbf{Details} & \\
-\hline
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_STENCIL\\
+  \textbf{Value} & unsigned\\
+  \textbf{Default} & UNDEFINED\\
+  \textbf{Details} & Determines the number of stencil planes for the
+  window. The interpretation of this value is window system-specific, as
+  some window systems select a visual with the closest match to this
+  value, and some select a visual with at least the number of stencil
+  planes specified. By default no stencil planes are requested. Note
+  that for depth-compositing and pixel-compositing at least one stencil
+  plane is needed.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_CHANNEL\_IATTR\_HINT\_STATISTICS\\
-\textbf{Value} & OFF \textbar \ FASTEST [ ON ] \textbar \ NICEST\\
-\textbf{Default} & \\
-\textbf{Details} & \\
-\hline
+  \hline
+  \textbf{Name} & EQ\_CHANNEL\_IATTR\_HINT\_STATISTICS\\
+  \textbf{Value} & OFF \textbar \ FASTEST [ ON ] \textbar \ NICEST\\
+  \textbf{Default} & FASTEST [Release Build]\\
+                   & NICEST [Debug Build]\\
+  \textbf{Details} & See EQ\_WINDOW\_IATTR\_HINT\_STATISTICS.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
-\textbf{Value} & QUAD \textbar \ ANAGLYPH\\
-\textbf{Default} & \\
-\textbf{Details} & \\
-\hline
+  \hline
+  \textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
+  \textbf{Value} & QUAD \textbar \ ANAGLYPH\\
+  \textbf{Default} & QUAD\\
+  \textbf{Details} & Selects the algorithm used for stereo
+  rendering. QUAD-buffered stereo use the left and right buffers of a
+  stereo window (active stereo). Anaglyphics stereo uses
+  \textsf{glColorMask} to mask colors for individual eye passes, used in
+  conjunction with colored glasses.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_ANAGLYPH\_LEFT\_MASK\\
-\textbf{Value} & [ RED GREEN BLUE ]\\
-\textbf{Default} & \\
-\textbf{Details} & \\
-\hline
+  \hline
+  \textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_ANAGLYPH\_LEFT\_MASK\\
+  \textbf{Value} & [ RED GREEN BLUE ]\\
+  \textbf{Default} & [ RED ] \\
+  \textbf{Details} & Select the color mask for the left eye pass during
+  anaglyphic stereo rendering.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_ANAGLYPH\_RIGHT\_MASK\\
-\textbf{Value} & [ RED GREEN BLUE ]\\
-\textbf{Default} & \\
-\textbf{Details} & \\
-\hline
+  \hline
+  \textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_ANAGLYPH\_RIGHT\_MASK\\
+  \textbf{Value} & [ RED GREEN BLUE ]\\
+  \textbf{Default} & [ GREEN BLUE ]\\
+  \textbf{Details} & Select the color mask for the right eye pass during
+  anaglyphic stereo rendering.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\textbf{Name} & EQ\_COMPOUND\_IATTR\_UPDATE\_FOV\\
-\textbf{Value} & HORIZONTAL [ON] \textbar \ VERTICAL \textbar \ OFF\\
-\textbf{Default} & \\
-\textbf{Details} & \\
-\hline
+  \hline
+  \textbf{Name} & EQ\_COMPOUND\_IATTR\_UPDATE\_FOV\\
+  \textbf{Value} & HORIZONTAL [ON] \textbar \ VERTICAL \textbar \ OFF\\
+  \textbf{Default} & HORIZONTAL\\
+  \textbf{Details} & Define how the wall or projection description is
+  updated when a window is resized. Horizontal increases or decreases
+  the horizontal field of view, while keeping the vertical size
+  constant. Vertical updates the vertical field of view, while keeping
+  the horizontal size constant. OFF does not update the wall or
+  projection description at all.\\
+  \hline
 \end{tabularx}\\
 \end{center}
 
 \subsection{Server Section}
 
+The server section consists of connection description parameters for the
+server listening sockets, and a number of configurations for this
+server. Currently only the first configuration is used.
+
+\subsubsection{\label{sConnectionDescription}Connection Description}
+
+A connection description defines the network parameters of an Equalizer
+process. Currently two connection types, TCP/IP and SDP, are
+supported. TCP/IP creates a TCP socket. SDP is very similar, except that
+the address family \textsf{AF\_INET\_SDP} instead of \textsf{AF\_INET}
+is used to enforce a SDP connection. Note that you can also use the
+transparent mode provided by most InfiniBand implementations to used SDP
+with TCP connections. 
+
+Furthermore, a port for the socket can be specified. When no port is
+specified for the server, the default port 4242 (+UID on Posix systems)
+is used. When no port is specified for a node, a random port will be
+chosen by the operating system. For pre-launched render clients, a port
+has to be specified for the server to find the client node.
+
+The hostname is the IP address or (resolvable) host name. When used for
+the server, the server binds its listening socket only to the specified
+name.
+
+A server or node may have multiple connection descriptions.
+\clearpage
 {\footnotesize\begin{lstlisting}
 server
 {
@@ -3446,10 +3537,23 @@ server
 }
 \end{lstlisting}}
 
-For an introduction on the concepts of nodes, pipes, windows, channels
-and compounds please refer to \sref{sConfig} and \sref{sCompounds}.
-
 \subsubsection{Config Section}
+
+A configuration has a number of parameters, nodes and compounds.
+
+The nodes and their children describe the rendering resources in a
+natural, hierarchical way. Compounds use rendering resources (channels)
+to execute rendering tasks. For an introduction on the concepts of
+nodes, pipes, windows, channels and compounds please refer to
+\sref{sConfig} and \sref{sCompounds}.
+
+The latency of a config defines the maximum number of frames the
+slowest operation may fall behind the application thread. A latency of 0
+synchronizes all rendering tasks started by \textsf{Config::startFrame}
+in \textsf{Config::finishFrame}. A latency of one synchronizes all
+rendering tasks started one frame ago in \textsf{finishFrame}.
+
+For a description of config attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\begin{lstlisting}
 config
@@ -3468,7 +3572,10 @@ config
 
 \subsubsection{Node Section}
 
+For a description of connection attributes please refer to \sref{sGlobal}.
+
 {\footnotesize\begin{lstlisting}
+node
 {
     name     string
     connection // 0-n times, possible connections to this node
