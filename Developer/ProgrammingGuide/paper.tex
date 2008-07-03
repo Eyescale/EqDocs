@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.3 for Equalizer 0.5.1+svn\\[\medskipamount]
+  Version 1.3.4 for Equalizer 0.5.2+svn\\[\medskipamount]
   \today
 }
 
@@ -112,6 +112,7 @@ direct-send recomposition\footnote{Data set courtesy of Stanford
     1.3.1   & May 02, 2008 & Add statistics, improved images based on 1.2 print\\
     1.3.2   & May 05, 2008 & Add network distribution on eqPly model data\\
     1.3.3   & May 10-19, 2008 & File Format Appendix\\
+    1.3.4   & July 3, 2008 & Update statistics section\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -3061,10 +3062,12 @@ overlay\footnote{3D model courtesy Stanford University Computer Graphics
 
 \subsubsection{Statistics Overlay}
 
-In debug builds, a statistics overlay using the gathered statistics
-events is rendered directly before \textsf{Window::swapBuffers}. The
-overlay rendering method, \textsf{Channel::drawStatistics}, can be
-called directly to render the overlay. It can also be overwritten by a
+The Equalizer examples render a statistics overlay using the gathered
+statistics events directly before
+\textsf{Window::swapBuffers}. Statistics are toggled on and off using
+the 's' key. The overlay rendering method,
+\textsf{Channel::drawStatistics}, can be called directly by any
+application to render the overlay. It can also be overwritten by a
 custom implementation.
 
 \begin{figure}[h!t]
@@ -3093,8 +3096,8 @@ The remote machine is a Mac Mini, the local a MacBook Pro. The draw
 times are unbalanced due to the speed difference of the machines, and
 the transmit time is relatively long since 100 MBit Ethernet was used.
 
-In order to facilitate the understanding, subsequent frames alternate in
-brightness. The right-most, current frame is brighter than the
+In order to facilitate the understanding, older frames are gradually
+greyed out. The right-most, current frame is brighter than the
 frame-before-last.
 
 The configuration used has a latency of one frame. Consequently, the
@@ -3103,14 +3106,13 @@ execution of the remote channel's \textsf{frameDraw}, which starts while
 the local channel is still assembling the previous frame.
 
 The beginning of a frame is marked by a vertical green line, and the end
-of a frame by a vertical gray line. These lines also alternate in
-brightness. The brightness and color matches the event for
-\textsf{Config::startFrame} and \textsf{Config::finishFrame},
-respectively. The event for \textsf{startFrame} is typically not
-visible, since it takes less than one millisecond to execute. If no idle
-processing is done by the application, the event for
-\textsf{finishFrame} occupies a full frame, since the config is blocked
-here waiting for the frame to complete.
+of a frame by a vertical gray line. These lines are also attenuated. The
+brightness and color matches the event for \textsf{Config::startFrame}
+and \textsf{Config::finishFrame}, respectively. The event for
+\textsf{startFrame} is typically not visible, since it takes less than
+one millisecond to execute. If no idle processing is done by the
+application, the event for \textsf{finishFrame} occupies a full frame,
+since the config is blocked here waiting for the frame to complete.
 
 In the above example, the local channel finishes drawing the frame
 early, and therefore spends a considerable amount of time waiting for
@@ -3124,6 +3126,9 @@ before sampling the end time of the event. In release builds, this does
 not happen and all OpenGL commands are pipelined with the execution on
 the CPU.
 
+The configuration used in this examples does not use a swap
+barrier. Swap barrier tasks are solid red events directly in front of
+the white swap buffer task.
 
 
 \newpage
