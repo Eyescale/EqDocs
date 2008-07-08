@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.4 for Equalizer 0.5.2+svn\\[\medskipamount]
+  Version 1.3.5 for Equalizer 0.5.3+svn\\[\medskipamount]
   \today
 }
 
@@ -113,6 +113,7 @@ direct-send recomposition\footnote{Data set courtesy of Stanford
     1.3.2   & May 05, 2008 & Add network distribution on eqPly model data\\
     1.3.3   & May 10-19, 2008 & File Format Appendix\\
     1.3.4   & July 3, 2008 & Update statistics section\\
+    1.3.4   & July 7, 2008 & Update after namespace naming cleanup\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -679,7 +680,7 @@ for distributing data. The function and typical usage for each of the
 rendering entities is discussed in this section. 
 
 The distributed data classes are helper classes based on
-\textsf{eqNet::Object}. They illustrate the typical usage of distributed
+\textsf{eq::net::Object}. They illustrate the typical usage of distributed
 objects for static as well as dynamic, frame-specific data.
 
 
@@ -748,11 +749,11 @@ public:
 
 The third step is to create an instance of the application and to
 initialize it locally. The application is an \textsf{eq::Client}, which
-in turn is an \textsf{eqNet::Node}. The underlying network layer in
-Equalizer is a peer-to-peer network of \textsf{eqNet::Node}s. The
+in turn is an \textsf{eq::net::Node}. The underlying network layer in
+Equalizer is a peer-to-peer network of \textsf{eq::net::Node}s. The
 application programmer does not usually have to be aware of the classes
-in the \textsf{eqNet} namespace, but both the \textsf{eq::Client} and
-the server are \textsf{eqNet::Node}s. 
+in the \textsf{eq::net} namespace, but both the \textsf{eq::Client} and
+the server are \textsf{eq::net::Node}s. 
 
 The local initialization of a node creates a local listening socket,
 which allows the \textsf{eq::Client} to communicate over the network
@@ -871,7 +872,7 @@ variable \textsf{EQ\_LOG\_TOPICS}:
 
 {\footnotesize\begin{lstlisting}
     // 3. init config
-    eqBase::Clock clock;
+    eq::base::Clock clock;
 
     config->setInitData( _initData );
     if( !config->init( ))
@@ -1000,13 +1001,13 @@ bool Application::clientLoop()
 
 Equalizer provides distributed objects which help implementing data
 distribution in a cluster environment. The master version of a distributed
-object is registered with a \textsf{eqNet::Session}, which assigns a
+object is registered with a \textsf{eq::net::Session}, which assigns a
 session-unique identifier to the object. Other nodes can map their
 instance of the object to this identifier, thus synchronizing the
 object's data with the remotely registered master version.
 
 Distributed objects are created by subclassing from
-\textsf{eqNet::Object}. Distributed objects can be static (immutable) or
+\textsf{eq::net::Object}. Distributed objects can be static (immutable) or
 dynamic. Dynamic objects are versioned.
 
 The \textsf{eqPly} example uses static distributed objects to provide
@@ -1089,13 +1090,13 @@ streams. Efficient buffering and data transport between nodes is
 implemented in the data streams:
 
 {\footnotesize\begin{lstlisting}
-void InitData::getInstanceData( eqNet::DataOStream& os )
+void InitData::getInstanceData( eq::net::DataOStream& os )
 {
     os << _frameDataID << _modelID << _windowSystem << _useVBOs << _useGLSL
        << _invFaces ;
 }
 
-void InitData::applyInstanceData( eqNet::DataIStream& is )
+void InitData::applyInstanceData( eq::net::DataIStream& is )
 {
     is >> _frameDataID >> _modelID >> _windowSystem >> _useVBOs >> _useGLSL
        >> _invFaces;
@@ -1116,10 +1117,10 @@ how they want to have changes to be handled. The current
 implementation has the following characteristics:
 \begin{itemize}
 \item Only the master instance of the object is writable, that is,
-  \textsf{eqNet::Object::com\-mit} can be called only on the master
+  \textsf{eq::net::Object::com\-mit} can be called only on the master
   instance to generate a new version.
 \item Slave instance versions can only be advanced, that is,
-  \textsf{eqNet::Object::sync( version )} with a version smaller than
+  \textsf{eq::net::Object::sync( version )} with a version smaller than
   the current version will fail.
 \item Newly mapped slave instance are mapped to the oldest available
   version.
@@ -1202,7 +1203,7 @@ based on this information. It is omitted here for brevity:
 
 
 {\footnotesize\begin{lstlisting}
-void VertexBufferDist::getInstanceData( eqNet::DataOStream& os )
+void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
 {
     EQASSERT( _node );
     os << _isRoot;
@@ -1284,7 +1285,7 @@ if the parent's initialization has failed.
 
 The \textsf{eqPly::Config} class holds the master versions of the
 initialization and frame data. Both objects are registered with the
-\textsf{eq::Config}, which is the \textsf{eqNet::Session} used for
+\textsf{eq::Config}, which is the \textsf{eq::net::Session} used for
 rendering. Equalizer takes care of the session setup and exit in
 \textsf{Client::choose\-Config} and \textsf{Client::releaseConfig},
 respectively.
@@ -1533,7 +1534,7 @@ application of the instance data, it will map its children recursively:
 
 
 {\footnotesize\begin{lstlisting}
-mesh::VertexBufferRoot* VertexBufferDist::mapModel(eqNet::Session* session,
+mesh::VertexBufferRoot* VertexBufferDist::mapModel(eq::net::Session* session,
                                                    const uint32_t modelID )
 {
     VertexBufferDist modelDist( 0, 0 );
@@ -2439,7 +2440,7 @@ threads, or to the command thread.
   {\caption{\small\label{fThreads}Threads within one node process}}
 \end{wrapfigure}
 The command thread processes Equalizer-related request from other nodes,
-for example during \textsf{eqNet::Object} mapping. In some special cases
+for example during \textsf{eq::net::Object} mapping. In some special cases
 the command thread executes application code, for example when a remote
 node maps a static or unbuffered object,
 \textsf{Object::getInstanceData} is called from the command thread.
@@ -3142,9 +3143,9 @@ automatic configuration. However the core scalability engine will
 always use a similar structure as currently exposed by the file format.
 
 The file format represents an ascii deserialization of the
-server. Streaming an \textsf{eqs::Server} to an \textsf{eqBase::Log}
+server. Streaming an \textsf{eq::server::Server} to an \textsf{eq::base::Log}
 ostream produces a valid configuration file. Likewise, loading a
-configuration file produces an \textsf{eqs::Server}.
+configuration file produces an \textsf{eq::server::Server}.
 
 The file format uses the same syntactical structure as VRML. If your
 editor supports syntax highlighting and formatting for VRML, you can use
@@ -3153,7 +3154,7 @@ this mode for editing \textsf{.eqc} files.
 The configuration file consist of an optional global section and a
 server configuration. The global section defines default values for
 various attributes. The server section represents an
-\textsf{eqs::Server}.
+\textsf{eq::server::Server}.
 
 
 \subsection{\label{sGlobal}Global Section}
