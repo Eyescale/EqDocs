@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.5 for Equalizer 0.5.3+svn\\[\medskipamount]
+  Version 1.3.6 for Equalizer 0.5.3+svn\\[\medskipamount]
   \today
 }
 
@@ -32,6 +32,7 @@
 \newcommand{\rc}{\raise 1ex\hbox{{\tiny\textregistered}}~}
 \newcommand{\fig}[1]{Figure~\ref{#1}}
 \newcommand{\sref}[1]{Section~\ref{#1}}
+\newcommand{\aref}[1]{Appendix~\ref{#1}}
 \newcommand{\link}[1]{\htmladdnormallink{#1}{#1}}
 
 % suppress  single floating lines on top (widow) and bottom(club)
@@ -93,12 +94,12 @@ The images on the front page show the following Equalizer applications:
 a terrain rendering application on a six-node display wall [top left], a
 flow visualization application for climate research\footnote{Image
   courtesy of Computer Graphics and Multimedia Systems, University of
-  Siegen}, the \textsf{eVolve} volume renderer\footnote{Data sets
-  courtesy of General Electric, USA and AVS, USA} [bottom left] the
-\textsf{eqPly} polygonal renderer in a three-sided CAVE [bottom center],
-and a six-node sort-last database decomposition with parallel
-direct-send recomposition\footnote{Data set courtesy of Stanford
-  University Computer Graphics Laboratory} [bottom right].
+  Siegen}, the \textsf{eVolve} volume renderer\footnote{Data set
+  courtesy of General Electric, USA} [bottom left] the \textsf{eqPly}
+polygonal renderer in a three-sided CAVE [bottom center], and a six-node
+sort-last database decomposition with parallel direct-send
+recomposition\footnote{Data set courtesy of Stanford University Computer
+  Graphics Laboratory} [bottom right].
 
 \clearpage
 \thispagestyle{empty}
@@ -109,11 +110,12 @@ direct-send recomposition\footnote{Data set courtesy of Stanford
     \hline
     1.0     & Oct 28, 2007 & Initial Version for Equalizer 0.4\\
     1.2     & Apr 15, 2008 & Version for Equalizer 0.5\\
-    1.3.1   & May 02, 2008 & Add statistics, improved images based on 1.2 print\\
+    1.3.1   & May 02, 2008 & Add \sref{sStatistics}, improved images based on 1.2 print\\
     1.3.2   & May 05, 2008 & Add network distribution on eqPly model data\\
-    1.3.3   & May 10-19, 2008 & File Format Appendix\\
-    1.3.4   & July 3, 2008 & Update statistics section\\
-    1.3.4   & July 7, 2008 & Update after namespace naming cleanup\\
+    1.3.3   & May 10-19, 2008 & add \aref{aFileFormat}\\
+    1.3.4   & July 3, 2008 & Update \sref{sStatistics}\\
+    1.3.5   & July 7, 2008 & Update after namespace naming cleanup\\
+    1.3.6   & July 20, 2008 & Add accum and samples to \aref{aFileFormat}, add \sref{sDrawableConfig}\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -221,10 +223,8 @@ rendering client.
 \subsubsection{Parallel Rendering}
 
 \begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-1em}
   \includegraphics[width=.618\textwidth]{images/executionFlow.pdf}
   {\caption{\small\label{fExecutionFlow}Parallel Rendering}}
-  \vspace{-1em}
 \end{wrapfigure}
 
 \fig{fExecutionFlow} illustrates the basic principle of any parallel
@@ -907,13 +907,6 @@ configuration file, and allows several outstanding frames. This allows
 overlapping execution in the node and pipe threads and minimizes idle
 times. 
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \subfigure[]{\label{fSync}
-    \includegraphics[width=.25\textwidth]{images/sync}}\hfil
-  \subfigure[]{\label{fAsync}
-    \includegraphics[width=.25\textwidth]{images/async}}%
-  {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
-\end{wrapfigure}
 By default, \textsf{Config::finish\-Fra\-me} also synchronizes the
 completion of all local rendering tasks for the current frame. This
 facilitates porting of exising rendering codes, since the database does
@@ -921,11 +914,17 @@ not have to be multi-buffered. Applications such as \textsf{eqPly}, which
 do not need this per-node frame synchronization can disable it, as
 explained in \sref{sNodeFrame}.
 
-\fig{fSyncAsync} shows the execution of (hypothetical) rendering tasks
-without latency (\fig{fSync}) and with a latency of
-one frame (\fig{fAsync}). With \textsf{eqPly}, a speedup of 15\% has been
-observed on a five-node rendering cluster when using a latency of one frame
-instead of no
+\begin{figure}[ht!]\center
+  \includegraphics[width=\textwidth]{images/syncAsync}
+  {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
+\end{figure}
+\fig{fSyncAsync} shows the execution of the rendering tasks of a 2-node
+2D compound without latency and with a latency of one frame. The
+asynchronous execution pipelines certain rendering operations and hides
+imbalances in the load distribution, resulting in an improved
+framerate. With \textsf{eqPly}, a speedup of 15\% has been observed on a
+five-node rendering cluster when using a latency of one frame instead of
+no
 latency\footnote{\link{http://www.equalizergraphics.com/scalability.html}}. A
 latency of one or two frames is normally not perceived by the user.
 
@@ -1236,6 +1235,10 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
 }
 \end{lstlisting}}%>>
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/objects.pdf}
+  {\caption{\small\label{fObjects}Scene Graph Distribution}}
+\end{wrapfigure}
 Applications distributing a dynamic scene graph use the frame data
 instead of the init data as the entry point to their scene graph data
 structure. \fig{fObjects} shows one possible implementation, where the
@@ -1244,11 +1247,6 @@ frame data. The scene graph root then serializes and de-serializes his
 immediate children by transferring their identifier and current version,
 similar to the static distribution done by \textsf{eqPly}.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/objects.pdf}
-  {\caption{\small\label{fObjects}Scene Graph Distribution}}
-  \vspace{-4em}
-\end{wrapfigure}
 The objects are still created by the application, and then registered or
 mapped with the session in order to distribute them. When mapping
 objects in a hierarchical data structure, their type often has to be
@@ -1272,10 +1270,6 @@ The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
 completion is synchronized afterwards. 
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
-  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
-\end{wrapfigure}
 The tasks are executed by the node and pipe threads in parallel. The
 parent's initialization methods are always executed before any child
 initialization method. This parallelization is necessary to allow a
@@ -1314,6 +1308,10 @@ bool Config::init()
         return false;
 \end{lstlisting}}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
+  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
+\end{wrapfigure}
 If the configuration was initialized correctly, the configuration tries
 to set up a tracking device for head tracking. Equalizer does not
 provide extensive support for tracking devices, as this is an orthogonal
@@ -1815,7 +1813,6 @@ bool Window::configInitGL( const uint32_t initID )
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/windowInit.pdf}
   {\caption{\small\label{fWindowInit}Window Initialization}}
-%  \vspace{-1em}
 \end{wrapfigure}
 The state object is used to handle the creation of OpenGL objects in a
 multipipe, multi-threaded execution environment. It uses an object
@@ -2122,12 +2119,6 @@ void Channel::_drawModel( const Model* model )
         
 \end{lstlisting}}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-1em}
-  \includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Render Loop}}
-  \vspace{-2em}
-\end{wrapfigure}
 The model data is spatially organized in an 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
 for efficient view frustum culling. When the model is loaded by
@@ -2137,6 +2128,10 @@ has the range [0, 1], its left child [0, 0.5] and its right child [0.5,
 1], and so on for all nodes in the tree. The preprocessed model is saved
 in a binary format for accelerating subsequent use.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\small\label{fRender}Main Render Loop}}
+\end{wrapfigure}
 The rendering loop maintains a list of candidates to render, which
 initially contains the root node. Each candidate of this list is tested
 for full visiblity against the frustum and range, and rendered if
@@ -2299,15 +2294,16 @@ widget sets such as Qt.
 
 \subsubsection{Event Data Flow}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
+  {\caption{\small\label{fEventProcessing}Event Processing}}
+  \vspace{-3ex}
+\end{wrapfigure}
 Events are received by an event handler. The event handler finds the
 \textsf{eq::Window} associated to the event. It then creates a generic
 \textsf{WindowEvent}, which holds important event data in an independent
 format. The original event is attached to the generic window event.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
-  {\caption{\small\label{fEventProcessing}Event Processing}}
-\end{wrapfigure}
 The event handler then passes the window event to
 \textsf{Window::processEvent}, which is responsible for either handling
 the event locally, or for translating it into a generic
@@ -2623,6 +2619,39 @@ methods for all sub-tasks. This allows partial customization, without
 the need of rewriting tedious window initialization code, e.g., the
 OpenGL pixel format selection.
 
+\subsubsection{\label{sDrawableConfig}Drawable Configuration}
+
+OpenGL drawables have a multitude of buffer modes. A drawable might be
+single-buffered, double-buffered or quad-buffered, have auxilary image
+planes such as stencil, accumulation and depth buffer or multisampling.
+
+The OpenGL drawable is configured using window attributes. These
+attributes are used by the method choosing the pixel format (or visual
+in X11 speak) to select the correct drawable configuration.
+
+Window attributes can either be configured through the configuration
+file (see \aref{aFileFormat}), or programmatically. In the configuration
+file, modes are selected which are not application-specific, for example
+stereo formats for active stereo displays. 
+
+Applications which require certain drawable attributes can set the
+corresponding window attribute hint during window initialization. The
+Equalizer volume rendering example, \textsf{eVolve}, is such an
+example. It does need alpha planes for rendering and compositing. The
+window initialization of \textsf{eVolve} sets the attribute before
+calling the default initialization method of Equalizer:
+
+{\footnotesize\begin{lstlisting}
+bool eVolve::Window::configInit( const uint32_t initID )
+{
+    // Enforce alpha channel, since we need one for rendering
+    setIAttribute( IATTR_PLANES_ALPHA, 8 );
+
+    return eq::Window::configInit( initID );
+}
+\end{lstlisting}}
+
+
 \subsubsection{AGL Window Initialization}
 
 AGL initialization happens in three steps: choosing a pixel format,
@@ -2844,10 +2873,6 @@ API, the direct send parallel compositing algorithm is introduced in this
 section. Other parallel compositing algorithms, e.g. binary-swap, can
 also be expressed through an Equalizer configuration file.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
-\end{wrapfigure}
 The main idea behind direct send is to parallelize the costly
 recomposition for database (sort-last) decomposition. With each
 additional source channel, the amount of pixel data to be composited
@@ -2857,6 +2882,10 @@ in the system. Direct send distributes this workload evenly across all
 source channels, and thereby keeps the compositing work per channel
 constant.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
+\end{wrapfigure}
 In direct send compositing, each rendering channel is also responsible
 for the sort-last composition of one screen-space tile. He receives
 the framebuffer pixels for his tile from all the other channels. The
@@ -2900,10 +2929,6 @@ An \textsf{eq::Image} holds a
 two-dimensional snapshot of the framebuffer and can contain color and/or
 depth information.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
-\end{wrapfigure}
 The frame synchronization through the frame data allows the input frame
 to wait for the pixel data to become ready, which is signalled by the
 output frame after readback.
@@ -2913,6 +2938,10 @@ frame's compound. The range can be used to compute the assembly order of
 multiple input frames, e.g., for sorted-blend compositing in volume
 rendering applications.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
+  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
+\end{wrapfigure}
 Readback and assemble operations on frames and images are designed to be
 asynchronous. They have a start and finish method for both readback and
 assemble to allow the initiation and synchronization of the operation.
@@ -2942,11 +2971,6 @@ and images.
 
 \subsubsection{Custom Assembly in eVolve}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
-      Volume Rendering}}
-\end{wrapfigure}
 The \textsf{eVolve} example is a scalable volume renderer. It uses 3D
 texture-based volume rendering, where the 3D texture is intersected by
 view-aligned slices. The slices are rendered back-to-front and blended
@@ -2954,7 +2978,12 @@ together to produce the final image, as shown in
 \fig{fSlices}\footnote{Volume Data Set courtesy of: SFB-382 of the German
   Research Council (DFG)}.
 
-When using 2D (sort-first) or stereo decompositions, no special
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
+      Volume Rendering}}
+\end{wrapfigure}
+ When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
 mostly fill-limited and therefore scales nicely in these modes. 
 
@@ -3027,7 +3056,7 @@ The assembly algorithm described in this section also works with parallel
 compositing algorithms such as direct-send. 
 
 
-\subsection{Statistics}
+\subsection{\label{sStatistics}Statistics}
 
 \subsubsection{Statistics Gathering}
 
@@ -3134,7 +3163,7 @@ the white swap buffer task.
 
 \newpage
 \appendix
-\section{File Format}
+\section{\label{aFileFormat}File Format}
 
 The file format currently used is the one-to-one representation of the
 server's internal data structures. Its purpose is intermediate, that is,
@@ -3451,6 +3480,43 @@ name followed by its value. The following attributes are available:
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_ACCUM\\
+  \textbf{Value} & unsigned\\
+  \textbf{Default} & UNDEFINED\\
+  \textbf{Details} & Determines the number of color accumulation buffer
+  planes for the window. The interpretation of this value is window
+  system-specific, as some window systems select a visual with the
+  closest match to this value, and some select a visual with at least
+  the number of accumulation buffer planes specified.\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_ACCUM\_ALPHA\\
+  \textbf{Value} & unsigned\\
+  \textbf{Default} & UNDEFINED\\
+  \textbf{Details} & Determines the number of alpha accumulation buffer
+  planes for the window. The interpretation of this value is window
+  system-specific, as some window systems select a visual with the
+  closest match to this value, and some select a visual with at least
+  the number of accumulation buffer planes specified. If this attribute
+  is undefined, the value of EQ\_WINDOW\_IATTR\_PLANES\_ACCUM is used to
+  determine the number of alpha accumulation buffer planes.\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_PLANES\_SAMPLES\\
+  \textbf{Value} & unsigned\\
+  \textbf{Default} & UNDEFINED\\
+  \textbf{Details} & Determines the number of samples used for multisampling.\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
   \textbf{Name} & EQ\_CHANNEL\_IATTR\_HINT\_STATISTICS\\
   \textbf{Value} & OFF \textbar \ FASTEST [ ON ] \textbar \ NICEST\\
   \textbf{Default} & FASTEST [Release Build]\\
@@ -3532,7 +3598,6 @@ has to be specified for the server to find the client node.
 The hostname is the IP address or (resolvable) host name. When used for
 the server, the server binds its listening socket only to the specified
 name.
-\clearpage
 
 A server or node may have multiple connection descriptions. A server
 binds to all provided connection descriptions. For a node, all
@@ -3701,6 +3766,9 @@ window
         planes_alpha        unsigned
         planes_depth        unsigned
         planes_stencil      unsigned
+        planes_accum        unsigned
+        planes_accum_alpha  unsigned
+        planes_samples      unsigned
     }
 
     channel {...} // 1-n times
