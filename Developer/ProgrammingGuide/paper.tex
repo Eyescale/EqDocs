@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.7 for Equalizer 0.5.4+svn\\[\medskipamount]
+  Version 1.3.8 for Equalizer 0.5.4+svn\\[\medskipamount]
   \today
 }
 
@@ -116,7 +116,8 @@ recomposition\footnote{Data set courtesy of Stanford University Computer
     1.3.4   & July 3, 2008 & Update \sref{sStatistics}\\
     1.3.5   & July 7, 2008 & Update after namespace naming cleanup\\
     1.3.6   & July 20, 2008 & Add accum and samples to \aref{aFileFormat}, add \sref{sDrawableConfig}\\
-    1.3.7   & Aug 22, 2008 & Update \sref{sEqplyWIndow} with OSWindow changes (event handling updates still missing)\\
+    1.3.7   & Aug 22, 2008 & Update \sref{sEqplyWIndow} with OSWindow changes\\
+    1.3.8   & Aug 25, 2008 & Update \sref{sEventHandling} with OSWindow changes\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -2218,10 +2219,11 @@ website\footnote{see
 
 The default implementation provides a convenient, easily accessible
 event framework, while allowing all necessary customizations. It gathers
-all events in the main thread of the application, so that the developer only
-has to implement \textsf{Config::processEvent} to update its data based
-on the pre-processed, generic keyboard and mouse events. It is very easy
-to use and similar to an GLUT-based implementation.
+all events from all node processes in the main thread of the
+application, so that the developer only has to implement
+\textsf{Config::processEvent} to update its data based on the
+pre-processed, generic keyboard and mouse events. It is very easy to use
+and similar to an GLUT-based implementation.
 
 
 \subsubsection{Threading}
@@ -2234,32 +2236,11 @@ windows. Whenever the term \textbf{event thread} is used, it refers to
 the thread receiving the event, i.e., the pipe thread for WGL and GLX,
 and the main thread for AGL.
 
-\subsubsection{Initialization and Exit}
-
-During window and pipe initialization the event handling is set up. For
-both entities, \textsf{initEvent\-Handler} is called to register the
-pipe or window with an event handler. This method may be overwritten to
-use a custom event handler, or to not install an event handler at all in
-order to disable event handling. Likewise, \textsf{exitEventHandler} is
-called to de-initialize event handling.
-
-An event handler consists of two parts: the generic base class providing
-the interface and generic functions, and the window-system-specific
-part providing the actual implementation. 
-
-Event handling is initialized whenever a new window-system-specific
-pipe or window handle is set. First, \textsf{exitEventHandler} is called
-to de-initialize event handling for the old handle (if set), and then
-\textsf{initEvent\-Handler} is called for the new handle. 
-
-AGL uses an event handler singleton, GLX uses one event handler per pipe
-and WGL uses one event handler per window.
-
 \subsubsection{Message Pump}
 
-In order to dispatch the events, Equalizer 'pumps' the native events. On
-WGL and GLX, this has happens on each thread with windows, whereas on
-AGL it has to happen only on the main thread. By default, Equalizer
+In order to dispatch events, Equalizer 'pumps' the native events. On
+WGL and GLX, this happens on each thread with windows, whereas on
+AGL it happens only on the main thread. By default, Equalizer
 pumps these events automatically for the application in-between
 executing task methods.
 
@@ -2272,30 +2253,31 @@ If the application disables message pumping in Equalizer, it has to make
 sure the events are pumped externally, as it often done within external
 widget sets such as Qt.
 
-
 \subsubsection{Event Data Flow}
+
+Events are received by an event handler. The event handler finds the
+\textsf{eq::OSWindow} associated to the event. It then creates a generic
+\textsf{WindowEvent}, which holds the event data in an independent
+format. The original native event and this generic \textsf{WindowEvent}
+form the \textsf{OSWindowEvent}, which is passed to the concrete
+\textsf{OSWindow} for processing.
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
   {\caption{\small\label{fEventProcessing}Event Processing}}
-  \vspace{-3ex}
 \end{wrapfigure}
-Events are received by an event handler. The event handler finds the
-\textsf{eq::Window} associated to the event. It then creates a generic
-\textsf{WindowEvent}, which holds important event data in an independent
-format. The original event is attached to the generic window event.
+The purpose of the \textsf{OSWindow} processing method,
+\textsf{processEvent}, is to perform window-system specific event
+processing. For example, \textsf{AGLWindow::processEvent} calls
+\textsf{aglUpdateContext} whenever a resize event is received. For
+further processing, the \textsf{WindowEvent} is passed on to
+\textsf{Window::processEvent}. This \textsf{WindowEvent} no longer contains
+the native event.
 
-The event handler then passes the window event to
-\textsf{Window::processEvent}, which is responsible for either handling
+\textsf{Window::processEvent} is responsible for either handling
 the event locally, or for translating it into a generic
 \textsf{ConfigEvent}. The config events are send to the application
 thread using \textsf{Config::sendEvent}. 
-
-If the event was processed by \textsf{processEvent}, the function has to
-return \textsf{true}. If \textsf{false} is returned, the event will be
-passed to a previously installed, window-system-specific event handling
-function. The default implementation of \textsf{Window::pro\-cess\-Event}
-passes most events on to the application.
 
 Events send using \textsf{Config::sendEvent} are queued in the
 application thread. After a frame has been finished,
@@ -2303,11 +2285,66 @@ application thread. After a frame has been finished,
 default implementation of this method provides non-blocking event
 processing, that is, it calls \textsf{Config::handleEvent} for each
 queued event. By overriding \textsf{handleEvents}, event-driven
-execution can be implemented.
+execution can easily be implemented.
+
+If the event was processed, \textsf{processEvent} has to return
+\textsf{true}. If \textsf{false} is returned to the event handler, the
+event will be passed to the previously installed, window-system-specific
+event handling function.
+
+\fig{fEventProcessing} shows the overall data flow of an event.
+
+\subsubsection{Default Implementation}
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
+  {\caption{\small\label{fEventUML}UML Diagram for Event Handling Classes}}
+\end{wrapfigure}
+Currently, Equalizer provides an \textsf{AGLEvent\-Handler},
+\textsf{GLXEventHandler} and \textsf{WGL\-Event\-Handler}, which handle
+events for an \textsf{AGLWindowIF}, \textsf{GLXWindowIF} and
+\textsf{WGLWindowIF}, respectively. \fig{fEventUML} illustrates the
+class hierarchy for event processing.
+
+The \textsf{OSWindow} implementation is responsible for setting up and
+de-initializing event handling.
+
+Carbon events issued for AGL windows are processed from the process main
+thread. One \textsf{AGLEventHandler} is used. When a Carbon window is
+set on an \textsf{AGLWindow}, the window is registered with the
+\textsf{AGLEventHandler}. The event handler installs a Carbon event
+handler for all important events. The event handler uses an
+\textsf{AGLWindowEvent} to pass the Carbon \textsf{EventRef} to
+\textsf{AGLWindowIF::processEvent}. During window exit, the installed
+Carbon handler is removed when the window is deregistered with the
+\textsf{AGLEventHandler}. No event handling is set up for PBuffers.
+
+GLX uses one X11 Display connection for all windows on a GPU, which is
+managed by the \textsf{eq::Pipe}. For each thread, one
+\textsf{GLXEventHandler} is allocated. The pipe registers the display
+connection with this per-thread event handler. Events for windows
+created using this display connection are automatically received by the
+event handler. No per-window event handling setup needs to be
+done. PBuffers are handled in the same way as window drawables.
+
+The glX event handler iterates over all windows of the registered pipe
+to find the originating \textsf{GLXWindowIF}, which is then used to
+process the event in a fashion similar to AGL. The
+\textsf{GLXWindowEvent} passes the \textsf{XEvent} to
+\textsf{GLXWindowIF::processEvent}.
+
+Each \textsf{WGLWindow} allocates one \textsf{WGLEventHandler} when the
+window handle is set. The WGLEventHandler passes the native event
+parameters \textsf{uMsg}, \textsf{wParam} and \textsf{lParam} to
+\textsf{WGLWindowIF::processEvent} as part of the
+\textsf{WGLWindowEvent}. No event handling is set up for PBuffers.
 
 Later Equalizer versions will introduce \textsf{Pipe::pro\-cess\-Event} and
 \textsf{PipeEvent} to communicate pipe-specific events, e.g., monitor
-resolution changes.
+resolution changes. It is also likely that an \textsf{OSPipe}
+abstraction, similar to the \textsf{OSWindow}, will be created to
+separate the window system specific code from the \textsf{eq::Pipe}.
+
 
 \subsubsection{Custom Events in eqPixelBench}
 
@@ -2459,6 +2496,10 @@ e.g., \textsf{Window::startFrame}, are currently empty since the
 synchronization is implicit due to the sequential execution within the
 thread.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
+  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
+\end{wrapfigure}
 Each entity uses \textsf{waitFrame\-Started} to block on the parent's
 \textsf{startFrame}, e.g., \textsf{Pipe::\-frame\-Start} calls
 \textsf{Node::wait\-Frame\-Started} to wait for the corresponding
@@ -2483,10 +2524,6 @@ current frame, and \textsf{Node::frameDrawFinish} calls
 \textsf{Pipe::waitFrameLocal} for each of its pipes to block the node
 thread until the current frame has been drawn. 
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
-  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
-\end{wrapfigure}
 \fig{fFrameSync} illustrates the local frame synchronization. By
 removing the calls to \textsf{waitFrameLocal}, the node thread can
 disable the synchronization with the pipe threads, which causes the node
@@ -2862,6 +2899,10 @@ in the system. Direct send distributes this workload evenly across all
 source channels, and thereby keeps the compositing work per channel
 constant.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
+\end{wrapfigure}
 In direct send compositing, each rendering channel is also responsible
 for the sort-last composition of one screen-space tile. He receives
 the framebuffer pixels for his tile from all the other channels. The
@@ -2873,10 +2914,6 @@ transferred to the destination channel, similarly to a 2D (sort-first)
 compound. The amount of pixel data for this part of the compositing
 pipeline also approaches a constant value, i.e., the full frame buffer.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
-\end{wrapfigure}
 \fig{fDirectSend} illustrates this algorithm for three channels. The
 Equalizer website contains a
 presentation\footnote{\link{http://www.equalizergraphics.com/documents/EGPGV07.pdf}}
@@ -2918,6 +2955,10 @@ frame's compound. The range can be used to compute the assembly order of
 multiple input frames, e.g., for sorted-blend compositing in volume
 rendering applications.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
+  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
+\end{wrapfigure}
 Readback and assemble operations on frames and images are designed to be
 asynchronous. They have a start and finish method for both readback and
 assemble to allow the initiation and synchronization of the operation.
@@ -2926,10 +2967,6 @@ Currently, only synchronous readback and assembly using
 respective start method of the image. Later versions of Equalizer will
 implement asynchronous pixel transfers.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
-\end{wrapfigure}
 The offset of input and output frames characterizes the position of the
 frame data with respect to the framebuffer, that is, the
 \textbf{window's} lower-left corner. For output frames this is the
@@ -2987,6 +3024,11 @@ amount of texture memory needed for each node decreases linearly, they
 make it possible to render data sets which are not feasible to
 visualize with any other approach.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+  \vspace{-1em}
+\end{wrapfigure}
 For recomposition, the 2D frame buffer contents are blended together to
 form a seamless picture. For correct blending, the frames are ordered in
 the same back-to-front order as the slices used for rendering, and use the
@@ -3012,10 +3054,6 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 Finding the correct assembly order for perspective frustra is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frustra. For the view and
