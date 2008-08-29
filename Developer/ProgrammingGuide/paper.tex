@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.8 for Equalizer 0.5.4+svn\\[\medskipamount]
+  Version 1.3.9 for Equalizer 0.5.4+svn\\[\medskipamount]
   \today
 }
 
@@ -118,6 +118,7 @@ recomposition\footnote{Data set courtesy of Stanford University Computer
     1.3.6   & July 20, 2008 & Add accum and samples to \aref{aFileFormat}, add \sref{sDrawableConfig}\\
     1.3.7   & Aug 22, 2008 & Update \sref{sEqplyWIndow} with OSWindow changes\\
     1.3.8   & Aug 25, 2008 & Update \sref{sEventHandling} with OSWindow changes\\
+    1.3.9   & Aug 29, 2008 & Update \sref{sEventHandling}: event handling cleanup\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -2257,8 +2258,8 @@ widget sets such as Qt.
 
 Events are received by an event handler. The event handler finds the
 \textsf{eq::OSWindow} associated to the event. It then creates a generic
-\textsf{WindowEvent}, which holds the event data in an independent
-format. The original native event and this generic \textsf{WindowEvent}
+\textsf{Event}, which holds the event data in an independent
+format. The original native event and this generic \textsf{Event}
 form the \textsf{OSWindowEvent}, which is passed to the concrete
 \textsf{OSWindow} for processing.
 
@@ -2270,8 +2271,8 @@ The purpose of the \textsf{OSWindow} processing method,
 \textsf{processEvent}, is to perform window-system specific event
 processing. For example, \textsf{AGLWindow::processEvent} calls
 \textsf{aglUpdateContext} whenever a resize event is received. For
-further processing, the \textsf{WindowEvent} is passed on to
-\textsf{Window::processEvent}. This \textsf{WindowEvent} no longer contains
+further processing, the \textsf{Event} is passed on to
+\textsf{Window::processEvent}. This \textsf{Event} no longer contains
 the native event.
 
 \textsf{Window::processEvent} is responsible for either handling
