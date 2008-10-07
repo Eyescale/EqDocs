@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.9 for Equalizer 0.5.4+svn\\[\medskipamount]
+  Version 1.3.10 for Equalizer 0.5.5\\[\medskipamount]
   \today
 }
 
@@ -119,6 +119,7 @@ recomposition\footnote{Data set courtesy of Stanford University Computer
     1.3.7   & Aug 22, 2008 & Update \sref{sEqplyWIndow} with OSWindow changes\\
     1.3.8   & Aug 25, 2008 & Update \sref{sEventHandling} with OSWindow changes\\
     1.3.9   & Aug 29, 2008 & Update \sref{sEventHandling}: event handling cleanup\\
+    1.3.10  & Oct 7, 2008  & Updated to reflect 2D pixel compounds\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -331,8 +332,18 @@ cards. Each node has to potentially hold the full database for
 rendering.
 
 2D decompositions can be used by all types of applications, but should
-be combined with DB compounds to reduce the data per node, if possible.
+be combined with DB compounds to reduce the data per node, if
+possible. In most cases, a \textsf{loadBalancer} should be used to
+automatically adapt the tiling each frame, based on the current
+rendering load.
 
+2D compounds in Equalizer are configured using the \textsf{viewport}
+parameter, using the values \textsf{[ x y width height]} in normalized
+coordinates. The viewport defines the area of the parent (destination)
+channel to be rendered for each child. Each child compound uses an
+output frame, which is connected to an input frame on the destination
+channel. The destination channel can also be used as a source channel,
+in which case it renders in place and no output frame is needed.
 
 \subsection{DB or Sort-Last Compounds}
 
@@ -367,6 +378,16 @@ size, and then to use other decomposition modes to achieve further
 scalability. Volume rendering is one of the applications which can
 profit from database compounds.
 
+DB compounds in Equalizer are configured using the \textsf{range}
+parameter, using the values \textsf{[ begin end ]} in normalized
+coordinates. The range defines the start and end point of the
+application's database to be rendered. The value has to be interpreted
+by the application's rendering code accordingly.  Each child compound
+uses an output frame, which is connected to an input frame on the
+destination channel. For more than two contributing channels, it is
+recommended to configure parallel direct send compositing, as described
+in \sref{sDirectSend}.
+
 
 \subsection{Stereo Compounds}
 
@@ -391,13 +412,16 @@ the number of eye passes, typically two.
 Stereo compounds are used by all applications when rendering in stereo,
 and is often combined with other modes.
 
+Eye compounds in Equalizer are configured using the \textsf{eye}
+parameter, limiting the child to render the \textsf{[ LEFT ]} or
+\textsf{[ RIGHT ]} eye. Each child compound uses an output frame, which
+is connected to an input frame on the destination channel. The
+destination channel can also be used to render an eye pass, in which case
+it renders in the correct stereo buffer and no output frame is needed.
+
 
 \subsection{Pixel Compounds}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/Pixel.pdf}
-  {\caption{\small A pixel compound}}
-\end{wrapfigure}
 Pixel compounds are similar to 2D compounds. The frustra of the
 source rendering units are modified so that each unit renders an evenly
 distributed subset of pixels. 
@@ -405,19 +429,48 @@ distributed subset of pixels.
 As 2D compounds, pixels compounds have low, constant IO requirements for
 the pixel transfers during recomposition.
 
-Pixel compounds work well for purely fill-limited applications,
-techniques like frustum culling do not reduce the rendered data for the
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/Pixel.pdf}
+  {\caption{\small A pixel compound}}
+\end{wrapfigure}
+Pixel compounds work well for purely fill-limited applications.
+Techniques like frustum culling do not reduce the rendered data for the
 source rendering resources.
 
 OpenGL functionality influenced by the raster position will not work
 correctly with pixel compounds, or needs at least special
 attention. Among them are: lines, points, sprites, glDrawPixels,
-glBitmap, glPolygonStipple.
+glBitmap, glPolygonStipple. The application can query the current pixel
+parameters at run-time to adjust the rendering accordingly.
 
 Pixel compounds are ideal for raytracing, which is highly fill-limited
 and needs the full database for rendering anyway. Volume rendering
-applications should choose this mode over 2D compounds.
+applications are also well suited for this mode, and should choose it
+over 2D compounds.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/pixelKernel.pdf}
+  {\caption{\label{fPixelKernel}\small Pixel compound kernel}}
+\end{wrapfigure}
+Pixel compounds in Equalizer are configured using the \textsf{pixel}
+parameter, using the values \textsf{[ x y width height]}  to configure
+the size and offset of the sampling kernel. The width and height of the
+sampling kernel define how many pixels are skipped in the x and y
+direction, respectively. The x and y offset define the index of the
+source channel within the kernel. They have to be smaller than the size
+of the kernel. \fig{fPixelKernel} illustrates these parameters, and
+\fig{fPixelKernels} shows some example kernels for a four-to-one pixel decomposition.
+
+The destination channel can also be used as a source channel. Contrary
+to the other compound modes, it also has to use an output and
+corresponding input frame. During rendering, the frustum is 'squeezed'
+to configure the pixel decomposition. The destination channel can
+therefore not be rendered in place, like with the other compound modes.
+\begin{figure}[ht!]\center
+  \includegraphics[width=.618\textwidth]{images/pixelKernels.pdf}
+  {\caption{\small\label{fPixelKernels}Example pixel kernels for a
+      four-to-one pixel compound}}
+\end{figure}
 
 
 \section{The Programming Interface}
@@ -1163,6 +1216,11 @@ care of the distribution of the data:
 
 \subsubsection{\label{sSceneData}Scene Data}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \vspace{-2em}\includegraphics[width=.382\textwidth]{images/modelDist.pdf}
+  {\caption{\small\label{fModelDist}Scene Data in eqPly}}
+  \vspace{-2em}
+\end{wrapfigure}
 Some applications might rely on a shared filesystem to access the data,
 for example when out-of-core algorithms are used. Other applications
 prefer to load the data only on the application process, and use
@@ -1180,15 +1238,15 @@ separation, an external 'mirror' hierarchy is constructed around the
 tree. This hierarchy of \textsf{VertexBufferDist} nodes is responsible
 for cloning the model data on the remote render clients.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
-  {\caption{\small\label{fModelDist}Scene Data in eqPly}}
-\end{wrapfigure}
 The identifer of the root object of this distributed hierarchy is passed
 as part of the \textsf{InitData}, and used during remote node
 initialization to map the model. \fig{fModelDist} shows the UML
 hierarchy of the model and distribution classes.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/objects.pdf}
+  {\caption{\small\label{fObjects}Scene Graph Distribution}}
+\end{wrapfigure}
 Each \textsf{VertexBufferDist} object has one node of the model's data
 tree. It is serializing the data for this node. Furthermore, it mirrors
 the kD-tree by having a \textsf{VertexBufferDist} child for each child
@@ -1239,10 +1297,6 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
 }
 \end{lstlisting}}%>>
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/objects.pdf}
-  {\caption{\small\label{fObjects}Scene Graph Distribution}}
-\end{wrapfigure}
 Applications distributing a dynamic scene graph use the frame data
 instead of the init data as the entry point to their scene graph data
 structure. \fig{fObjects} shows one possible implementation, where the
@@ -1722,10 +1776,6 @@ window system used. One can either use the implementation provided by
 the operating system, e.g., AGL, WGL or glX, or some higher-level
 toolkit, e.g., Qt.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/osWindow.pdf}
-  {\caption{\small\label{fOSWindow}eq::OSWindow UML class hierarchy}}
-\end{wrapfigure}
 All window-system specific functionality is implemented by a
 specialization of \textsf{eq::OS\-Window}. The \textsf{OSWindow} class
 defines the minimal interface to be implemented for a new window
@@ -1742,6 +1792,10 @@ implementation which honors all configurable window attributes.
 
 \subsubsection{Initialization and Exit}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/osWindow.pdf}
+  {\caption{\small\label{fOSWindow}eq::OSWindow UML class hierarchy}}
+\end{wrapfigure}
 The initialization sequence uses multiple, overrideable task
 methods. The main task method \textsf{configInit} calls first
 \textsf{configInitOSWindow}, which creates and initializes the
@@ -1994,10 +2048,6 @@ void Channel::frameDraw( const uint32_t frameID )
     eq::Channel::frameDraw( frameID );
 \end{lstlisting}}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/DB.png}
-  {\caption{\small\label{fDB}Destination view of a DB compound}}
-\end{wrapfigure}
 After the basic view setup, a directional light is configured, and the
 model is positioned using the camera parameters from the frame data. The
 camera parameters are transported using the the frame data to ensure
@@ -2070,6 +2120,10 @@ its place:
 }
 \end{lstlisting}}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/DB.png}
+  {\caption{\small\label{fDB}Destination view of a DB compound}}
+\end{wrapfigure}
 In order to draw the model, a helper class for view frustum culling is
 set up using the view frustum from Equalizer and the camera position
 from the frame data. The frustum helper computes the six frustum planes
@@ -2102,10 +2156,6 @@ void Channel::_drawModel( const Model* model )
         
 \end{lstlisting}}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Render Loop}}
-\end{wrapfigure}
 The model data is spatially organized in an 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
 for efficient view frustum culling. When the model is loaded by
@@ -2115,6 +2165,10 @@ has the range [0, 1], its left child [0, 0.5] and its right child [0.5,
 1], and so on for all nodes in the tree. The preprocessed model is saved
 in a binary format for accelerating subsequent use.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\small\label{fRender}Main Render Loop}}
+\end{wrapfigure}
 The rendering loop maintains a list of candidates to render, which
 initially contains the root node. Each candidate of this list is tested
 for full visiblity against the frustum and range, and rendered if
@@ -2263,10 +2317,6 @@ format. The original native event and this generic \textsf{Event}
 form the \textsf{OSWindowEvent}, which is passed to the concrete
 \textsf{OSWindow} for processing.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
-  {\caption{\small\label{fEventProcessing}Event Processing}}
-\end{wrapfigure}
 The purpose of the \textsf{OSWindow} processing method,
 \textsf{processEvent}, is to perform window-system specific event
 processing. For example, \textsf{AGLWindow::processEvent} calls
@@ -2275,6 +2325,10 @@ further processing, the \textsf{Event} is passed on to
 \textsf{Window::processEvent}. This \textsf{Event} no longer contains
 the native event.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
+  {\caption{\small\label{fEventProcessing}Event Processing}}
+\end{wrapfigure}
 \textsf{Window::processEvent} is responsible for either handling
 the event locally, or for translating it into a generic
 \textsf{ConfigEvent}. The config events are send to the application
@@ -2297,16 +2351,16 @@ event handling function.
 
 \subsubsection{Default Implementation}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
-  {\caption{\small\label{fEventUML}UML Diagram for Event Handling Classes}}
-\end{wrapfigure}
 Currently, Equalizer provides an \textsf{AGLEvent\-Handler},
 \textsf{GLXEventHandler} and \textsf{WGL\-Event\-Handler}, which handle
 events for an \textsf{AGLWindowIF}, \textsf{GLXWindowIF} and
 \textsf{WGLWindowIF}, respectively. \fig{fEventUML} illustrates the
 class hierarchy for event processing.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
+  {\caption{\small\label{fEventUML}UML Diagram for Event Handling Classes}}
+\end{wrapfigure}
 The \textsf{OSWindow} implementation is responsible for setting up and
 de-initializing event handling.
 
@@ -2884,7 +2938,7 @@ to order the input frames or to optimize the readback. The following
 sections provide a detailed description of the image compositing API in
 Equalizer.
 
-\subsubsection{Parallel Direct Send Compositing}
+\subsubsection{\label{sDirectSend}Parallel Direct Send Compositing}
 
 In order to provide a motivation for the design of the image compositing
 API, the direct send parallel compositing algorithm is introduced in this
