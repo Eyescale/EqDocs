@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.10 for Equalizer 0.5.5\\[\medskipamount]
+  Version 1.3.11 for Equalizer 0.5.5+svn\\[\medskipamount]
   \today
 }
 
@@ -120,6 +120,7 @@ recomposition\footnote{Data set courtesy of Stanford University Computer
     1.3.8   & Aug 25, 2008 & Update \sref{sEventHandling} with OSWindow changes\\
     1.3.9   & Aug 29, 2008 & Update \sref{sEventHandling}: event handling cleanup\\
     1.3.10  & Oct 7, 2008  & Updated to reflect 2D pixel compounds\\
+    1.3.11  & Oct 13, 2008 & Updated to reflect eq::net::Object cleanup\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -467,7 +468,7 @@ corresponding input frame. During rendering, the frustum is 'squeezed'
 to configure the pixel decomposition. The destination channel can
 therefore not be rendered in place, like with the other compound modes.
 \begin{figure}[ht!]\center
-  \includegraphics[width=.618\textwidth]{images/pixelKernels.pdf}
+  \includegraphics[width=.9\textwidth]{images/pixelKernels.pdf}
   {\caption{\small\label{fPixelKernels}Example pixel kernels for a
       four-to-one pixel compound}}
 \end{figure}
@@ -675,11 +676,11 @@ destination's channel viewport, frustum and database. A
 screen space. A \textsf{range} tells the application to render a part of
 its database, and an \textsf{eye} rendering pass can selectively render
 different stereo passes. A \textsf{pixel} parameter adapts the frustum
-so that the source channel renders every n$th$ line out of m
-lines. Setting one or multiple attributes causes the parent's view to be
-decomposed accordingly. Attributes are cumulative, that is, intermediate
-compound attributes affect and therefore decompose the rendering of all
-their children.
+so that the source channel renders an evenly subset of the parent's
+pixels. Setting one or multiple attributes causes the parent's view to
+be decomposed accordingly. Attributes are cumulative, that is,
+intermediate compound attributes affect and therefore decompose the
+rendering of all their children.
 
 \subsubsection{Recomposition - Frames}
 Compounds use output and input frames to configure the recomposition of
@@ -1056,11 +1057,12 @@ bool Application::clientLoop()
 \subsection{Distributed Objects}
 
 Equalizer provides distributed objects which help implementing data
-distribution in a cluster environment. The master version of a distributed
-object is registered with a \textsf{eq::net::Session}, which assigns a
-session-unique identifier to the object. Other nodes can map their
-instance of the object to this identifier, thus synchronizing the
-object's data with the remotely registered master version.
+distribution in a cluster environment. The master version of a
+distributed object is registered with a \textsf{eq::net::Session}, which
+assigns a session-unique identifier to the object. This identifier can
+be used by other nodes to map their instance of the object, thus
+synchronizing the object's data with the remotely registered master
+version.
 
 Distributed objects are created by subclassing from
 \textsf{eq::net::Object}. Distributed objects can be static (immutable) or
@@ -1131,17 +1133,15 @@ On the application side, the class \textsf{LocalInitData} subclasses
 default values. The render nodes only instantiate the distributed part
 in \textsf{InitData}.
 
-A static distributed object either has to provide a pointer and size to
-its data using \textsf{setInstanceData}, or it has to implement
-\textsf{getInstanceData} and \textsf{applyInstanceData}. The first
-approach can be used if all distributed member variables are stored in
-one contiguous block of memory. The second approach is used otherwise.
+A static distributed object has to implement \textsf{getInstanceData}
+and \textsf{applyInstanceData} to serialize and deserialize the object's
+distributed data. These method provide an output or input stream as a
+parameter, which abstract the data transmission and can be used like a
+\textsf{std::stream}.
 
-The \textsf{InitData} class contains a string of variable
-length. Therefore it uses the second approach of manually serializing
-and de-serializing its data. Serialization in \textsf{getInstanceData}
+For \textsf{InitData}, serialization in \textsf{getInstanceData}
 and de-serialization in \textsf{applyInstanceData} is performed by
-streaming all member variable to or from the provided data
+streaming all member variables to or from the provided data
 streams. Efficient buffering and data transport between nodes is
 implemented in the data streams:
 
@@ -1169,8 +1169,8 @@ types of variables during serialization and de-serialization.
 \subsubsection{FrameData - a Versioned Distributed Object}
 
 Versioned objects have to override \textsf{getChangeType} to indicate
-how they want to have changes to be handled. The current
-implementation has the following characteristics:
+how they want to have changes to be handled. All versioned objects
+currently implemented have the following characteristics:
 \begin{itemize}
 \item Only the master instance of the object is writable, that is,
   \textsf{eq::net::Object::com\-mit} can be called only on the master
@@ -1179,7 +1179,8 @@ implementation has the following characteristics:
   \textsf{eq::net::Object::sync( version )} with a version smaller than
   the current version will fail.
 \item Newly mapped slave instance are mapped to the oldest available
-  version.
+  version by default, or to the specified version in
+  \textsf{Session::mapObject}.
 \end{itemize}
 
 Upon \textsf{commit} the delta data from the previous version is sent to
@@ -1188,39 +1189,36 @@ is applied when the application calls \textsf{sync} to synchronize the
 object to a new version. The \textsf{sync} method might block if a
 version has not been committed or is still in transmission.
 
-In addition to the instance data (de)serialization methods used to map
+In addition to the instance data (de-)serialization methods used to map
 an object, versioned objects may implement \textsf{pack} and
 \textsf{unpack} to serialize or de-serialize the changes since the last
-version.
+version. If these methods are not implemented, their default
+implementation forwards the (de-)serialization request to
+\textsf{getInstanceData} and \textsf{applyInstanceData}, respectively.
 
-If the delta data happens to be layed out contiguously in memory,
-\textsf{setDeltaData} might be used. The default implementation of
-\textsf{pack} and \textsf{unpack} (de)serialize the delta data or the
-instance data if no delta data has been specified.
-
-The \textsf{eqPly} frame data is layed out in one anonymous structure in
-memory. It also does not track changes since it is relatively small in
-size and changes frequently. Therefore, the instance and delta data are
-the same and set in the constructor. Furthermore, the change type is
-\textsf{INSTANCE}. The default \textsf{Object} implementation will take
-care of the distribution of the data:
+The \textsf{eqPly} does not track changes since it is relatively small
+in size and changes frequently. Therefore, the instance and delta data
+are the same, and \textsf{pack} and \textsf{unpack} are not
+implemented. The change type is \textsf{INSTANCE}. The serialization
+functions exploit the fact that the frame data is layed
+out in one anonymous structure in memory, and transmit all the data in
+one call:
 
 {\footnotesize\begin{lstlisting}
-        FrameData()
-            {
-                reset();
-                setInstanceData( &data, sizeof( Data ));
-                EQINFO << "New FrameData " << std::endl;
-            }
+void FrameData::getInstanceData( eq::net::DataOStream& os )
+{ 
+    os.writeOnce( &data, sizeof( data )); 
+}
+
+void FrameData::applyInstanceData( eq::net::DataIStream& is )
+{
+    memcpy( &data, is.getRemainingBuffer(), sizeof( data ));
+    is.advanceBuffer( sizeof( data ));
+}
 \end{lstlisting}}%>>
 
 \subsubsection{\label{sSceneData}Scene Data}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \vspace{-2em}\includegraphics[width=.382\textwidth]{images/modelDist.pdf}
-  {\caption{\small\label{fModelDist}Scene Data in eqPly}}
-  \vspace{-2em}
-\end{wrapfigure}
 Some applications might rely on a shared filesystem to access the data,
 for example when out-of-core algorithms are used. Other applications
 prefer to load the data only on the application process, and use
@@ -1238,15 +1236,15 @@ separation, an external 'mirror' hierarchy is constructed around the
 tree. This hierarchy of \textsf{VertexBufferDist} nodes is responsible
 for cloning the model data on the remote render clients.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
+  {\caption{\small\label{fModelDist}Scene Data in eqPly}}
+\end{wrapfigure}
 The identifer of the root object of this distributed hierarchy is passed
 as part of the \textsf{InitData}, and used during remote node
 initialization to map the model. \fig{fModelDist} shows the UML
 hierarchy of the model and distribution classes.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/objects.pdf}
-  {\caption{\small\label{fObjects}Scene Graph Distribution}}
-\end{wrapfigure}
 Each \textsf{VertexBufferDist} object has one node of the model's data
 tree. It is serializing the data for this node. Furthermore, it mirrors
 the kD-tree by having a \textsf{VertexBufferDist} child for each child
@@ -1297,6 +1295,10 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
 }
 \end{lstlisting}}%>>
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/objects.pdf}
+  {\caption{\small\label{fObjects}Scene Graph Distribution}}
+\end{wrapfigure}
 Applications distributing a dynamic scene graph use the frame data
 instead of the init data as the entry point to their scene graph data
 structure. \fig{fObjects} shows one possible implementation, where the
@@ -1792,10 +1794,6 @@ implementation which honors all configurable window attributes.
 
 \subsubsection{Initialization and Exit}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/osWindow.pdf}
-  {\caption{\small\label{fOSWindow}eq::OSWindow UML class hierarchy}}
-\end{wrapfigure}
 The initialization sequence uses multiple, overrideable task
 methods. The main task method \textsf{configInit} calls first
 \textsf{configInitOSWindow}, which creates and initializes the
@@ -1806,6 +1804,10 @@ initialized successfully, \textsf{configInit} calls
 initialization. The default implementation sets up some typical OpenGL
 state, e.g., it enables the depth test.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/osWindow.pdf}
+  {\caption{\small\label{fOSWindow}eq::OSWindow UML class hierarchy}}
+\end{wrapfigure}
 The \textsf{OSWindow} initialization takes into account various
 attributes set in the configuration file. Attributes include the size of
 the various frame buffer planes (color, alpha, depth, stencil) as well
@@ -2048,6 +2050,10 @@ void Channel::frameDraw( const uint32_t frameID )
     eq::Channel::frameDraw( frameID );
 \end{lstlisting}}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/DB.png}
+  {\caption{\small\label{fDB}Destination view of a DB compound}}
+\end{wrapfigure}
 After the basic view setup, a directional light is configured, and the
 model is positioned using the camera parameters from the frame data. The
 camera parameters are transported using the the frame data to ensure
@@ -2120,10 +2126,6 @@ its place:
 }
 \end{lstlisting}}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/DB.png}
-  {\caption{\small\label{fDB}Destination view of a DB compound}}
-\end{wrapfigure}
 In order to draw the model, a helper class for view frustum culling is
 set up using the view frustum from Equalizer and the camera position
 from the frame data. The frustum helper computes the six frustum planes
@@ -2156,19 +2158,21 @@ void Channel::_drawModel( const Model* model )
         
 \end{lstlisting}}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\small\label{fRender}Main Render Loop}}
+  \vspace{-5ex}
+\end{wrapfigure}
 The model data is spatially organized in an 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
 for efficient view frustum culling. When the model is loaded by
-\textsf{Node::config\-Init}, it is preprocessed into the kD-tree and each
-node of the tree gets a database range assigned. The root node
-has the range [0, 1], its left child [0, 0.5] and its right child [0.5,
-1], and so on for all nodes in the tree. The preprocessed model is saved
-in a binary format for accelerating subsequent use.
+\textsf{Node::config\-Init}, it is preprocessed into the kD-tree During
+this preprocessing step, each node of the tree gets a database range
+assigned. The root node has the range [0, 1], its left child [0, 0.5]
+and its right child [0.5, 1], and so on for all nodes in the tree. The
+preprocessed model is saved in a binary format for accelerating
+subsequent loading.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Render Loop}}
-\end{wrapfigure}
 The rendering loop maintains a list of candidates to render, which
 initially contains the root node. Each candidate of this list is tested
 for full visiblity against the frustum and range, and rendered if
@@ -2357,18 +2361,14 @@ events for an \textsf{AGLWindowIF}, \textsf{GLXWindowIF} and
 \textsf{WGLWindowIF}, respectively. \fig{fEventUML} illustrates the
 class hierarchy for event processing.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
-  {\caption{\small\label{fEventUML}UML Diagram for Event Handling Classes}}
-\end{wrapfigure}
-The \textsf{OSWindow} implementation is responsible for setting up and
-de-initializing event handling.
+The concrete implementation of these window interfaces is responsible
+for setting up and de-initializing event handling.
 
-Carbon events issued for AGL windows are processed from the process main
-thread. One \textsf{AGLEventHandler} is used. When a Carbon window is
-set on an \textsf{AGLWindow}, the window is registered with the
-\textsf{AGLEventHandler}. The event handler installs a Carbon event
-handler for all important events. The event handler uses an
+Carbon events issued for AGL windows are processed from the node's main
+thread. One \textsf{AGLEventHandler} per process is used. When a Carbon
+window is set on an \textsf{AGLWindow}, the window is registered with
+the global \textsf{AGLEventHandler}. The event handler installs a Carbon
+event handler for all important events. The event handler uses an
 \textsf{AGLWindowEvent} to pass the Carbon \textsf{EventRef} to
 \textsf{AGLWindowIF::processEvent}. During window exit, the installed
 Carbon handler is removed when the window is deregistered with the
@@ -2382,16 +2382,20 @@ created using this display connection are automatically received by the
 event handler. No per-window event handling setup needs to be
 done. PBuffers are handled in the same way as window drawables.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
+  {\caption{\small\label{fEventUML}UML Diagram for Event Handling Classes}}
+\end{wrapfigure}
 The glX event handler iterates over all windows of the registered pipe
 to find the originating \textsf{GLXWindowIF}, which is then used to
 process the event in a fashion similar to AGL. The
 \textsf{GLXWindowEvent} passes the \textsf{XEvent} to
-\textsf{GLXWindowIF::processEvent}.
+\textsf{GLXWindowIF::\-process\-Event}.
 
 Each \textsf{WGLWindow} allocates one \textsf{WGLEventHandler} when the
 window handle is set. The WGLEventHandler passes the native event
 parameters \textsf{uMsg}, \textsf{wParam} and \textsf{lParam} to
-\textsf{WGLWindowIF::processEvent} as part of the
+\textsf{WGL\-Win\-dowIF::processEvent} as part of the
 \textsf{WGLWindowEvent}. No event handling is set up for PBuffers.
 
 Later Equalizer versions will introduce \textsf{Pipe::pro\-cess\-Event} and
@@ -2496,10 +2500,6 @@ process and executes the \textsf{main} function. The application and
 render clients initialize the local node for communications with other
 nodes, including the server, using \textsf{Client::initLocal}.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/threads.pdf}
-  {\caption{\small\label{fThreads}Threads within one node process}}
-\end{wrapfigure}
 During this initialization, Equalizer creates and manages two threads
 for communication, the receiver thread and the command thread. Normally
 no application code is executed from these two threads.
@@ -2514,6 +2514,10 @@ the command thread executes application code, for example when a remote
 node maps a static or unbuffered object,
 \textsf{Object::getInstanceData} is called from the command thread.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/threads.pdf}
+  {\caption{\small\label{fThreads}Threads within one node process}}
+\end{wrapfigure}
 The receiver and command thread are terminated when the application
 stops network communications using \textsf{Client::exitLocal}.
 
@@ -2541,6 +2545,10 @@ the node's main thread. The per-node frame synchronization does not
 break the asynchronous execution across nodes. Advanced applications can
 remove the per-node frame synchronization.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
+  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
+\end{wrapfigure}
 The application has extended control over the task synchronization
 during a frame. Upon \textsf{Config::startFrame}, Equalizer invokes the
 \textsf{frameStart} task methods of the various entities. The entities
@@ -2551,10 +2559,6 @@ e.g., \textsf{Window::startFrame}, are currently empty since the
 synchronization is implicit due to the sequential execution within the
 thread.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
-  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
-\end{wrapfigure}
 Each entity uses \textsf{waitFrame\-Started} to block on the parent's
 \textsf{startFrame}, e.g., \textsf{Pipe::\-frame\-Start} calls
 \textsf{Node::wait\-Frame\-Started} to wait for the corresponding
@@ -2672,24 +2676,42 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
 \subsection{Advanced Window Initialization}
 
 This section explains window initialization in detail. It discusses in
-detail the handling on the different window systems. The entry point for
-the window initialization is the task method
-\textsf{Window::configInit}. This task method first calls a
-window-system-specific task method, and then
-\textsf{Window::configInitGL} to do generic OpenGL state setup.
+detail the handling of the different window systems. Window systems are
+integrated through the \textsf{OSWindow} interface, which externalizes
+the details of the windowing API from the \textsf{eq::Window}
+implementation and facilitates the integration with new windowing API's
+and custom applications.
+
+Equalizer provides sample implementations for the supported window
+systems. These sample implementations are intended to be sub-classed and
+various steps in the window initialization can be overwritten and
+customized.
+
+An application typically choses to subclass the sample implementation if
+only minor tweaks are needed for integration. For major changes or new
+window systems, it is often easier to subclass directly from
+\textsf{OSWindow} and implement the abstract methods of this interface
+class.
+
+The method \textsf{Window::configInitOSWindow} is used to instantiate
+and initialize the \textsf{OSWindow} implementation during config
+initialization. After an successful \textsf{OSWindow} initialization,
+\textsf{Window::configInitGL} is called for the generic OpenGL state
+setup.
 
 Since window initialization is notoriously error-prone and hard to
-debug, the default Equalizer functions propagate the reason for errors
+debug, the sample implementation propagates the reason for errors
 from the render clients back to the application. The \textsf{Pipe} and
 \textsf{Window} classes have a \textsf{setErrorMessage} method, which is
 used to set an error string. This string is passed to the
 \textsf{Config} instance on the application node, where it can be
 queried using \textsf{getErrorMessage}.
 
-The window-system-specific initialization methods use overrideable
-methods for all sub-tasks. This allows partial customization, without
-the need of rewriting tedious window initialization code, e.g., the
-OpenGL pixel format selection.
+The sample implementations \textsf{AGLWindow}, \textsf{GLXWindow} and
+\textsf{WGLWindow} all have similar, overrideable methods for all
+sub-tasks. This allows partial customization, without the need of
+rewriting tedious window initialization code, e.g., the OpenGL pixel
+format selection.
 
 \subsubsection{\label{sDrawableConfig}Drawable Configuration}
 
@@ -2737,10 +2759,10 @@ calling these functions use \textsf{Global::enterCarbon} and
 The pixel format is chosen based on the window's attributes. Some
 attributes set to auto, e.g., stereo, cause the method first to request
 the feature and then to back off and retry if it is not available. The
-returned pixel format has to be destroyed using
-\textsf{Window::destroyAGLPixelFormat}. When no matching pixel format is
-found, \textsf{chooseAGLPixelFormat} returns \textsf{0} and the AGL
-window initialization returns with a failure.
+pixel format returned by \textsf{chooseAGLPixelFormat} has to be
+destroyed using \textsf{destroyAGLPixelFormat}. When no matching pixel
+format is found, \textsf{chooseAGLPixelFormat} returns \textsf{0} and
+the AGL window initialization returns with a failure.
 
 The context creation also uses the global Carbon lock. Furthermore, it
 sets up the swap buffer synchronization with the vertical retrace, if
@@ -2753,7 +2775,7 @@ The drawable creation method \textsf{configInitAGLDrawable} calls either
 The top-level AGL window initialization code therefore looks as follows:
 
 {\footnotesize\begin{lstlisting}
-bool Window::configInitAGL()
+bool AGLWindow::configInit( )
 {
     AGLPixelFormat pixelFormat = chooseAGLPixelFormat();
     if( !pixelFormat )
@@ -2779,7 +2801,7 @@ create drawable. The only difference is that the data returned by
 \textsf{chooseXVisualInfo} has to be freed using \textsf{XFree}:
 
 {\footnotesize\begin{lstlisting}
-bool Window::configInitGLX()
+bool GLXWindow::configInit( )
 {
     XVisualInfo* visualInfo = chooseXVisualInfo();
     if( !visualInfo )
@@ -2796,7 +2818,8 @@ bool Window::configInitGLX()
 
     if( success && !_xDrawable )
     {
-        setErrorMessage( "configInitGLXDrawable did set no X11 drawable" );
+        _window->setErrorMessage( 
+            "configInitGLXDrawable did not set a X11 drawable");
         return false;
     }
 
@@ -2814,7 +2837,8 @@ AGL or GLX. The following functions are used to initialize a WGL window:
 \item\textsf{getWGLPipeDC} is used to get an affinity device context,
   which might be needed for window creation. If a context is returned, a
   function pointer to delete the returned device context is set as
-  well. This function might return 0, which is not an error.
+  well. This function might return 0, which is not an error, but
+  signifies that no affinity context is used.
 \item\textsf{chooseWGLPixelFormat} chooses a pixel format based on the
   window attributes. If no device context is given, it uses the system
   device context. The chosen pixel format is set on the passed device
@@ -2835,7 +2859,7 @@ The full \textsf{configInitWGL} task method, including error handling
 and cleanup, looks as follows:
 
 {\footnotesize\begin{lstlisting}
-bool Window::configInitWGL()
+bool WGLWindow::configInit()
 {
     PFNEQDELETEDCPROC deleteDCProc = 0;
     HDC dc = getWGLPipeDC( deleteDCProc );
@@ -2860,12 +2884,27 @@ bool Window::configInitWGL()
     {
         if( dc )
             deleteDCProc( dc );
-        setErrorMessage( "configInitWGLDrawable did not set a WGL drawable" );
+        _window->setErrorMessage(
+            "configInitWGLDrawable did not set a WGL drawable" );
         return false;
     }
 
     HGLRC context = createWGLContext( dc );
     setWGLContext( context );
+
+    if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
+    {
+        if( WGLEW_EXT_swap_control )
+        {
+            // set vsync on/off
+            const GLint vsync = 
+                ( getIAttribute( Window::IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
+            wglSwapIntervalEXT( vsync );
+        }
+        else
+            EQWARN << "WGLEW_EXT_swap_control not supported, ignoring window "
+                   << "swapsync hint" << std::endl;
+    }
 
     if( !context )
     {
@@ -2878,7 +2917,7 @@ bool Window::configInitWGL()
         deleteDCProc( dc );
     return true;
 }
-\end{lstlisting}}
+\end{lstlisting}}%>>
 
 
 \subsection{\label{sTracking}Head Tracking}
@@ -3001,6 +3040,10 @@ An \textsf{eq::Image} holds a
 two-dimensional snapshot of the framebuffer and can contain color and/or
 depth information.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
+  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
+\end{wrapfigure}
 The frame synchronization through the frame data allows the input frame
 to wait for the pixel data to become ready, which is signalled by the
 output frame after readback.
@@ -3010,10 +3053,6 @@ frame's compound. The range can be used to compute the assembly order of
 multiple input frames, e.g., for sorted-blend compositing in volume
 rendering applications.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
-\end{wrapfigure}
 Readback and assemble operations on frames and images are designed to be
 asynchronous. They have a start and finish method for both readback and
 assemble to allow the initiation and synchronization of the operation.
@@ -3050,12 +3089,7 @@ together to produce the final image, as shown in
 \fig{fSlices}\footnote{Volume Data Set courtesy of: SFB-382 of the German
   Research Council (DFG)}.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
-      Volume Rendering}}
-\end{wrapfigure}
- When using 2D (sort-first) or stereo decompositions, no special
+When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
 mostly fill-limited and therefore scales nicely in these modes. 
 
@@ -3071,6 +3105,11 @@ through the full texture. Therefore they have to be blen\-ded
 back-to-front in the same way as the slice planes are blended during
 rendering.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
+      Volume Rendering}}
+\end{wrapfigure}
 DB compounds have the advantage of scaling any part of the volume
 rendering pipeline: texture and main memory (smaller bricks for each
 channel), fill rate (less samples per channel) and IO bandwidth for
@@ -3079,11 +3118,6 @@ amount of texture memory needed for each node decreases linearly, they
 make it possible to render data sets which are not feasible to
 visualize with any other approach.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-  \vspace{-1em}
-\end{wrapfigure}
 For recomposition, the 2D frame buffer contents are blended together to
 form a seamless picture. For correct blending, the frames are ordered in
 the same back-to-front order as the slices used for rendering, and use the
@@ -3101,6 +3135,12 @@ destination frame buffer using the correct order.
   {\caption{\small\label{fBlend}Back-to-Front Com\-po\-siting for
       Orthogonal and Perspective View Frustra}}
 \end{figure}
+
+\begin{wrapfigure}{r}{.382\textwidth}
+  \vspace{-2ex}\includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+  \vspace{-2ex}
+\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -3133,16 +3173,16 @@ compositing algorithms such as direct-send.
 
 \subsubsection{Statistics Gathering}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/statistics.png}
-  {\caption{\small\label{fStatistics}Statistics for a two-node 2D compound}}
-\end{wrapfigure}
 Statistics are measured in milliseconds since the configuration was
 initialized. On each node, the global configuration clock is reset at
 the same time by the server during \textsf{Config::init}. Each statistic
 event records the originator's (channel, window or config) unique
 identifier.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/statistics.png}
+  {\caption{\small\label{fStatistics}Statistics for a two-node 2D compound}}
+\end{wrapfigure}
 Statistics are enabled per entity using an attribute hint. The hint
 determines how precise the gathered statistics are. When set to
 \textsf{fastest}, the per-frame clock is sampled directly when the event
@@ -3893,11 +3933,11 @@ compound.
 The buffer defines the default frame buffer attachments read back by
 output frames. The viewport restricts the rendering to the area relative
 to the parent compound. The range restricts the database range, relative
-to the parent. The pixel setting selects the pixel decomposition
-parameters, relative to the parent. The eye pass select the mono, left
-or right eye passes rendered by the compound. All these attributes are
-inherited by the children of a compound. Viewport, range and pixel
-parameters are cumulative.
+to the parent. The pixel setting selects the pixel decomposition kernel,
+relative to the parent. The eye pass select the mono, left or right eye
+passes rendered by the compound. All these attributes are inherited by
+the children of a compound. Viewport, range and pixel parameters are
+cumulative.
 
 For a description of compound attributes please refer to \sref{sGlobal}.
 
