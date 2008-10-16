@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.11 for Equalizer 0.5.5+svn\\[\medskipamount]
+  Version 1.3.12 for Equalizer 0.5.5+svn\\[\medskipamount]
   \today
 }
 
@@ -62,11 +62,11 @@ Marten and Patrick Bouchaud.
 
 \subsection*{Copyright}
 
-\textcopyright 2007-2008 Eyescale Software GmbH. All rights reserved. No
-permission is granted to copy, distribute, or create derivative works
-from the contents of this electronic documentation in any manner, in
-whole or in part, without the prior written permission of Eyescale
-Software GmbH.
+\textcopyright 2007-2008 \htmladdnormallink{Eyescale Software GmbH}
+{http://www.eyescale.ch}. All rights reserved. No permission is
+granted to copy, distribute, or create derivative works from the
+contents of this electronic documentation in any manner, in whole or in
+part, without the prior written permission of Eyescale Software GmbH.
 
 \subsection*{Trademarks and Attributions}
 
@@ -83,8 +83,8 @@ owners.
 
 If you have comments about the content, accuracy or comprehensibility of
 this programming guide, please contact
-\htmladdnormallink{eile@equalizergraphics.com}
-{mailto:eile@equalizergraphics.com?subject=Equalizer\%20Programming\%20Guide}.
+\htmladdnormallink{eile@eyescale.ch}
+{mailto:eile@eyescale.ch?subject=Equalizer\%20Programming\%20Guide}.
 
 \vfill
 
@@ -121,6 +121,7 @@ recomposition\footnote{Data set courtesy of Stanford University Computer
     1.3.9   & Aug 29, 2008 & Update \sref{sEventHandling}: event handling cleanup\\
     1.3.10  & Oct 7, 2008  & Updated to reflect 2D pixel compounds\\
     1.3.11  & Oct 13, 2008 & Updated to reflect eq::net::Object cleanup\\
+    1.3.12  & Oct 16, 2008 & Added \sref{sView}\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -638,7 +639,7 @@ instantiated during config initialization. The rendering tasks for the
 channels are computed by the server and send to the appropriate render
 client nodes at the beginning of each frame.
 
-\subsubsection{Frustum}
+\subsubsection{\label{sFrustum}Frustum}
 Compounds have a frustum description to define the physical layout of
 the display environment. 
 
@@ -2957,6 +2958,58 @@ positioned using the channel's head transformation, which can be
 retrieved using \textsf{Channel::getHeadTransform}.
 
 
+\subsection{\label{sView}View Management}
+
+A view describes the projection of the scene onto a coherent 2D area,
+typically a display or window rendered by a destination channel. The
+application has read and write access to all the views of a
+configuration.
+
+Changing view parameters is typically done for non-fullscreen
+application windows, where the rendering is not meant to be viewed in
+real-world size in an immersive environment. A typical use case is
+changing the field-of-view of the rendering.
+
+A configuration has one or more views. A view is determined by the
+frustum (wall or projection description) and eye separation. A view is
+uniquely assigned to one compound and possibly one destination
+channel. For a description of wall and projection parameters please
+refer to \sref{sFrustum}.
+
+The application node can query all views of the \textsf{eq::Config}. It
+can change all parameters of each view (wall, projection and eye
+separation). The new view parameters are applied for the next frame.
+
+Destination channels on the render clients have access to a read-only
+version of their view. The view data is automatically kept up-to-date
+with the application's instance by Equalizer.
+
+The view API is not finalized and may change in the future.
+
+\subsubsection{View Update}
+
+The default Equalizer event handling is using the view API to maintain
+the aspect ratio of destination channels after a window resize. Without
+updating the wall or projection description, the rendering would become distorted.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/viewUpdate.pdf}
+  {\caption{\small\label{fViewUpdate}Event Flow during a View Update}}
+\end{wrapfigure}
+When a window is resized, a \textsf{CHANNEL\_RESIZE} event is eventually
+generated. If the corresponding channel has a view,
+\textsf{Channel::processEvent} sends a \textsf{VIEW\_RESIZE} event to
+the application. This event contains the identifier of the view. 
+
+The config event is dispatched to \textsf{Config::handleView\-Resize},
+which uses the view identifier to find the corresponding view. Based on
+the original size and wall or projection description of the view, a new
+wall or projection is computed, keeping the aspect ratio and  the height
+of the frustum constant. This new frustum is automatically applied by
+Equalizer at the next config frame.
+
+\fig{fViewUpdate} shows a sequence diagram of such a view update.
+
 \subsection{\label{sCompositing}Image Compositing for Scalable Rendering}
 
 Two task methods are responsible for collecting and compositing the
@@ -2993,16 +3046,17 @@ in the system. Direct send distributes this workload evenly across all
 source channels, and thereby keeps the compositing work per channel
 constant.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
-\end{wrapfigure}
 In direct send compositing, each rendering channel is also responsible
 for the sort-last composition of one screen-space tile. He receives
 the framebuffer pixels for his tile from all the other channels. The
 size of one tile decreases linearly with the number of source channels,
 which keeps the total amount of pixel data per channel constant.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-1ex}\includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
+  \vspace{-2ex}
+\end{wrapfigure}
 After performing the sort-last compositing, the color information is
 transferred to the destination channel, similarly to a 2D (sort-first)
 compound. The amount of pixel data for this part of the compositing
@@ -3040,10 +3094,6 @@ An \textsf{eq::Image} holds a
 two-dimensional snapshot of the framebuffer and can contain color and/or
 depth information.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
-\end{wrapfigure}
 The frame synchronization through the frame data allows the input frame
 to wait for the pixel data to become ready, which is signalled by the
 output frame after readback.
@@ -3061,6 +3111,10 @@ Currently, only synchronous readback and assembly using
 respective start method of the image. Later versions of Equalizer will
 implement asynchronous pixel transfers.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
+  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
+\end{wrapfigure}
 The offset of input and output frames characterizes the position of the
 frame data with respect to the framebuffer, that is, the
 \textbf{window's} lower-left corner. For output frames this is the
@@ -3089,6 +3143,11 @@ together to produce the final image, as shown in
 \fig{fSlices}\footnote{Volume Data Set courtesy of: SFB-382 of the German
   Research Council (DFG)}.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
+      Volume Rendering}}
+\end{wrapfigure}
 When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
 mostly fill-limited and therefore scales nicely in these modes. 
@@ -3105,11 +3164,6 @@ through the full texture. Therefore they have to be blen\-ded
 back-to-front in the same way as the slice planes are blended during
 rendering.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
-      Volume Rendering}}
-\end{wrapfigure}
 DB compounds have the advantage of scaling any part of the volume
 rendering pipeline: texture and main memory (smaller bricks for each
 channel), fill rate (less samples per channel) and IO bandwidth for
@@ -3136,11 +3190,6 @@ destination frame buffer using the correct order.
       Orthogonal and Perspective View Frustra}}
 \end{figure}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \vspace{-2ex}\includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-  \vspace{-2ex}
-\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -3149,6 +3198,10 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 Finding the correct assembly order for perspective frustra is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frustra. For the view and
