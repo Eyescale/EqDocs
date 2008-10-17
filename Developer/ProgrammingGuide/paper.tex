@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.12 for Equalizer 0.5.5+svn\\[\medskipamount]
+  Version 1.3.13 for Equalizer 0.5.5+svn\\[\medskipamount]
   \today
 }
 
@@ -122,6 +122,7 @@ recomposition\footnote{Data set courtesy of Stanford University Computer
     1.3.10  & Oct 7, 2008  & Updated to reflect 2D pixel compounds\\
     1.3.11  & Oct 13, 2008 & Updated to reflect eq::net::Object cleanup\\
     1.3.12  & Oct 16, 2008 & Added \sref{sView}\\
+    1.3.13  & Oct 17, 2008 & Minor update in \sref{sMessagePump}\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -2296,7 +2297,7 @@ windows. Whenever the term \textbf{event thread} is used, it refers to
 the thread receiving the event, i.e., the pipe thread for WGL and GLX,
 and the main thread for AGL.
 
-\subsubsection{Message Pump}
+\subsubsection{\label{sMessagePump}Message Pump}
 
 In order to dispatch events, Equalizer 'pumps' the native events. On
 WGL and GLX, this happens on each thread with windows, whereas on
@@ -2304,10 +2305,16 @@ AGL it happens only on the main thread. By default, Equalizer
 pumps these events automatically for the application in-between
 executing task methods.
 
-The methods \textsf{Client::useMessagePump} and
-\textsf{Pipe::useMessagePump} can be overridden to return \textsf{false}
-to disable this behaviour for their respective threads. On non-threaded
-pipes, \textsf{Pipe::useMessagePump} is not called.
+The method \textsf{Pipe::useMessagePump} can be overridden to return
+\textsf{false} to not enable message dispatch for the respective thread.
+
+The method \textsf{useMessagePump} is called by Equalizer during
+application and pipe thread initialization (before configInit!) to
+determine if the pipe's thread shall automatically dispatch OS
+events. For non-threaded and AGL pipes, the method affects the node
+thread. On WGL and GLX, messages are dispatched in the application and
+each pipe thread. On AGL, events are dispatched only on the application
+thread.
 
 If the application disables message pumping in Equalizer, it has to make
 sure the events are pumped externally, as it often done within external
@@ -3190,6 +3197,10 @@ destination frame buffer using the correct order.
       Orthogonal and Perspective View Frustra}}
 \end{figure}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -3198,10 +3209,6 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 Finding the correct assembly order for perspective frustra is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frustra. For the view and
