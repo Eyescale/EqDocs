@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.13 for Equalizer 0.5.5+svn\\[\medskipamount]
+  Version 1.3.14 for Equalizer 0.5.5+svn\\[\medskipamount]
   \today
 }
 
@@ -123,6 +123,7 @@ recomposition\footnote{Data set courtesy of Stanford University Computer
     1.3.11  & Oct 13, 2008 & Updated to reflect eq::net::Object cleanup\\
     1.3.12  & Oct 16, 2008 & Added \sref{sView}\\
     1.3.13  & Oct 17, 2008 & Minor update in \sref{sMessagePump}\\
+    1.3.14  & Oct 21, 2008 & Improved \sref{sConnectionDescription}\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -3768,16 +3769,20 @@ is used. When no port is specified for a node, a random port will be
 chosen by the operating system. For pre-launched render clients, a port
 has to be specified for the server to find the client node.
 
-The hostname is the IP address or (resolvable) host name. When used for
-the server, the server binds its listening socket only to the specified
-name.
+The hostname is the IP address or (resolvable) host name. A server or
+node may have multiple connection descriptions. 
 
-A server or node may have multiple connection descriptions. A server
-binds to all provided connection descriptions. For a node, all
-connection descriptions are used while trying to establish a connection
-to the node. When auto-launched by the server, all connection
-descriptions are passed to the launched node process, which binds to all
-provided descriptions.
+A server listens on all provided connection descriptions. If no hostname
+is specified for a server connection description, it listens to
+INADDR\_ANY, and is therefore reachable on all interfaces. If the
+server's hostname is specified, the listening socket is bound to this
+address. If any hostname given is not resolvable, or any port can not be
+used, server initialization will fail. 
+
+For a node, all connection descriptions are used while trying to
+establish a connection to the node. When auto-launched by the server,
+all connection descriptions of the node are passed to the launched node
+process, which binds to all provided descriptions.
 
 {\footnotesize\begin{lstlisting}
 server
