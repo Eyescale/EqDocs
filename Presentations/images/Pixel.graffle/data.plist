@@ -260,7 +260,7 @@
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -348,7 +348,7 @@ output frame}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -436,7 +436,7 @@ output frame}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -577,7 +577,7 @@ output frame}</string>
 			<key>Points</key>
 			<array>
 				<string>{120.472, 488.976}</string>
-				<string>{42.5197, 496.063}</string>
+				<string>{42.5196, 496.063}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -724,10 +724,10 @@ output frame}</string>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>0.58660888671875</real>
+			<real>0.58673095703125</real>
 			<key>Points</key>
 			<array>
-				<string>{42.5197, 559.843}</string>
+				<string>{42.5196, 559.843}</string>
 				<string>{120.472, 574.016}</string>
 			</array>
 			<key>Style</key>
@@ -782,7 +782,7 @@ output frame}</string>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>0.58660888671875</real>
+			<real>0.58673095703125</real>
 			<key>Points</key>
 			<array>
 				<string>{198.425, 559.843}</string>
@@ -1391,7 +1391,7 @@ output frame}</string>
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1653,12 +1653,14 @@ wall \{ ... \}\
 		<string>Outline</string>
 		<key>DrawerWidth</key>
 		<real>209</real>
+		<key>FitInWindow</key>
+		<true/>
 		<key>Frame</key>
 		<string>{{466, 0}, {901, 858}}</string>
 		<key>VisibleRegion</key>
-		<string>{{0, 370}, {316.429, 271.429}}</string>
+		<string>{{-272, 0}, {1361.64, 1168}}</string>
 		<key>Zoom</key>
-		<real>4</real>
+		<real>0.9295499324798584</real>
 	</dict>
 </dict>
 </plist>
