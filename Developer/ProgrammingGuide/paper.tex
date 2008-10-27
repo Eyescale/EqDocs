@@ -24,7 +24,7 @@
   \end{figure}
   \vspace{1cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.14 for Equalizer 0.5.5+svn\\[\medskipamount]
+  Version 1.3.15 for Equalizer 0.5.5+svn\\[\medskipamount]
   \today
 }
 
@@ -124,6 +124,7 @@ recomposition\footnote{Data set courtesy of Stanford University Computer
     1.3.12  & Oct 16, 2008 & Added \sref{sView}\\
     1.3.13  & Oct 17, 2008 & Minor update in \sref{sMessagePump}\\
     1.3.14  & Oct 21, 2008 & Improved \sref{sConnectionDescription}\\
+    1.3.15  & Oct 27, 2008 & Added \sref{sDPlex}\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -315,15 +316,15 @@ address different bottlenecks in a flexible way.
 
 \subsection{2D or Sort-First Compounds}
 
+2D decomposes the rendering in screen-space, that is, each contributing
+rendering unit processes a tile of the final view. The recomposition
+simply assembles the tiles side-by-side on the destination view. This
+mode is also known as sort-first or SFR.
+
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/2D.pdf}
   {\caption{\small A 2D compound}}
 \end{wrapfigure}
-2D or sort-first decomposes the rendering in screen-space, that is, each
-contributing rendering unit processes a tile of the final view. The
-recomposition simply assembles the tiles side-by-side on the destination
-view. 
-
 The advantage of this mode is a low, constant IO overhead for the pixel
 transfers, since only color information has to be transmitted. The upper
 limit is the amount of pixel data for the destination view.
@@ -355,9 +356,9 @@ in which case it renders in place and no output frame is needed.
   \includegraphics[width=.618\textwidth]{images/DB.pdf}
   {\caption{\small A database compound}}
 \end{wrapfigure}
-DB or sort-last\footnote{3D model courtesy of AVS, USA.} decomposes the
+DB\footnote{3D model courtesy of AVS, USA.} decomposes the
 rendered database so that all rendering units process a part of the
-scene in parallel.
+scene in parallel. This mode is also known as sort-last.
 
 Volume rendering applications use an ordered alpha-based blending to
 composite the result image. The depth buffer information is used to
@@ -395,17 +396,17 @@ in \sref{sDirectSend}.
 
 \subsection{Stereo Compounds}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/EYE.pdf}
-  {\caption{\small A stereo compound}}
-\end{wrapfigure}
 Stereo compounds\footnote{3D model courtesy of Stereolithography Archive
   at Clemson University.} assign each eye pass to individual rendering
 units. The resulting images are copied to the appropriate stereo
-buffer. This modes supports a variety of stereo modes, including active
+buffer. This mode supports a variety of stereo modes, including active
 (quad-buffered) stereo, anaglyphic stereo and auto-stereo displays with
 multiple eye passes.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/EYE.pdf}
+  {\caption{\small A Stereo compound}}
+\end{wrapfigure}
 Due to the frame consistency between the eye views, this modes scales
 very well. The IO requirements for pixel transfer are small and
 constant.
@@ -422,6 +423,35 @@ parameter, limiting the child to render the \textsf{[ LEFT ]} or
 is connected to an input frame on the destination channel. The
 destination channel can also be used to render an eye pass, in which case
 it renders in the correct stereo buffer and no output frame is needed.
+
+
+\subsection{\label{sDPlex}DPlex Compounds}
+
+DPlex compounds\footnote{3D model courtesy of Cyberware, Inc.} assign
+full, alternating frames to individual rendering units. The resulting
+images are copied to the destination channel, and Equalizer
+load-balancing is used to ensure a steady framerate on the destination
+window. This mode is also known as time-multiplex or AFR.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/DPlex.pdf}
+  {\caption{\small A DPlex compound}}
+\end{wrapfigure}
+
+Due to the frame consistency between consecutive frames, this mode scales
+very well. The IO requirements for pixel transfer are small and
+constant.
+
+DPlex requires a latency of at least n frames. This increased latency
+might be disturbing to the user, but it is often compensated by the
+higher frame rate. The frame rate typically increases linearly with the
+number of source channels, and therefore linearly with the latency.
+
+DPlex compounds in Equalizer are configured using the \textsf{period}
+and \textsf{phase} parameter, limiting each child to render a subset of
+the frames. Each child compound uses an output frame, which is connected
+to an input frame on the destination channel. The destination channel
+uses a DPlex load-balancer to smoothen the framerate.
 
 
 \subsection{Pixel Compounds}
@@ -645,15 +675,15 @@ client nodes at the beginning of each frame.
 Compounds have a frustum description to define the physical layout of
 the display environment. 
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frustra.pdf}
-  {\caption{\small\label{fFrustra}Wall and projection parameters}}
-\end{wrapfigure}
 The frustum description is inherited by the children, therefore the
 frustum is typically defined on the top-most compound. 
 
 The frustrum can be specified as a wall or projection description. 
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frustra.pdf}
+  {\caption{\small\label{fFrustra}Wall and projection parameters}}
+\end{wrapfigure}
 A wall is completely defined by the bottom-left, bottom-right and
 top-left coordinates relative to the origin. 
 
@@ -1333,6 +1363,10 @@ The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
 completion is synchronized afterwards. 
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
+  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
+\end{wrapfigure}
 The tasks are executed by the node and pipe threads in parallel. The
 parent's initialization methods are always executed before any child
 initialization method. This parallelization is necessary to allow a
@@ -1371,10 +1405,6 @@ bool Config::init()
         return false;
 \end{lstlisting}}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
-  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
-\end{wrapfigure}
 If the configuration was initialized correctly, the configuration tries
 to set up a tracking device for head tracking. Equalizer does not
 provide extensive support for tracking devices, as this is an orthogonal
@@ -1781,6 +1811,10 @@ window system used. One can either use the implementation provided by
 the operating system, e.g., AGL, WGL or glX, or some higher-level
 toolkit, e.g., Qt.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/osWindow.pdf}
+  {\caption{\small\label{fOSWindow}eq::OSWindow UML class hierarchy}}
+\end{wrapfigure}
 All window-system specific functionality is implemented by a
 specialization of \textsf{eq::OS\-Window}. The \textsf{OSWindow} class
 defines the minimal interface to be implemented for a new window
@@ -1807,10 +1841,6 @@ initialized successfully, \textsf{configInit} calls
 initialization. The default implementation sets up some typical OpenGL
 state, e.g., it enables the depth test.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/osWindow.pdf}
-  {\caption{\small\label{fOSWindow}eq::OSWindow UML class hierarchy}}
-\end{wrapfigure}
 The \textsf{OSWindow} initialization takes into account various
 attributes set in the configuration file. Attributes include the size of
 the various frame buffer planes (color, alpha, depth, stencil) as well
@@ -2161,11 +2191,6 @@ void Channel::_drawModel( const Model* model )
         
 \end{lstlisting}}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Render Loop}}
-  \vspace{-5ex}
-\end{wrapfigure}
 The model data is spatially organized in an 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
 for efficient view frustum culling. When the model is loaded by
@@ -2176,6 +2201,10 @@ and its right child [0.5, 1], and so on for all nodes in the tree. The
 preprocessed model is saved in a binary format for accelerating
 subsequent loading.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\small\label{fRender}Main Render Loop}}
+\end{wrapfigure}
 The rendering loop maintains a list of candidates to render, which
 initially contains the root node. Each candidate of this list is tested
 for full visiblity against the frustum and range, and rendered if
@@ -2330,6 +2359,10 @@ format. The original native event and this generic \textsf{Event}
 form the \textsf{OSWindowEvent}, which is passed to the concrete
 \textsf{OSWindow} for processing.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
+  {\caption{\small\label{fEventProcessing}Event Processing}}
+\end{wrapfigure}
 The purpose of the \textsf{OSWindow} processing method,
 \textsf{processEvent}, is to perform window-system specific event
 processing. For example, \textsf{AGLWindow::processEvent} calls
@@ -2338,10 +2371,6 @@ further processing, the \textsf{Event} is passed on to
 \textsf{Window::processEvent}. This \textsf{Event} no longer contains
 the native event.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
-  {\caption{\small\label{fEventProcessing}Event Processing}}
-\end{wrapfigure}
 \textsf{Window::processEvent} is responsible for either handling
 the event locally, or for translating it into a generic
 \textsf{ConfigEvent}. The config events are send to the application
@@ -2370,6 +2399,10 @@ events for an \textsf{AGLWindowIF}, \textsf{GLXWindowIF} and
 \textsf{WGLWindowIF}, respectively. \fig{fEventUML} illustrates the
 class hierarchy for event processing.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
+  {\caption{\small\label{fEventUML}UML Diagram for Event Handling Classes}}
+\end{wrapfigure}
 The concrete implementation of these window interfaces is responsible
 for setting up and de-initializing event handling.
 
@@ -2391,10 +2424,6 @@ created using this display connection are automatically received by the
 event handler. No per-window event handling setup needs to be
 done. PBuffers are handled in the same way as window drawables.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
-  {\caption{\small\label{fEventUML}UML Diagram for Event Handling Classes}}
-\end{wrapfigure}
 The glX event handler iterates over all windows of the registered pipe
 to find the originating \textsf{GLXWindowIF}, which is then used to
 process the event in a fashion similar to AGL. The
@@ -2509,6 +2538,10 @@ process and executes the \textsf{main} function. The application and
 render clients initialize the local node for communications with other
 nodes, including the server, using \textsf{Client::initLocal}.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/threads.pdf}
+  {\caption{\small\label{fThreads}Threads within one node process}}
+\end{wrapfigure}
 During this initialization, Equalizer creates and manages two threads
 for communication, the receiver thread and the command thread. Normally
 no application code is executed from these two threads.
@@ -2523,10 +2556,6 @@ the command thread executes application code, for example when a remote
 node maps a static or unbuffered object,
 \textsf{Object::getInstanceData} is called from the command thread.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/threads.pdf}
-  {\caption{\small\label{fThreads}Threads within one node process}}
-\end{wrapfigure}
 The receiver and command thread are terminated when the application
 stops network communications using \textsf{Client::exitLocal}.
 
@@ -2554,10 +2583,6 @@ the node's main thread. The per-node frame synchronization does not
 break the asynchronous execution across nodes. Advanced applications can
 remove the per-node frame synchronization.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
-  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
-\end{wrapfigure}
 The application has extended control over the task synchronization
 during a frame. Upon \textsf{Config::startFrame}, Equalizer invokes the
 \textsf{frameStart} task methods of the various entities. The entities
@@ -2568,6 +2593,10 @@ e.g., \textsf{Window::startFrame}, are currently empty since the
 synchronization is implicit due to the sequential execution within the
 thread.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
+  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
+\end{wrapfigure}
 Each entity uses \textsf{waitFrame\-Started} to block on the parent's
 \textsf{startFrame}, e.g., \textsf{Pipe::\-frame\-Start} calls
 \textsf{Node::wait\-Frame\-Started} to wait for the corresponding
@@ -3045,6 +3074,10 @@ API, the direct send parallel compositing algorithm is introduced in this
 section. Other parallel compositing algorithms, e.g. binary-swap, can
 also be expressed through an Equalizer configuration file.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-1ex}\includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
+\end{wrapfigure}
 The main idea behind direct send is to parallelize the costly
 recomposition for database (sort-last) decomposition. With each
 additional source channel, the amount of pixel data to be composited
@@ -3060,11 +3093,6 @@ the framebuffer pixels for his tile from all the other channels. The
 size of one tile decreases linearly with the number of source channels,
 which keeps the total amount of pixel data per channel constant.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-1ex}\includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
-  \vspace{-2ex}
-\end{wrapfigure}
 After performing the sort-last compositing, the color information is
 transferred to the destination channel, similarly to a 2D (sort-first)
 compound. The amount of pixel data for this part of the compositing
@@ -4000,9 +4028,17 @@ output frames. The viewport restricts the rendering to the area relative
 to the parent compound. The range restricts the database range, relative
 to the parent. The pixel setting selects the pixel decomposition kernel,
 relative to the parent. The eye pass select the mono, left or right eye
-passes rendered by the compound. All these attributes are inherited by
-the children of a compound. Viewport, range and pixel parameters are
+passes rendered by the compound. The DPlex period defines that
+$\frac{1}{period}$ frames are rendered, and the phase defines when in the period
+the rendering starts. All these attributes are inherited by the children
+of a compound. Viewport, range, pixel and period parameters are
 cumulative.
+
+A load-balancer is used to automatically optimize the decomposition. A
+2D, horizontal or vertical load-balancer adapts the viewport of all
+direct children of the compound each frame. A DB load-balancer adapts
+the range of all direct children. A DPlex load-balancer smoothens the
+framerate of the compound's window to produce a steady output framerate.
 
 For a description of compound attributes please refer to \sref{sGlobal}.
 
@@ -4033,6 +4069,14 @@ compound
     range    [ float float ]         // DB-range for sort-last
     pixel    [ int int ]             // pixel decomposition (step size)
     eye      [ CYCLOP LEFT RIGHT ]   // monoscopic or stereo view
+    period   int                     // DPlex period, every nth frame rendered
+    phase    int                     // DPlex phase, when to start rendering
+
+    loadBalancer
+    {
+        mode   2D | HORIZONTAL | VERTICAL | DB | DPLEX
+    }
+
     attributes
     {
         stereo_mode                  QUAD | ANAGLYPH    // default QUAD
