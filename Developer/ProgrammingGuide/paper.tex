@@ -2,6 +2,7 @@
 \documentclass[10pt,a4]{scrartcl}
 
 \usepackage{tabularx,longtable,graphicx,a4,listings,wrapfig,subfigure,textcomp}
+\usepackage[absolute]{textpos}
 
 \ifx\pdfoutput\undefined
   % We're not running pdftex
@@ -18,13 +19,9 @@
 \author{Eyescale Software GmbH}
 
 \date{
-  \vspace{2cm}
-  \begin{figure}[ht]
-    \hspace{-4.5cm}\includegraphics[width=22cm]{images/teaser.pdf}
-  \end{figure}
-  \vspace{1cm}
+  \vspace{15cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.15 for Equalizer 0.5.5+svn\\[\medskipamount]
+  Version 1.3.16 for Equalizer 0.6-RC1\\[\medskipamount]
   \today
 }
 
@@ -49,6 +46,9 @@
 
 \thispagestyle{empty}
 \maketitle
+\begin{textblock}{}(0,5)
+  \hspace{-1cm}\includegraphics[width=22cm]{images/teaser.pdf}
+\end{textblock}
 
 \clearpage
 
@@ -88,7 +88,7 @@ this programming guide, please contact
 
 \vfill
 
-\subsection*{Front Page}
+\subsection*{Front and Back Page}
 
 The images on the front page show the following Equalizer applications:
 a terrain rendering application on a six-node display wall [top left], a
@@ -100,6 +100,10 @@ polygonal renderer in a three-sided CAVE [bottom center], and a six-node
 sort-last database decomposition with parallel direct-send
 recomposition\footnote{Data set courtesy of Stanford University Computer
   Graphics Laboratory} [bottom right].
+
+The images on the back page show the following scalable rendering modes:
+2D (sort-first, SFR), DB (sort-last), stereo, pixel and DPlex
+(time-multiplex, AFR).
 
 \clearpage
 \thispagestyle{empty}
@@ -125,6 +129,7 @@ recomposition\footnote{Data set courtesy of Stanford University Computer
     1.3.13  & Oct 17, 2008 & Minor update in \sref{sMessagePump}\\
     1.3.14  & Oct 21, 2008 & Improved \sref{sConnectionDescription}\\
     1.3.15  & Oct 27, 2008 & Added \sref{sDPlex}\\
+    1.3.16  & Nov 10, 2008 & Updated \sref{sThreadModel}, added back page\\
     \hline
   \end{tabularx}}
 \thispagestyle{empty}
@@ -536,10 +541,6 @@ full list can be found on the website\footnote{see
 
 \subsection{\label{sExecution}Execution Model and Thread Safety}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/model.pdf}
-  {\caption{\small\label{fModel}Simplified execution model}}
-\end{wrapfigure}
 Using threading correctly in OpenGL-based applications is easy with
 Equalizer. Equalizer creates one rendering thread for each graphics
 card. All task methods for a pipe, and therefore all OpenGL commands,
@@ -548,6 +549,10 @@ are executed from this thread. This threading model is the OpenGL
 thread. If structured correctly, the application rarely has to take care
 of thread synchonization or protection of shared data.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/model.pdf}
+  {\caption{\small\label{fModel}Simplified execution model}}
+\end{wrapfigure}
 The main thread is responsible for maintaining the application logic. It
 reacts on user events, updates the data model and requests new frames to
 be rendered. It drives the whole application, as shown in \fig{fModel}.
@@ -567,15 +572,15 @@ Rendering threads on a single node are by default synchronized. When a
 frame is finished, all local rendering threads are done
 drawing. Therefore the application can safely modify the data between
 the end of a frame and the beginning of a new frame. Furthermore, only
-one instance of the application data has to be maintained within a
-process since all rendering threads are guaranteed to draw the same frame.
+one instance of the scene data has to be maintained within a process
+since all rendering threads are guaranteed to draw the same frame.
 
 This per-node frame synchronization does not inhibit latency across
 rendering nodes. Furthermore, advanced rendering software which
 multi-buffers the dynamic parts of the database can disable the per-node
-frame synchronization, as explained in \sref{sNodeFrame}. Some scene
-graphs for example do implement multi-buffered data, and can profit from
-relaxing the frame synchronization.
+frame synchronization, as explained in \sref{sThreadModel}. Some scene
+graphs implement multi-buffered data, and can profit from relaxing the
+frame synchronization.
 
 
 
@@ -1003,7 +1008,7 @@ completion of all local rendering tasks for the current frame. This
 facilitates porting of exising rendering codes, since the database does
 not have to be multi-buffered. Applications such as \textsf{eqPly}, which
 do not need this per-node frame synchronization can disable it, as
-explained in \sref{sNodeFrame}.
+explained in \sref{sThreadModel}.
 
 \begin{figure}[ht!]\center
   \includegraphics[width=\textwidth]{images/syncAsync}
@@ -2524,12 +2529,9 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 Equalizer applications use multiple, asynchronous execution threads. The
 default execution model is focused on making the porting of existing
 applications as easy as possible, as described in \sref{sExecution}. The
-default, per-node thread synchronization provided by Equalizer can
-gradually be relaxed by advanced applications to gain better performance
-through higher asynchronicity.
-
-This section explains the multi-threading in Equalizer in detail and
-gives advice on how to optimize applications for performance.
+default, per-node thread synchronization provided by Equalizer can be
+relaxed by advanced applications to gain better performance through
+higher asynchronicity.
 
 \subsubsection{Threads}
 
@@ -2567,21 +2569,52 @@ threads are terminated during \textsf{Config::exit}.
 The rest of this section discusses the thread synchronization between
 the main thread and the pipe threads.
 
+\subsubsection{\label{sThreadModel}Thread Synchronization Models}
+Equalizer supports three threading models, which can be set
+programmatically by the application or through the configuration file
+format. Applications typically hard-code their threading model. The file
+format is commonly used to change the threading model for benchmarking
+and experimentation.
 
-\subsubsection{\label{sNodeFrame}Thread Synchronization Model}
+The following thread synchronization models are implemented:
+\begin{description}
+\item[ASYNC:] No synchronization happens between render threads, except
+  for synchonizing the finish of frame \textsf{current-latency}. The
+  \textsf{eqPly} and \textsf{eVolve} Equalizer examples use this
+  threading model, by setting it in \textsf{Node::configInit}. This
+  synchonization model provides the best performance and should be used
+  by all applications which multi-buffer all non-static, frame-specific
+  data.
+\item[DRAW\_SYNC:] In addition to async thread model, all local render
+  threads are synchronized, so that the draw operations happen
+  synchronously with the node main loop. This model allows to use the
+  same database for rendering, and safe modifications of this database
+  are possible from the node thread, since the pipe threads do not
+  execute any rendering tasks between frames. This is the default
+  threading model. This threading model should be used by applications
+  which keep one copy of the scene graph per node.
+\item[LOCAL\_SYNC:] In addition to the async threas model, all local
+  frame operations, including readback, assemble and swap buffer are
+  synchronized with the node main loop. This threading model should be
+  used by applications which need to access non-buffered, frame-specific
+  data after rendering, e.g., during \textsf{Channel::frameAssemble}.
+\end{description}
 
-The node main thread and the pipe threads are synchronized with each
-other, so that all draw task methods of one rendered frame are executed
-at the same time. This model allows to use the same database for
-rendering, and safe modifications of this database are possible from the
-node thread, since the pipe threads do not execute any rendering tasks
-between frames.
+\begin{figure}[ht!]\center
+  \includegraphics[width=.9\textwidth]{images/threadModels.pdf}
+  {\caption{\small\label{fThreadModels}Async, draw\_sync and local\_sync
+    thread sunchronization models}}
+\end{figure}
 
-Please note that the default thread synchronization synchronizes all
-\textsf{Channel::frame\-Draw} operations on a \textbf{single} node with
-the node's main thread. The per-node frame synchronization does not
-break the asynchronous execution across nodes. Advanced applications can
-remove the per-node frame synchronization.
+\fig{fThreadModels} illustrates the synchronization and task execution
+for the thread synchronization models. Please note that the thread
+synchronization synchronizes all pipe render threads on a
+\textbf{single} node with the node's main thread. The per-node frame
+synchronization does not break the asynchronous execution across
+nodes.
+
+
+\subsubsection{Thread Synchronization in Detail}
 
 The application has extended control over the task synchronization
 during a frame. Upon \textsf{Config::startFrame}, Equalizer invokes the
@@ -2593,10 +2626,6 @@ e.g., \textsf{Window::startFrame}, are currently empty since the
 synchronization is implicit due to the sequential execution within the
 thread.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
-  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
-\end{wrapfigure}
 Each entity uses \textsf{waitFrame\-Started} to block on the parent's
 \textsf{startFrame}, e.g., \textsf{Pipe::\-frame\-Start} calls
 \textsf{Node::wait\-Frame\-Started} to wait for the corresponding
@@ -2612,19 +2641,20 @@ set synchronizes the global execution.
 
 The local synchronization consists of \textsf{releaseFrameLocal} to
 unlock the local frame, and of \textsf{waitFrameLocal} to wait for the
-unlock. For the default synchronization model, Equalizer uses the task
-method \textsf{frameDrawFinish} which is called on each resource
-after the last \textsf{Channel::frameDraw} invocation for this
-frame. Consequently, \textsf{Pipe::frameDrawFinish} calls
-\textsf{Pipe::releaseFrame\-Lo\-cal} to signal that it is done drawing the
-current frame, and \textsf{Node::frameDrawFinish} calls
+unlock. For the default synchronization model \textsf{sync\_draw},
+Equalizer uses the task method \textsf{frameDrawFinish} which is called
+on each resource after the last \textsf{Channel::frameDraw} invocation
+for this frame. Consequently, \textsf{Pipe::frameDraw\-Fi\-nish} calls
+\textsf{Pipe::\-release\-Frame\-Lo\-cal} to signal that it is done
+drawing the current frame, and \textsf{Node::frameDrawFinish} calls
 \textsf{Pipe::waitFrameLocal} for each of its pipes to block the node
-thread until the current frame has been drawn. 
+thread until the current frame has been drawn.
 
-\fig{fFrameSync} illustrates the local frame synchronization. By
-removing the calls to \textsf{waitFrameLocal}, the node thread can
-disable the synchronization with the pipe threads, which causes the node
-operations to overlap with the rendering.
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
+  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
+\end{wrapfigure}
+\fig{fFrameSync} illustrates the local frame synchronization.
 
 The second, global synchronization is used for the frame completion
 during \textsf{Config::finishFrame}, which causes \textsf{frameFinish}
@@ -2642,27 +2672,16 @@ invoked, which is synchronized internally. Once all
 \end{figure}
 
 \fig{fMainLoop} outlines the synchronization for the application, node
-and pipe classes for an application node and one render client. Please
-note that \textsf{Config::finishFrame} does block until the current
-frame has been released locally and until the frame \textsf{current -
-  latency} has been released by all nodes. The window and channel
-synchronization are similar and omitted for simplicity.
+and pipe classes for an application node and one render client when
+using the default \textsf{draw\_sync} thread model. Please note that
+\textsf{Config::finishFrame} does block until the current frame has been
+released locally and until the frame \textsf{current - latency} has been
+released by all nodes. The window and channel synchronization are
+similar and omitted for simplicity.
 
 It is absolutely vital for the execution that \textsf{Node::start\-Fra\-me}
 and \textsf{Node::release\-Fra\-me} are called, respectively. The default
-implementation of the node task methods does take care of that.
-
-Since \textsf{eqPly} multi-buffers all dynamic data, it completely
-removes frame synchronization by:
-
-\begin{itemize}
-\item releasing the local synchronization early in \textsf{Node::frameStart}
-\item not waiting for the node to start the frame by not calling
-  \textsf{Node::waitFrame\-Star\-ted} in \textsf{Pipe::frameStart}
-\item not waiting for the pipe synchronization in
-  \textsf{Node::frameDrawFinish} by not calling \textsf{Pipe::waitFrameLocal}
-\end{itemize}
-
+implementations of the node task methods do take care of that.
 
 
 \subsection{OpenGL Extension Handling}
@@ -3074,10 +3093,6 @@ API, the direct send parallel compositing algorithm is introduced in this
 section. Other parallel compositing algorithms, e.g. binary-swap, can
 also be expressed through an Equalizer configuration file.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-1ex}\includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
-\end{wrapfigure}
 The main idea behind direct send is to parallelize the costly
 recomposition for database (sort-last) decomposition. With each
 additional source channel, the amount of pixel data to be composited
@@ -3098,6 +3113,11 @@ transferred to the destination channel, similarly to a 2D (sort-first)
 compound. The amount of pixel data for this part of the compositing
 pipeline also approaches a constant value, i.e., the full frame buffer.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
+  \vspace{-4ex}
+\end{wrapfigure}
 \fig{fDirectSend} illustrates this algorithm for three channels. The
 Equalizer website contains a
 presentation\footnote{\link{http://www.equalizergraphics.com/documents/EGPGV07.pdf}}
@@ -3520,6 +3540,16 @@ name followed by its value. The following attributes are available:
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
+  \textbf{Name} & EQ\_NODE\_IATTR\_THREAD\_MODEL\\
+  \textbf{Value} & ASYNC \textbar \ DRAW\_SYNC \textbar \ LOCAL\_SYNC\\
+  \textbf{Default} & DRAW\_SYNC\\
+  \textbf{Details} & The threading model for node synchronization. See 
+  \sref{sThreadModel} for details.\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
   \textbf{Name} & EQ\_PIPE\_IATTR\_HINT\_THREAD\\
   \textbf{Value} & OFF \textbar \ ON\\
   \textbf{Default} & ON\\
@@ -3864,8 +3894,8 @@ config
 A node represents a machine in the cluster, and is one process. It has a
 name, a number of connection descriptions and at least one pipe. The
 name of the node can be used for debugging, it has no influence on the
-execution of Equalizer. For a description of connection attributes
-please refer to \sref{sGlobal}.
+execution of Equalizer. For a description of node and connection
+attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\begin{lstlisting}
 node
@@ -3879,6 +3909,10 @@ node
         command       string      // render client launch command
         command_quote 'character' // launch command argument quote char
         timeout       unsigned    // timeout in milliseconds for launch
+    }
+    attributes
+    {
+        thread_model ASYNC | DRAW_SYNC | LOCAL_SYNC
     }
     pipe {...} // 1-n times
 }
@@ -4121,5 +4155,11 @@ compound
 {\footnotesize\begin{lstlisting}
 \end{lstlisting}}
 \fi
+
+\cleardoublepage
+\thispagestyle{empty}
+\begin{textblock}{}(0,5)
+  \hspace{-1cm}\includegraphics[width=22cm]{images/teaserBack.pdf}
+\end{textblock}
 
 \end{document}
