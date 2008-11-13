@@ -21,7 +21,7 @@
 \date{
   \vspace{15cm}
 %  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.16 for Equalizer 0.6-RC1\\[\medskipamount]
+  Version 1.3.17 for Equalizer 0.6-RC1\\[\medskipamount]
   \today
 }
 
@@ -44,7 +44,7 @@
 \vfill
 \lstset{language=C++}
 
-\thispagestyle{empty}
+\pagestyle{empty}
 \maketitle
 \begin{textblock}{}(0,5)
   \hspace{-1cm}\includegraphics[width=22cm]{images/teaser.pdf}
@@ -52,8 +52,7 @@
 
 \clearpage
 
-\thispagestyle{empty}
-\section*{Equalizer 0.5 Programming Guide}
+\section*{Equalizer 0.6 Programming Guide}
 \subsection*{Contributors}
 
 Written by Stefan Eilemann.\\
@@ -106,8 +105,8 @@ The images on the back page show the following scalable rendering modes:
 (time-multiplex, AFR).
 
 \clearpage
-\thispagestyle{empty}
 \tableofcontents
+\listoffigures
 \vfill{\center\begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
     \bf Rev & \bf Date     & \bf Changes \\
@@ -130,12 +129,13 @@ The images on the back page show the following scalable rendering modes:
     1.3.14  & Oct 21, 2008 & Improved \sref{sConnectionDescription}\\
     1.3.15  & Oct 27, 2008 & Added \sref{sDPlex}\\
     1.3.16  & Nov 10, 2008 & Updated \sref{sThreadModel}, added back page\\
+    1.3.17  & Nov 13, 2008 & Added \sref{sLoadBalancing} and \sref{sAdvDPlex}, final touches\\
     \hline
   \end{tabularx}}
-\thispagestyle{empty}
 \clearpage
 
 \pagenumbering{arabic}
+\pagestyle{headings}
 
 \section{Introduction}
 
@@ -512,6 +512,34 @@ therefore not be rendered in place, like with the other compound modes.
 \end{figure}
 
 
+\subsection{\label{sLoadBalancing}Load-Balancing}
+
+\begin{wrapfigure}{r}{.382\textwidth}
+  \vspace{-2ex}\includegraphics[width=.382\textwidth]{images/lb.pdf}
+  {\caption{\label{fLoadBalancing}\small Static 2D compound vs 2D
+      load-balancing}}
+\end{wrapfigure}
+While pixel and stereo compounds are naturally load-balanced, 2D, DB and
+DPlex compounds might need load-balancing to provide optimal
+performance.
+
+Equalizer provides automatic, application-transparent load-balancing for
+2D and DB compounds. Using an appropriate load-balancer for these
+compounds will adapt the 2D split or database range each frame. The
+current load-balancing algorithm is a technology preview and will
+improve in future versions. 
+
+2D load-balancing gives better framerates than static decomposition in
+virtually all cases. DB load-balancing is benefitial for applications
+which can not precisely predict the load for their scene data. Volume
+rendering is a counter-example, where the data is uniform and a static
+DB decomposition typically results in a better performance.
+
+DPlex compounds require a smoothing of the framerate at the destination
+channel, otherwise the framerate will become periodically faster and
+slower. Using a DPlex load-balancer will smoothen the swap buffer rate
+on the destination channel for optimal user experience.
+
 \section{The Programming Interface}
 
 Equalizer uses a C++ programming interface. The API is minimally
@@ -541,6 +569,10 @@ full list can be found on the website\footnote{see
 
 \subsection{\label{sExecution}Execution Model and Thread Safety}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/model.pdf}
+  {\caption{\small\label{fModel}Simplified execution model}}
+\end{wrapfigure}
 Using threading correctly in OpenGL-based applications is easy with
 Equalizer. Equalizer creates one rendering thread for each graphics
 card. All task methods for a pipe, and therefore all OpenGL commands,
@@ -549,10 +581,6 @@ are executed from this thread. This threading model is the OpenGL
 thread. If structured correctly, the application rarely has to take care
 of thread synchonization or protection of shared data.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/model.pdf}
-  {\caption{\small\label{fModel}Simplified execution model}}
-\end{wrapfigure}
 The main thread is responsible for maintaining the application logic. It
 reacts on user events, updates the data model and requests new frames to
 be rendered. It drives the whole application, as shown in \fig{fModel}.
@@ -680,15 +708,15 @@ client nodes at the beginning of each frame.
 Compounds have a frustum description to define the physical layout of
 the display environment. 
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frustra.pdf}
+  {\caption{\small\label{fFrustra}Wall and projection parameters}}
+\end{wrapfigure}
 The frustum description is inherited by the children, therefore the
 frustum is typically defined on the top-most compound. 
 
 The frustrum can be specified as a wall or projection description. 
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frustra.pdf}
-  {\caption{\small\label{fFrustra}Wall and projection parameters}}
-\end{wrapfigure}
 A wall is completely defined by the bottom-left, bottom-right and
 top-left coordinates relative to the origin. 
 
@@ -1368,10 +1396,6 @@ The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
 completion is synchronized afterwards. 
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
-  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
-\end{wrapfigure}
 The tasks are executed by the node and pipe threads in parallel. The
 parent's initialization methods are always executed before any child
 initialization method. This parallelization is necessary to allow a
@@ -1379,6 +1403,10 @@ speedy startup of the configuration on large-scale graphics clusters. On
 the other hand, it means that initialization functions are called even
 if the parent's initialization has failed.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
+  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
+\end{wrapfigure}
 The \textsf{eqPly::Config} class holds the master versions of the
 initialization and frame data. Both objects are registered with the
 \textsf{eq::Config}, which is the \textsf{eq::net::Session} used for
@@ -2196,6 +2224,10 @@ void Channel::_drawModel( const Model* model )
         
 \end{lstlisting}}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\small\label{fRender}Main Render Loop}}\vspace{-5ex}
+\end{wrapfigure}
 The model data is spatially organized in an 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
 for efficient view frustum culling. When the model is loaded by
@@ -2206,10 +2238,6 @@ and its right child [0.5, 1], and so on for all nodes in the tree. The
 preprocessed model is saved in a binary format for accelerating
 subsequent loading.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Render Loop}}
-\end{wrapfigure}
 The rendering loop maintains a list of candidates to render, which
 initially contains the root node. Each candidate of this list is tested
 for full visiblity against the frustum and range, and rendered if
@@ -2404,10 +2432,6 @@ events for an \textsf{AGLWindowIF}, \textsf{GLXWindowIF} and
 \textsf{WGLWindowIF}, respectively. \fig{fEventUML} illustrates the
 class hierarchy for event processing.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
-  {\caption{\small\label{fEventUML}UML Diagram for Event Handling Classes}}
-\end{wrapfigure}
 The concrete implementation of these window interfaces is responsible
 for setting up and de-initializing event handling.
 
@@ -2429,6 +2453,10 @@ created using this display connection are automatically received by the
 event handler. No per-window event handling setup needs to be
 done. PBuffers are handled in the same way as window drawables.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
+  {\caption{\small\label{fEventUML}UML Diagram for Event Handling Classes}}
+\end{wrapfigure}
 The glX event handler iterates over all windows of the registered pipe
 to find the originating \textsf{GLXWindowIF}, which is then used to
 process the event in a fashion similar to AGL. The
@@ -2540,10 +2568,6 @@ process and executes the \textsf{main} function. The application and
 render clients initialize the local node for communications with other
 nodes, including the server, using \textsf{Client::initLocal}.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/threads.pdf}
-  {\caption{\small\label{fThreads}Threads within one node process}}
-\end{wrapfigure}
 During this initialization, Equalizer creates and manages two threads
 for communication, the receiver thread and the command thread. Normally
 no application code is executed from these two threads.
@@ -2558,6 +2582,10 @@ the command thread executes application code, for example when a remote
 node maps a static or unbuffered object,
 \textsf{Object::getInstanceData} is called from the command thread.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/threads.pdf}
+  {\caption{\small\label{fThreads}Threads within one node process}}
+\end{wrapfigure}
 The receiver and command thread are terminated when the application
 stops network communications using \textsf{Client::exitLocal}.
 
@@ -2568,6 +2596,7 @@ threads are terminated during \textsf{Config::exit}.
 
 The rest of this section discusses the thread synchronization between
 the main thread and the pipe threads.
+
 
 \subsubsection{\label{sThreadModel}Thread Synchronization Models}
 Equalizer supports three threading models, which can be set
@@ -2614,6 +2643,36 @@ synchronization does not break the asynchronous execution across
 nodes.
 
 
+\subsubsection{\label{sAdvDPlex}DPlex Compounds}
+
+DPlex decomposition requires multiple frames to be rendered
+concurrently. Applications using the thread synchronization models
+\textsf{draw\_sync} (the default) or \textsf{local\_sync} have to use
+one render client process per GPU to benefit from DPlex task
+decomposition.
+
+Non-threaded pipes should not be used for DPlex source and destination
+channels. Applications using the \textsf{local\_sync} thread model can
+not benefit from DPlex if the application node uses a DPlex source or
+destination channel.
+
+Applications using the \textsf{async} thread synchronization model can
+fully profit from DPlex using multiple render threads on a multi-GPU
+system. For these applications, all render threads run asynchronously
+and can render different frames at the same time.
+
+Synchronizing the draw operations between multiple pipe render threads,
+and potentially the application thread, breaks DPlex decomposition. At
+any given time, only one frame can be rendered from the same
+process. The speed-up of DPlex relies however on the capability to
+render different frames concurrently.
+
+If one process per GPU is configured, draw-synchronous applications can
+scale the performance using DPlex compounds. The processes are not
+synchronized with each other, since each process keeps its own version
+of the scene data.
+
+
 \subsubsection{Thread Synchronization in Detail}
 
 The application has extended control over the task synchronization
@@ -2639,6 +2698,10 @@ At the end of the frame, two similar sets of synchronization methods are
 used. The first set synchronizes the local execution, while the second
 set synchronizes the global execution.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
+  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
+\end{wrapfigure}
 The local synchronization consists of \textsf{releaseFrameLocal} to
 unlock the local frame, and of \textsf{waitFrameLocal} to wait for the
 unlock. For the default synchronization model \textsf{sync\_draw},
@@ -2650,10 +2713,6 @@ drawing the current frame, and \textsf{Node::frameDrawFinish} calls
 \textsf{Pipe::waitFrameLocal} for each of its pipes to block the node
 thread until the current frame has been drawn.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
-  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
-\end{wrapfigure}
 \fig{fFrameSync} illustrates the local frame synchronization.
 
 The second, global synchronization is used for the frame completion
@@ -3201,8 +3260,7 @@ together to produce the final image, as shown in
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\small\label{fSlices}Blending Slices in 3D-Texture-based
-      Volume Rendering}}
+  {\caption{\small\label{fSlices}Volume Rendering using 3D Textures}}
 \end{wrapfigure}
 When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
@@ -3228,6 +3286,10 @@ amount of texture memory needed for each node decreases linearly, they
 make it possible to render data sets which are not feasible to
 visualize with any other approach.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 For recomposition, the 2D frame buffer contents are blended together to
 form a seamless picture. For correct blending, the frames are ordered in
 the same back-to-front order as the slices used for rendering, and use the
@@ -3235,21 +3297,6 @@ same blending parameters. Simplified, the frame buffer images are
 `thick' slices which are `rendered' by writing their content to the
 destination frame buffer using the correct order. 
 
-\begin{figure}[h!t]
-  \subfigure[]{\label{fBlendOrtho}
-    \includegraphics[width=.45\textwidth]{images/b2f_ortho.pdf}
-  }\hfil
-  \subfigure[]{\label{fBlendPerspective}
-    \includegraphics[width=.55\textwidth]{images/b2f_perspective.pdf}
-  }%
-  {\caption{\small\label{fBlend}Back-to-Front Com\-po\-siting for
-      Orthogonal and Perspective View Frustra}}
-\end{figure}
-
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -3264,6 +3311,17 @@ criteria like the one used for orthographic frustra. For the view and
 frustum setup shown in \fig{fBlendPerspective}\footnote{Volume Data Set
   courtesy of: AVS, USA} the correct compositing order is 4-3-1-2 or
 1-4-3-2.
+
+\begin{figure}[h!t]
+  \subfigure[]{\label{fBlendOrtho}
+    \includegraphics[width=.45\textwidth]{images/b2f_ortho.pdf}
+  }\hfil
+  \subfigure[]{\label{fBlendPerspective}
+    \includegraphics[width=.55\textwidth]{images/b2f_perspective.pdf}
+  }%
+  {\caption{\small\label{fBlend}Back-to-Front Com\-po\-siting for
+      Orthogonal and Perspective View Frustra}}
+\end{figure}
 
 In order to compute the assembly order, \textsf{eVolve} uses the angle
 between the $origin \rightarrow slice$ vector and the near plane, as shown
@@ -4157,7 +4215,7 @@ compound
 \fi
 
 \cleardoublepage
-\thispagestyle{empty}
+\pagestyle{empty}
 \begin{textblock}{}(0,5)
   \hspace{-1cm}\includegraphics[width=22cm]{images/teaserBack.pdf}
 \end{textblock}
