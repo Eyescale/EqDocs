@@ -162,7 +162,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2008-10-31 18:20:43 +0100</string>
+	<string>2008-11-01 17:14:07 +0100</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -794,7 +794,7 @@ output frame}</string>
 							<key>Points</key>
 							<array>
 								<string>{134.645, 205.512}</string>
-								<string>{56.693, 212.599}</string>
+								<string>{56.6929, 212.599}</string>
 							</array>
 							<key>Style</key>
 							<dict>
@@ -935,7 +935,7 @@ output frame}</string>
 							<real>-1</real>
 							<key>Points</key>
 							<array>
-								<string>{134.646, 276.377}</string>
+								<string>{134.646, 276.378}</string>
 								<string>{85.0399, 311.812}</string>
 							</array>
 							<key>Style</key>
@@ -986,7 +986,7 @@ output frame}</string>
 							<real>-1</real>
 							<key>Points</key>
 							<array>
-								<string>{212.598, 276.377}</string>
+								<string>{212.598, 276.378}</string>
 								<string>{85.0399, 318.898}</string>
 							</array>
 							<key>Style</key>
@@ -6618,13 +6618,13 @@ Contributors
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa320\qc\pardirnatural
 
-\f0\b\fs24 \cf0 \expnd0\expndtw0\kerning0
+\f0\b\fs24 \cf1 \expnd0\expndtw0\kerning0
 Scalability
 \f1\b0\fs20 \expnd0\expndtw0\kerning0
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qj\pardirnatural
-\cf0 \expnd0\expndtw0\kerning0
-Applications build with Equalizer are scalable, using multiple graphics cards, processors and computers to render a single or multiple views. The application is rendering in parallel at the optimal performance, in contrast to other solutions which operate on the OpenGL command stream.\
+\cf1 \expnd0\expndtw0\kerning0
+Applications build with Equalizer are scalable, using multiple graphics cards, processors and computers to render a single or multiple views. The application's rendering code is parallelized, in contrast to other solutions which operate on the OpenGL command stream produced by a single application thread.\
 Equalizer provides a comprehensive set of algorithms to parallelize and load-balance the rendering of demanding data sets. The rendering is distributed across all available resources (decomposition) and the results are assembled on the final view (recomposition).\
 Equalizer supports screen-space, database, time-multiplex, pixel and stereo task distribution.}</string>
 					</dict>
@@ -7639,9 +7639,8 @@ use passive or active stereo rendering with head tracking, both supported by Equ
 Scalable Rendering
 \b0 \expnd0\expndtw0\kerning0
  aggregates multiple graphics cards, processors and potentially computers to render more data faster.\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qj\pardirnatural
 
-\b \cf0 \expnd0\expndtw0\kerning0
+\b \expnd0\expndtw0\kerning0
 Multi-GPU Workstations
 \b0 \expnd0\expndtw0\kerning0
  are an affordable way to scale the rendering performance and display size. Equalizer applications can exploit multiple processors and graphics cards by running multiple rendering threads on a single computer.}</string>
@@ -7753,9 +7752,8 @@ Features
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qj\pardirnatural
 \cf0 \expnd0\expndtw0\kerning0
 \
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\sa80\qj\pardirnatural
 
-\b \cf0 \expnd0\expndtw0\kerning0
+\b \expnd0\expndtw0\kerning0
 Runtime Configurability:
 \b0 \expnd0\expndtw0\kerning0
  An Equalizer application can run optimally on any configuration, from laptops to large scale visualization clusters. The application is configured flexibly at runtime using a simple configu-ration file.\
@@ -8635,7 +8633,7 @@ Feature-Rich Framework:
 	<key>WindowInfo</key>
 	<dict>
 		<key>CurrentSheet</key>
-		<integer>0</integer>
+		<integer>1</integer>
 		<key>DrawerOpen</key>
 		<true/>
 		<key>DrawerTab</key>
@@ -8645,11 +8643,11 @@ Feature-Rich Framework:
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{273, 32}, {915, 746}}</string>
+		<string>{{345, 281}, {555, 477}}</string>
 		<key>VisibleRegion</key>
-		<string>{{0, -9.00001}, {839, 603.148}}</string>
+		<string>{{0, -1}, {838, 588.152}}</string>
 		<key>Zoom</key>
-		<real>1.0995244979858398</real>
+		<real>0.66050195693969727</real>
 	</dict>
 </dict>
 </plist>
