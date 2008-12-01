@@ -20,9 +20,11 @@
 
 \date{
   \vspace{15cm}
-%  \textbf{RELEASE CANDIDATE}\\[\medskipamount]
-  Version 1.3.17 for Equalizer 0.6-RC1\\[\medskipamount]
-  \today
+  {\Large\sffamily The official reference for creating parallel,
+    scalable OpenGL\texttrademark\ applications with the Equalizer
+    parallel rendering framework}\\\vspace{1cm}
+  Version 1.4 for Equalizer 0.6\\[\medskipamount]
+%  \today
 }
 
 \newcommand{\tm}{\texttrademark~}
@@ -40,19 +42,18 @@
 
 \begin{document}
 
-\maketitle
-\vfill
-\lstset{language=C++}
-
 \pagestyle{empty}
 \maketitle
-\begin{textblock}{}(0,5)
+\thispagestyle{empty}
+\begin{textblock}{}(0,4.5)
   \hspace{-1cm}\includegraphics[width=22cm]{images/teaser.pdf}
 \end{textblock}
 
 \clearpage
 
+\lstset{language=C++}
 \section*{Equalizer 0.6 Programming Guide}
+\today
 \subsection*{Contributors}
 
 Written by Stefan Eilemann.\\
@@ -89,22 +90,24 @@ this programming guide, please contact
 
 \subsection*{Front and Back Page}
 
-The images on the front page show the following Equalizer applications:
-a terrain rendering application on a six-node display wall [top left], a
-flow visualization application for climate research\footnote{Image
-  courtesy of Computer Graphics and Multimedia Systems, University of
-  Siegen}, the \textsf{eVolve} volume renderer\footnote{Data set
-  courtesy of General Electric, USA} [bottom left] the \textsf{eqPly}
-polygonal renderer in a three-sided CAVE [bottom center], and a six-node
-sort-last database decomposition with parallel direct-send
-recomposition\footnote{Data set courtesy of Stanford University Computer
-  Graphics Laboratory} [bottom right].
+The images on the front page show the following applications build using
+Equalizer: RTT DeltaGen\footnote{Image copyright Realtime Technology AG,
+  2008} [top left], a flow visualization application for climate
+research\footnote{Image courtesy of Computer Graphics and Multimedia
+  Systems, University of Siegen}, the \textsf{eVolve} volume
+renderer\footnote{Data set courtesy of General Electric, USA} [bottom
+left] the \textsf{eqPly} polygonal renderer in a three-sided CAVE
+[bottom center], and a six-node sort-last database decomposition with
+parallel direct-send recomposition\footnote{Data set courtesy of
+  Stanford University Computer Graphics Laboratory} [bottom right].
 
 The images on the back page show the following scalable rendering modes:
 2D (sort-first, SFR), DB (sort-last), stereo, pixel and DPlex
 (time-multiplex, AFR).
 
 \clearpage
+\pagenumbering{roman}
+\pagestyle{headings}
 \tableofcontents
 \listoffigures
 \vfill{\center\begin{tabularx}{\textwidth}{|l|l|X|}
@@ -112,24 +115,8 @@ The images on the back page show the following scalable rendering modes:
     \bf Rev & \bf Date     & \bf Changes \\
     \hline
     1.0     & Oct 28, 2007 & Initial Version for Equalizer 0.4\\
-    1.2     & Apr 15, 2008 & Version for Equalizer 0.5\\
-    1.3.1   & May 02, 2008 & Add \sref{sStatistics}, improved images based on 1.2 print\\
-    1.3.2   & May 05, 2008 & Add network distribution on eqPly model data\\
-    1.3.3   & May 10-19, 2008 & add \aref{aFileFormat}\\
-    1.3.4   & July 3, 2008 & Update \sref{sStatistics}\\
-    1.3.5   & July 7, 2008 & Update after namespace naming cleanup\\
-    1.3.6   & July 20, 2008 & Add accum and samples to \aref{aFileFormat}, add \sref{sDrawableConfig}\\
-    1.3.7   & Aug 22, 2008 & Update \sref{sEqplyWIndow} with OSWindow changes\\
-    1.3.8   & Aug 25, 2008 & Update \sref{sEventHandling} with OSWindow changes\\
-    1.3.9   & Aug 29, 2008 & Update \sref{sEventHandling}: event handling cleanup\\
-    1.3.10  & Oct 7, 2008  & Updated to reflect 2D pixel compounds\\
-    1.3.11  & Oct 13, 2008 & Updated to reflect eq::net::Object cleanup\\
-    1.3.12  & Oct 16, 2008 & Added \sref{sView}\\
-    1.3.13  & Oct 17, 2008 & Minor update in \sref{sMessagePump}\\
-    1.3.14  & Oct 21, 2008 & Improved \sref{sConnectionDescription}\\
-    1.3.15  & Oct 27, 2008 & Added \sref{sDPlex}\\
-    1.3.16  & Nov 10, 2008 & Updated \sref{sThreadModel}, added back page\\
-    1.3.17  & Nov 13, 2008 & Added \sref{sLoadBalancing} and \sref{sAdvDPlex}, final touches\\
+    1.2     & Apr 15, 2008 & Revision for Equalizer 0.5\\
+    1.4     & Nov 25, 2008 & Revision for Equalizer 0.6\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -146,19 +133,24 @@ large-scale graphics clusters. This Programming Guide introduces the
 programming interface, often using the Equalizer example \textsf{eqPly}
 as a guideline.
 
+Equalizer is used for scientific simulation visualization at various
+research institutes, for creating electronic art exhibitions as well as
+in commercial 3D design applications.
+
 Equalizer is the next step in the evolution of generic parallel programming
 interfaces for OpenGL-based visualization applications. Existing
 solutions, such as OpenGL Multipipe SDK, Cavelib and VRJuggler,
 implement a subset of concepts similar to Equalizer. In other areas,
 e.g., tracking device support, they provide more functionality.
 
-In order to adapt an application for Equalizer, the programmer
-structures the source code so that the OpenGL rendering can be executed
-in parallel, potentially using multiple processes for cluster-based
-execution. Equalizer provides the domain-specific parallel rendering
-know-how and abstracts configuration, threading, synchronization,
-windowing and event handling. It is a `GLUT on steroids', providing
-parallel and distributed execution, scalable rendering features and
+To adapt an application for Equalizer, the programmer structures the
+source code so that the OpenGL rendering can be executed in parallel,
+potentially using multiple processes for cluster-based execution.
+
+Equalizer provides the domain-specific parallel rendering know-how and
+abstracts configuration, threading, synchronization, windowing and event
+handling. It is a `GLUT on steroids', providing parallel and distributed
+execution, scalable rendering features, network data distribution and
 fully customizable event handling.
 
 If you have any question regarding Equalizer programming, this
@@ -167,8 +159,24 @@ direct them to the \textsf{eq-dev} mailing
 list\footnote{\link{http://www.equalizergraphics.com/lists.html}}.
 
 
+\subsection{Parallel Rendering}
 
-\section{Getting Started}
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-1ex}\includegraphics[width=.618\textwidth]{images/executionFlow.pdf}
+  {\caption{\small\label{fExecutionFlow}Parallel Rendering}}\vspace{-2ex}
+\end{wrapfigure}
+
+\fig{fExecutionFlow} illustrates the basic principle of any parallel
+rendering application. The typical OpenGL application, for example
+GLUT-based applications, has an event loop which redraws the scene,
+updates data based on received events, and eventually redraws a new
+frame.
+
+A parallel rendering application uses the same basic execution model and
+extends it by separating the rendering code from the main event
+loop. The rendering code is then executed in parallel on different
+resources. This model is naturally followed by Equalizer, thus making
+application development as easy as possible.
 
 
 \subsection{Installing Equalizer and running \textsf{eqPly}}
@@ -178,13 +186,14 @@ distribution\footnote{\link{http://www.equalizergraphics.com/downloads.html}}
 and compiling the source code. After installing Equalizer, please take a
 look at the Quickstart
 Guide\footnote{\link{http://www.equalizergraphics.com/documents/EqualizerGuide.html}}
-to get familiar with the capabilities of the \textsf{eqPly} example.
+to get familiar with the capabilities of Equalizer and the
+\textsf{eqPly} example.
 
-Compiling Equalizer is as simple as running \textsf{make} on Linux and
-Mac OS X or building the Equalizer Visual Studio 2005 solution on
-Windows. Note that on Mac OS X 10.4 (Tiger), some prerequisites have to
-be installed before running \textsf{make}, as explained in
-\textsf{README.Darwin}.
+Compiling Equalizer is as simple as running \textsf{make} on Linux or
+Mac OS X, building the provided XCode project on Mac OS X 10.5, or
+building the Equalizer Visual Studio 2005 solution on Windows. Note that
+on Mac OS X 10.4 (Tiger), some prerequisites have to be installed before
+running \textsf{make}, as explained in \textsf{README.Darwin}.
 
 
 \subsection{Equalizer Processes}
@@ -199,19 +208,19 @@ Each Equalizer server is responsible for managing one visualization
 system, i.e., a shared memory system or graphics cluster.  It controls
 and launches the application's rendering clients.  Currently, Equalizer
 only supports one application per server, but it will provide
-concurrent and efficient multi-application support in future.
+concurrent and efficient multi-application support in the future.
 
 \subsubsection{Application}
 
 The application connects to an Equalizer server and receives a
 configuration.  Furthermore, the application also provides its render
 client, which will be controlled by the server. The application reacts
-on events, updates its database and controls the rendering.
+on events, updates its data and controls the rendering.
 
 \subsubsection{Render Clients}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/processes.pdf}
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/processes.pdf}
   {\caption{\small\label{fProcesses}Equalizer Processes}}
 \end{wrapfigure}
 The render client implements the rendering part of an application. Its
@@ -224,34 +233,15 @@ uses the default methods provided by Equalizer.
 
 The application can also be a rendering client, in which case it can
 also contribute to the rendering. If it does not implement any render
-client-related code, it is reduced to be the application's `master'
-process without any OpenGL windows and rendering code.
+client code, it is reduced to be the application's `master' process
+without any OpenGL windows and rendering code.
 
 The rendering client can be the same executable as the application, as
 it is the case with all provided examples. When it is started as a
 render client, the Equalizer initialization routine does not return and
 takes over the control by calling the render client task
-methods. Complex applications usually implement a separate, light-weight
+methods. Complex applications usually implement a separate, lightweight
 rendering client.
-
-\subsubsection{Parallel Rendering}
-
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/executionFlow.pdf}
-  {\caption{\small\label{fExecutionFlow}Parallel Rendering}}
-\end{wrapfigure}
-
-\fig{fExecutionFlow} illustrates the basic principle of any parallel
-rendering application. The typical OpenGL application, for example
-GLUT-based applications, has an event loop which redraws the scene,
-updates data based on received events, and eventually redraws a new
-frame.
-
-A parallel rendering application uses the same basic execution model and
-extends it by separating the rendering code from the main event
-loop. The rendering code is then executed in parallel on different
-resources. This model is naturally followed by Equalizer, thus making
-application development as easy as possible.
 
 
 \section{Hello, World!}
@@ -268,7 +258,7 @@ run as a stand-alone application from the command line.
 
 The \textsf{eqHello} redraw function renders six colored quads, rotating
 around the origin. The \textsf{frameDraw} meth\-od provided by the
-\textsf{eq::Channel} can be used as a convience function to setup the
+\textsf{eq::Channel} can be used as a convenience function to setup the
 frustum and other OpenGL state. After setting up some lighting
 parameters, \textsf{eqHello} rotates the scene and renders the quads
 using immediate mode:
@@ -303,11 +293,11 @@ are explained in \sref{sEqPly}.
 Real-time visualization is an inherently parallel
 problem. Unfortunately, different applications have different rendering
 algorithms, which require different scalable rendering modes to address
-the right bottlenecks. Equalizer supports the most important algorithms,
-and will continue to add new ones over time to meet application
-requirements.
+the bottlenecks correctly. Equalizer supports all important algorithms as
+listed below, and will continue to add new ones over time to meet
+application requirements.
 
-This section gives an introduction to scalable rendering, in order to
+This section gives an introduction to scalable rendering, to
 provide some background for application developers. The scalability
 modes offered by Equalizer are discussed, along with their advantages
 and disadvantages. 
@@ -357,13 +347,11 @@ in which case it renders in place and no output frame is needed.
 
 \subsection{DB or Sort-Last Compounds}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/DB.pdf}
-  {\caption{\small A database compound}}
-\end{wrapfigure}
-DB\footnote{3D model courtesy of AVS, USA.} decomposes the
-rendered database so that all rendering units process a part of the
-scene in parallel. This mode is also known as sort-last.
+DB, as shown in \fig{fDB}\footnote{3D model courtesy of AVS, USA.},
+decomposes the rendered database so that all rendering units process a
+part of the scene in parallel. This mode is also known as sort-last, and
+is very similar to the data decomposition approach used by HPC
+applications.
 
 Volume rendering applications use an ordered alpha-based blending to
 composite the result image. The depth buffer information is used to
@@ -379,11 +367,15 @@ requirements for the pixel transfer. Parallel recomposition algorithms,
 such as direct-send address this problem by keeping the per-node IO
 constant (see \fig{fDirectSend}).
 
-The application has to partion the database so that the rendering units
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/DB.pdf}
+  {\caption{\label{fDB}\small A database compound}}
+\end{wrapfigure}
+The application has to partition the database so that the rendering units
 render only part of the database. Some OpenGL features do not work
 correctly (anti-aliasing) or need special attention (transparency).
 
-The best use of database compounds is to divide the data to a managable
+The best use of database compounds is to divide the data to a manageable
 size, and then to use other decomposition modes to achieve further
 scalability. Volume rendering is one of the applications which can
 profit from database compounds.
@@ -395,22 +387,22 @@ application's database to be rendered. The value has to be interpreted
 by the application's rendering code accordingly.  Each child compound
 uses an output frame, which is connected to an input frame on the
 destination channel. For more than two contributing channels, it is
-recommended to configure parallel direct send compositing, as described
-in \sref{sDirectSend}.
+recommended to configure streaming or parallel direct send compositing,
+as described in \sref{sDirectSend}.
 
 
 \subsection{Stereo Compounds}
 
-Stereo compounds\footnote{3D model courtesy of Stereolithography Archive
-  at Clemson University.} assign each eye pass to individual rendering
-units. The resulting images are copied to the appropriate stereo
-buffer. This mode supports a variety of stereo modes, including active
-(quad-buffered) stereo, anaglyphic stereo and auto-stereo displays with
-multiple eye passes.
+Stereo compounds, as shown in \fig{fStereoCmp}\footnote{3D model
+  courtesy of Stereolithography Archive at Clemson University.}, assign
+each eye pass to individual rendering units. The resulting images are
+copied to the appropriate stereo buffer. This mode supports a variety of
+stereo modes, including active (quad-buffered) stereo, anaglyphic stereo
+and auto-stereo displays with multiple eye passes.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/EYE.pdf}
-  {\caption{\small A Stereo compound}}
+  {\caption{\label{fStereoCmp}\small A Stereo compound}}
 \end{wrapfigure}
 Due to the frame consistency between the eye views, this modes scales
 very well. The IO requirements for pixel transfer are small and
@@ -432,11 +424,10 @@ it renders in the correct stereo buffer and no output frame is needed.
 
 \subsection{\label{sDPlex}DPlex Compounds}
 
-DPlex compounds\footnote{3D model courtesy of Cyberware, Inc.} assign
-full, alternating frames to individual rendering units. The resulting
-images are copied to the destination channel, and Equalizer
-load-balancing is used to ensure a steady framerate on the destination
-window. This mode is also known as time-multiplex or AFR.
+DPlex compounds assign full, alternating frames to individual rendering
+units. The resulting images are copied to the destination channel, and
+Equalizer load-balancing is used to ensure a steady framerate on the
+destination window. This mode is also known as time-multiplex or AFR.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/DPlex.pdf}
@@ -461,20 +452,16 @@ uses a DPlex load-balancer to smoothen the framerate.
 
 \subsection{Pixel Compounds}
 
-Pixel compounds are similar to 2D compounds. The frustra of the
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-1ex}\includegraphics[width=.618\textwidth]{images/Pixel.pdf}
+  {\caption{\label{fPixel}\small A pixel compound}}\vspace{-5ex}
+\end{wrapfigure}
+Pixel compounds are similar to 2D compounds. The frusta of the
 source rendering units are modified so that each unit renders an evenly
-distributed subset of pixels. 
+distributed subset of pixels, as shown in \fig{fPixel}\footnote{3D model courtesy of AVS, USA.}
 
 As 2D compounds, pixels compounds have low, constant IO requirements for
 the pixel transfers during recomposition.
-
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/Pixel.pdf}
-  {\caption{\small A pixel compound}}
-\end{wrapfigure}
-Pixel compounds work well for purely fill-limited applications.
-Techniques like frustum culling do not reduce the rendered data for the
-source rendering resources.
 
 OpenGL functionality influenced by the raster position will not work
 correctly with pixel compounds, or needs at least special
@@ -482,10 +469,12 @@ attention. Among them are: lines, points, sprites, glDrawPixels,
 glBitmap, glPolygonStipple. The application can query the current pixel
 parameters at run-time to adjust the rendering accordingly.
 
-Pixel compounds are ideal for raytracing, which is highly fill-limited
-and needs the full database for rendering anyway. Volume rendering
-applications are also well suited for this mode, and should choose it
-over 2D compounds.
+Pixel compounds work well for purely fill-limited applications.
+Techniques like frustum culling do not reduce the rendered data for the
+source rendering resources. Pixel compounds are ideal for raytracing,
+which is highly fill-limited and needs the full database for rendering
+anyway. Volume rendering applications are also well suited for this
+mode, and should choose it over 2D compounds.
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/pixelKernel.pdf}
@@ -514,31 +503,37 @@ therefore not be rendered in place, like with the other compound modes.
 
 \subsection{\label{sLoadBalancing}Load-Balancing}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \vspace{-2ex}\includegraphics[width=.382\textwidth]{images/lb.pdf}
-  {\caption{\label{fLoadBalancing}\small Static 2D compound vs 2D
-      load-balancing}}
-\end{wrapfigure}
 While pixel and stereo compounds are naturally load-balanced, 2D, DB and
 DPlex compounds might need load-balancing to provide optimal
-performance.
+performance. Using a load-balancer is transparent to the application,
+and can be used on any application for 2D and DPlex, and on most
+applications for DB load-balancing. Some applications supporting DB
+decomposition do not support dynamic updates of the database range, and
+therefore cannot be used with DB load-balancing.
 
-Equalizer provides automatic, application-transparent load-balancing for
-2D and DB compounds. Using an appropriate load-balancer for these
-compounds will adapt the 2D split or database range each frame. The
-current load-balancing algorithm is a technology preview and will
-improve in future versions. 
+Using a 2D or DB load-balancer will adapt the 2D split or database range
+automatically each frame. The 2D load-balancer exists in three flavors:
+\textsf{2D} using tiles, \textsf{VERTICAL} using columns and
+\textsf{HORIZONTAL} using rows. The current load-balancing algorithm for
+2D and DB is a technology preview and will improve in future versions.
 
-2D load-balancing gives better framerates than static decomposition in
-virtually all cases. DB load-balancing is benefitial for applications
-which can not precisely predict the load for their scene data. Volume
-rendering is a counter-example, where the data is uniform and a static
-DB decomposition typically results in a better performance.
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/lb.pdf}
+  {\caption{\label{fLoadBalancing}\small 2D load-balancing}}
+\end{wrapfigure}
+2D load-balancing increases the framerate over a static decomposition in
+virtually all cases. It works best if the application data is relatively
+uniformly distributed in screen-space.
+
+DB load-balancing is beneficial for applications which cannot precisely
+predict the load for their scene data. Volume rendering is a
+counterexample, where the data is uniform and a static DB decomposition
+typically results in a better performance.
 
 DPlex compounds require a smoothing of the framerate at the destination
 channel, otherwise the framerate will become periodically faster and
 slower. Using a DPlex load-balancer will smoothen the swap buffer rate
-on the destination channel for optimal user experience.
+on the destination window for optimal user experience.
 
 \section{The Programming Interface}
 
@@ -562,24 +557,20 @@ render clients.
 The application inherits from Equalizer classes and overrides virtual
 functions to implement certain functionality, e.g., the application's
 OpenGL rendering in \textsf{eq::Chan\-nel::frameDraw}. These task
-methods are similar in concept to C function callbacks. The
-\textsf{eqPly} section will discuss the most important task methods. A
-full list can be found on the website\footnote{see
+methods are similar in concept to C function callbacks. \sref{sEqPly}
+will discuss the important task methods. A full list can be found on the
+website\footnote{see
   \link{http://www.equalizergraphics.com/documents/design/taskMethods.html}}.
 
 \subsection{\label{sExecution}Execution Model and Thread Safety}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/model.pdf}
-  {\caption{\small\label{fModel}Simplified execution model}}
-\end{wrapfigure}
 Using threading correctly in OpenGL-based applications is easy with
 Equalizer. Equalizer creates one rendering thread for each graphics
 card. All task methods for a pipe, and therefore all OpenGL commands,
 are executed from this thread. This threading model is the OpenGL
 `threading model', which maintains a current context for each
 thread. If structured correctly, the application rarely has to take care
-of thread synchonization or protection of shared data.
+of thread synchronization or protection of shared data.
 
 The main thread is responsible for maintaining the application logic. It
 reacts on user events, updates the data model and requests new frames to
@@ -590,18 +581,23 @@ database. The data\-base should be accessed in a read-only fashion
 during rendering to avoid threading problems. This is normally the case,
 for example all modern scene graphs use read-only render traversals.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/model.pdf}
+  {\caption{\small\label{fModel}Simplified execution model}}
+\end{wrapfigure}
 All rendering threads in the configuration run asynchronously to the
 application's main thread. Depending on the configuration's latency,
 they can fall $n$ frames behind the last frame finished by the
 application thread. A latency of one frame is usually not perceived by
 the user, but can increase rendering performance substantially.
 
-Rendering threads on a single node are by default synchronized. When a
-frame is finished, all local rendering threads are done
-drawing. Therefore the application can safely modify the data between
-the end of a frame and the beginning of a new frame. Furthermore, only
-one instance of the scene data has to be maintained within a process
-since all rendering threads are guaranteed to draw the same frame.
+Rendering threads on a single node are synchronized when using the
+default thread model \textsf{draw\_sync}. When a frame is finished, all
+local rendering threads are done drawing. Therefore the application can
+safely modify the data between the end of a frame and the beginning of a
+new frame. Furthermore, only one instance of the scene data has to be
+maintained within a process, since all rendering threads are guaranteed
+to draw the same frame.
 
 This per-node frame synchronization does not inhibit latency across
 rendering nodes. Furthermore, advanced rendering software which
@@ -659,9 +655,12 @@ application thread.
 The \textsf{eq::Pipe} class is the abstraction of a graphics card (GPU).
 In the current implementation it is also one operating system
 thread. Non-threaded pipes are supported for integrating with
-thread-unsafe libraries, but have various performance caveats. All pipe,
-window and channel task methods are executed from the pipe's thread, or
-in the case of non-threaded pipes from the main application
+thread-unsafe libraries, but have various performance caveats. They
+should only be used if using a different, but synchronized rendering
+thread is not an option.
+
+All pipe, window and channel task methods are executed from the pipe
+thread, or in the case of non-threaded pipes from the main application
 thread\footnote{see
   \link{http://www.equalizergraphics.com/documents/design/nonthreaded.html}}.
 
@@ -673,7 +672,7 @@ system thread.
 
 The \textsf{eq::Window} class encapsulates a drawable and an OpenGL
 context. The drawable can be an on-screen window or an off-screen
-PBuffer. Framebuffer object (FBO) support will be implement by a later
+PBuffer. FrameBuffer object (FBO) support will be implement by a later
 version of Equalizer. The window uses an \textsf{eq::OSWindow}, which
 abstracts and manages window-system-specific handles to the drawable and
 context, e.g., an X11 window \textsf{XID} and \textsf{GLXContext} for
@@ -709,13 +708,13 @@ Compounds have a frustum description to define the physical layout of
 the display environment. 
 
 \begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frustra.pdf}
-  {\caption{\small\label{fFrustra}Wall and projection parameters}}
+  \includegraphics[width=.618\textwidth]{images/frusta.pdf}
+  {\caption{\small\label{fFrusta}Wall and projection parameters}}
 \end{wrapfigure}
 The frustum description is inherited by the children, therefore the
-frustum is typically defined on the top-most compound. 
+frustum is typically defined on the topmost compound. 
 
-The frustrum can be specified as a wall or projection description. 
+The frustum can be specified as a wall or projection description. 
 
 A wall is completely defined by the bottom-left, bottom-right and
 top-left coordinates relative to the origin. 
@@ -724,29 +723,41 @@ The projection is defined by the position and head-pitch-roll
 orientation of the projector, as well as the horizontal and vertical
 field-of-view and distance of the projection wall. 
 
-\fig{fFrustra} illustrates the wall and projection frustum parameters.
+\fig{fFrusta} illustrates the wall and projection frustum parameters.
 
 \subsubsection{Compound Classification}
 The channels of the leaf compounds in the compound tree are designated
-as source channels. The top-most channel in the tree is the destination
-channel. Only source channels execute the draw task. All channels in a
-compound tree work for the destination channel. The destination channel
-defines the 2D pixel viewport rendered by all leaf compounds. The
-destination channel and pixel viewport can not be overridden by child
-compounds.
+as source channels. The topmost channel in the tree is the destination
+channel. One compound tree might have multiple destination channels,
+e.g., for a swap-synchronized immersive installation. 
+
+All channels in a compound tree work for the destination channel. The
+destination channel defines the 2D pixel viewport rendered by all leaf
+compounds. The destination channel and pixel viewport cannot be
+overridden by child compounds.
+
+\subsubsection{Tasks}
+Compounds execute a number of tasks: clear, draw, assemble and
+readback. By default, a leaf compound executes all tasks and a non-leaf
+compound assemble and readback. A non-leaf compound never executes the
+draw task.
+
+A compound can be configured to execute a specific set of tasks, for
+example to configure the multiple steps used by binary-swap compositing.
 
 \subsubsection{Decomposition - Attributes}
 Compounds have attributes which configure the decomposition of the
-destination's channel viewport, frustum and database. A
-\textsf{viewport} decomposes the destination channel and frustum in
-screen space. A \textsf{range} tells the application to render a part of
-its database, and an \textsf{eye} rendering pass can selectively render
-different stereo passes. A \textsf{pixel} parameter adapts the frustum
-so that the source channel renders an evenly subset of the parent's
-pixels. Setting one or multiple attributes causes the parent's view to
-be decomposed accordingly. Attributes are cumulative, that is,
-intermediate compound attributes affect and therefore decompose the
-rendering of all their children.
+destination channel's rendering, which is defined by the viewport,
+frustum and database. A \textsf{viewport} decomposes the destination
+channel and frustum in screen space. A \textsf{range} tells the
+application to render a part of its database, and an \textsf{eye}
+rendering pass can selectively render different stereo passes. A
+\textsf{pixel} parameter adapts the frustum so that the source channel
+renders an evenly subset of the parent's pixels. Setting one or multiple
+attributes causes the parent's view to be decomposed
+accordingly. Attributes are cumulative, that is, intermediate compound
+attributes affect and therefore decompose the rendering of all their
+children.
 
 \subsubsection{Recomposition - Frames}
 Compounds use output and input frames to configure the recomposition of
@@ -756,7 +767,7 @@ data is transported from the output channel to the input channel. The
 assembly routine of the input channel will block on the availability of
 the output frame. This composition process is extensively described in
 \sref{sCompositing}. Frame names are only valid within the compound
-tree, that is, an output frame from one compound tree can not be used as
+tree, that is, an output frame from one compound tree cannot be used as
 an input frame of another compound tree.
 
 \subsubsection{Synchronization - Swapbarrier}
@@ -769,10 +780,11 @@ commands have been executed.
 Note that this software swap barrier is not accurate enough for
 edge-blended projection system. Such installations typically use a
 hardware synchronization, e.g., nVidia G-Sync cards. It is however
-sufficient for display walls made out of LCD's.
+sufficient for display walls made out of LCD's and for some
+non-immersive projection systems.
 
 Swapbarrier names are only valid within the compound tree, that is, a
-compound from one compound tree can not be synchronized with a compound
+compound from one compound tree cannot be synchronized with a compound
 from another compound tree.
 
 \section{\label{sEqPly}The eqPly polygonal renderer}
@@ -781,10 +793,17 @@ In this section the source code of \textsf{eqPly} is explained in
 detail, and relevant design decisions, caveats and other remarks are
 raised.
 
+\textsf{eqPly} is a parallel renderer for polygonal data in the
+\textsf{ply} file format. It supports all relevant Equalizer features,
+and can be used to render on large-scale displays, immersive
+environments with head tracking and to render massive data sets using
+all scalable rendering features of Equalizer.
+
 The \textsf{eqPly} example is shipped with the Equalizer distribution
 and serves as a reference implementation of an Equalizer-based
 application of medium complexity. It focuses on the example usage of
-core Equalizer features, not on rendering features or visual quality.
+core Equalizer features, not on advanced rendering features or visual
+quality.
 
 \begin{figure}[ht!]\center
   \includegraphics[width=\textwidth]{images/uml}
@@ -799,13 +818,14 @@ systems. \fig{fUml} shows how the most important Equalizer classes are
 used through inheritance by the \textsf{eqPly} example.
 
 The \textsf{eqPly} classes fall into two categories: Subclasses of the
-rendering entities introduced in \sref{sConfig}, and two other classes
-for distributing data. The function and typical usage for each of the
-rendering entities is discussed in this section. 
+rendering entities introduced in \sref{sConfig}, and classes for
+distributing data. The function and typical usage for each of the
+rendering entities is discussed in this section.
 
 The distributed data classes are helper classes based on
 \textsf{eq::net::Object}. They illustrate the typical usage of distributed
-objects for static as well as dynamic, frame-specific data.
+objects for static as well as dynamic, frame-specific data. Furthermore
+they are used for a basic scene graph distribution of the model data.
 
 
 \subsection{The main Function}
@@ -858,8 +878,8 @@ created and destroyed in the pipe thread:
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config*  createConfig()  
-        { return new eqPly::Config; }
+    virtual eq::Config*  createConfig( eq::ServerPtr parent )
+        { return new eqPly::Config( parent ); }
     virtual eq::Node*    createNode( eq::Config* parent )  
         { return new eqPly::Node( parent ); }
     virtual eq::Pipe*    createPipe( eq::Node* parent )
@@ -872,16 +892,24 @@ public:
 \end{lstlisting}}
 
 The third step is to create an instance of the application and to
-initialize it locally. The application is an \textsf{eq::Client}, which
-in turn is an \textsf{eq::net::Node}. The underlying network layer in
-Equalizer is a peer-to-peer network of \textsf{eq::net::Node}s. The
-application programmer does not usually have to be aware of the classes
-in the \textsf{eq::net} namespace, but both the \textsf{eq::Client} and
-the server are \textsf{eq::net::Node}s. 
+initialize it locally. The application is a subclass of
+\textsf{eq::Client}, which in turn is an \textsf{eq::net::Node}. The
+underlying network layer in Equalizer is a peer-to-peer network of
+\textsf{eq::net::Node}s. The client/server concept is implement the
+higher-level \textsf{eq} client namespace.
 
-The local initialization of a node creates a local listening socket,
-which allows the \textsf{eq::Client} to communicate over the network
-with other nodes, such as the server and the rendering clients.
+The application programmer does not usually have to be aware of the
+classes in the \textsf{eq::net} namespace, but both the
+\textsf{eq::Client} and the Equalizer server are
+\textsf{eq::net::Node}s.
+
+The local initialization of a node creates at least one local listening
+socket, which allows the \textsf{eq::Client} to communicate over the
+network with other nodes, such as the server and the rendering
+clients. The listening socket(s) can be configured using the
+\textsf{--eq-listen} command line parameter, or by programmatically
+adding connection descriptions to the client before the local
+initialization.
 
 {\footnotesize\begin{lstlisting}
     // 3. initialization of local client node
@@ -918,16 +946,18 @@ After the application has finished, it is de-initialized and the
 \subsection{Application}
 
 In the case of \textsf{eqPly}, the application is also the render
-client. The \textsf{eqPly} executable has three run-time behaviours:
+client. The \textsf{eqPly} executable has three run-time behaviors:
 
 \begin{enumerate}
 \item \textbf{Application}: The executable started by the user, the
-  controlling entity in the rendering session.
+  controlling entity of the rendering session.
 \item \textbf{Auto-launched render client}: The typical render client,
   started by the server. The server starts the executable with special
   parameters, which cause \textsf{Client::initLocal} to never
   return. During exit, the server terminates the process. By default,
-  the server starts the render client using \textsf{ssh}.
+  the server starts the render client using \textsf{ssh}. The launch
+  command can be used to configure another program to auto-launch render
+  clients.
 \item \textbf{Resident render client}: Manually pre-started render
   client, listening on a specified port for server commands. This mode
   is selected using the command-line option \textsf{--eq-client} and
@@ -951,7 +981,7 @@ one-channel configuration\footnote{see
 int Application::run()
 {
     // 1. connect to server
-    RefPtr<eq::Server> server = new eq::Server;
+    eq::ServerPtr server = new eq::Server;
     if( !connectServer( server ))
     {
         EQERROR << "Can't open server" << endl;
@@ -1008,8 +1038,8 @@ variable \textsf{EQ\_LOG\_TOPICS}:
         return EXIT_FAILURE;
     }
 
-    EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
-                            << endl;
+    EQLOG( eq::LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
+                           << endl;
 \end{lstlisting}}%>>
 
 When the configuration was successfully initialized, the main rendering
@@ -1033,7 +1063,7 @@ times.
 
 By default, \textsf{Config::finish\-Fra\-me} also synchronizes the
 completion of all local rendering tasks for the current frame. This
-facilitates porting of exising rendering codes, since the database does
+facilitates porting of existing rendering codes, since the database does
 not have to be multi-buffered. Applications such as \textsf{eqPly}, which
 do not need this per-node frame synchronization can disable it, as
 explained in \sref{sThreadModel}.
@@ -1052,10 +1082,16 @@ no
 latency\footnote{\link{http://www.equalizergraphics.com/scalability.html}}. A
 latency of one or two frames is normally not perceived by the user.
 
-When the main rendering loop has finished,
-\textsf{Config::finishAllFrames} is called to catch up with the
-latency. It returns after all outstanding frames have been rendered, and
-is needed to provide an accurate measurement of the framerate:
+\textsf{eqPly} uses event-driven execution, that is, it only request new
+rendering frames if an event or animation requires an update. The
+\textsf{eqPly::Config} maintains a dirty state, which is cleared after a
+frame has been started, and set when an event causes a
+redraw. Furthermore, when an animation is running or head tracking is
+active, the config always signals the need for a new frame.
+
+If the application detects that it is currently idle, all pending frames
+are flushed. Then it waits and handles one event at a time, until a
+redraw is needed:
 
 {\footnotesize\begin{lstlisting}
     // 4. run main loop
@@ -1067,12 +1103,30 @@ is needed to provide an accurate measurement of the framerate:
         config->startFrame();
         // config->renderData(...);
         config->finishFrame();
+
+        if( !config->needsRedraw( ))
+            config->finishAllFrames(); // flush, TODO flush one task at a time
+            
+        while( !config->needsRedraw( )) // wait for an event requiring redraw
+        {
+            const eq::ConfigEvent* event = config->nextEvent();
+            if( !config->handleEvent( event ))
+                EQVERB << "Unhandled " << event << endl;
+        }
     }
+\end{lstlisting}}%>>
+
+When the main rendering loop has finished,
+\textsf{Config::finishAllFrames} is called to catch up with the
+latency. It returns after all outstanding frames have been rendered, and
+is needed to provide an accurate measurement of the framerate:
+
+{\footnotesize\begin{lstlisting}
     const uint32_t frame = config->finishAllFrames();
     const float    time  = clock.getTimef();
-    EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << time << " ms (" << frame
-                            << " frames @ " << ( frame / time * 1000.f)
-                            << " FPS)" << endl;
+    EQLOG( eq::LOG_STATS ) << "Rendering took " << time << " ms (" << frame
+                           << " frames @ " << ( frame / time * 1000.f)
+                           << " FPS)" << endl;
 \end{lstlisting}}%>>
 
 The remainder of the application code cleans up in the reverse order of
@@ -1083,7 +1137,7 @@ the server is closed:
     // 5. exit config
     clock.reset();
     config->exit();
-    EQLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms" <<endl;
+    EQLOG( eq::LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<endl;
 
     // 6. cleanup and exit
     server->releaseConfig( config );
@@ -1142,9 +1196,10 @@ position to the rendering methods.
 \subsubsection{Common Usage}
 
 Distributed objects are addressed using session-unique identifiers,
-because pointers to other objects can not be distributed directly, since
+because pointers to other objects cannot be distributed directly, since
 they have no meaning on remote nodes. The session with which distributed
-objects are registered is normally the \textsf{eq::Config}.
+objects are registered is normally the \textsf{eq::Config}, which is
+subclassed from \textsf{eq::net::Session}.
 
 The shared data entry point for the render clients is the identifier
 passed by the application to \textsf{Config::init}. This identifier
@@ -1161,11 +1216,11 @@ frames. Similar to the initial identifier passed to
 \textsf{frameStart} task methods. In \textsf{eqPly}, the frame-specific
 data, e.g., the global camera data, is versioned. The frame data
 identifier is passed in the initial data, and the frame data version is
-passed with each start frame request.
+passed with each new frame request.
 
 \subsubsection{Change Handling}
 
-The way changes are to be handled is determined by calling
+Equalizer determines the way changes are to be handled by calling
 \textsf{Object::getChangeType} during the registration of the master
 version of a distributed object. The change type determines the memory
 footprint and the contract for calling the serialization methods. The
@@ -1182,10 +1237,10 @@ following change types are possible:
   \item[DELTA] The object is versioned, and the delta data is typically
     smaller than the instance data. Both the delta and instance data are
     serialized and saved to map old versions.
-  \item[DELTA\_UNBUFFERED] The object is versioned, and delta data is
-    used to update slave instances. No data is stored, and no previous
-    versions can be mapped. The instance data is serialized whenever a
-    new slave instance is mapped.
+  \item[UNBUFFERED] The object is versioned. No data is stored, and no
+    previous versions can be mapped. The instance data is serialized
+    whenever a new slave instance is mapped. The application can choose
+    to use a different, more optimal implementation to pack deltas.
 \end{description}
 
 \subsubsection{\label{sInitData}InitData - a Static Distributed Object}
@@ -1202,8 +1257,14 @@ in \textsf{InitData}.
 A static distributed object has to implement \textsf{getInstanceData}
 and \textsf{applyInstanceData} to serialize and deserialize the object's
 distributed data. These method provide an output or input stream as a
-parameter, which abstract the data transmission and can be used like a
-\textsf{std::stream}.
+parameter, which abstracts the data transmission and can be used like a
+\textsf{std::stream}. 
+
+Custom data type serializers can be implemented by providing the
+appropriate serialization functions. No pointers should be directly
+transmitted through the data streams. Typically the corresponding object
+is a distributed object as well, and it's identifier and potentially
+version is transmitted in place of a pointer.
 
 For \textsf{InitData}, serialization in \textsf{getInstanceData}
 and de-serialization in \textsf{applyInstanceData} is performed by
@@ -1253,7 +1314,7 @@ Upon \textsf{commit} the delta data from the previous version is sent to
 all mapped slave instances. The data is queued on the remote node, and
 is applied when the application calls \textsf{sync} to synchronize the
 object to a new version. The \textsf{sync} method might block if a
-version has not been committed or is still in transmission.
+version has not yet been committed or is still in transmission.
 
 In addition to the instance data (de-)serialization methods used to map
 an object, versioned objects may implement \textsf{pack} and
@@ -1262,13 +1323,12 @@ version. If these methods are not implemented, their default
 implementation forwards the (de-)serialization request to
 \textsf{getInstanceData} and \textsf{applyInstanceData}, respectively.
 
-The \textsf{eqPly} does not track changes since it is relatively small
-in size and changes frequently. Therefore, the instance and delta data
-are the same, and \textsf{pack} and \textsf{unpack} are not
+\textsf{eqPly} does not track changes in the \textsf{FrameData} since it
+is relatively small and changes frequently. Therefore, the instance and
+delta data are the same, and \textsf{pack} and \textsf{unpack} are not
 implemented. The change type is \textsf{INSTANCE}. The serialization
-functions exploit the fact that the frame data is layed
-out in one anonymous structure in memory, and transmit all the data in
-one call:
+functions exploit the fact that the frame data is layed out in one
+anonymous structure in memory, and transmit all the data in one call:
 
 {\footnotesize\begin{lstlisting}
 void FrameData::getInstanceData( eq::net::DataOStream& os )
@@ -1291,22 +1351,23 @@ prefer to load the data only on the application process, and use
 distributed objects to synchronize the scene data with the render
 clients.
 
-\textsf{eqPly} uses static distributed objects to distribute the model
-loaded by the application. This model can be easily extended to
-versioned objects, in order to support dynamic data changes.
-
-The kD-tree data structure and rendering code for the model is strongly
-separated from Equalizer, and kept in the separate namespace
-\textsf{mesh}. It could also be used in a GLUT application. To keep this
-separation, an external 'mirror' hierarchy is constructed around the
-tree. This hierarchy of \textsf{VertexBufferDist} nodes is responsible
-for cloning the model data on the remote render clients.
-
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
   {\caption{\small\label{fModelDist}Scene Data in eqPly}}
 \end{wrapfigure}
-The identifer of the root object of this distributed hierarchy is passed
+\textsf{eqPly} uses static distributed objects to distribute the model
+loaded by the application. This model can be easily extended to
+versioned objects to support dynamic data changes.
+
+The kD-tree data structure and rendering code for the model is strongly
+separated from Equalizer, and kept in the separate namespace
+\textsf{mesh}. It could also be used in other rendering software, for
+example in a GLUT application. To keep this separation, an external
+'mirror' hierarchy is constructed around the tree. This hierarchy of
+\textsf{VertexBufferDist} nodes is responsible for cloning the model
+data on the remote render clients.
+
+The identifier of the root object of this distributed hierarchy is passed
 as part of the \textsf{InitData}, and used during remote node
 initialization to map the model. \fig{fModelDist} shows the UML
 hierarchy of the model and distribution classes.
@@ -1362,6 +1423,7 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
 \end{lstlisting}}%>>
 
 \begin{wrapfigure}{r}{.618\textwidth}
+%\begin{figure}[ht!]\center
   \includegraphics[width=.618\textwidth]{images/objects.pdf}
   {\caption{\small\label{fObjects}Scene Graph Distribution}}
 \end{wrapfigure}
@@ -1374,9 +1436,9 @@ immediate children by transferring their identifier and current version,
 similar to the static distribution done by \textsf{eqPly}.
 
 The objects are still created by the application, and then registered or
-mapped with the session in order to distribute them. When mapping
+mapped with the session to distribute them. When mapping
 objects in a hierarchical data structure, their type often has to be
-known in order to create them. Equalizer does not currently provide
+known to create them. Equalizer does not currently provide
 object typing, this has to be done by the application, either implicitly
 in the current implementation context, or by transferring a type
 identifier. In \textsf{eqPly}, object typing is implicit since it is
@@ -1392,6 +1454,11 @@ necessary data.
 
 \subsubsection{Initialization and Exit}
 
+\begin{figure}[ht!]\center
+%\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.9\textwidth]{images/configInit.pdf}
+  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
+\end{figure}
 The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
 completion is synchronized afterwards. 
@@ -1401,12 +1468,9 @@ parent's initialization methods are always executed before any child
 initialization method. This parallelization is necessary to allow a
 speedy startup of the configuration on large-scale graphics clusters. On
 the other hand, it means that initialization functions are called even
-if the parent's initialization has failed.
+if the parent's initialization has failed. \fig{fConfigInit} shows a
+sequence diagram of the config initialization.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
-  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
-\end{wrapfigure}
 The \textsf{eqPly::Config} class holds the master versions of the
 initialization and frame data. Both objects are registered with the
 \textsf{eq::Config}, which is the \textsf{eq::net::Session} used for
@@ -1426,10 +1490,11 @@ the respective objects:
 bool Config::init()
 {
     // init distributed objects
-    _frameData.data.color = _initData.useColor();
+    _frameData.data.color      = _initData.useColor();
+    _frameData.data.renderMode = _initData.getRenderMode();
     registerObject( &_frameData );
-    _initData.setFrameDataID( _frameData.getID( ));
 
+    _initData.setFrameDataID( _frameData.getID( ));
     registerObject( &_initData );
 
     // init config
@@ -1456,17 +1521,16 @@ head tracking.
             EQWARN << "Failed to initialise tracker" << endl;
         else
         {
-            // Set up position of tracking system in world space
+            // Set up position of tracking system wrt world space
             // Note: this depends on the physical installation.
             vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
             m.scale( 1.f, 1.f, -1.f );
-            //m.x = .5;
             _tracker.setWorldToEmitter( m );
 
             m = vmml::Matrix4f::IDENTITY;
             m.rotateZ( -M_PI_2 );
             _tracker.setSensorToObject( m );
-            EQLOG( eq::LOG_CUSTOM ) << "Tracker initialised" << endl;
+            EQINFO << "Tracker initialized" << endl;
         }
     }
 
@@ -1495,17 +1559,16 @@ bool Config::exit()
 \subsubsection{Frame Control}
 
 The rendering frames are issued by the application. The
-\textsf{eqPly::Config} only overrides \textsf{startFrame} in order to
+\textsf{eqPly::Config} only overrides \textsf{startFrame} to
 update its data before forwarding the start frame request to the
 \textsf{eq::Config}.
 
 If a tracker is used, the current head position and orientation is
 retrieved and passed to Equalizer, which uses the head matrix together
 with the wall or projection description to compute the view
-frustra\footnote{see
-  \link{http://www.equalizergraphics.com/documents/design/immersive.html}}.
+frusta, as explained in \sref{sTracking}.
 
-The camera position is updated and the frame data is commited, which
+The camera position is updated and the frame data is committed, which
 generates a new version of this object. This version is passed to the
 rendering callbacks and will be used by the rendering threads to
 synchronize the frame data to the state belonging to the current frame:
@@ -1539,15 +1602,13 @@ Events are sent by the render clients to the application using
 the event handling. The default implementation processes all pending
 events by calling \textsf{Config::handleEvent} for each of them.
 
-For event-driven execution, the application can override
-\textsf{Config::handleEvents} to blockingly receive events using
-\textsf{Config::nextEvent} until a new frame has to be rendered.
+Since \textsf{eqPly} uses event-driven execution, the config maintains a
+dirty state to allow the application to know when a redraw is needed.
 
-The \textsf{eqPly} example continuously renders new frames. It
-implements \textsf{Config::hand\-le\-Event} to provide the various reactions
-to user input, most importantly camera updates based on mouse
-events. The camera position has to be handled correctly with respect to
-latency, and is therefore saved in the frame data:
+The \textsf{eqPly} example implements \textsf{Config::hand\-le\-Event}
+to provide the various reactions to user input, most importantly camera
+updates based on mouse events. The camera position has to be handled
+correctly regarding latency, and is therefore saved in the frame data:
 
 {\footnotesize\begin{lstlisting}
 bool Config::handleEvent( const eq::ConfigEvent* event )
@@ -1568,6 +1629,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     -0.005f * event->pointerMotion.dx );
                 _frameData.data.rotation.preRotateY(
                     -0.005f * event->pointerMotion.dy );
+                _redraw = true;
             }
             else if( event->pointerMotion.buttons == eq::PTR_BUTTON2 ||
                      event->pointerMotion.buttons == ( eq::PTR_BUTTON1 |
@@ -1575,6 +1637,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             {
                 _frameData.data.translation.z +=
                     .005f * event->pointerMotion.dy;
+                _redraw = true;
             }
             else if( event->pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
@@ -1582,9 +1645,10 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                     .0005f * event->pointerMotion.dx;
                 _frameData.data.translation.y -= 
                     .0005f * event->pointerMotion.dy;
+                _redraw = true;
             }
             return true;
-
+            
         default:
             break;
     }
@@ -1603,16 +1667,26 @@ also have a node class, which is handled in exactly the same way as the
 render client nodes. The application and render clients might use a
 different node factory, instantiating a different type of \textsf{eq::Node}.
 
+All dynamic data is multi-buffered in \textsf{eqPly}. During
+initialization, the node relaxes the thread synchronization between the
+node and pipe threads, unless the configuration file overrides
+this. \sref{sThreads} provides a detailed explanation of thread
+synchronization in Equalizer.
+
 During node initialization the static, per-config data is mapped to a
 local instance using the identifier passed from
 \textsf{Config::init}. No pipe, window or channel tasks methods are
-executed before \textsf{Node::configInit} has returned.
+executed before \textsf{Node::configInit} has returned:
 
 {\footnotesize\begin{lstlisting}
 bool Node::configInit( const uint32_t initID )
 {
     if( !eq::Node::configInit( initID ))
         return false;
+
+    // All render data is static or multi-buffered, we can run asynchronously
+    if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
+        setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
 
     Config*    config = static_cast< Config* >( getConfig( ));
     return config->mapData( initID );
@@ -1621,7 +1695,7 @@ bool Node::configInit( const uint32_t initID )
 
 The actual mapping of the static data is done by the config. The config
 first retrieves the distributed \textsf{InitData}. The object is
-directly unmapped since it is static, and the data has be retrieved.
+directly unmapped since it is static, and the data has been retrieved.
 
 The init data contains, among other things, the identifier of the
 root of the model's kD-tree. Using this identifier, the model is mapped
@@ -1675,27 +1749,6 @@ mesh::VertexBufferRoot* VertexBufferDist::mapModel(eq::net::Session* session,
 }
 \end{lstlisting}}%>>
 
-The two remaining functions in the node relax the thread synchronization
-between the node and pipe threads, since all dynamic data is
-multi-buffered in \textsf{eqPly}. \sref{sThreads} provides a detailed
-explanation of thread synchronization in Equalizer:
-
-{\footnotesize\begin{lstlisting}
-void Node::frameDrawFinish( const uint32_t frameID,
-                            const uint32_t frameNumber )
-{ /* nop, see frameStart */ }
-
-void Node::frameStart( const uint32_t frameID, const uint32_t frameNumber )
-{
-    startFrame( frameNumber ); // unlock pipe threads
-    
-    // Don't wait for pipes to release frame locally, sync not needed since all
-    // dynamic data is multi-buffered
-    releaseFrameLocal( frameNumber );
-}
-\end{lstlisting}}
-
-
 \subsection{Pipe}
 
 All task methods for a pipe and its children are executed in a separate
@@ -1707,10 +1760,10 @@ execution of rendering tasks on a single pipe.
 
 \subsubsection{Initialization and Exit}
 
-Pipe threads are not explicitely synchronized with each other, that is,
+Pipe threads are not explicitly synchronized with each other, that is,
 pipes might be rendering different frames at any given time. Therefore
 frame-specific data has to be allocated for each pipe thread, which in
-the \textsf{eqPly} example is the frame data. The frame data is a member
+the case of \textsf{eqPly} is the frame data. The frame data is a member
 variable of the \textsf{eqPly::Pipe}, and is mapped to the identifier
 provided by the initialization data. The initialization in
 \textsf{eq::Pipe} does the GPU-specific initialization, which is
@@ -1818,8 +1871,8 @@ version, and then unlocks its child entities by calling
 {\footnotesize\begin{lstlisting}
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
-    // don't wait for node to start frame, local sync not needed
-    // node->waitFrameStarted( frameNumber );
+    node->waitFrameStarted( frameNumber );
+
     _frameData.sync( frameID );
     startFrame( frameNumber );
 }
@@ -1872,7 +1925,8 @@ code is implementation specific. If the \textsf{OSWindow} was
 initialized successfully, \textsf{configInit} calls
 \textsf{configInitGL}, which performs the generic OpenGL state
 initialization. The default implementation sets up some typical OpenGL
-state, e.g., it enables the depth test.
+state, e.g., it enables the depth test. Most nontrivial applications
+do override this task method.
 
 The \textsf{OSWindow} initialization takes into account various
 attributes set in the configuration file. Attributes include the size of
@@ -1886,7 +1940,7 @@ will test for their availability and enable them if possible.
 For the window-system specific initialization, \textsf{eqPly} uses the
 default Equalizer implementation. The \textsf{eqPly} window
 initialization only overrides the OpenGL-specific initialization
-function \textsf{configInitGL} in order to initialize a state object and
+function \textsf{configInitGL} to initialize a state object and
 an overlay logo. This function is only called if an OpenGL context was
 created and made current:
 
@@ -1914,12 +1968,12 @@ bool Window::configInitGL( const uint32_t initID )
 \end{lstlisting}}%>>
 
 The state object is used to handle the creation of OpenGL objects in a
-multipipe, multi-threaded execution environment. It uses the object
+multipipe, multithreaded execution environment. It uses the object
 manager of the \textsf{eq::Window}, which is described in detail in
 \sref{sObjectManager}.
 
 The logo texture is loaded from the file system and bound to a texture
-ID used later by the channel for rendering. A code listing is ommitted,
+ID used later by the channel for rendering. A code listing is omitted,
 since the code consists of standard OpenGL calls and is not
 Equalizer-specific.
 
@@ -1966,13 +2020,12 @@ OpenGL name of an object.
 
 
 Each \textsf{eq::Window} has an object manager with the key type
-\textsf{const void*} for as long as it has an OpenGL context. The OM is
-shared between all windows of a pipe, if the windows are created using
-the default \textsf{configInit} functions. If the window is created by
-the application, the OM is not shared since no assumption can be made
-about OpenGL context sharing. Later version of Equalizer will introduce
-an API to configure OpenGL context sharing, and therefore OM sharing, for
-application-created windows.
+\textsf{const void*}, for as long as it is initialized. Each window can
+have a shared context window. The OM is shared with this shared context
+window. The shared context window is set by default to the first window
+of each pipe, and therefore the OM will be shared between all windows of
+a pipe. The method \textsf{eq::Window::setSharedContextWindow} can be
+used to set up a different context sharing.
 
 \textsf{eqPly} uses the window's object manager in the rendering code to
 obtain the OpenGL objects for a given data item. The address of the data
@@ -2006,9 +2059,11 @@ implemented. For each object, the following functions are available:
 
 \subsection{Channel}
 
-The channel is the heart of the application in that it contains the
-actual rendering code. The channel is used to perform the various rendering
-operations for the compounds.
+The channel is the heart of the application, it contains the actual
+rendering code. The channel is used to perform the various rendering
+operations for the compounds. Each channel has a set of task methods to
+execute the clear, draw, readback and assemble stages needed to render a
+frame.
 
 \subsubsection{Initialization and Exit}
 
@@ -2040,7 +2095,7 @@ class. Each of the \textsf{apply} methods uses the corresponding
 \textsf{get} method(s) and then calls the appropriate OpenGL
 function(s). It is also possible to just query the values from Equalizer
 using the \textsf{get} methods, and use them to set up the OpenGL state
-appropriatly, for example by passing the parameters to the renderer used
+appropriately, for example by passing the parameters to the renderer used
 by the application.
 
 For example, the implementation for \textsf{eq::Channel::applyBuffer}
@@ -2058,7 +2113,7 @@ void eq::Channel::applyBuffer()
 }
 \end{lstlisting}}
 
-The contextual information has to be used in order to render the view as
+The contextual information has to be used to render the view as
 expected by Equalizer. Failure to use certain information will result in
 incorrect rendering for some or all configurations. The channel render
 context consist of:
@@ -2079,7 +2134,7 @@ context consist of:
   current eye pass.
 \item[Head Transformation] A transformation matrix positioning the
   frustum. This is typically an identity matrix and is used for off-axis
-  frustra in immersive rendering. It is normally used to set up the
+  frusta in immersive rendering. It is normally used to set up the
   `view' part of the modelview matrix, before static light sources are
   defined.
 \item[Range] A one-dimensional range with the interval [0..1]. This
@@ -2092,8 +2147,8 @@ The \textsf{frameDraw} method in \textsf{eqPly} calls the
 \textsf{frameDraw} method from the parent class, the Equalizer
 channel. The default \textsf{frameDraw} method uses the apply
 convenience functions to setup the OpenGL state for all render context
-information, with the exception of the range which will be used later
-during rendering:
+information, except for the range which will be used later during
+rendering:
 
 {\footnotesize\begin{lstlisting}
 void eq::Channel::frameDraw( const uint32_t frameID )
@@ -2118,7 +2173,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/DB.png}
-  {\caption{\small\label{fDB}Destination view of a DB compound}}
+  {\caption{\small\label{fDBDest}Destination view of a DB compound}}
 \end{wrapfigure}
 After the basic view setup, a directional light is configured, and the
 model is positioned using the camera parameters from the frame data. The
@@ -2126,13 +2181,12 @@ camera parameters are transported using the the frame data to ensure
 that all channels render a given frame using the same position.
 
 Furthermore, a white color is set in case the model does not contain
-color information, or the color information is not used. In
-sort-last rendering, \textsf{eqPly} uses a different color for each
-channel to illustrate the database decomposition, as shown in
-\fig{fDB}. The Equalizer channel provides a method to obtain a random,
-but unique color for all channels in the configuration. This color is
-determined by the server to ensure uniqueness across all channels of the
-configuration:
+color information, or the color information is not used. In sort-last
+rendering, \textsf{eqPly} uses a different color for each channel to
+illustrate the database decomposition, as shown in \fig{fDBDest}. The
+Equalizer channel provides a method to obtain a random, but unique color
+for all channels in the configuration. This color is determined by the
+server to ensure uniqueness across all channels of the configuration:
 
 {\footnotesize\begin{lstlisting}
     glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
@@ -2192,12 +2246,12 @@ its place:
 }
 \end{lstlisting}}
 
-In order to draw the model, a helper class for view frustum culling is
-set up using the view frustum from Equalizer and the camera position
-from the frame data. The frustum helper computes the six frustum planes
-from the projection and modelView matrices. During rendering, the
-bounding spheres of the model are tested against these planes to
-determine the visibility with the frustum.
+To draw the model, a helper class for view frustum culling is set up
+using the view frustum from Equalizer and the camera position from the
+frame data. The frustum helper computes the six frustum planes from the
+projection and modelView matrices. During rendering, the bounding
+spheres of the model are tested against these planes to determine the
+visibility with the frustum.
 
 Furthermore, the render state from the window and the database range
 from the channel is obtained. The render state manages display list or
@@ -2226,12 +2280,12 @@ void Channel::_drawModel( const Model* model )
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Render Loop}}\vspace{-5ex}
+  {\caption{\small\label{fRender}Main Render Loop}}
 \end{wrapfigure}
-The model data is spatially organized in an 3-dimensional
+The model data is spatially organized in a 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
 for efficient view frustum culling. When the model is loaded by
-\textsf{Node::config\-Init}, it is preprocessed into the kD-tree During
+\textsf{Node::config\-Init}, it is preprocessed into the kD-tree. During
 this preprocessing step, each node of the tree gets a database range
 assigned. The root node has the range [0, 1], its left child [0, 0.5]
 and its right child [0.5, 1], and so on for all nodes in the tree. The
@@ -2240,7 +2294,7 @@ subsequent loading.
 
 The rendering loop maintains a list of candidates to render, which
 initially contains the root node. Each candidate of this list is tested
-for full visiblity against the frustum and range, and rendered if
+for full visibility against the frustum and range, and rendered if
 visible. It is dropped if it is fully invisible or fully out of
 range. If it is partially visible or partially in range, the children of
 the node are added to the candidate list. \fig{fRender} shows a flow
@@ -2320,25 +2374,25 @@ The main rendering loop in \textsf{eqPly} looks like this:
 
 \section{Advanced Features}
 
-This section discusses some additional important features not covered
-by the previous \textsf{eqPly} section. Where possible, code examples
-from the Equalizer distribution are used to illustrate one use case of
-the feature.
+This section discusses important features not covered by the previous
+\textsf{eqPly} section. Where possible, code examples from the Equalizer
+distribution are used to illustrate one usage of the feature. Its
+purpose is to provide information on how to address a typical problem or
+use case when developing an Equalizer-based application.
 
 
 \subsection{\label{sEventHandling}Event Handling}
 
-Event handling requires a lot of flexibility. On one hand, the
-implementation differs slightly for each operating and window system due
-to conceptual differences in the specific implementation. On the
-other hand, each application and widget set has its own model on how
-events are to be handled. Therefore, event handling in Equalizer is
-customizable at any stage of the processing, to the extreme of making it
-possible to disable all event-related code in Equalizer. In this aspect,
-Equalizer substantially differs from GLUT, which imposes an event model
-and hides most of the event handling in \textsf{glutMainLoop}. More
-information on event handling can be found on the Equalizer
-website\footnote{see
+Event handling requires flexibility. On one hand, the implementation
+differs slightly for each operating and window system due to conceptual
+differences in the specific implementation. On the other hand, each
+application and widget set has its own model on how events are to be
+handled. Therefore, event handling in Equalizer is customizable at any
+stage of the processing, to the extreme of making it possible to disable
+all event-related code in Equalizer. In this aspect, Equalizer
+substantially differs from GLUT, which imposes an event model and hides
+most of the event handling in \textsf{glutMainLoop}. More information on
+event handling can be found on the Equalizer website\footnote{see
   \link{http://www.equalizergraphics.com/documents/design/eventHandling.html}}.
 
 The default implementation provides a convenient, easily accessible
@@ -2346,8 +2400,8 @@ event framework, while allowing all necessary customizations. It gathers
 all events from all node processes in the main thread of the
 application, so that the developer only has to implement
 \textsf{Config::processEvent} to update its data based on the
-pre-processed, generic keyboard and mouse events. It is very easy to use
-and similar to an GLUT-based implementation.
+preprocessed, generic keyboard and mouse events. It is very easy to use
+and similar to a GLUT-based implementation.
 
 
 \subsubsection{Threading}
@@ -2362,11 +2416,10 @@ and the main thread for AGL.
 
 \subsubsection{\label{sMessagePump}Message Pump}
 
-In order to dispatch events, Equalizer 'pumps' the native events. On
-WGL and GLX, this happens on each thread with windows, whereas on
-AGL it happens only on the main thread. By default, Equalizer
-pumps these events automatically for the application in-between
-executing task methods.
+To dispatch events, Equalizer 'pumps' the native events. On WGL and GLX,
+this happens on each thread with windows, whereas on AGL it happens only
+on the main thread. By default, Equalizer pumps these events
+automatically for the application in-between executing task methods.
 
 The method \textsf{Pipe::useMessagePump} can be overridden to return
 \textsf{false} to not enable message dispatch for the respective thread.
@@ -2400,7 +2453,7 @@ The purpose of the \textsf{OSWindow} processing method,
 \textsf{processEvent}, is to perform window-system specific event
 processing. For example, \textsf{AGLWindow::processEvent} calls
 \textsf{aglUpdateContext} whenever a resize event is received. For
-further processing, the \textsf{Event} is passed on to
+further, generic processing, the \textsf{Event} is passed on to
 \textsf{Window::processEvent}. This \textsf{Event} no longer contains
 the native event.
 
@@ -2426,7 +2479,7 @@ event handling function.
 
 \subsubsection{Default Implementation}
 
-Currently, Equalizer provides an \textsf{AGLEvent\-Handler},
+Equalizer provides an \textsf{AGLEvent\-Handler},
 \textsf{GLXEventHandler} and \textsf{WGL\-Event\-Handler}, which handle
 events for an \textsf{AGLWindowIF}, \textsf{GLXWindowIF} and
 \textsf{WGLWindowIF}, respectively. \fig{fEventUML} illustrates the
@@ -2552,14 +2605,14 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 \end{lstlisting}}%>>
 
 
-\subsection{\label{sThreads}Multi-Threading and Synchronization}
+\subsection{\label{sThreads}Thread Synchronization}
 
-Equalizer applications use multiple, asynchronous execution threads. The
-default execution model is focused on making the porting of existing
-applications as easy as possible, as described in \sref{sExecution}. The
-default, per-node thread synchronization provided by Equalizer can be
-relaxed by advanced applications to gain better performance through
-higher asynchronicity.
+Equalizer applications use multiple, potentially asynchronous execution
+threads. The default execution model is focused on making the porting of
+existing applications as easy as possible, as described in
+\sref{sExecution}. The default, per-node thread synchronization provided
+by Equalizer can be relaxed by advanced applications to gain better
+performance through higher asynchronicity.
 
 \subsubsection{Threads}
 
@@ -2576,10 +2629,10 @@ The receiver thread manages the network connections to other nodes and
 receives data. It dispatches the received data either to the application
 threads, or to the command thread.
 
-The command thread processes Equalizer-related request from other nodes,
-for example during \textsf{eq::net::Object} mapping. In some special cases
-the command thread executes application code, for example when a remote
-node maps a static or unbuffered object,
+The command thread processes internal Equalizer request from other
+nodes, for example during \textsf{eq::net::Object} mapping. In some
+special cases the command thread executes application code, for example
+when a remote node maps a static or unbuffered object,
 \textsf{Object::getInstanceData} is called from the command thread.
 
 \begin{wrapfigure}{r}{.618\textwidth}
@@ -2608,10 +2661,10 @@ and experimentation.
 The following thread synchronization models are implemented:
 \begin{description}
 \item[ASYNC:] No synchronization happens between render threads, except
-  for synchonizing the finish of frame \textsf{current-latency}. The
+  for synchronizing the finish of frame \textsf{current-latency}. The
   \textsf{eqPly} and \textsf{eVolve} Equalizer examples use this
   threading model, by setting it in \textsf{Node::configInit}. This
-  synchonization model provides the best performance and should be used
+  synchronization model provides the best performance and should be used
   by all applications which multi-buffer all non-static, frame-specific
   data.
 \item[DRAW\_SYNC:] In addition to async thread model, all local render
@@ -2622,7 +2675,7 @@ The following thread synchronization models are implemented:
   execute any rendering tasks between frames. This is the default
   threading model. This threading model should be used by applications
   which keep one copy of the scene graph per node.
-\item[LOCAL\_SYNC:] In addition to the async threas model, all local
+\item[LOCAL\_SYNC:] In addition to the async thread model, all local
   frame operations, including readback, assemble and swap buffer are
   synchronized with the node main loop. This threading model should be
   used by applications which need to access non-buffered, frame-specific
@@ -2632,7 +2685,7 @@ The following thread synchronization models are implemented:
 \begin{figure}[ht!]\center
   \includegraphics[width=.9\textwidth]{images/threadModels.pdf}
   {\caption{\small\label{fThreadModels}Async, draw\_sync and local\_sync
-    thread sunchronization models}}
+    thread synchronization models}}
 \end{figure}
 
 \fig{fThreadModels} illustrates the synchronization and task execution
@@ -2664,7 +2717,7 @@ and can render different frames at the same time.
 Synchronizing the draw operations between multiple pipe render threads,
 and potentially the application thread, breaks DPlex decomposition. At
 any given time, only one frame can be rendered from the same
-process. The speed-up of DPlex relies however on the capability to
+process. The speedup of DPlex relies however on the capability to
 render different frames concurrently.
 
 If one process per GPU is configured, draw-synchronous applications can
@@ -2719,7 +2772,7 @@ The second, global synchronization is used for the frame completion
 during \textsf{Config::finishFrame}, which causes \textsf{frameFinish}
 to be called on all entities, passing the oldest frame number, i.e., frame
 \textsf{current-latency}. The \textsf{frameFinish} task methods have to
-call \textsf{releaseFrame} to signal that the entitity is done with the
+call \textsf{releaseFrame} to signal that the entity is done with the
 frame. The release causes the parent's \textsf{frameFinish} to be
 invoked, which is synchronized internally. Once all
 \textsf{Node::releaseFrame} have been called,
@@ -2811,7 +2864,7 @@ class.
 
 The method \textsf{Window::configInitOSWindow} is used to instantiate
 and initialize the \textsf{OSWindow} implementation during config
-initialization. After an successful \textsf{OSWindow} initialization,
+initialization. After a successful \textsf{OSWindow} initialization,
 \textsf{Window::configInitGL} is called for the generic OpenGL state
 setup.
 
@@ -2832,7 +2885,7 @@ format selection.
 \subsubsection{\label{sDrawableConfig}Drawable Configuration}
 
 OpenGL drawables have a multitude of buffer modes. A drawable might be
-single-buffered, double-buffered or quad-buffered, have auxilary image
+single-buffered, double-buffered or quad-buffered, have auxiliary image
 planes such as stencil, accumulation and depth buffer or multisampling.
 
 The OpenGL drawable is configured using window attributes. These
@@ -3039,9 +3092,9 @@ bool WGLWindow::configInit()
 \subsection{\label{sTracking}Head Tracking}
 
 The \textsf{eqPly} example contains rudimentary support for head
-tracking, in order to show how head tracking can be integrated with
-Equalizer. Support for a wide range of tracking devices is not within the
-scope of Equalizer. Other open source and commercial implementations
+tracking to show how head tracking can be integrated with
+Equalizer. Support for a wide range of tracking devices is not within
+the scope of Equalizer. Other open source and commercial implementations
 cover this functionality sufficiently and can easily be integrated with
 Equalizer.
 
@@ -3053,7 +3106,7 @@ Equalizer.
   \subfigure[]{\label{fTracked}
     \includegraphics[height=3.5cm]{images/tracked}}%
   {\caption{\small\label{fImmersive}Monoscopic, Stereoscopic and Tracked
-    frustra}}
+    frusta}}
 \end{figure}
 
 \fig{fMono} illustrates a monoscopic view frustum. The viewer is
@@ -3061,14 +3114,14 @@ positioned at the origin of the global coordinate system, and the
 frustum is completely symmetric. This is the typical view frustum for
 non-stereoscopic applications.
 
-In stereo rendering, the scene is rendered twice, with the two frustra
+In stereo rendering, the scene is rendered twice, with the two frusta
 'moved' by the distance between the eyes, as shown in \fig{fStereo}.
 
 In immersive visualization, the observer is tracked in and the view
-frustra are adapted to the viewer's position and orientation, as shown
+frusta are adapted to the viewer's position and orientation, as shown
 in \fig{fTracked}. The transformation $origin \rightarrow viewer$ is set by
-the application using \textsf{Config::setHeadMatrix}, which is used by
-the server to compute the frustra. The resulting off-axis frustra are
+the application using \textsf{Config::setHead\-Matrix}, which is used by
+the server to compute the frusta. The resulting off-axis frusta are
 positioned using the channel's head transformation, which can be
 retrieved using \textsf{Channel::getHeadTransform}.
 
@@ -3142,12 +3195,11 @@ buffer data between nodes.
 Normally the programmer does not need to interfere with the image
 compositing. Changes are sometimes required at a high level, for example
 to order the input frames or to optimize the readback. The following
-sections provide a detailed description of the image compositing API in
-Equalizer.
+sections describe the image compositing API in Equalizer.
 
 \subsubsection{\label{sDirectSend}Parallel Direct Send Compositing}
 
-In order to provide a motivation for the design of the image compositing
+To provide a motivation for the design of the image compositing
 API, the direct send parallel compositing algorithm is introduced in this
 section. Other parallel compositing algorithms, e.g. binary-swap, can
 also be expressed through an Equalizer configuration file.
@@ -3182,7 +3234,7 @@ Equalizer website contains a
 presentation\footnote{\link{http://www.equalizergraphics.com/documents/EGPGV07.pdf}}
 explaining and comparing this algorithm with the binary-swap algorithm.
 
-The following operations have to be possible in order to perform this
+The following operations have to be possible to perform this
 algorithm:
 \begin{itemize}
 \item Selection of color and/or depth frame buffer attachments
@@ -3210,7 +3262,7 @@ two-dimensional snapshot of the framebuffer and can contain color and/or
 depth information.
 
 The frame synchronization through the frame data allows the input frame
-to wait for the pixel data to become ready, which is signalled by the
+to wait for the pixel data to become ready, which is signaled by the
 output frame after readback.
 
 Furthermore, the frame data transports the inherited range of the output
@@ -3226,15 +3278,15 @@ Currently, only synchronous readback and assembly using
 respective start method of the image. Later versions of Equalizer will
 implement asynchronous pixel transfers.
 
+The offset of input and output frames characterizes the position of the
+frame data relative to the framebuffer, that is, the \textbf{window's}
+lower-left corner. For output frames this is the position of the channel
+relative to the window.
+
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/assembly.pdf}
   {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
 \end{wrapfigure}
-The offset of input and output frames characterizes the position of the
-frame data with respect to the framebuffer, that is, the
-\textbf{window's} lower-left corner. For output frames this is the
-position of the channel with respect to the window.
-
 For output frames, the frame data's pixel viewport is the area of the
 frame buffer to read back. It will transport the offset from the source
 to the destination channel, that is, the frame data pixel viewport for
@@ -3254,9 +3306,8 @@ and images.
 The \textsf{eVolve} example is a scalable volume renderer. It uses 3D
 texture-based volume rendering, where the 3D texture is intersected by
 view-aligned slices. The slices are rendered back-to-front and blended
-together to produce the final image, as shown in
-\fig{fSlices}\footnote{Volume Data Set courtesy of: SFB-382 of the German
-  Research Council (DFG)}.
+to produce the final image, as shown in \fig{fSlices}\footnote{Volume
+  Data Set courtesy of: SFB-382 of the German Research Council (DFG)}.
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/slices.pdf}
@@ -3290,12 +3341,12 @@ visualize with any other approach.
   \includegraphics[width=.382\textwidth]{images/volResult.png}
   {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
 \end{wrapfigure}
-For recomposition, the 2D frame buffer contents are blended together to
-form a seamless picture. For correct blending, the frames are ordered in
-the same back-to-front order as the slices used for rendering, and use the
+For recomposition, the 2D frame buffer contents are blended to form a
+seamless picture. For correct blending, the frames are ordered in the
+same back-to-front order as the slices used for rendering, and use the
 same blending parameters. Simplified, the frame buffer images are
 `thick' slices which are `rendered' by writing their content to the
-destination frame buffer using the correct order. 
+destination frame buffer using the correct order.
 
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
@@ -3305,9 +3356,9 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
-Finding the correct assembly order for perspective frustra is more
+Finding the correct assembly order for perspective frusta is more
 complex. The perspective distortion invalidates a simple orientation
-criteria like the one used for orthographic frustra. For the view and
+criteria like the one used for orthographic frusta. For the view and
 frustum setup shown in \fig{fBlendPerspective}\footnote{Volume Data Set
   courtesy of: AVS, USA} the correct compositing order is 4-3-1-2 or
 1-4-3-2.
@@ -3320,12 +3371,12 @@ frustum setup shown in \fig{fBlendPerspective}\footnote{Volume Data Set
     \includegraphics[width=.55\textwidth]{images/b2f_perspective.pdf}
   }%
   {\caption{\small\label{fBlend}Back-to-Front Com\-po\-siting for
-      Orthogonal and Perspective View Frustra}}
+      Orthogonal and Perspective View Frusta}}
 \end{figure}
 
-In order to compute the assembly order, \textsf{eVolve} uses the angle
-between the $origin \rightarrow slice$ vector and the near plane, as shown
-in \fig{fBlendPerspective}. When the angle becomes greater than
+To compute the assembly order, \textsf{eVolve} uses the angle between
+the $origin \rightarrow slice$ vector and the near plane, as shown in
+\fig{fBlendPerspective}. When the angle becomes greater than
 90\textdegree, the compositing order of the remaining frames has to be
 changed. The result image of this composition naturally looks the same
 as the volume rendering would when rendered on a single
@@ -3343,7 +3394,7 @@ compositing algorithms such as direct-send.
 Statistics are measured in milliseconds since the configuration was
 initialized. On each node, the global configuration clock is reset at
 the same time by the server during \textsf{Config::init}. Each statistic
-event records the originator's (channel, window or config) unique
+event records the originator's (channel, window, node or config) unique
 identifier.
 
 \begin{wrapfigure}{r}{.382\textwidth}
@@ -3367,8 +3418,7 @@ event per frame and per originator. When a frame has been finished, the
 events are pushed to the local (app-)node for visualization.
 
 \fig{fStatistics} shows the visualization of statistics events in an
-overlay\footnote{3D model courtesy Stanford University Computer Graphics
-  Laboratory.}.
+overlay\footnote{3D model courtesy Cyberware, Inc.}.
 
 \subsubsection{Statistics Overlay}
 
@@ -3395,19 +3445,23 @@ This compound executes two \textsf{Channel::frameDraw} tasks, one
 \textsf{Channel::frame\-Read\-back} task on the remote node and one
 \textsf{Channel::frameAssemble} task on the local node.
 
-The X axis is the time. One pixel on the screen corresponds to one
-millisecond. The right-most pixel is the most current time. On the Y
-axis are the rendering entities: channels, windows and the config. The
-upper channel is the local channel since it executes
-\textsf{frameAssemble}, and the lower channel is the remote channel,
-executing {frameReadback}.
+The X axis is the time. One pixel on the screen corresponds to a given
+time unit, typically one millisecond. The scale is adapted dynamically
+to powers-of-ten milliseconds to fit the statistics into the available
+viewport. This allows easy and accurate evaluations of bottlenecks or
+misconfigurations in the rendering pipeline. The scale of the statistics
+is printed.
 
-The remote machine is a Mac Mini, the local a MacBook Pro. The draw
-times are unbalanced due to the speed difference of the machines, and
-the transmit time is relatively long since 100 MBit Ethernet was used.
+The rightmost pixel is the most current time. On the Y axis are the
+rendering entities: channels, windows, nodes and the config. The upper
+channel is the local channel since it executes \textsf{frameAssemble},
+and the lower channel is the remote channel, executing {frameReadback}.
 
-In order to facilitate the understanding, older frames are gradually
-greyed out. The right-most, current frame is brighter than the
+The draw time has been artificially inflated by using immediate mode
+rendering to provide more expressive statistics.
+
+To facilitate the understanding, older frames are gradually grayed
+out. The rightmost, current frame is brighter than the
 frame-before-last.
 
 The configuration used has a latency of one frame. Consequently, the
@@ -3429,29 +3483,31 @@ early, and therefore spends a considerable amount of time waiting for
 the input frame from the remote channel. These wait events, rendered
 red, are a sub-event of the yellow \textsf{frameAssemble} task.
 
-The white \textsf{Window::swapBuffers} task takes also a long time in
-debug builds, since the execution of the swap buffer is locked to the
-vertical retrace of the display, and enforced by \textsf{glFinish}
-before sampling the end time of the event. In release builds, this does
-not happen and all OpenGL commands are pipelined with the execution on
-the CPU.
+The white \textsf{Window::swapBuffers} task might also take also a long
+time, since the execution of the swap buffer is locked to the vertical
+retrace of the display, and enforced by \textsf{glFinish} before
+sampling the end time of the event. In release builds, this does not
+happen and all OpenGL commands are pipelined with the execution on the
+CPU.
 
 The configuration used in this examples does not use a swap
 barrier. Swap barrier tasks are solid red events directly in front of
 the white swap buffer task.
 
+Note that the remote source window does not execute the swapBuffers in
+this configuration, since it is a single-buffered PBuffer.
 
 \newpage
 \appendix
 \section{\label{aFileFormat}File Format}
 
-The file format currently used is the one-to-one representation of the
+The current Equalizer file format is a one-to-one representation of the
 server's internal data structures. Its purpose is intermediate, that is,
-it will gradually be replaced by automatic resource dedection and
-automatic configuration. However the core scalability engine will
-always use a similar structure as currently exposed by the file format.
+it will gradually be replaced by automatic resource detection and
+automatic configuration. However the core scalability engine will always
+use a similar structure as currently exposed by the file format.
 
-The file format represents an ascii deserialization of the
+The file format represents an ASCII deserialization of the
 server. Streaming an \textsf{eq::server::Server} to an \textsf{eq::base::Log}
 ostream produces a valid configuration file. Likewise, loading a
 configuration file produces an \textsf{eq::server::Server}.
@@ -3482,7 +3538,7 @@ compound. The connection is used by the server and nodes.
 
 The datatype is one capital letter for the type of the attribute's
 value: \textsf{S} for strings, \textsf{C} for a character, \textsf{I}
-for an integer and \textsf{F} for floating-point values. Enumation
+for an integer and \textsf{F} for floating-point values. Enumeration
 values are handled as integers. Strings have always to be surrounded by
 double quotes '\textsf{''}'. A character has to be surrounded by single
 quotes '\textsf{'}'.
@@ -3491,7 +3547,7 @@ The attribute name is the capitalized name of the entities attribute, as
 discussed in the following sections.
 
 Global attribute values have useful default parameters, which can be
-overriden with an environment variable of the same name. For enumeration
+overridden with an environment variable of the same name. For enumeration
 values the corresponding integer value has to be used. The global values
 in the config file override environment variables, and are in turn
 overridden by the corresponding attributes sections of the specific
@@ -3513,6 +3569,8 @@ name followed by its value. The following attributes are available:
   server is bound to this address. When used for a node, the server
   first tries to connect to the render client node using this hostname,
   and then tries to launch the render client executable on this host.\\
+  \textbf{See also} & EQ\_CONNECTION\_SATTR\_LAUNCH\_COMMAND
+  EQ\_CONNECTION\_IATTR\_TCPIP\_PORT EQ\_CONNECTION\_IATTR\_TYPE\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -3522,13 +3580,15 @@ name followed by its value. The following attributes are available:
   \textbf{Value} & string\\
   \textbf{Default} & ssh -n \%h \%c \textgreater\& \%h.\%n.log [POSIX]\\
                    & ssh -n \%h \%c [WIN32]\\
-  \textbf{Details} & The command used by the server to launch nodes
+  \textbf{Details} & The command used by the server to auto-launch nodes
   which could not be connected. The launch command is executed from a
   process forked from the server process. The \% tokens are replaced by
   the server at runtime with concrete data: \%h is replaced by the
-  hostname, \%c by the command to launch, including command line
+  hostname, \%c by the render client command to launch, including command line
   arguments and \%n by a node-unique identifier. Each command line
   argument is surrounded by launch command quotes.\\
+  \textbf{See also} & EQ\_CONNECTION\_SATTR\_LAUNCH\_COMMAND\_QUOTE 
+  EQ\_CONNECTION\_IATTR\_LAUNCH\_TIMEOUT\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -3542,8 +3602,8 @@ name followed by its value. The following attributes are available:
   render client nodes correctly. Certain launch commands or shells use
   different conventions to separate command line arguments. These
   arguments might contain white spaces, and therefore have to be
-  surrounded by quotes to
-  identify their borders.\\
+  surrounded by quotes to identify their borders. This option is mostly
+  used on Windows.\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -3577,7 +3637,7 @@ name followed by its value. The following attributes are available:
   \hline
   \textbf{Name} & EQ\_CONNECTION\_IATTR\_LAUNCH\_TIMEOUT\\
   \textbf{Value} & unsigned\\
-  \textbf{Default} & 60'000\\
+  \textbf{Default} & 60'000 (1 minute)\\
   \textbf{Details} & Defines the timeout in milliseconds to wait for
   an auto-launched node. If the render client process did not contact
   the server within that time, the node is considered to be unreachable
@@ -3593,6 +3653,8 @@ name followed by its value. The following attributes are available:
   \textbf{Details} & The distance in meters between the left and the
   right eye, i.e., the eye separation. The eye base influences the
   frustum during stereo rendering. See \sref{sTracking} for details.\\
+  \textbf{See also} & EQ\_WINDOW\_IATTR\_HINT\_STEREO 
+  EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -3603,6 +3665,19 @@ name followed by its value. The following attributes are available:
   \textbf{Default} & DRAW\_SYNC\\
   \textbf{Details} & The threading model for node synchronization. See 
   \sref{sThreadModel} for details.\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_NODE\_IATTR\_HINT\_STATISTICS\\
+  \textbf{Value} & OFF \textbar \ FASTEST [ON] \textbar \ NICEST\\
+  \textbf{Default} & FASTEST [Release Build]\\
+                   & NICEST [Debug Build]\\
+  \textbf{Details} & Determines how statistics are gathered. Fastest and
+  nicest currently gather statistics in the same way.\\
+  \textbf{See also} & EQ\_WINDOW\_IATTR\_HINT\_STATISTICS 
+  EQ\_CHANNEL\_IATTR\_HINT\_STATISTICS\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -3624,9 +3699,10 @@ name followed by its value. The following attributes are available:
   \textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
   \textbf{Default} & AUTO\\
   \textbf{Details} & Determines if the window selects a quad-buffered
-  stereo visual. When set to AUTO, the window initialization methods try
+  stereo visual. When set to AUTO, the default window initialization methods try
   to allocate a stereo visual for windows, but fall back to a mono
   visual if allocation fails. For PBuffers, AUTO selects a mono visual.\\
+  \textbf{See also} & EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -3636,7 +3712,7 @@ name followed by its value. The following attributes are available:
   \textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
   \textbf{Default} & AUTO\\
   \textbf{Details} & Determines if the window selects a double-buffered
-  stereo visual. When set to AUTO, the window initialization methods try
+  stereo visual. When set to AUTO, the default window initialization methods try
   to allocate a double-buffered visual for windows, but fall back to a
   single-buffered visual if allocation fails. For PBuffers, AUTO selects
   a single-buffered visual.\\
@@ -3649,7 +3725,7 @@ name followed by its value. The following attributes are available:
   \textbf{Value} & OFF \textbar \ ON\\
   \textbf{Default} & ON\\
   \textbf{Details} & When set to OFF, window borders and other
-  decorations are disabled, and typically the window can not be moved or
+  decorations are disabled, and typically the window cannot be moved or
   resized. This option is useful for source windows during
   decomposition. The implementation is window-system specific.\\
   \hline
@@ -3675,7 +3751,7 @@ name followed by its value. The following attributes are available:
   the vertical retrace of the display. This option is currently not
   implemented for GLX. For WGL, the WGL\_EXT\_swap\_control extension is
   required. For optimal performance, set swap synchronization to OFF for
-  source-only windows.\\
+  source-only windows. This option has no effect on single-buffered windows.\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -3687,9 +3763,9 @@ name followed by its value. The following attributes are available:
   \textbf{Details} & Selects the window's drawable type. A window is an
   on-screen, window system-dependent window with a full-window OpenGL
   drawable. PBuffers are off-screen drawables created using window
-  system-dependent PBuffer API's. In order to calculate the PBuffer size
-  on unconnected devices, a pipe viewport size of 4096x4096 is assumed,
-  unless specified otherwise.\\
+  system-dependent PBuffer API's. To calculate the PBuffer size on
+  unconnected devices, a pipe viewport size of 4096x4096 is assumed,
+  unless specified otherwise using the pipe's viewport parameter.\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -3709,6 +3785,8 @@ name followed by its value. The following attributes are available:
   statistics directly, without finishing the OpenGL commands first. Some
   operations, e.g., frame buffer readback, inherently finish all
   previous OpenGL commands.\\
+  \textbf{See also} & EQ\_NODE\_IATTR\_HINT\_STATISTICS 
+  EQ\_CHANNEL\_IATTR\_HINT\_STATISTICS\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -3812,6 +3890,8 @@ name followed by its value. The following attributes are available:
   \textbf{Default} & FASTEST [Release Build]\\
                    & NICEST [Debug Build]\\
   \textbf{Details} & See EQ\_WINDOW\_IATTR\_HINT\_STATISTICS.\\
+  \textbf{See also} & EQ\_NODE\_IATTR\_HINT\_STATISTICS 
+  EQ\_WINDOW\_IATTR\_HINT\_STATISTICS\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -3826,7 +3906,7 @@ name followed by its value. The following attributes are available:
   \textsf{glColorMask} to mask colors for individual eye passes, used in
   conjunction with colored glasses.\\
   \hline
-\end{tabularx}\\\vfill
+\end{tabularx}\\%\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
@@ -3836,7 +3916,7 @@ name followed by its value. The following attributes are available:
   \textbf{Details} & Select the color mask for the left eye pass during
   anaglyphic stereo rendering.\\
   \hline
-\end{tabularx}\\\vfill
+\end{tabularx}\\%\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
@@ -3846,21 +3926,7 @@ name followed by its value. The following attributes are available:
   \textbf{Details} & Select the color mask for the right eye pass during
   anaglyphic stereo rendering.\\
   \hline
-\end{tabularx}\\\vfill
-
-\begin{tabularx}{\textwidth}{|l|X|}
-  \hline
-  \textbf{Name} & EQ\_COMPOUND\_IATTR\_UPDATE\_FOV\\
-  \textbf{Value} & HORIZONTAL [ON] \textbar \ VERTICAL \textbar \ OFF\\
-  \textbf{Default} & HORIZONTAL\\
-  \textbf{Details} & Define how the wall or projection description is
-  updated when a window is resized. Horizontal increases or decreases
-  the horizontal field of view, while keeping the vertical size
-  constant. Vertical updates the vertical field of view, while keeping
-  the horizontal size constant. OFF does not update the wall or
-  projection description at all.\\
-  \hline
-\end{tabularx}\\
+\end{tabularx}\\%\vfill
 \end{center}
 
 \subsection{Server Section}
@@ -3876,7 +3942,7 @@ process. Currently two connection types, TCP/IP and SDP, are
 supported. TCP/IP creates a TCP socket. SDP is very similar, except that
 the address family \textsf{AF\_INET\_SDP} instead of \textsf{AF\_INET}
 is used to enforce a SDP connection. Note that you can also use the
-transparent mode provided by most InfiniBand implementations to used SDP
+transparent mode provided by most InfiniBand implementations to use SDP
 with TCP connections. 
 
 Furthermore, a port for the socket can be specified. When no port is
@@ -3890,15 +3956,15 @@ node may have multiple connection descriptions.
 
 A server listens on all provided connection descriptions. If no hostname
 is specified for a server connection description, it listens to
-INADDR\_ANY, and is therefore reachable on all interfaces. If the
-server's hostname is specified, the listening socket is bound to this
-address. If any hostname given is not resolvable, or any port can not be
-used, server initialization will fail. 
+INADDR\_ANY, and is therefore reachable on all network interfaces. If
+the server's hostname is specified, the listening socket is bound only
+to this address. If any of the given hostnames is not resolvable, or any
+port cannot be used, server initialization will fail.
 
 For a node, all connection descriptions are used while trying to
 establish a connection to the node. When auto-launched by the server,
 all connection descriptions of the node are passed to the launched node
-process, which binds to all provided descriptions.
+process, which will caus it to bind to all provided descriptions.
 
 {\footnotesize\begin{lstlisting}
 server
@@ -3970,7 +4036,8 @@ node
     }
     attributes
     {
-        thread_model ASYNC | DRAW_SYNC | LOCAL_SYNC
+        thread_model    ASYNC | DRAW_SYNC | LOCAL_SYNC
+        hint_statistics FASTEST | NICEST | OFF
     }
     pipe {...} // 1-n times
 }
@@ -3998,7 +4065,7 @@ selected display, but not restricted to the attached GPU.
 
 For the WGL window system, the device selects the \textit{n}th GPU in
 the system. The GPU can be offline, in this case only PBuffer windows
-can be used. In order to restrict the OpenGL output to the GPU, the
+can be used. To restrict the OpenGL output to the GPU, the
 \textsf{WGL\_NV\_gpu\_affinity} extension is used. If the extension is
 not present, the window is opened on the \textit{n}th monitor, but
 OpenGL commands are sent to all GPU's.
@@ -4136,8 +4203,8 @@ For a description of compound attributes please refer to \sref{sGlobal}.
 
 A wall or projection description is used to define the view frustum of
 the compound. The frustum is inherited and typically only defined on the
-top-most compound. The last specified frustum description is used. Sizes
-are specified in meters. \fig{fFrustra} illustrates the frustum
+topmost compound. The last specified frustum description is used. Sizes
+are specified in meters. \fig{fFrusta} illustrates the frustum
 parameters.
 
 A swap barrier is used to synchronize the output of multiple
@@ -4216,7 +4283,7 @@ compound
 
 \cleardoublepage
 \pagestyle{empty}
-\begin{textblock}{}(0,5)
+\begin{textblock}{}(0,4.5)
   \hspace{-1cm}\includegraphics[width=22cm]{images/teaserBack.pdf}
 \end{textblock}
 

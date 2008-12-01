@@ -1,11 +1,12 @@
 \NeedsTeXFormat{LaTeX2e}
 \documentclass[10pt]{scrartcl}
 
-\usepackage{tabularx,graphicx,listings,wrapfig,color}
+\usepackage{tabularx,graphicx,listings,wrapfig,color,rotating}
 
 \usepackage[vcentering,pdftex]{geometry}
+\usepackage[absolute]{textpos}
 
-\geometry{papersize={1208pt,860pt}}
+\geometry{papersize={1220pt,860pt}}
 
 \newcommand{\boxwidth}{5in}
 \newcommand{\spacewidth}{604pt}
@@ -19,6 +20,13 @@
 \begin{document}
 \thispagestyle{empty}
 
+\begin{textblock}{}(15.92,4.45)
+  \begin{rotate}{270}
+    \colorbox{red}{\textsf{\bfseries\Large\textcolor{white}{
+          \hspace{2.09cm}Equalizer 0.6 Programming Guide\hspace{2.09cm}}}}
+  \end{rotate}
+\end{textblock}
+
 \vfill
 \parbox[t]{\spacewidth}{\hfill}
 \parbox[t]{\boxwidth}{
@@ -27,15 +35,19 @@
   {\Large Eyescale Software GmbH}
 }\\
 \vfill
-\hspace{-122pt}\colorbox{red}{
-  \hspace{604pt}\includegraphics[width=604pt]{images/teaser.pdf}
-}\\
+\hspace{-128pt}
+  \includegraphics[width=604pt]{images/teaserBack.pdf}
+  \hspace{11pt}
+  \includegraphics[width=604pt]{images/teaser.pdf}
+\\
 \vfill
 \parbox[t]{\spacewidth}{\hfill}
-\parbox[t]{\boxwidth}{
-  \center
-  {\Large Version 1.2 for Equalizer 0.5}\\[\bigskipamount]
-  {\Large \today}
+\parbox[t]{\boxwidth}{ 
+  {\Large\sffamily The official reference for creating parallel,
+    scalable {OpenGL\texttrademark} applications with the Equalizer
+    parallel rendering framework}\\\vspace{1cm}
+  \center 
+  {\Large Revision 1.4 for Equalizer 0.6}\\[\medskipamount]
 }
 
 \end{document}
