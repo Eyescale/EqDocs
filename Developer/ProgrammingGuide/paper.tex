@@ -23,7 +23,7 @@
   {\Large\sffamily The official reference for creating parallel,
     scalable OpenGL\texttrademark\ applications with the Equalizer
     parallel rendering framework}\\\vspace{1cm}
-  Version 1.5.1 for Equalizer 0.6+svn\\[\medskipamount]
+  Version 1.5.2 for Equalizer 0.6+svn\\[\medskipamount]
 %  \today
 }
 
@@ -62,7 +62,7 @@ Marten and Patrick Bouchaud.
 
 \subsection*{Copyright}
 
-\textcopyright 2007-2008 \htmladdnormallink{Eyescale Software GmbH}
+\textcopyright 2007-2009 \htmladdnormallink{Eyescale Software GmbH}
 {http://www.eyescale.ch}. All rights reserved. No permission is
 granted to copy, distribute, or create derivative works from the
 contents of this electronic documentation in any manner, in whole or in
@@ -118,6 +118,7 @@ The images on the back page show the following scalable rendering modes:
     1.2     & Apr 15, 2008 & Revision for Equalizer 0.5\\
     1.4     & Nov 25, 2008 & Revision for Equalizer 0.6\\
     1.5.1   & Dec 08, 2008 & Minor updates based on the print version\\
+    1.5.2   & Jan 10, 2009 & Added \sref{sCompositor}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -3302,6 +3303,38 @@ pixel viewport of the frame data.
 \fig{fAssembly} illustrates the relationship between frames, frame data
 and images.
 
+\subsubsection{\label{sCompositor}The Compositor}
+
+%\begin{wrapfigure}{r}{.618\textwidth}
+\begin{figure}[h!t]\center
+  \includegraphics[width=.9\textwidth]{images/compositor.pdf}
+  {\caption{\small\label{fCompositor}Functional diagram of the compositor}}
+\end{figure}
+The \textsf{Compositor} class gathers a set of static functions which
+implement the various compositing algorithms and low-level
+optimizations. \fig{fCompositor} provides a top-down functional overview
+of the various compositor functions.
+
+On a high level, the compositor combines multiple input frames using 2D
+tiling, depth-compositing for polygonal data or sorted, alpha-blended
+compositing for semi-transparent volumetric data. These operations
+composite either directly all images on the GPU, or use a CPU-based
+compositor and then transfer the pre-integrated result to the GPU. The
+high-level entry points automatically select the best algorithm. The
+CPU-based compositor uses, based on availability, OpenMP and the
+Paracomp compositing library to accelerate its operation.
+
+On the next lower level, the compositor provides functionality to
+composite a single frame, either using 2D tiling (possibly with blending
+for alpha-blended compositing) or depth-based compositing. 
+
+The per-frame compositing in turn relies on the per-image compositing
+functionality, which automatically decides on the algorithm to be used
+(2D or depth-based). The concrete per-image assembly operation uses
+OpenGL operations to composite the pixel data into the framebuffer,
+potentially using GLSL for better performance.
+
+
 \subsubsection{Custom Assembly in eVolve}
 
 The \textsf{eVolve} example is a scalable volume renderer. It uses 3D
@@ -3310,10 +3343,6 @@ view-aligned slices. The slices are rendered back-to-front and blended
 to produce the final image, as shown in \fig{fSlices}\footnote{Volume
   Data Set courtesy of: SFB-382 of the German Research Council (DFG)}.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\small\label{fSlices}Volume Rendering using 3D Textures}}
-\end{wrapfigure}
 When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
 mostly fill-limited and therefore scales nicely in these modes. 
@@ -3339,8 +3368,8 @@ make it possible to render data sets which are not feasible to
 visualize with any other approach.
 
 \begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\small\label{fSlices}Volume Rendering using 3D Textures}}
 \end{wrapfigure}
 For recomposition, the 2D frame buffer contents are blended to form a
 seamless picture. For correct blending, the frames are ordered in the
@@ -3357,12 +3386,25 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
+\begin{wrapfigure}{l}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 Finding the correct assembly order for perspective frusta is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frusta. For the view and
 frustum setup shown in \fig{fBlendPerspective}\footnote{Volume Data Set
   courtesy of: AVS, USA} the correct compositing order is 4-3-1-2 or
 1-4-3-2.
+
+To compute the assembly order, \textsf{eVolve} uses the angle between
+the $origin \rightarrow slice$ vector and the near plane, as shown in
+\fig{fBlendPerspective}. When the angle becomes greater than
+90\textdegree, the compositing order of the remaining frames has to be
+changed. The result image of this composition naturally looks the same
+as the volume rendering would when rendered on a single
+channel. \fig{fVolResult} shows the result of the composition from
+\fig{fBlendPerspective}.
 
 \begin{figure}[h!t]
   \subfigure[]{\label{fBlendOrtho}
@@ -3374,15 +3416,6 @@ frustum setup shown in \fig{fBlendPerspective}\footnote{Volume Data Set
   {\caption{\small\label{fBlend}Back-to-Front Com\-po\-siting for
       Orthogonal and Perspective View Frusta}}
 \end{figure}
-
-To compute the assembly order, \textsf{eVolve} uses the angle between
-the $origin \rightarrow slice$ vector and the near plane, as shown in
-\fig{fBlendPerspective}. When the angle becomes greater than
-90\textdegree, the compositing order of the remaining frames has to be
-changed. The result image of this composition naturally looks the same
-as the volume rendering would when rendered on a single
-channel. \fig{fVolResult} shows the result of the composition from
-\fig{fBlendPerspective}.
 
 The assembly algorithm described in this section also works with parallel
 compositing algorithms such as direct-send. 
@@ -3398,10 +3431,6 @@ the same time by the server during \textsf{Config::init}. Each statistic
 event records the originator's (channel, window, node or config) unique
 identifier.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/statistics.png}
-  {\caption{\small\label{fStatistics}Statistics for a two-node 2D compound}}
-\end{wrapfigure}
 Statistics are enabled per entity using an attribute hint. The hint
 determines how precise the gathered statistics are. When set to
 \textsf{fastest}, the per-frame clock is sampled directly when the event
@@ -3410,6 +3439,10 @@ finished before sampling the event. This incurs a performance penalty,
 but gives more correct results. The default setting is fastest in
 release builds, and nicest in debug builds.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/statistics.png}
+  {\caption{\small\label{fStatistics}Statistics for a two-node 2D compound}}
+\end{wrapfigure}
 The events are processed by the channel's and window's
 \textsf{processEvent} method. The default implementation sends these
 events to the config, using \textsf{Config::sendEvent}, as explained in
