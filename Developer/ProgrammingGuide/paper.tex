@@ -23,7 +23,7 @@
   {\Large\sffamily The official reference for creating parallel,
     scalable OpenGL\texttrademark\ applications with the Equalizer
     parallel rendering framework}\\\vspace{1cm}
-  Version 1.5.2 for Equalizer 0.6+svn\\[\medskipamount]
+  Version 1.5.3 for Equalizer 0.6+svn\\[\medskipamount]
 %  \today
 }
 
@@ -119,6 +119,7 @@ The images on the back page show the following scalable rendering modes:
     1.4     & Nov 25, 2008 & Revision for Equalizer 0.6\\
     1.5.1   & Dec 08, 2008 & Minor updates based on the print version\\
     1.5.2   & Jan 10, 2009 & Added \sref{sCompositor}\\
+    1.5.3   & Jan 13, 2009 & Added \sref{sNetwork}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -1176,7 +1177,7 @@ bool Application::clientLoop()
 \end{lstlisting}}%>>
 
 
-\subsection{Distributed Objects}
+\subsection{\label{sNetObject}Distributed Objects}
 
 Equalizer provides distributed objects which help implementing data
 distribution in a cluster environment. The master version of a
@@ -3530,6 +3531,218 @@ the white swap buffer task.
 
 Note that the remote source window does not execute the swapBuffers in
 this configuration, since it is a single-buffered PBuffer.
+
+
+\subsection{\label{sNetwork}The Network Layer}
+
+The Equalizer networking layer provides a peer-to-peer communication
+infrastructure. It is used by Equalizer to communicate between the
+application node, the server and the render clients. It can also be
+used by applications to implement distributed processing independently
+or complementary to the core Equalizer functionality.
+
+The network layer is implemented in the \textsf{eq::net} namespace. It
+provides layered functionality, which provide higher level functionality
+for the programmer. The main primitives in the network layer are:
+
+\begin{description}
+\item[Connection] A stream-oriented point-to-point communication
+  line. Different implementations of a connection exist.
+\item[Node] The abstraction of a process in the cluster. Nodes
+  communicate with each other using connections.
+\item[Session] Provides unique identifiers and object mapping to a set
+  of nodes.
+\item[Object] Provides object-oriented data distribution of C++ objects
+  between nodes within a session.
+\end{description}
+
+\subsubsection{Connections}
+
+The \textsf{eq::net::Connection} is the basic primitive used for
+communication between processes in Equalizer. It provides a
+stream-oriented communication between two endpoints.
+
+A connection is either closed, connected or listening. A closed
+connection can not be used for communications. A connected connection
+can be used to read or write data to the communication peer. A listening
+connection can accept connection requests.
+
+An \textsf{eq::net::ConnectionSet} is used to manage multiple
+connections. The typical use case is to have one or more listening
+connections for the local process, and a number of connected connections
+for communicating with other processes.
+
+The connection set is used to select one connection which requires some
+action. This can be a connection request on a listening connection,
+pending data on a connected connection or the notification of a
+disconnect.
+
+The connection and connection set can be used by applications to
+implement other networking-related functionality, e.g., to communicate
+with a sound server on a different machine.
+
+
+\subsubsection{Packet Handling}
+
+Nodes, sessions and objects communicate using packets derived from
+\textsf{eq::net::Packet}. The basic packet dispatch and handling is
+implemented in the \textsf{eq::net::Base} class, from which
+\textsf{eq::net::Node}, \textsf{eq::net::Session} and
+\textsf{eq::net::Object} is subclassed.
+
+The network base class allows the registration of a packets with a
+dispatch queue and an invocation method. Each packet has a command
+identifier, which is used to identify the registered queue and
+method. The method \textsf{dispatchCommand} pushes the packet to the
+registered queue, whereas the method \textsf{invokeCommand} calls the
+registered command function.
+
+A command function groups the method and \textsf{this} pointer, allowing
+to call a C++ method on a concrete instance. If no queue is registered
+for a certain command, \textsf{dispatchCommand} directly calls the
+registered command function.
+
+This dispatch and invocation functionality is used within Equalizer to
+dispatch commands from the receiver thread to the appropriate node or
+pipe thread, and then to invoke the command when it is processed by
+these threads.
+
+\subsubsection{Nodes}
+
+The \textsf{eq::net::Node} is the abstraction of one process in the
+cluster. Each node has a unique identifier, based on the UUID
+standard\footnote{\link{http://en.wikipedia.org/wiki/Universally\_Unique\_Identifier}}. This
+identifier is used to address nodes, e.g., in order to query connection
+information to connect to the node. Nodes use connections to communicate
+with each other by sending packets subclassed from
+\textsf{eq::net::NodePacket}.
+
+Nodes, like connections, are either in the closed, listening or
+connected state. A listening node uses one or more listening connections
+in conjunction with a connection set to wait for data or connection
+requests. For each connection request, a connection and node are created
+to represent this node on the local machine. This node is in the
+connected state, and its connection is added to the connection set of
+the listening node.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netNode.pdf}
+  {\caption{\small\label{fNetNode}Communication between two nodes}}
+\end{wrapfigure}
+\fig{fNetNode} shows the communication between two nodes. The nodes in
+the listening state also have a listening connection, which is not shown
+in the Figure for complexity reasons.
+
+When the remote node sends a packet, the listening node receives the
+packet and dispatches it from the receiver thread using the method
+\textsf{dispatchCommand}. The default implementation knows how to
+dispatch packets of type node, session or object. Applications can
+define custom data types for packets, and then have to extend
+\textsf{dispatchCommand} to handle these custom data types.
+
+Node packets are directly dispatched using
+\textsf{Base::dispatchCommand}. For session and object packets, the
+appropriate session is found and \textsf{Session::dispatchCommand} will
+dispatch the packet.
+
+If \textsf{dispatchCommand} returns false, the packet will be
+redispatched at a later time. This is used if an object has not been
+mapped locally, and therefore the packet could not be dispatched.
+
+If an application wants to extend communication on the node level, it
+can either define its own datatype for packets, or to define custom node
+packets. Packets with a custom datatype are handled by overriding
+\textsf{Node::dispatchCommand}. Custom node packets can use any command
+greater than \textsf{CMD\_NODE\_CUSTOM} as the packet command. By
+registering a \textsf{eq::net::CommandFunc} for these commands, the
+\textsf{eq::net::Base} dispatch and invoke mechanism can be used
+automatically.
+
+\subsubsection{Session}
+
+The \textsf{eq::net::Session} gathers provides higher-level
+functionality to a set of nodes. The master instance of a session is
+registered to a node, which makes this node the session server and
+assigns a node-unique identifier to the session. All other nodes map
+their instance of the session to their local listening node using the
+session's identifier. One given node can participate in any number of
+sessions, both as master and slave. This allows the flexible usage of
+sessions to group different aspects of an application.
+
+A session provides the facilitate to allocate session-unique
+identifiers. These identifiers can be used by the application to
+uniquely address data within the cluster. They are also used by the
+session to address distributed objects, which are described in the
+following section.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netSession.pdf}
+  {\caption{\small\label{fNetSession}Communication between two Sessions}}
+\end{wrapfigure}
+Sessions instances can communicate to each other directly using an
+\textsf{eq::net::Ses\-sion\-Packet}, which is derived from the
+\textsf{NodePacket} and extends it by the session identifier. The
+session ID is used by the node to dispatch the packet to the session.
+
+The session, similar to the node, uses the methods
+\textsf{dispatchCommand} and \textsf{invokeCommand} to dispatch and
+execute packets using either the \textsf{eq::net::Base} class for
+session packets or to dispatch and invoke object packets on the
+appropriate \textsf{eq::net::Object}. Application developers can use
+this mechanism by creating custom session packets with a command greater
+than \textsf{CMD\_SESSION\_CUSTOM} and registering a command function
+for these commands.
+
+
+\subsubsection{Object}
+
+Distributed objects provide powerful, object-oriented data
+distribution for C++ objects. Their functionality and an example use
+case for parallel rendering has been described in \sref{sNetObject}.
+
+The master instance of an \textsf{eq::net::Object} is registered with a
+session, which assigns a session-unique identifier to the object. Using
+this identifier, other nodes can map their slave instance of the object
+to their local proxy of the session.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
+  {\caption{\small\label{fNetObject}Communication between two objects}}
+\end{wrapfigure}
+Objects can send command packets to each other by subclassing
+\textsf{eq::net::Ob\-ject\-Packet}, which is derived from
+\textsf{SessionPacket}. The object packet extends the session packet by
+the object identifier and an object instance identifier.
+
+Multiple instances of the same object (identifier) can be mapped on the
+same node and session simultaneously. Each object instance has a
+node-unique instance identifier. When the instance ID is set to
+\textsf{EQ\_ID\_ANY} (the default value), a command is dispatch to all
+object instance registered to the the session with the correct object
+ID. Multiple object instance per node are used when different threads on
+the node need to process a different version of the same object.
+
+Distributed objects provide data synchronization functionality, as
+described in \sref{sNetObject}. Additionally, applications can send
+command packets by creating custom object packets with a command greater
+than \textsf{CMD\_OBJECT\_CUSTOM}.
+
+Distributed object communication relies on the lower node and session
+communication layers, as shown in \fig{fNetObject}.
+
+\subsubsection{Barrier}
+
+The \textsf{eq::net::Barrier} provides a networked barrier primitive. It
+is an \textsf{eq::net::Object} used by Equalizer for software swap
+barrier support, but it can be used as a generic barrier in application
+code.
+
+The barrier uses both the data distribution for synchronizing its data,
+as well as custom command packets to implement the barrier logics. A
+barrier is a versioned object. Each version can have a different height,
+and enter request are automatically grouped together by version.
+
+
 
 \newpage
 \appendix
