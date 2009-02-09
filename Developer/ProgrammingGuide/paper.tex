@@ -23,7 +23,7 @@
   {\Large\sffamily The official reference for creating parallel,
     scalable OpenGL\texttrademark\ applications with the Equalizer
     parallel rendering framework}\\\vspace{1cm}
-  Version 1.5.3 for Equalizer 0.6+svn\\[\medskipamount]
+  Version 1.5.4 for Equalizer 0.6+svn\\[\medskipamount]
 %  \today
 }
 
@@ -120,6 +120,7 @@ The images on the back page show the following scalable rendering modes:
     1.5.1   & Dec 08, 2008 & Minor updates based on the print version\\
     1.5.2   & Jan 10, 2009 & Added \sref{sCompositor}\\
     1.5.3   & Jan 13, 2009 & Added \sref{sNetwork}\\
+    1.5.4   & Feb 09, 2009 & Added \sref{sNetUsage}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -166,7 +167,8 @@ list\footnote{\link{http://www.equalizergraphics.com/lists.html}}.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \vspace{-1ex}\includegraphics[width=.618\textwidth]{images/executionFlow.pdf}
-  {\caption{\small\label{fExecutionFlow}Parallel Rendering}}\vspace{-2ex}
+  {\caption{\small\label{fExecutionFlow}Parallel Rendering}}
+  \vspace{-3ex}
 \end{wrapfigure}
 
 \fig{fExecutionFlow} illustrates the basic principle of any parallel
@@ -230,7 +232,7 @@ The render client implements the rendering part of an application. Its
 execution is passive, it has no main loop and is completely driven by
 Equalizer, based on the rendering tasks received from the server. The
 tasks are executed by calling the appropriate task methods (see
-\sref{ssTaskMethods}) in the correct thread and context. The application
+\sref{sTaskMethods}) in the correct thread and context. The application
 either implements the task methods with application-specific code or
 uses the default methods provided by Equalizer.
 
@@ -457,7 +459,8 @@ uses a DPlex load-balancer to smoothen the framerate.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \vspace{-1ex}\includegraphics[width=.618\textwidth]{images/Pixel.pdf}
-  {\caption{\label{fPixel}\small A pixel compound}}\vspace{-5ex}
+  {\caption{\label{fPixel}\small A pixel compound}}
+  \vspace{-6ex}
 \end{wrapfigure}
 Pixel compounds are similar to 2D compounds. The frusta of the
 source rendering units are modified so that each unit renders an evenly
@@ -555,7 +558,7 @@ other things-- \textsf{Node::frameStart} to be called in all active
 render clients.
 
 
-\subsection{\label{ssTaskMethods}Task Methods}
+\subsection{\label{sTaskMethods}Task Methods}
 
 The application inherits from Equalizer classes and overrides virtual
 functions to implement certain functionality, e.g., the application's
@@ -707,13 +710,14 @@ channels are computed by the server and send to the appropriate render
 client nodes at the beginning of each frame.
 
 \subsubsection{\label{sFrustum}Frustum}
-Compounds have a frustum description to define the physical layout of
-the display environment. 
-
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/frusta.pdf}
   {\caption{\small\label{fFrusta}Wall and projection parameters}}
+  \vspace{-3ex}
 \end{wrapfigure}
+Compounds have a frustum description to define the physical layout of
+the display environment. 
+
 The frustum description is inherited by the children, therefore the
 frustum is typically defined on the topmost compound. 
 
@@ -2281,10 +2285,6 @@ void Channel::_drawModel( const Model* model )
         
 \end{lstlisting}}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Render Loop}}
-\end{wrapfigure}
 The model data is spatially organized in a 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
 for efficient view frustum culling. When the model is loaded by
@@ -2304,6 +2304,10 @@ the node are added to the candidate list. \fig{fRender} shows a flow
 chart of the rendering algorithm, which performs efficient view frustum
 and range culling.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\small\label{fRender}Main Render Loop}}
+\end{wrapfigure}
 The actual rendering uses display lists or vertex buffer objects. These
 OpenGL objects are allocated using the object manager. The rendering is
 done by the leaf nodes, which are small enough to store the vertex
@@ -3344,6 +3348,10 @@ view-aligned slices. The slices are rendered back-to-front and blended
 to produce the final image, as shown in \fig{fSlices}\footnote{Volume
   Data Set courtesy of: SFB-382 of the German Research Council (DFG)}.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\small\label{fSlices}Volume Rendering using 3D Textures}}
+\end{wrapfigure}
 When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
 mostly fill-limited and therefore scales nicely in these modes. 
@@ -3368,10 +3376,17 @@ amount of texture memory needed for each node decreases linearly, they
 make it possible to render data sets which are not feasible to
 visualize with any other approach.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\small\label{fSlices}Volume Rendering using 3D Textures}}
-\end{wrapfigure}
+\begin{figure}[h!t]
+  \subfigure[]{\label{fBlendOrtho}
+    \includegraphics[width=.45\textwidth]{images/b2f_ortho.pdf}
+  }\hfil
+  \subfigure[]{\label{fBlendPerspective}
+    \includegraphics[width=.55\textwidth]{images/b2f_perspective.pdf}
+  }%
+  {\caption{\small\label{fBlend}Back-to-Front Com\-po\-siting for
+      Orthogonal and Perspective View Frusta}}
+\end{figure}
+
 For recomposition, the 2D frame buffer contents are blended to form a
 seamless picture. For correct blending, the frames are ordered in the
 same back-to-front order as the slices used for rendering, and use the
@@ -3379,6 +3394,10 @@ same blending parameters. Simplified, the frame buffer images are
 `thick' slices which are `rendered' by writing their content to the
 destination frame buffer using the correct order.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -3387,10 +3406,6 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
-\begin{wrapfigure}{l}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 Finding the correct assembly order for perspective frusta is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frusta. For the view and
@@ -3407,17 +3422,6 @@ as the volume rendering would when rendered on a single
 channel. \fig{fVolResult} shows the result of the composition from
 \fig{fBlendPerspective}.
 
-\begin{figure}[h!t]
-  \subfigure[]{\label{fBlendOrtho}
-    \includegraphics[width=.45\textwidth]{images/b2f_ortho.pdf}
-  }\hfil
-  \subfigure[]{\label{fBlendPerspective}
-    \includegraphics[width=.55\textwidth]{images/b2f_perspective.pdf}
-  }%
-  {\caption{\small\label{fBlend}Back-to-Front Com\-po\-siting for
-      Orthogonal and Perspective View Frusta}}
-\end{figure}
-
 The assembly algorithm described in this section also works with parallel
 compositing algorithms such as direct-send. 
 
@@ -3432,6 +3436,10 @@ the same time by the server during \textsf{Config::init}. Each statistic
 event records the originator's (channel, window, node or config) unique
 identifier.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/statistics.png}
+  {\caption{\small\label{fStatistics}Statistics for a two-node 2D compound}}
+\end{wrapfigure}
 Statistics are enabled per entity using an attribute hint. The hint
 determines how precise the gathered statistics are. When set to
 \textsf{fastest}, the per-frame clock is sampled directly when the event
@@ -3440,10 +3448,6 @@ finished before sampling the event. This incurs a performance penalty,
 but gives more correct results. The default setting is fastest in
 release builds, and nicest in debug builds.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/statistics.png}
-  {\caption{\small\label{fStatistics}Statistics for a two-node 2D compound}}
-\end{wrapfigure}
 The events are processed by the channel's and window's
 \textsf{processEvent} method. The default implementation sends these
 events to the config, using \textsf{Config::sendEvent}, as explained in
@@ -3533,7 +3537,8 @@ Note that the remote source window does not execute the swapBuffers in
 this configuration, since it is a single-buffered PBuffer.
 
 
-\subsection{\label{sNetwork}The Network Layer}
+
+\section{\label{sNetwork}The Network Layer}
 
 The Equalizer networking layer provides a peer-to-peer communication
 infrastructure. It is used by Equalizer to communicate between the
@@ -3556,7 +3561,7 @@ for the programmer. The main primitives in the network layer are:
   between nodes within a session.
 \end{description}
 
-\subsubsection{Connections}
+\subsection{Connections}
 
 The \textsf{eq::net::Connection} is the basic primitive used for
 communication between processes in Equalizer. It provides a
@@ -3582,7 +3587,7 @@ implement other networking-related functionality, e.g., to communicate
 with a sound server on a different machine.
 
 
-\subsubsection{Packet Handling}
+\subsection{Packet Handling}
 
 Nodes, sessions and objects communicate using packets derived from
 \textsf{eq::net::Packet}. The basic packet dispatch and handling is
@@ -3607,7 +3612,7 @@ dispatch commands from the receiver thread to the appropriate node or
 pipe thread, and then to invoke the command when it is processed by
 these threads.
 
-\subsubsection{Nodes}
+\subsection{Nodes}
 
 The \textsf{eq::net::Node} is the abstraction of one process in the
 cluster. Each node has a unique identifier, based on the UUID
@@ -3658,7 +3663,7 @@ registering a \textsf{eq::net::CommandFunc} for these commands, the
 \textsf{eq::net::Base} dispatch and invoke mechanism can be used
 automatically.
 
-\subsubsection{Session}
+\subsection{Session}
 
 The \textsf{eq::net::Session} gathers provides higher-level
 functionality to a set of nodes. The master instance of a session is
@@ -3694,7 +3699,7 @@ than \textsf{CMD\_SESSION\_CUSTOM} and registering a command function
 for these commands.
 
 
-\subsubsection{Object}
+\subsection{\label{sNetObject2}Object}
 
 Distributed objects provide powerful, object-oriented data
 distribution for C++ objects. Their functionality and an example use
@@ -3705,15 +3710,15 @@ session, which assigns a session-unique identifier to the object. Using
 this identifier, other nodes can map their slave instance of the object
 to their local proxy of the session.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
-  {\caption{\small\label{fNetObject}Communication between two objects}}
-\end{wrapfigure}
 Objects can send command packets to each other by subclassing
 \textsf{eq::net::Ob\-ject\-Packet}, which is derived from
 \textsf{SessionPacket}. The object packet extends the session packet by
 the object identifier and an object instance identifier.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
+  {\caption{\small\label{fNetObject}Communication between two objects}}
+\end{wrapfigure}
 Multiple instances of the same object (identifier) can be mapped on the
 same node and session simultaneously. Each object instance has a
 node-unique instance identifier. When the instance ID is set to
@@ -3730,7 +3735,7 @@ than \textsf{CMD\_OBJECT\_CUSTOM}.
 Distributed object communication relies on the lower node and session
 communication layers, as shown in \fig{fNetObject}.
 
-\subsubsection{Barrier}
+\subsection{Barrier}
 
 The \textsf{eq::net::Barrier} provides a networked barrier primitive. It
 is an \textsf{eq::net::Object} used by Equalizer for software swap
@@ -3742,6 +3747,65 @@ as well as custom command packets to implement the barrier logics. A
 barrier is a versioned object. Each version can have a different height,
 and enter request are automatically grouped together by version.
 
+
+\subsection{\label{sNetUsage}Usage in Equalizer}
+
+The Equalizer client library and server are built on top of the network
+layer. They influence the design of it, and serve as a sample
+implementation on how to use classes in the \textsf{eq::net} namespace.
+
+\subsubsection{eq::Object}
+
+Equalizer uses the \textsf{eq::net::Object} data distribution mechanism
+for implementing data distribution between the server, application and
+render clients. To do this, \textsf{eq::Object} implements one usage
+pattern for the \textsf{eq::net::Object}, allowing inheritance with data
+distribution. It is easier to use, but imposes one typical way to implement data
+distribution.
+
+The \textsf{eq::Object} data distribution is centered around the concept
+of dirty bits. Dirty bits form a 64-bit mask which marks which parts of
+the object have to be distributed during the next commit.
+
+For serialization, the default \textsf{eq::net::Object} serialization
+functions are implemented by \textsf{eq::Object}, which (de-)serializes
+and resets the dirty bits, and calls \textsf{serialize} or
+\textsf{deserialize} with the bit mask specifiying which data has to be
+transmitted or received. During a commit or sync, the current dirty bits
+are given, whereas during object mapping all dirty bits are passed to
+the serialization methods.
+
+In order to use \textsf{eq::Object}, the following steps have to be
+taken:
+
+\begin{description}
+\item[Inherit from \textsf{eq::Object}:] The base class will provide the
+  dirty bit management and call serialize and deserialize
+  appropriately. By overriding \textsf{getChangeType}, the default
+  versioning strategy might be changed.
+\item[Define new dirty bits:] Define dirty bits for each data item by
+  starting at \textsf{Object::DIRTY\_CUSTOM}, shifting this value
+  consecutively by each new dirty bit.
+\item[Implement serialize and deserialize:] For each object-specific
+  dirty bit which is set, stream the corresponding data item to or from
+  the provided stream. Call the parent method first in both
+  functions. For application-specific objects, write a (de-)serialization
+  function.
+\item[Mark dirty data:] In each 'setter' method, call \textsf{setDirty}
+  with the corresponding dirty bit.
+\end{description}
+
+The inheritance chain \textsf{eq::View} $\rightarrow$
+\textsf{eq::Frustum} $\rightarrow$ \textsf{eq::Object} $\rightarrow$
+\textsf{eq::net::Object} serves as sample implementation for this
+process. The \textsf{eq::Object} base class provides the facility to set
+a name on the object, which is automatically distributed.
+
+The registration and mapping of \textsf{eq::Object}s is done in the same
+way as for \textsf{eq::net::Object}s, which has been described in
+\sref{sNetObject2}. Equalizer objects derived from \textsf{eq::Object},
+e.g., \textsf{eq::View}, are typically registered and mapped by
+Equalizer.
 
 
 \newpage
