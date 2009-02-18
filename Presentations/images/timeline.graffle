@@ -36,11 +36,13 @@
 	<array>
 		<dict>
 			<key>Bounds</key>
-			<string>{{552.756, 42.6075}, {127.559, 28}}</string>
+			<string>{{552.756, 28.4215}, {127.559, 28}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -55,15 +57,6 @@
 			</dict>
 			<key>ID</key>
 			<integer>48</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>47</integer>
-				<key>Position</key>
-				<real>0.85323017835617065</real>
-				<key>RotationType</key>
-				<integer>0</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -94,10 +87,8 @@
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 v0.6: 2D, DB load-balancing}</string>
+\f0\fs24 \cf0 v0.6: load-balancing, DPlex, Statistics}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
@@ -106,6 +97,8 @@
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -120,15 +113,6 @@
 			</dict>
 			<key>ID</key>
 			<integer>46</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>45</integer>
-				<key>Position</key>
-				<real>0.78748536109924316</real>
-				<key>RotationType</key>
-				<integer>0</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -161,8 +145,6 @@
 
 \f0\fs24 \cf0 Eyescale Software GmbH}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
@@ -320,6 +302,8 @@
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -334,15 +318,6 @@
 			</dict>
 			<key>ID</key>
 			<integer>39</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>38</integer>
-				<key>Position</key>
-				<real>0.85396325588226318</real>
-				<key>RotationType</key>
-				<integer>2</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -376,8 +351,6 @@
 \f0\fs24 \cf0 VRJuggler\
 Open Source VR}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -414,6 +387,8 @@ Open Source VR}</string>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -428,15 +403,6 @@ Open Source VR}</string>
 			</dict>
 			<key>ID</key>
 			<integer>37</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>36</integer>
-				<key>Position</key>
-				<real>0.75484216213226318</real>
-				<key>RotationType</key>
-				<integer>0</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -469,8 +435,6 @@ Open Source VR}</string>
 
 \f0\fs24 \cf0 v0.2: Scalable Rendering}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
@@ -479,6 +443,8 @@ Open Source VR}</string>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -493,15 +459,6 @@ Open Source VR}</string>
 			</dict>
 			<key>ID</key>
 			<integer>34</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>33</integer>
-				<key>Position</key>
-				<real>0.86695593595504761</real>
-				<key>RotationType</key>
-				<integer>0</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -534,8 +491,6 @@ Open Source VR}</string>
 
 \f0\fs24 \cf0 v0.3: Windows XP, Infiniband }</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -572,6 +527,8 @@ Open Source VR}</string>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -586,15 +543,6 @@ Open Source VR}</string>
 			</dict>
 			<key>ID</key>
 			<integer>32</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>31</integer>
-				<key>Position</key>
-				<real>0.62783521413803101</real>
-				<key>RotationType</key>
-				<integer>0</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -627,8 +575,6 @@ Open Source VR}</string>
 
 \f0\fs24 \cf0 v0.4: Programming Guide, Volume Rendering}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -665,6 +611,8 @@ Open Source VR}</string>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -679,15 +627,6 @@ Open Source VR}</string>
 			</dict>
 			<key>ID</key>
 			<integer>30</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>29</integer>
-				<key>Position</key>
-				<real>0.86695593595504761</real>
-				<key>RotationType</key>
-				<integer>0</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -720,8 +659,6 @@ Open Source VR}</string>
 
 \f0\fs24 \cf0 v0.5: GLEW, Pixel compounds, PBuffers}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -753,11 +690,13 @@ Open Source VR}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{411.024, 241.118}, {85.0393, 28}}</string>
+			<string>{{410.029, 241.118}, {85.0394, 28}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -772,15 +711,6 @@ Open Source VR}</string>
 			</dict>
 			<key>ID</key>
 			<integer>28</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>27</integer>
-				<key>Position</key>
-				<real>0.86695593595504761</real>
-				<key>RotationType</key>
-				<integer>0</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -813,8 +743,6 @@ Open Source VR}</string>
 
 \f0\fs24 \cf0 v0.1: Cluster Multi-View }</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -846,11 +774,13 @@ Open Source VR}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{342.172, 198.598}, {56.6929, 28}}</string>
+			<string>{{340.157, 198.598}, {56.693, 28}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -865,15 +795,6 @@ Open Source VR}</string>
 			</dict>
 			<key>ID</key>
 			<integer>26</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>25</integer>
-				<key>Position</key>
-				<real>0.7639428973197937</real>
-				<key>RotationType</key>
-				<integer>0</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -906,8 +827,6 @@ Open Source VR}</string>
 
 \f0\fs24 \cf0 First Line of Code}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -946,11 +865,13 @@ Open Source VR}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{250.849, 241.118}, {99.2126, 28}}</string>
+			<string>{{269.291, 241.118}, {99.2126, 28}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -965,15 +886,6 @@ Open Source VR}</string>
 			</dict>
 			<key>ID</key>
 			<integer>24</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>23</integer>
-				<key>Position</key>
-				<real>0.75484216213226318</real>
-				<key>RotationType</key>
-				<integer>0</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -1006,8 +918,6 @@ Open Source VR}</string>
 
 \f0\fs24 \cf0 Project Equalizer Started}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -1359,6 +1269,8 @@ Open Source VR}</string>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -1373,15 +1285,6 @@ Open Source VR}</string>
 			</dict>
 			<key>ID</key>
 			<integer>11</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>10</integer>
-				<key>Position</key>
-				<real>0.80528116226196289</real>
-				<key>RotationType</key>
-				<integer>2</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -1414,8 +1317,6 @@ Open Source VR}</string>
 
 \f0\fs24 \cf0 CAVElib: Multi-View Rendering}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -1683,6 +1584,8 @@ Open Source VR}</string>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -1699,15 +1602,6 @@ Open Source VR}</string>
 			</dict>
 			<key>ID</key>
 			<integer>14</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>13</integer>
-				<key>Position</key>
-				<real>0.5774843692779541</real>
-				<key>RotationType</key>
-				<integer>2</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -1742,8 +1636,6 @@ Open Source VR}</string>
 OpenGL Multipipe SDK\
 Scalable Rendering}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -1824,6 +1716,8 @@ Scalable Rendering}</string>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
 			<string>Vertical</string>
+			<key>Flow</key>
+			<string>Resize</string>
 			<key>FontInfo</key>
 			<dict>
 				<key>Color</key>
@@ -1838,15 +1732,6 @@ Scalable Rendering}</string>
 			</dict>
 			<key>ID</key>
 			<integer>43</integer>
-			<key>Line</key>
-			<dict>
-				<key>ID</key>
-				<integer>42</integer>
-				<key>Position</key>
-				<real>0.96366840600967407</real>
-				<key>RotationType</key>
-				<integer>2</integer>
-			</dict>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -1879,8 +1764,6 @@ Scalable Rendering}</string>
 
 \f0\fs24 \cf0 Chromium: Parallel GL Stream Processing}</string>
 			</dict>
-			<key>Wrap</key>
-			<string>YES</string>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -1922,8 +1805,8 @@ Scalable Rendering}</string>
 			<key>Points</key>
 			<array>
 				<string>{680.315, 283.465}</string>
-				<string>{658.262, 56.5197}</string>
-				<string>{552.756, 56.6929}</string>
+				<string>{658.262, 42.3465}</string>
+				<string>{552.756, 42.5197}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -2056,7 +1939,7 @@ Scalable Rendering}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2009-02-18 09:06:03 +0100</string>
+	<string>2009-02-18 09:25:37 +0100</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
