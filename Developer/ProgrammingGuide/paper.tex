@@ -23,7 +23,7 @@
   {\Large\sffamily The official reference for creating parallel,
     scalable OpenGL\texttrademark\ applications with the Equalizer
     parallel rendering framework}\\\vspace{1cm}
-  Version 1.5.4 for Equalizer 0.6+svn\\[\medskipamount]
+  Version 1.5.5 for Equalizer 0.6+svn\\[\medskipamount]
 %  \today
 }
 
@@ -121,6 +121,7 @@ The images on the back page show the following scalable rendering modes:
     1.5.2   & Jan 10, 2009 & Added \sref{sCompositor}\\
     1.5.3   & Jan 13, 2009 & Added \sref{sNetwork}\\
     1.5.4   & Feb 09, 2009 & Added \sref{sNetUsage}\\
+    1.5.5   & Mar 10, 2009 & Updated to reflect new AGL event dispatch\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -2413,20 +2414,17 @@ and similar to a GLUT-based implementation.
 
 \subsubsection{Threading}
 
-In general, events are received and processed by the pipe thread a
-window belongs to. An exception to this rule is AGL, where all events
-are dispatched from the main node thread. WGL and GLX receive and
-process the events from the pipe threads that created the
-windows. Whenever the term \textbf{event thread} is used, it refers to
-the thread receiving the event, i.e., the pipe thread for WGL and GLX,
-and the main thread for AGL.
+Events are received and processed by the pipe thread a window belongs
+to. For AGL, Equalizer internally forwards the event from the main
+thread, where it is received, to the appropriate pipe thread.
 
 \subsubsection{\label{sMessagePump}Message Pump}
 
 To dispatch events, Equalizer 'pumps' the native events. On WGL and GLX,
-this happens on each thread with windows, whereas on AGL it happens only
-on the main thread. By default, Equalizer pumps these events
-automatically for the application in-between executing task methods.
+this happens on each thread with windows, whereas on AGL it happens on
+the main thread and each pipe thread. By default, Equalizer pumps these
+events automatically for the application in-between executing task
+methods.
 
 The method \textsf{Pipe::useMessagePump} can be overridden to return
 \textsf{false} to not enable message dispatch for the respective thread.
@@ -2434,10 +2432,9 @@ The method \textsf{Pipe::useMessagePump} can be overridden to return
 The method \textsf{useMessagePump} is called by Equalizer during
 application and pipe thread initialization (before configInit!) to
 determine if the pipe's thread shall automatically dispatch OS
-events. For non-threaded and AGL pipes, the method affects the node
-thread. On WGL and GLX, messages are dispatched in the application and
-each pipe thread. On AGL, events are dispatched only on the application
-thread.
+events. For AGL, this affects the node threads and pipe thread, since
+the node thread message pump needs to dispatch the events to the pipe
+thread event queue.
 
 If the application disables message pumping in Equalizer, it has to make
 sure the events are pumped externally, as it often done within external
@@ -2495,15 +2492,16 @@ class hierarchy for event processing.
 The concrete implementation of these window interfaces is responsible
 for setting up and de-initializing event handling.
 
-Carbon events issued for AGL windows are processed from the node's main
-thread. One \textsf{AGLEventHandler} per process is used. When a Carbon
-window is set on an \textsf{AGLWindow}, the window is registered with
-the global \textsf{AGLEventHandler}. The event handler installs a Carbon
+Carbon events issued for AGL windows are initially receive by the node
+main thread, and automatically dispatched to the pipe thread. The pipe
+thread will dispatch the event to the appropriate event handler. One
+\textsf{AGLEventHandler} per window is used, which is created during
+\textsf{AGLWindow::configInit}. The event handler installs a Carbon
 event handler for all important events. The event handler uses an
 \textsf{AGLWindowEvent} to pass the Carbon \textsf{EventRef} to
 \textsf{AGLWindowIF::processEvent}. During window exit, the installed
-Carbon handler is removed when the window is deregistered with the
-\textsf{AGLEventHandler}. No event handling is set up for PBuffers.
+Carbon handler is removed when the window's event handler is deleted. No
+event handling is set up for PBuffers.
 
 GLX uses one X11 Display connection for all windows on a GPU, which is
 managed by the \textsf{eq::Pipe}. For each thread, one
@@ -3348,14 +3346,14 @@ view-aligned slices. The slices are rendered back-to-front and blended
 to produce the final image, as shown in \fig{fSlices}\footnote{Volume
   Data Set courtesy of: SFB-382 of the German Research Council (DFG)}.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\small\label{fSlices}Volume Rendering using 3D Textures}}
-\end{wrapfigure}
 When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
 mostly fill-limited and therefore scales nicely in these modes. 
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\small\label{fSlices}Volume Rendering using 3D Textures}}
+\end{wrapfigure}
 The full power of scalable volume rendering is however in DB (sort-last)
 compounds, where the full volume is divided into separate bricks. Each
 of the bricks is rendered like a separate volume. For recomposition, the
@@ -3387,6 +3385,11 @@ visualize with any other approach.
       Orthogonal and Perspective View Frusta}}
 \end{figure}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \vspace{-3ex}\includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+  \vspace{-5ex}
+\end{wrapfigure}
 For recomposition, the 2D frame buffer contents are blended to form a
 seamless picture. For correct blending, the frames are ordered in the
 same back-to-front order as the slices used for rendering, and use the
@@ -3394,10 +3397,6 @@ same blending parameters. Simplified, the frame buffer images are
 `thick' slices which are `rendered' by writing their content to the
 destination frame buffer using the correct order.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -3701,6 +3700,10 @@ for these commands.
 
 \subsection{\label{sNetObject2}Object}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
+  {\caption{\small\label{fNetObject}Communication between two objects}}
+\end{wrapfigure}
 Distributed objects provide powerful, object-oriented data
 distribution for C++ objects. Their functionality and an example use
 case for parallel rendering has been described in \sref{sNetObject}.
@@ -3715,10 +3718,6 @@ Objects can send command packets to each other by subclassing
 \textsf{SessionPacket}. The object packet extends the session packet by
 the object identifier and an object instance identifier.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
-  {\caption{\small\label{fNetObject}Communication between two objects}}
-\end{wrapfigure}
 Multiple instances of the same object (identifier) can be mapped on the
 same node and session simultaneously. Each object instance has a
 node-unique instance identifier. When the instance ID is set to
