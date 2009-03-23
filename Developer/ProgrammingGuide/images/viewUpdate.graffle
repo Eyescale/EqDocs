@@ -70,7 +70,7 @@
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -115,7 +115,7 @@
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -200,13 +200,13 @@
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
 
-\f0\fs20 \cf0 View::setWall\
-View::setProjection}</string>
+\f0\fs20 \cf0 setWall\
+setProjection}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -245,12 +245,12 @@ View::setProjection}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
 
-\f0\fs20 \cf0 Cfg::handleViewResize}</string>
+\f0\fs20 \cf0 View::handleEvent}</string>
 			</dict>
 			<key>TextPlacement</key>
 			<integer>0</integer>
@@ -291,7 +291,7 @@ View::setProjection}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -383,7 +383,7 @@ View::setProjection}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -429,7 +429,7 @@ View::setProjection}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -441,7 +441,7 @@ View::setProjection}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{9.639, 26.2242}, {44, 24}}</string>
+			<string>{{151.796, 32.0306}, {44, 24}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -465,12 +465,12 @@ View::setProjection}</string>
 				<key>ID</key>
 				<integer>1026</integer>
 				<key>Position</key>
-				<real>0.23493073880672455</real>
+				<real>0.36886641383171082</real>
 				<key>RotationType</key>
 				<integer>2</integer>
 			</dict>
 			<key>Rotation</key>
-			<real>71.565216064453125</real>
+			<real>303.69003295898438</real>
 			<key>Shape</key>
 			<string>Rectangle</string>
 			<key>Style</key>
@@ -494,7 +494,7 @@ View::setProjection}</string>
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -539,7 +539,7 @@ resized}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc
@@ -568,8 +568,8 @@ resized}</string>
 			<integer>1026</integer>
 			<key>Points</key>
 			<array>
-				<string>{28.3465, 28.3465}</string>
-				<string>{42.3614, 70.3918}</string>
+				<string>{184.252, 28.3465}</string>
+				<string>{155.906, 70.8662}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -598,7 +598,7 @@ resized}</string>
 			<integer>1022</integer>
 			<key>Points</key>
 			<array>
-				<string>{439.37, 56.6929}</string>
+				<string>{439.371, 57.1929}</string>
 				<string>{439.37, 226.772}</string>
 			</array>
 			<key>Style</key>
@@ -703,7 +703,7 @@ resized}</string>
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -797,7 +797,7 @@ resized}</string>
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -891,7 +891,7 @@ resized}</string>
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf350
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -949,7 +949,7 @@ Server}</string>
 			<integer>1021</integer>
 			<key>Points</key>
 			<array>
-				<string>{99.2127, 57.1929}</string>
+				<string>{99.2127, 56.6929}</string>
 				<string>{99.2126, 226.772}</string>
 			</array>
 			<key>Style</key>
@@ -1086,7 +1086,7 @@ Server}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2008-10-16 16:58:02 +0200</string>
+	<string>2009-03-23 11:43:36 +0100</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -1161,7 +1161,7 @@ Server}</string>
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{464, 329}, {994, 747}}</string>
+		<string>{{562, 338}, {994, 747}}</string>
 		<key>VisibleRegion</key>
 		<string>{{-22, 0}, {861.966, 572}}</string>
 		<key>Zoom</key>

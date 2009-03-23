@@ -23,7 +23,7 @@
   {\Large\sffamily The official reference for creating parallel,
     scalable OpenGL\texttrademark\ applications with the Equalizer
     parallel rendering framework}\\\vspace{1cm}
-  Version 1.5.5 for Equalizer 0.6+svn\\[\medskipamount]
+  Version 1.5.6 for Equalizer 0.6+svn\\[\medskipamount]
 %  \today
 }
 
@@ -123,6 +123,7 @@ The images on the back page show the following scalable rendering modes:
     1.5.3   & Jan 13, 2009 & Added \sref{sNetwork}\\
     1.5.4   & Feb 09, 2009 & Added \sref{sNetUsage}\\
     1.5.5   & Mar 10, 2009 & Updated to reflect new AGL event dispatch\\
+    1.5.6   & Mar 23, 2009 & Documented Layout API\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -694,7 +695,7 @@ rendering. The channel's viewport is overwritten when it is rendering
 for another channel during scalable rendering.
 
 
-\subsection{Canvases}
+\subsection{\label{sCanvas}Canvases}
 
 Canvases provide a convenient way to configure projection surfaces. A
 canvas uses a layout, which describes the logical views. The usage of
@@ -733,7 +734,7 @@ frustum description, and to place layout views correctly.
 Passive stereo installations have one segment per eye pass, where the
 segment for the left and right eye fully overlap.
 
-\subsection{Layouts}
+\subsection{\label{sLayout}Layouts}
 
 A layout is the grouping of logical views. It is used by one or more
 canvases. For all given layouts, Equalizer creates destination channels
@@ -871,6 +872,11 @@ from another compound tree.
 
 \section{\label{sEqPly}The eqPly polygonal renderer}
 
+\begin{figure}[ht!]\center
+  \includegraphics[width=.9\textwidth]{images/uml}
+  {\caption{\label{fUml}UML diagram eqPly and relevant Equalizer classes.}}
+\end{figure}
+
 In this section the source code of \textsf{eqPly} is explained in
 detail, and relevant design decisions, caveats and other remarks are
 raised.
@@ -886,11 +892,6 @@ and serves as a reference implementation of an Equalizer-based
 application of medium complexity. It focuses on the example usage of
 core Equalizer features, not on advanced rendering features or visual
 quality.
-
-\begin{figure}[ht!]\center
-  \includegraphics[width=\textwidth]{images/uml}
-  {\caption{\label{fUml}UML diagram eqPly and relevant Equalizer classes.}}
-\end{figure}
 
 All classes in the example are in the \textsf{eqPly} namespace to avoid
 type name ambiguities, in particular for the \textsf{Window} class which
@@ -969,6 +970,7 @@ public:
         { return new eqPly::Window( parent ); }
     virtual eq::Channel* createChannel( eq::Window* parent )
         { return new eqPly::Channel( parent ); }
+    virtual eq::View* createView() { return new eqPly::View(); }
 };
 \end{lstlisting}}
 
@@ -1265,9 +1267,9 @@ be used by other nodes to map their instance of the object, thus
 synchronizing the object's data with the remotely registered master
 version.
 
-Distributed objects are created by subclassing from
-\textsf{eq::net::Object}. Distributed objects can be static (immutable) or
-dynamic. Dynamic objects are versioned.
+Distributed objects are created by subclassing from \textsf{eq::Object}
+or \textsf{eq::net::Object}. Distributed objects can be static
+(immutable) or dynamic. Dynamic objects are versioned.
 
 The \textsf{eqPly} example uses static distributed objects to provide
 initial data and the model to all rendering nodes, as well as a
@@ -1302,7 +1304,7 @@ passed with each new frame request.
 \subsubsection{Change Handling}
 
 Equalizer determines the way changes are to be handled by calling
-\textsf{Object::getChangeType} during the registration of the master
+\textsf{Object::get\-Change\-Type} during the registration of the master
 version of a distributed object. The change type determines the memory
 footprint and the contract for calling the serialization methods. The
 following change types are possible:
@@ -1379,6 +1381,7 @@ types of variables during serialization and de-serialization.
 Versioned objects have to override \textsf{getChangeType} to indicate
 how they want to have changes to be handled. All versioned objects
 currently implemented have the following characteristics:
+
 \begin{itemize}
 \item Only the master instance of the object is writable, that is,
   \textsf{eq::net::Object::com\-mit} can be called only on the master
@@ -1404,23 +1407,49 @@ version. If these methods are not implemented, their default
 implementation forwards the (de-)serialization request to
 \textsf{getInstanceData} and \textsf{applyInstanceData}, respectively.
 
-\textsf{eqPly} does not track changes in the \textsf{FrameData} since it
-is relatively small and changes frequently. Therefore, the instance and
-delta data are the same, and \textsf{pack} and \textsf{unpack} are not
-implemented. The change type is \textsf{INSTANCE}. The serialization
-functions exploit the fact that the frame data is layed out in one
-anonymous structure in memory, and transmit all the data in one call:
+The \textsf{eq::Object} implements one possible way of tracking data
+changes in versioned objects using the concept of dirty bits, which
+facilitates the implementation of the data distribution code. 
+
+The \textsf{FrameData} object tracks changes by setting the appropriate
+dirty bit whenever some of its data is changed. The serialization
+methods are called by the \textsf{eq::Object} with the dirty bit mask
+needed to serialize all data or the changes since the last
+\textsf{commit}. The \textsf{FrameData} only defines its own dirty bits
+and serialization code:
 
 {\footnotesize\begin{lstlisting}
-void FrameData::getInstanceData( eq::net::DataOStream& os )
-{ 
-    os.writeOnce( &data, sizeof( data )); 
+/** The changed parts of the data since the last pack(). */
+enum DirtyBits
+{
+    DIRTY_CAMERA = eq::Object::DIRTY_CUSTOM << 0,
+    DIRTY_FLAGS  = eq::Object::DIRTY_CUSTOM << 1,
+    DIRTY_VIEW   = eq::Object::DIRTY_CUSTOM << 2,
+};
+
+void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
+{
+    eq::Object::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_CAMERA )
+        os << _translation << _rotation;
+    if( dirtyBits & DIRTY_FLAGS )
+        os << _modelID << _renderMode << _color << _ortho << _statistics
+           << _help << _wireframe;
+    if( dirtyBits & DIRTY_VIEW )
+        os << _currentViewID;
 }
 
-void FrameData::applyInstanceData( eq::net::DataIStream& is )
+void FrameData::deserialize( eq::net::DataIStream& is,
+                             const uint64_t dirtyBits )
 {
-    memcpy( &data, is.getRemainingBuffer(), sizeof( data ));
-    is.advanceBuffer( sizeof( data ));
+    eq::Object::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_CAMERA )
+        is >> _translation >> _rotation;
+    if( dirtyBits & DIRTY_FLAGS )
+        is >> _modelID >> _renderMode >> _color >> _ortho >> _statistics
+           >> _help >> _wireframe;
+    if( dirtyBits & DIRTY_VIEW )
+        is >> _currentViewID;
 }
 \end{lstlisting}}%>>
 
@@ -1432,33 +1461,36 @@ prefer to load the data only on the application process, and use
 distributed objects to synchronize the scene data with the render
 clients.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
-  {\caption{\label{fModelDist}Scene Data in eqPly}}
-\end{wrapfigure}
 \textsf{eqPly} uses static distributed objects to distribute the model
-loaded by the application. This model can be easily extended to
-versioned objects to support dynamic data changes.
+loaded by the application. This approach can be easily extended to
+versioned objects to support dynamic data modifications.
 
 The kD-tree data structure and rendering code for the model is strongly
 separated from Equalizer, and kept in the separate namespace
-\textsf{mesh}. It could also be used in other rendering software, for
+\textsf{mesh}. It can also be used in other rendering software, for
 example in a GLUT application. To keep this separation, an external
 'mirror' hierarchy is constructed around the tree. This hierarchy of
 \textsf{VertexBufferDist} nodes is responsible for cloning the model
 data on the remote render clients.
 
-The identifier of the root object of this distributed hierarchy is passed
-as part of the \textsf{InitData}, and used during remote node
-initialization to map the model. \fig{fModelDist} shows the UML
-hierarchy of the model and distribution classes.
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
+  {\caption{\label{fModelDist}Scene Data in eqPly}}
+\end{wrapfigure}
+The identifier of the model's root object of this distributed hierarchy
+is passed as part of the \textsf{InitData} for the default model, or as
+part of the \textsf{View} for each logical view. It is used on the
+render clients to map the model when it is needed for
+rendering. \fig{fModelDist} shows the UML hierarchy of the model and
+distribution classes.
 
-Each \textsf{VertexBufferDist} object has one node of the model's data
-tree. It is serializing the data for this node. Furthermore, it mirrors
-the kD-tree by having a \textsf{VertexBufferDist} child for each child
-of its corresponding tree node. During serialization, the identifier of
-these children is sent to the remote nodes, which reconstruct the mirror
-distribution hierarchy and model data tree based on this data.
+Each \textsf{VertexBufferDist} object corresponds to one node of the
+model's data tree. It is serializing the data for this
+node. Furthermore, it mirrors the kD-tree by having a
+\textsf{VertexBufferDist} child for each child of its corresponding tree
+node. During serialization, the identifier of these children is sent to
+the remote nodes, which reconstruct the mirror distribution hierarchy
+and model data tree based on this data.
 
 The serialization function \textsf{getInstanceData} sends all the data
 needed to reconstruct the model tree: the object identifiers of its
@@ -1505,6 +1537,7 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
 
 \begin{wrapfigure}{r}{.618\textwidth}
 %\begin{figure}[ht!]\center
+  \vspace{-2ex}
   \includegraphics[width=.618\textwidth]{images/objects.pdf}
   {\caption{\label{fObjects}Scene Graph Distribution}}
 \end{wrapfigure}
@@ -1535,15 +1568,15 @@ necessary data.
 
 \subsubsection{Initialization and Exit}
 
-\begin{figure}[ht!]\center
-%\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.9\textwidth]{images/configInit.pdf}
-  {\caption{\label{fConfigInit}Config Initialization Sequence}}
-\end{figure}
 The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
 completion is synchronized afterwards. 
 
+%\begin{figure}[ht!]\center
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
+  {\caption{\label{fConfigInit}Config Initialization Sequence}}
+\end{wrapfigure}
 The tasks are executed by the node and pipe threads in parallel. The
 parent's initialization methods are always executed before any child
 initialization method. This parallelization is necessary to allow a
@@ -1737,12 +1770,168 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 }
 \end{lstlisting}}
 
+\subsubsection{Model Handling}
+
+Model data is handled by the config. Models in eqPly are static,
+and therefore the render clients only need to map one instance of the
+model per node.
+
+Multiple models can be loaded in \textsf{eqPly}. A configuration has a
+default model, stored in \textsf{InitData}, and one model per view,
+stored and distributed using \textsf{View}. The
+loaded models are evenly distributed over the available views of the
+configuration, as shown in \fig{fLayout}.
+
+The channel acquires the model during rendering from the config, using
+the model identifier from its current view, or from the frame data if
+no view is configured.
+
+The config maintains the mapped models, and lazily maps new models,
+which are registered by the application process:
+
+{\footnotesize\begin{lstlisting}
+const Model* Config::getModel( const uint32_t modelID )
+{
+    if( modelID == EQ_ID_INVALID ) // no model loaded by application
+        return 0;
+
+    // Accessed concurrently from pipe threads
+    eq::base::ScopedMutex< eq::base::SpinLock > _mutex( _modelLock );
+
+    const size_t nModels = _models.size();
+    EQASSERT( _modelDist.size() == nModels );
+
+    for( size_t i = 0; i < nModels; ++i )
+    {
+        const ModelDist* dist = _modelDist[ i ];
+        if( dist->getID() == modelID )
+            return _models[ i ];
+    }
+    
+    _modelDist.push_back( new ModelDist );
+    Model* model = _modelDist.back()->mapModel( this, modelID );
+    EQASSERT( model );
+    _models.push_back( model );
+
+    return model;
+}
+\end{lstlisting}}
+
+\subsubsection{Layout and View Handling}
+
+For layout and model selection, \textsf{eqPly} maintains an active
+view. The identifier of the active view is stored in the frame data,
+which is used by the render client to highlight it using a different
+background color. The active view can be selected by clicking into a
+view, or by cycling through all the views using a keyboard shortcut:
+
+{\footnotesize\begin{lstlisting}
+bool Config::handleEvent( const eq::ConfigEvent* event )
+{
+    switch( event->data.type )
+    {
+        ...
+        case eq::Event::POINTER_BUTTON_PRESS:
+            _frameData.setCurrentViewID( event->data.context.view.id );
+            return true;
+        ...
+    }
+}
+
+bool Config::_handleKeyEvent( const eq::KeyEvent& event )
+{
+    switch( event.key )
+    {
+        ...
+        case 'v':
+        case 'V':
+        {
+            NextViewFinder finder( _frameData.getCurrentViewID( ));
+            accept( finder );
+            const eq::View* view = finder.getResult();
+            if( view )
+                _frameData.setCurrentViewID( view->getID( ));
+            else
+                _frameData.setCurrentViewID( EQ_ID_INVALID );
+            return true;
+        }
+        ...
+    }
+}
+\end{lstlisting}}
+
+The model of the active view can be changed using a keyboard
+shortcut. The model is view-specific, and therefore the model identifier
+for each view is stored on the view, which is used to retrieve the model
+on the render clients. View-specific data is not limited to a
+model. Applications can choose to make any application-specific data
+view-specific, e.g., cameras, rendering modes or annotations. A view is
+a generic concept for an application-specific view on data,
+\textsf{eqPly} is using different models to illustrate the concept:
+
+{\footnotesize\begin{lstlisting}
+bool Config::_handleKeyEvent( const eq::KeyEvent& event )
+{
+    switch( event.key )
+    {
+        ...
+        case 'm':
+        case 'M':
+        {
+            if( _modelDist.empty( )) // no models
+                return true;
+
+            // current model
+            const uint32_t viewID = _frameData.getCurrentViewID();
+            View* view = static_cast< View* >( findView( viewID ));
+            const uint32_t currentID = view ? 
+                view->getModelID() : _frameData.getModelID();
+
+            // next model
+            ModelDistVector::const_iterator i;
+            for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
+            {
+                if( (*i)->getID() != currentID )
+                    continue;
+                
+                ++i;
+                break;
+            }
+            if( i == _modelDist.end( ))
+                i = _modelDist.begin(); // wrap around
+            
+            // set identifier on view or frame data (default model)
+            const uint32_t modelID = (*i)->getID();
+            if( view )
+                view->setModelID( modelID );
+            else
+                _frameData.setModelID( modelID );
+            return true;
+        }
+        ...
+    }
+}
+\end{lstlisting}}
+
+The layout of the canvas with the active view can also be dynamically
+switched using a keyboard shortcut. The first canvas using the layout is
+found, and then the next layout of the configuration is set on this
+canvas. 
+
+Switching a layout causes the initialization and de-initialization task
+methods to be called on the involved channels, and potentially windows,
+pipes and nodes. This operation might fail, which will cause the config
+to stop running.
+
+Layout switching is typically used to change the presentation of views
+at runtime. The source code omitted for brevity.
+
 
 \subsection{Node}
 
 For each active render client, one \textsf{eq::Node} instance is
 created on the appropriate machine. Nodes are only instantiated on their
-render client processes, i.e., each process should only have one
+render client processes, i.e., each process will only have one
 instance of the \textsf{eq::Node} class. The application process might
 also have a node class, which is handled in exactly the same way as the
 render client nodes. The application and render clients might use a
@@ -1775,60 +1964,21 @@ bool Node::configInit( const uint32_t initID )
 \end{lstlisting}}
 
 The actual mapping of the static data is done by the config. The config
-first retrieves the distributed \textsf{InitData}. The object is
-directly unmapped since it is static, and the data has been retrieved.
-
-The init data contains, among other things, the identifier of the
-root of the model's kD-tree. Using this identifier, the model is mapped
-to the node, as explained in \sref{sSceneData}:
+retrieves the distributed \textsf{InitData}. The object is directly
+unmapped since it is static, and the data has been retrieved:
 
 {\footnotesize\begin{lstlisting}
 bool Config::mapData( const uint32_t initDataID )
 {
     if( _initData.getID() == EQ_ID_INVALID )
     {
-        const bool mapped = mapObject( &_initData, initDataID );
-        EQASSERT( mapped );
+        EQCHECK( mapObject( &_initData, initDataID ));
         unmapObject( &_initData ); // data was retrieved, unmap immediately
     }
     else  // appNode, _initData is registered already
         EQASSERT( _initData.getID() == initDataID );
-
-    const uint32_t modelID = _initData.getModelID();
-    if( modelID == EQ_ID_INVALID ) // no model loaded by application
-        return true;
-
-    if( !_model )
-        _model = ModelDist::mapModel( this, modelID );
-
-    return (_model != 0);
 }
 \end{lstlisting}}
-
-Since the model data is static, the mirror tree for data distribution
-is only created temporarily to retrieve the data. This is done in a
-static function of the \textsf{VertexBufferDist} class. One instance of
-the distribution class is mapped to the model's identifier. During
-application of the instance data, it will map its children recursively:
-
-
-{\footnotesize\begin{lstlisting}
-mesh::VertexBufferRoot* VertexBufferDist::mapModel(eq::net::Session* session,
-                                                   const uint32_t modelID )
-{
-    VertexBufferDist modelDist( 0, 0 );
-
-    if( !session->mapObject( &modelDist, modelID ))
-    {
-        EQWARN << "Mapping of model failed" << endl;
-        return 0;
-    }
-
-    modelDist._unmapTree(); // No longer needed    
-
-    return const_cast< mesh::VertexBufferRoot* >( modelDist._root );
-}
-\end{lstlisting}}%>>
 
 \subsection{Pipe}
 
@@ -2084,7 +2234,7 @@ bool Window::configExitGL()
 
 \subsubsection{\label{sObjectManager}Object Manager}
 
-The object manager is not strictly a part of the window. It
+The object manager is, strictly speaking, not a part of the window. It
 is mentioned here since the \textsf{eqPly} window uses an object manager.
 
 The state object in \textsf{eqPly} gathers all rendering state, which
@@ -2110,31 +2260,25 @@ used to set up a different context sharing.
 
 \textsf{eqPly} uses the window's object manager in the rendering code to
 obtain the OpenGL objects for a given data item. The address of the data
-item to be rendered is used as the key. All objects managed by the OM
-are reference counted. If an application releases the objects properly,
-they are automatically de-allocated. It is also possible to manually
-manage de-allocation of objects, which might be more convenient in some
-cases.
+item to be rendered is used as the key.
 
-Currently, support for display lists, VBO's, textures and shaders is
-implemented. For each object, the following functions are available:
+For the currently supported types of OpenGL objects please refer to the
+API documentation on the Equalizer website. For each object, the
+following functions are available:
 
 \begin{description}
 \item[supportsObjects()] returns true if the usage for this particular
   type of objects is supported. For objects available in OpenGL 1.1 or
   earlier, this function is not implemented.
 \item[getObject( key )] returns the object associated with the given
-  key, or FAILED. Increases the reference count of existing objects.
+  key, or FAILED.
 \item[newObject( key )] allocates a new object for the given
   key. Returns FAILED if the object already exists or if the allocation
-  failed. Sets the reference count of a newly created object to one.
+  failed.
 \item[obtainObject( key )] convenience function which gets or obtains
   the object associated with the given key. Returns FAILED only if the
   object allocation failed.
-\item[releaseObject( key \textbar\ name )] decreases the reference count and
-  deletes the object if the reference count reaches zero.
-\item[deleteObject( key \textbar\ name )] manually deletes the object. To be
-  used if reference counting is not used.
+\item[deleteObject( key )] deletes the object.
 \end{description}
 
 
@@ -2253,7 +2397,7 @@ void Channel::frameDraw( const uint32_t frameID )
 \end{lstlisting}}
 
 \begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/DB.png}
+  \vspace{-8ex}\includegraphics[width=.382\textwidth]{images/DB.png}
   {\caption{\label{fDBDest}Destination view of a DB compound}}
 \end{wrapfigure}
 After the basic view setup, a directional light is configured, and the
@@ -2289,7 +2433,7 @@ server to ensure uniqueness across all channels of the configuration:
     glMultMatrixf( frameData.data.rotation.ml );
 
     Config*          config = static_cast< Config* >( getConfig( ));
-    const Model*     model  = config->getModel();
+    const Model*     model  = getModel();
     const eq::Range& range  = getRange();
 
     if( !range.isFull( )) // Color DB-patches
@@ -2369,6 +2513,10 @@ and its right child [0.5, 1], and so on for all nodes in the tree. The
 preprocessed model is saved in a binary format for accelerating
 subsequent loading.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/render.pdf}
+  {\caption{\label{fRender}Main Render Loop}}
+\end{wrapfigure}
 The rendering loop maintains a list of candidates to render, which
 initially contains the root node. Each candidate of this list is tested
 for full visibility against the frustum and range, and rendered if
@@ -2378,10 +2526,6 @@ the node are added to the candidate list. \fig{fRender} shows a flow
 chart of the rendering algorithm, which performs efficient view frustum
 and range culling.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\label{fRender}Main Render Loop}}
-\end{wrapfigure}
 The actual rendering uses display lists or vertex buffer objects. These
 OpenGL objects are allocated using the object manager. The rendering is
 done by the leaf nodes, which are small enough to store the vertex
@@ -2522,10 +2666,6 @@ format. The original native event and this generic \textsf{Event}
 form the \textsf{OSWindowEvent}, which is passed to the concrete
 \textsf{OSWindow} for processing.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
-  {\caption{\label{fEventProcessing}Event Processing}}
-\end{wrapfigure}
 The purpose of the \textsf{OSWindow} processing method,
 \textsf{processEvent}, is to perform window-system specific event
 processing. For example, \textsf{AGLWindow::processEvent} calls
@@ -2534,6 +2674,10 @@ further, generic processing, the \textsf{Event} is passed on to
 \textsf{Window::processEvent}. This \textsf{Event} no longer contains
 the native event.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
+  {\caption{\label{fEventProcessing}Event Processing}}
+\end{wrapfigure}
 \textsf{Window::processEvent} is responsible for either handling
 the event locally, or for translating it into a generic
 \textsf{ConfigEvent}. The config events are send to the application
@@ -2562,6 +2706,10 @@ events for an \textsf{AGLWindowIF}, \textsf{GLXWindowIF} and
 \textsf{WGLWindowIF}, respectively. \fig{fEventUML} illustrates the
 class hierarchy for event processing.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
+  {\caption{\label{fEventUML}UML Diagram for Event Handling Classes}}
+\end{wrapfigure}
 The concrete implementation of these window interfaces is responsible
 for setting up and de-initializing event handling.
 
@@ -2584,10 +2732,6 @@ created using this display connection are automatically received by the
 event handler. No per-window event handling setup needs to be
 done. PBuffers are handled in the same way as window drawables.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
-  {\caption{\label{fEventUML}UML Diagram for Event Handling Classes}}
-\end{wrapfigure}
 The glX event handler iterates over all windows of the registered pipe
 to find the originating \textsf{GLXWindowIF}, which is then used to
 process the event in a fashion similar to AGL. The
@@ -2699,6 +2843,10 @@ process and executes the \textsf{main} function. The application and
 render clients initialize the local node for communications with other
 nodes, including the server, using \textsf{Client::initLocal}.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/threads.pdf}
+  {\caption{\label{fThreads}Threads within one node process}}
+\end{wrapfigure}
 During this initialization, Equalizer creates and manages two threads
 for communication, the receiver thread and the command thread. Normally
 no application code is executed from these two threads.
@@ -2713,10 +2861,6 @@ special cases the command thread executes application code, for example
 when a remote node maps a static or unbuffered object,
 \textsf{Object::getInstanceData} is called from the command thread.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/threads.pdf}
-  {\caption{\label{fThreads}Threads within one node process}}
-\end{wrapfigure}
 The receiver and command thread are terminated when the application
 stops network communications using \textsf{Client::exitLocal}.
 
@@ -2760,18 +2904,18 @@ The following thread synchronization models are implemented:
   data after rendering, e.g., during \textsf{Channel::frameAssemble}.
 \end{description}
 
-\begin{figure}[ht!]\center
-  \includegraphics[width=.9\textwidth]{images/threadModels.pdf}
-  {\caption{\label{fThreadModels}Async, draw\_sync and local\_sync
-    thread synchronization models}}
-\end{figure}
-
 \fig{fThreadModels} illustrates the synchronization and task execution
 for the thread synchronization models. Please note that the thread
 synchronization synchronizes all pipe render threads on a
 \textbf{single} node with the node's main thread. The per-node frame
 synchronization does not break the asynchronous execution across
 nodes.
+
+\begin{figure}[ht!]\center
+  \includegraphics[width=.9\textwidth]{images/threadModels.pdf}
+  {\caption{\label{fThreadModels}Async, draw\_sync and local\_sync
+    thread synchronization models}}
+\end{figure}
 
 
 \subsubsection{\label{sAdvDPlex}DPlex Compounds}
@@ -2806,6 +2950,10 @@ of the scene data.
 
 \subsubsection{Thread Synchronization in Detail}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
+  {\caption{\label{fFrameSync}Per-node frame synchronization}}
+\end{wrapfigure}
 The application has extended control over the task synchronization
 during a frame. Upon \textsf{Config::startFrame}, Equalizer invokes the
 \textsf{frameStart} task methods of the various entities. The entities
@@ -2829,10 +2977,6 @@ At the end of the frame, two similar sets of synchronization methods are
 used. The first set synchronizes the local execution, while the second
 set synchronizes the global execution.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
-  {\caption{\label{fFrameSync}Per-Node Frame Synchronization}}
-\end{wrapfigure}
 The local synchronization consists of \textsf{releaseFrameLocal} to
 unlock the local frame, and of \textsf{waitFrameLocal} to wait for the
 unlock. For the default synchronization model \textsf{sync\_draw},
@@ -3081,11 +3225,11 @@ The WGL initialization requires another order of operations compared to
 AGL or GLX. The following functions are used to initialize a WGL window:
 
 \begin{enumerate}
-\item\textsf{getWGLPipeDC} is used to get an affinity device context,
-  which might be needed for window creation. If a context is returned, a
-  function pointer to delete the returned device context is set as
-  well. This function might return 0, which is not an error, but
-  signifies that no affinity context is used.
+\item\textsf{initWGLAffinityDC} is used to set up an affinity device
+  context, which might be needed for window creation. The WGL window
+  tracks potentially two device context handles, one for OpenGL context
+  creation (the affinity DC), and one for \textsf{swapBuffers} (the
+  window's DC).
 \item\textsf{chooseWGLPixelFormat} chooses a pixel format based on the
   window attributes. If no device context is given, it uses the system
   device context. The chosen pixel format is set on the passed device
@@ -3108,36 +3252,44 @@ and cleanup, looks as follows:
 {\footnotesize\begin{lstlisting}
 bool WGLWindow::configInit()
 {
-    PFNEQDELETEDCPROC deleteDCProc = 0;
-    HDC dc = getWGLPipeDC( deleteDCProc );
-    EQASSERT( !dc || deleteDCProc );
-
-    int pixelFormat = chooseWGLPixelFormat( dc );
-    if( pixelFormat == 0 )
+    if( !initWGLAffinityDC( ))
     {
-        if( dc )
-            deleteDCProc( dc );
+        _window->setErrorMessage( "Can't create affinity dc" );
         return false;
     }
 
-    if( !configInitWGLDrawable( dc, pixelFormat ))
+    int pixelFormat = chooseWGLPixelFormat();
+    if( pixelFormat == 0 )
     {
-        if( dc )
-            deleteDCProc( dc );
+        exitWGLAffinityDC();
+        return false;
+    }
+
+    if( !configInitWGLDrawable( pixelFormat ))
+    {
+        exitWGLAffinityDC();
         return false;
     }
 
     if( !_wglDC )
     {
-        if( dc )
-            deleteDCProc( dc );
+        exitWGLAffinityDC();
+        setWGLDC( 0, WGL_DC_NONE );
         _window->setErrorMessage(
             "configInitWGLDrawable did not set a WGL drawable" );
         return false;
     }
 
-    HGLRC context = createWGLContext( dc );
+    HGLRC context = createWGLContext();
+    if( !context )
+    {
+        configExit();
+        return false;
+    }
+
     setWGLContext( context );
+    makeCurrent();
+    _initGlew();
 
     if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
     {
@@ -3152,16 +3304,16 @@ bool WGLWindow::configInit()
             EQWARN << "WGLEW_EXT_swap_control not supported, ignoring window "
                    << "swapsync hint" << std::endl;
     }
-
-    if( !context )
+    
+    if( !joinNVSwapBarrier( ))
     {
-        if( dc )
-            deleteDCProc( dc );
+        _window->setErrorMessage( "Joining NV_swap_group failed" );
         return false;
     }
 
-    if( dc )
-        deleteDCProc( dc );
+    if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
+        return configInitFBO();
+
     return true;
 }
 \end{lstlisting}}%>>
@@ -3204,41 +3356,128 @@ positioned using the channel's head transformation, which can be
 retrieved using \textsf{Channel::getHeadTransform}.
 
 
-\subsection{\label{sView}View Management}
+\subsection{\label{sLayoutAPI}Layout API}
 
-A view describes the projection of the scene onto a coherent 2D area,
-typically a display or window rendered by a destination channel. The
-application has read and write access to all the views of a
-configuration.
+The Layout API provides an abstraction for render surfaces (Canvas and
+Segment) and the arrangment of rendering areas on them (Layout and
+View). Its functionality has been described in \sref{sCanvas} and
+\sref{sLayout}. This section focuses on how to use the Layout API
+programmatically. 
 
-Changing view parameters is typically done for non-fullscreen
-application windows, where the rendering is not meant to be viewed in
-real-world size in an immersive environment. A typical use case is
-changing the field-of-view of the rendering.
+The application has read access to all canvases, segment, layouts and
+views of the configuration. The render client has access to the current
+view in the channel task methods. The layout entities can be subclassed
+using the \textsf{NodeFactory}. Currently the layout of a canvas and the
+frustum of a view can be changed at run-time.
 
-A configuration has one or more views. A view is determined by the
-frustum (wall or projection description) and eye separation. A view is
-uniquely assigned to one compound and possibly one destination
-channel. For a description of wall and projection parameters please
-refer to \sref{sFrustum}.
 
-The application node can query all views of the \textsf{eq::Config}. It
-can change all parameters of each view (wall, projection and eye
-separation). The new view parameters are applied for the next frame.
+\subsubsection{Subclassing and Data Distribution}
 
-Destination channels on the render clients have access to a read-only
-version of their view. The view data is automatically kept up-to-date
-with the application's instance by Equalizer.
+Layout API entities (Canvas, Segment, Layout, View) are subclassed like
+all other Equalizer entities using the \textsf{NodeFactory}. Equalizer
+registers the master instance of these entities on the application node,
+so that the application can change mutable parameters and distribute its
+own data to the render clients. \fig{fViewUML} shows the UML class
+hierarchy for the \textsf{eqPly::View}.
 
-The view API is not finalized and may change in the future.
+The render clients can access a slave instance of the view using
+\textsf{Channel::getView}. When called from one of the frame task
+methods, this method will return the view of the current destination
+channel for which the task method is executed. Otherwise it returns the
+channel's native view, if it has one. Only destination channels of an
+active canvas have a native view.
 
-\subsubsection{View Update}
+Equalizer commits dirty layout entities at the beginning of each
+\textsf{Config::startFrame}, and synchronizes the slave instances on the
+render clients correctly with the current frame.
+
+The most common entity to subclass is the \textsf{View}, since the
+application amends it by view-specific data. The view, like all other
+layout entities, is indirectly subclassed from \textsf{eq::Object} via
+\textsf{eq::Frustum}. The design and usage of \textsf{eq::Object} is
+explained in \sref{sEqObject}. In \textsf{eqPly}, the
+application-specific data is the model identifier. A new dirty bit for
+the model is defined, and the model identifier is serialized when
+requested:
+
+{\footnotesize\begin{lstlisting}
+/** The changed parts of the view. */
+enum DirtyBits
+{
+    DIRTY_MODEL       = eq::View::DIRTY_CUSTOM << 0,
+};
+
+void View::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
+{
+    eq::View::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_MODEL )
+        os << _modelID;
+}
+
+void View::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
+{
+    eq::View::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_MODEL )
+        is >> _modelID;
+}
+
+void View::setModelID( const uint32_t id )
+{
+    _modelID = id;
+    setDirty( DIRTY_MODEL );
+}
+\end{lstlisting}}
+
+
+\subsubsection{Dynamic Layout Switch}
+
+The application can use a different layout on a canvas. This will cause
+the running entities to be updated on the next frame. At a minimum, this
+means the channels involved in the last layout on the canvas are
+deinitialized, that is \textsf{configExit} and
+\textsf{NodeFactory::releaseEntity} is called, and channels involved in
+the new layout are initialized. If a layout does not cover fully a
+canvas, the layout switch can also cause the (de-)initialization of
+windows, pipes and nodes.
+
+Due to the entity (de-)-initialization and the potential need to
+initialize view-specific data, e.g., a model, a layout switch is
+relatively expensive and will stall the application for about a second.
+
+Initializing an entity can fail. If that happens, the server will exit
+the whole configuration, and send an \textsf{EXIT} event to the
+application node. The exit event will cause the application to exit,
+since it resets the config's running state.
+
+
+\subsubsection{View Frustum Update}
+
+Changing view frustum parameters is typically done for non-fullscreen
+application windows and multi-view layouts, where the rendering is not
+meant to be viewed in real-world size in an immersive environment. A
+typical use case is changing the field-of-view of the rendering.
+
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/viewUML.pdf}
+  {\caption{\label{fViewUML}UML Hierarchy of \textsf{eqPly::View}}}
+\end{wrapfigure}
+A view is derived from \textsf{eq::Frustum} (\fig{fViewUML}), and the
+application process can set the wall or projection parameters at
+runtime.For a description of wall and projection parameters please refer
+to \sref{sFrustum}. The new data will be effective for the next frame.
+
+The frustum of a view overrides the underlying frustum of the
+segments. The frustum of a view does not typically correspond to a
+physical projection, and can therefore be changed at run-time. The
+frustum of a segment does however correspond to a physical projection,
+and is therefore immutable.
 
 The default Equalizer event handling is using the view API to maintain
 the aspect ratio of destination channels after a window resize. Without
-updating the wall or projection description, the rendering would become distorted.
+updating the wall or projection description, the rendering would become
+distorted.
 
-\begin{wrapfigure}{r}{.618\textwidth}
+\begin{wrapfigure}{l}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/viewUpdate.pdf}
   {\caption{\label{fViewUpdate}Event Flow during a View Update}}
 \end{wrapfigure}
@@ -3247,10 +3486,9 @@ generated. If the corresponding channel has a view,
 \textsf{Channel::processEvent} sends a \textsf{VIEW\_RESIZE} event to
 the application. This event contains the identifier of the view. 
 
-The config event is dispatched to \textsf{Config::handleView\-Resize},
-which uses the view identifier to find the corresponding view. Based on
+The config event is dispatched to \textsf{View::handleEvent}. Based on
 the original size and wall or projection description of the view, a new
-wall or projection is computed, keeping the aspect ratio and  the height
+wall or projection is computed, keeping the aspect ratio and the height
 of the frustum constant. This new frustum is automatically applied by
 Equalizer at the next config frame.
 
@@ -3291,6 +3529,10 @@ in the system. Direct send distributes this workload evenly across all
 source channels, and thereby keeps the compositing work per channel
 constant.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\label{fDirectSend}Parallel Direct Send Compositing}}
+\end{wrapfigure}
 In direct send compositing, each rendering channel is also responsible
 for the sort-last composition of one screen-space tile. He receives
 the framebuffer pixels for his tile from all the other channels. The
@@ -3302,10 +3544,6 @@ transferred to the destination channel, similarly to a 2D (sort-first)
 compound. The amount of pixel data for this part of the compositing
 pipeline also approaches a constant value, i.e., the full frame buffer.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\label{fDirectSend}Parallel Direct Send Compositing}}
-\end{wrapfigure}
 \fig{fDirectSend} illustrates this algorithm for three channels. The
 Equalizer website contains a
 presentation\footnote{\link{http://www.equalizergraphics.com/documents/EGPGV07.pdf}}
@@ -3457,10 +3695,6 @@ visualize with any other approach.
       Orthogonal and Perspective Frusta}}
 \end{figure}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 For recomposition, the 2D frame buffer contents are blended to form a
 seamless picture. For correct blending, the frames are ordered in the
 same back-to-front order as the slices used for rendering, and use the
@@ -3476,6 +3710,10 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 Finding the correct assembly order for perspective frusta is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frusta. For the view and
@@ -3771,10 +4009,6 @@ for these commands.
 
 \subsection{\label{sNetObject2}Object}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
-  {\caption{\label{fNetObject}Communication between two objects}}
-\end{wrapfigure}
 Distributed objects provide powerful, object-oriented data
 distribution for C++ objects. Their functionality and an example use
 case for parallel rendering has been described in \sref{sNetObject}.
@@ -3797,6 +4031,10 @@ object instance registered to the the session with the correct object
 ID. Multiple object instance per node are used when different threads on
 the node need to process a different version of the same object.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
+  {\caption{\label{fNetObject}Communication between two objects}}
+\end{wrapfigure}
 Distributed objects provide data synchronization functionality, as
 described in \sref{sNetObject}. Additionally, applications can send
 command packets by creating custom object packets with a command greater
@@ -3824,7 +4062,7 @@ The Equalizer client library and server are built on top of the network
 layer. They influence the design of it, and serve as a sample
 implementation on how to use classes in the \textsf{eq::net} namespace.
 
-\subsubsection{eq::Object}
+\subsubsection{\label{sEqObject}eq::Object}
 
 Equalizer uses the \textsf{eq::net::Object} data distribution mechanism
 for implementing data distribution between the server, application and
