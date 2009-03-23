@@ -1,7 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \documentclass[10pt,a4]{scrartcl}
 
-\usepackage{tabularx,longtable,graphicx,a4,listings,wrapfig,subfigure,textcomp}
+\usepackage{tabularx,longtable,graphicx,a4,listings,wrapfig,subfigure,textcomp,ccaption}
 \usepackage[absolute]{textpos}
 
 \ifx\pdfoutput\undefined
@@ -33,6 +33,7 @@
 \newcommand{\sref}[1]{Section~\ref{#1}}
 \newcommand{\aref}[1]{Appendix~\ref{#1}}
 \newcommand{\link}[1]{\htmladdnormallink{#1}{#1}}
+\indentcaption{2em}
 
 % suppress  single floating lines on top (widow) and bottom(club)
 %  10000 is infinity
@@ -168,7 +169,7 @@ list\footnote{\link{http://www.equalizergraphics.com/lists.html}}.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \vspace{-1ex}\includegraphics[width=.618\textwidth]{images/executionFlow.pdf}
-  {\caption{\small\label{fExecutionFlow}Parallel Rendering}}
+  {\caption{\label{fExecutionFlow}Parallel Rendering}}
   \vspace{-3ex}
 \end{wrapfigure}
 
@@ -227,7 +228,7 @@ on events, updates its data and controls the rendering.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/processes.pdf}
-  {\caption{\small\label{fProcesses}Equalizer Processes}}
+  {\caption{\label{fProcesses}Equalizer Processes}}
 \end{wrapfigure}
 The render client implements the rendering part of an application. Its
 execution is passive, it has no main loop and is completely driven by
@@ -254,7 +255,7 @@ rendering client.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/eqHello.png}
-  {\caption{\small\label{fHello}Hello, World!}}
+  {\caption{\label{fHello}Hello, World!}}
 \end{wrapfigure}
 The \textsf{eqHello} example is a minimal application to illustrate the
 basic principle of an Equalizer application: The application developer
@@ -324,7 +325,7 @@ mode is also known as sort-first or SFR.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/2D.pdf}
-  {\caption{\small A 2D compound}}
+  {\caption{ A 2D compound}}
 \end{wrapfigure}
 The advantage of this mode is a low, constant IO overhead for the pixel
 transfers, since only color information has to be transmitted. The upper
@@ -437,7 +438,7 @@ destination window. This mode is also known as time-multiplex or AFR.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/DPlex.pdf}
-  {\caption{\small A DPlex compound}}
+  {\caption{ A DPlex compound}}
 \end{wrapfigure}
 
 Due to the frame consistency between consecutive frames, this mode scales
@@ -503,7 +504,7 @@ to configure the pixel decomposition. The destination channel can
 therefore not be rendered in place, like with the other compound modes.
 \begin{figure}[ht!]\center
   \includegraphics[width=.9\textwidth]{images/pixelKernels.pdf}
-  {\caption{\small\label{fPixelKernels}Example pixel kernels for a
+  {\caption{\label{fPixelKernels}Example pixel kernels for a
       four-to-one pixel compound}}
 \end{figure}
 
@@ -590,7 +591,7 @@ for example all modern scene graphs use read-only render traversals.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/model.pdf}
-  {\caption{\small\label{fModel}Simplified execution model}}
+  {\caption{\label{fModel}Simplified execution model}}
 \end{wrapfigure}
 All rendering threads in the configuration run asynchronously to the
 application's main thread. Depending on the configuration's latency,
@@ -632,7 +633,7 @@ recomposition across the resources. It is explained in \sref{sCompounds}.
 
 \begin{figure}[ht!]\center
   \includegraphics[width=\textwidth]{images/cave.pdf}
-  {\caption{\small\label{fConfig}An example configuration}}
+  {\caption{\label{fConfig}An example configuration}}
 \end{figure}
 
 \fig{fConfig} shows an example configuration for a four-side
@@ -693,6 +694,80 @@ rendering. The channel's viewport is overwritten when it is rendering
 for another channel during scalable rendering.
 
 
+\subsection{Canvases}
+
+Canvases provide a convenient way to configure projection surfaces. A
+canvas uses a layout, which describes the logical views. The usage of
+canvases and layouts is optional. Typically, each desktop window uses
+one canvas.
+
+A canvas represents one logical projection surface, e.g., a powerwall, a
+curved screen or an immersive installation. One configuration might
+drive multiple canvases, for example an immersive installation and an
+operator station.
+
+A canvas consists of one or more segments. A planar canvas typically has
+a frustum description (see \sref{sFrustum}), which is inherited by the
+segments. Non-planar frusta are configured using the segment
+frusta. These frusta typically describe a physically-correct display
+setup for Virtual Reality installations.
+
+\subsubsection{Segments}
+
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/canvas.pdf}
+  {\caption{\label{fCanvas}A canvas using four, non-consecutive segments}}
+\end{wrapfigure}
+A segment represents one output channel of the canvas, e.g., a projector
+or a LCD. A segment has an output channel, which references the channel to
+which the display device is connected.
+
+A segment covers a part of its parent canvas, which is configured using
+the segment viewport. The viewport is in normalized coordinates with
+respect to the canvas. Segments might overlap (edge-blended projectors)
+or have gaps between each other (\fig{fCanvas}\footnote{Dataset courtesy
+  of VolVis distribution of SUNY Stony Brook, NY, USA.}). The viewport
+is used to configure the segment's default frustum from the canvas
+frustum description, and to place layout views correctly.
+
+Passive stereo installations have one segment per eye pass, where the
+segment for the left and right eye fully overlap.
+
+\subsection{Layouts}
+
+A layout is the grouping of logical views. It is used by one or more
+canvases. For all given layouts, Equalizer creates destination channels
+when the configuration file is loaded. These destination channels can be
+referenced by compounds to configure scalable rendering.
+
+Layouts can be switched at runtime by the application. Switching a
+layout will activate different destination channels for rendering.
+
+\subsubsection{Views}
+
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/layout.png}
+  {\caption{\label{fLayout}A layout with four views}}
+\end{wrapfigure}
+A view is a logical view of the application data, in the sense used by
+the Model-View-Controller pattern. It can be a scene, viewing mode,
+viewing position, or any other representation of the application's data.
+
+A view has a fractional viewport with respect to its layout.  A layout
+is often fully covered by its views, but this is not a requirement.
+
+Each view can have a frustum description. The view's frustum overrides
+frusta specified at the canvas or segment level. This is typically used
+for non-physically correct rendering, e.g., to compare two models
+side-by-side on a canvas. If the view does not specify a frustum, it
+will use the sub-frustum resulting from the covered area on the canvas.
+
+\begin{figure}[ht!]\center
+  \includegraphics[width=.9\textwidth]{images/wallLayout.jpg}
+  {\caption{A display wall using one canvas and layout with six segments
+    and two views.}}
+\end{figure}
+
 \subsection{\label{sCompounds}Compounds}
 
 Usage of the rendering resources is configured using a compound
@@ -713,7 +788,7 @@ client nodes at the beginning of each frame.
 \subsubsection{\label{sFrustum}Frustum}
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/frusta.pdf}
-  {\caption{\small\label{fFrusta}Wall and projection parameters}}
+  {\caption{\label{fFrusta}Wall and projection parameters}}
   \vspace{-3ex}
 \end{wrapfigure}
 Compounds have a frustum description to define the physical layout of
@@ -815,8 +890,7 @@ quality.
 
 \begin{figure}[ht!]\center
   \includegraphics[width=\textwidth]{images/uml}
-  {\caption{\small\label{fUml}UML diagram of significant Equalizer and
-      eqPly classes and task methods.}}
+  {\caption{\label{fUml}UML diagram eqPly and relevant Equalizer classes.}}
 \end{figure}
 
 All classes in the example are in the \textsf{eqPly} namespace to avoid
@@ -1078,7 +1152,7 @@ explained in \sref{sThreadModel}.
 
 \begin{figure}[ht!]\center
   \includegraphics[width=\textwidth]{images/syncAsync}
-  {\caption{\small\label{fSyncAsync}Synchronous and asynchronous execution}}
+  {\caption{\label{fSyncAsync}Synchronous and asynchronous execution}}
 \end{figure}
 \fig{fSyncAsync} shows the execution of the rendering tasks of a 2-node
 2D compound without latency and with a latency of one frame. The
@@ -1361,7 +1435,7 @@ clients.
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
-  {\caption{\small\label{fModelDist}Scene Data in eqPly}}
+  {\caption{\label{fModelDist}Scene Data in eqPly}}
 \end{wrapfigure}
 \textsf{eqPly} uses static distributed objects to distribute the model
 loaded by the application. This model can be easily extended to
@@ -1433,7 +1507,7 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
 \begin{wrapfigure}{r}{.618\textwidth}
 %\begin{figure}[ht!]\center
   \includegraphics[width=.618\textwidth]{images/objects.pdf}
-  {\caption{\small\label{fObjects}Scene Graph Distribution}}
+  {\caption{\label{fObjects}Scene Graph Distribution}}
 \end{wrapfigure}
 Applications distributing a dynamic scene graph use the frame data
 instead of the init data as the entry point to their scene graph data
@@ -1465,7 +1539,7 @@ necessary data.
 \begin{figure}[ht!]\center
 %\begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.9\textwidth]{images/configInit.pdf}
-  {\caption{\small\label{fConfigInit}Config Initialization Sequence}}
+  {\caption{\label{fConfigInit}Config Initialization Sequence}}
 \end{figure}
 The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
@@ -1907,7 +1981,7 @@ toolkit, e.g., Qt.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/osWindow.pdf}
-  {\caption{\small\label{fOSWindow}eq::OSWindow UML class hierarchy}}
+  {\caption{\label{fOSWindow}eq::OSWindow UML class hierarchy}}
 \end{wrapfigure}
 All window-system specific functionality is implemented by a
 specialization of \textsf{eq::OS\-Window}. The \textsf{OSWindow} class
@@ -2181,7 +2255,7 @@ void Channel::frameDraw( const uint32_t frameID )
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/DB.png}
-  {\caption{\small\label{fDBDest}Destination view of a DB compound}}
+  {\caption{\label{fDBDest}Destination view of a DB compound}}
 \end{wrapfigure}
 After the basic view setup, a directional light is configured, and the
 model is positioned using the camera parameters from the frame data. The
@@ -2307,7 +2381,7 @@ and range culling.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/render.pdf}
-  {\caption{\small\label{fRender}Main Render Loop}}
+  {\caption{\label{fRender}Main Render Loop}}
 \end{wrapfigure}
 The actual rendering uses display lists or vertex buffer objects. These
 OpenGL objects are allocated using the object manager. The rendering is
@@ -2451,7 +2525,7 @@ form the \textsf{OSWindowEvent}, which is passed to the concrete
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
-  {\caption{\small\label{fEventProcessing}Event Processing}}
+  {\caption{\label{fEventProcessing}Event Processing}}
 \end{wrapfigure}
 The purpose of the \textsf{OSWindow} processing method,
 \textsf{processEvent}, is to perform window-system specific event
@@ -2513,7 +2587,7 @@ done. PBuffers are handled in the same way as window drawables.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
-  {\caption{\small\label{fEventUML}UML Diagram for Event Handling Classes}}
+  {\caption{\label{fEventUML}UML Diagram for Event Handling Classes}}
 \end{wrapfigure}
 The glX event handler iterates over all windows of the registered pipe
 to find the originating \textsf{GLXWindowIF}, which is then used to
@@ -2642,7 +2716,7 @@ when a remote node maps a static or unbuffered object,
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/threads.pdf}
-  {\caption{\small\label{fThreads}Threads within one node process}}
+  {\caption{\label{fThreads}Threads within one node process}}
 \end{wrapfigure}
 The receiver and command thread are terminated when the application
 stops network communications using \textsf{Client::exitLocal}.
@@ -2689,7 +2763,7 @@ The following thread synchronization models are implemented:
 
 \begin{figure}[ht!]\center
   \includegraphics[width=.9\textwidth]{images/threadModels.pdf}
-  {\caption{\small\label{fThreadModels}Async, draw\_sync and local\_sync
+  {\caption{\label{fThreadModels}Async, draw\_sync and local\_sync
     thread synchronization models}}
 \end{figure}
 
@@ -2758,7 +2832,7 @@ set synchronizes the global execution.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
-  {\caption{\small\label{fFrameSync}Per-Node Frame Synchronization}}
+  {\caption{\label{fFrameSync}Per-Node Frame Synchronization}}
 \end{wrapfigure}
 The local synchronization consists of \textsf{releaseFrameLocal} to
 unlock the local frame, and of \textsf{waitFrameLocal} to wait for the
@@ -2785,7 +2859,7 @@ invoked, which is synchronized internally. Once all
 
 \begin{figure}[ht!]\center
   \includegraphics[width=\textwidth]{images/mainloop.pdf}
-  {\caption{\small\label{fMainLoop}Synchronization of frame tasks}}
+  {\caption{\label{fMainLoop}Synchronization of frame tasks}}
 \end{figure}
 
 \fig{fMainLoop} outlines the synchronization for the application, node
@@ -3110,7 +3184,7 @@ Equalizer.
     \includegraphics[height=3.5cm]{images/stereo}}\hfil
   \subfigure[]{\label{fTracked}
     \includegraphics[height=3.5cm]{images/tracked}}%
-  {\caption{\small\label{fImmersive}Monoscopic, Stereoscopic and Tracked
+  {\caption{\label{fImmersive}Monoscopic, Stereoscopic and Tracked
     frusta}}
 \end{figure}
 
@@ -3167,7 +3241,7 @@ updating the wall or projection description, the rendering would become distorte
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/viewUpdate.pdf}
-  {\caption{\small\label{fViewUpdate}Event Flow during a View Update}}
+  {\caption{\label{fViewUpdate}Event Flow during a View Update}}
 \end{wrapfigure}
 When a window is resized, a \textsf{CHANNEL\_RESIZE} event is eventually
 generated. If the corresponding channel has a view,
@@ -3231,7 +3305,7 @@ pipeline also approaches a constant value, i.e., the full frame buffer.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\small\label{fDirectSend}Parallel Direct Send Compositing}}
+  {\caption{\label{fDirectSend}Parallel Direct Send Compositing}}
   \vspace{-4ex}
 \end{wrapfigure}
 \fig{fDirectSend} illustrates this algorithm for three channels. The
@@ -3290,7 +3364,7 @@ relative to the window.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\small\label{fAssembly}Hierarchy of assembly classes}}
+  {\caption{\label{fAssembly}Hierarchy of assembly classes}}
 \end{wrapfigure}
 For output frames, the frame data's pixel viewport is the area of the
 frame buffer to read back. It will transport the offset from the source
@@ -3311,7 +3385,7 @@ and images.
 %\begin{wrapfigure}{r}{.618\textwidth}
 \begin{figure}[h!t]\center
   \includegraphics[width=.9\textwidth]{images/compositor.pdf}
-  {\caption{\small\label{fCompositor}Functional diagram of the compositor}}
+  {\caption{\label{fCompositor}Functional diagram of the compositor}}
 \end{figure}
 The \textsf{Compositor} class gathers a set of static functions which
 implement the various compositing algorithms and low-level
@@ -3352,7 +3426,7 @@ mostly fill-limited and therefore scales nicely in these modes.
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\small\label{fSlices}Volume Rendering using 3D Textures}}
+  {\caption{\label{fSlices}Volume Rendering using 3D Textures}}
 \end{wrapfigure}
 The full power of scalable volume rendering is however in DB (sort-last)
 compounds, where the full volume is divided into separate bricks. Each
@@ -3381,13 +3455,13 @@ visualize with any other approach.
   \subfigure[]{\label{fBlendPerspective}
     \includegraphics[width=.55\textwidth]{images/b2f_perspective.pdf}
   }%
-  {\caption{\small\label{fBlend}Back-to-Front Com\-po\-siting for
-      Orthogonal and Perspective View Frusta}}
+  {\caption{\label{fBlend}Back-to-Front Com\-po\-siting for
+      Orthogonal and Perspective Frusta}}
 \end{figure}
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \vspace{-3ex}\includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\small\label{fVolResult}Result of \fig{fBlendPerspective}}}
+  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
   \vspace{-5ex}
 \end{wrapfigure}
 For recomposition, the 2D frame buffer contents are blended to form a
@@ -3437,7 +3511,7 @@ identifier.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/statistics.png}
-  {\caption{\small\label{fStatistics}Statistics for a two-node 2D compound}}
+  {\caption{\label{fStatistics}Statistics for a two-node 2D compound}}
 \end{wrapfigure}
 Statistics are enabled per entity using an attribute hint. The hint
 determines how precise the gathered statistics are. When set to
@@ -3470,7 +3544,7 @@ custom implementation.
 
 \begin{figure}[h!t]
   \includegraphics[width=\textwidth]{images/statisticsDetail.pdf}
-    {\caption{\small\label{fStatisticsDetail}Annotated Detail of the
+    {\caption{\label{fStatisticsDetail}Annotated Detail of the
         Statistics from \fig{fStatistics}.}}
 \end{figure}
 
@@ -3631,7 +3705,7 @@ the listening node.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/netNode.pdf}
-  {\caption{\small\label{fNetNode}Communication between two nodes}}
+  {\caption{\label{fNetNode}Communication between two nodes}}
 \end{wrapfigure}
 \fig{fNetNode} shows the communication between two nodes. The nodes in
 the listening state also have a listening connection, which is not shown
@@ -3681,7 +3755,7 @@ following section.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/netSession.pdf}
-  {\caption{\small\label{fNetSession}Communication between two Sessions}}
+  {\caption{\label{fNetSession}Communication between two Sessions}}
 \end{wrapfigure}
 Sessions instances can communicate to each other directly using an
 \textsf{eq::net::Ses\-sion\-Packet}, which is derived from the
@@ -3702,7 +3776,7 @@ for these commands.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/netObject.pdf}
-  {\caption{\small\label{fNetObject}Communication between two objects}}
+  {\caption{\label{fNetObject}Communication between two objects}}
 \end{wrapfigure}
 Distributed objects provide powerful, object-oriented data
 distribution for C++ objects. Their functionality and an example use
