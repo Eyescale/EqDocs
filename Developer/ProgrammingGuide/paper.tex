@@ -23,7 +23,7 @@
   {\Large\sffamily The official reference for creating parallel,
     scalable OpenGL\texttrademark\ applications with the Equalizer
     parallel rendering framework}\\\vspace{1cm}
-  Version 1.5.6 for Equalizer 0.6+svn\\[\medskipamount]
+  Version 1.5.7 for Equalizer 0.6+svn\\[\medskipamount]
 %  \today
 }
 
@@ -124,6 +124,7 @@ The images on the back page show the following scalable rendering modes:
     1.5.4   & Feb 09, 2009 & Added \sref{sNetUsage}\\
     1.5.5   & Mar 10, 2009 & Updated to reflect new AGL event dispatch\\
     1.5.6   & Mar 23, 2009 & Documented Layout API\\
+    1.5.7   & Apr 17, 2009 & Updated Layout API (multiple observers)\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -698,9 +699,8 @@ for another channel during scalable rendering.
 \subsection{\label{sCanvas}Canvases}
 
 Canvases provide a convenient way to configure projection surfaces. A
-canvas uses a layout, which describes the logical views. The usage of
-canvases and layouts is optional. Typically, each desktop window uses
-one canvas.
+canvas uses layouts, which describe logical views. The usage of canvases
+and layouts is optional. Typically, each desktop window uses one canvas.
 
 A canvas represents one logical projection surface, e.g., a powerwall, a
 curved screen or an immersive installation. One configuration might
@@ -712,6 +712,11 @@ a frustum description (see \sref{sFrustum}), which is inherited by the
 segments. Non-planar frusta are configured using the segment
 frusta. These frusta typically describe a physically-correct display
 setup for Virtual Reality installations.
+
+A canvas has one or more layouts. One of the layouts is the active
+layout, that is, this set of views is currently used for rendering. It
+is possible to specify \textsf{OFF} as a layout, which deactivates the
+canvas. It is possible to use the same layout on different canvases.
 
 \subsubsection{Segments}
 
@@ -763,11 +768,22 @@ for non-physically correct rendering, e.g., to compare two models
 side-by-side on a canvas. If the view does not specify a frustum, it
 will use the sub-frustum resulting from the covered area on the canvas.
 
+A view might have an observer, in which case its frustum is tracked by
+this observer. 
+
 \begin{figure}[ht!]\center
   \includegraphics[width=.9\textwidth]{images/wallLayout.jpg}
-  {\caption{A display wall using one canvas and layout with six segments
-    and two views.}}
+  {\caption{A display wall using a six-segment canvas with a two-view layout.}}
 \end{figure}
+
+\subsection{Observers}
+
+An observer represents an actor looking at multiple views. It has a head
+matrix, defining its position and orientation within the world, and an
+eye separation. Typically, a configuration has one
+observer. Configurations with multiple observers are used if multiple,
+head-tracked users are in the same configuration session, e.g., a
+non-tracked control host with two tracked head-mounted displays.
 
 \subsection{\label{sCompounds}Compounds}
 
@@ -1461,6 +1477,10 @@ prefer to load the data only on the application process, and use
 distributed objects to synchronize the scene data with the render
 clients.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
+  {\caption{\label{fModelDist}Scene Data in eqPly}}
+\end{wrapfigure}
 \textsf{eqPly} uses static distributed objects to distribute the model
 loaded by the application. This approach can be easily extended to
 versioned objects to support dynamic data modifications.
@@ -1473,10 +1493,6 @@ example in a GLUT application. To keep this separation, an external
 \textsf{VertexBufferDist} nodes is responsible for cloning the model
 data on the remote render clients.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
-  {\caption{\label{fModelDist}Scene Data in eqPly}}
-\end{wrapfigure}
 The identifier of the model's root object of this distributed hierarchy
 is passed as part of the \textsf{InitData} for the default model, or as
 part of the \textsf{View} for each logical view. It is used on the
@@ -1535,12 +1551,11 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
 }
 \end{lstlisting}}%>>
 
-\begin{wrapfigure}{r}{.618\textwidth}
-%\begin{figure}[ht!]\center
-  \vspace{-2ex}
+%\begin{wrapfigure}{r}{.618\textwidth}
+\begin{figure}[ht!]\center
   \includegraphics[width=.618\textwidth]{images/objects.pdf}
   {\caption{\label{fObjects}Scene Graph Distribution}}
-\end{wrapfigure}
+\end{figure}
 Applications distributing a dynamic scene graph use the frame data
 instead of the init data as the entry point to their scene graph data
 structure. \fig{fObjects} shows one possible implementation, where the
@@ -1568,15 +1583,17 @@ necessary data.
 
 \subsubsection{Initialization and Exit}
 
+%\begin{figure}[ht!]\center
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-2ex}
+  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
+  {\caption{\label{fConfigInit}Config Initialization Sequence}}
+  \vspace{-4ex}
+\end{wrapfigure}
 The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
 completion is synchronized afterwards. 
 
-%\begin{figure}[ht!]\center
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/configInit.pdf}
-  {\caption{\label{fConfigInit}Config Initialization Sequence}}
-\end{wrapfigure}
 The tasks are executed by the node and pipe threads in parallel. The
 parent's initialization methods are always executed before any child
 initialization method. This parallelization is necessary to allow a
@@ -1819,55 +1836,23 @@ const Model* Config::getModel( const uint32_t modelID )
 
 \subsubsection{Layout and View Handling}
 
-For layout and model selection, \textsf{eqPly} maintains an active
-view. The identifier of the active view is stored in the frame data,
-which is used by the render client to highlight it using a different
-background color. The active view can be selected by clicking into a
-view, or by cycling through all the views using a keyboard shortcut:
-
-{\footnotesize\begin{lstlisting}
-bool Config::handleEvent( const eq::ConfigEvent* event )
-{
-    switch( event->data.type )
-    {
-        ...
-        case eq::Event::POINTER_BUTTON_PRESS:
-            _frameData.setCurrentViewID( event->data.context.view.id );
-            return true;
-        ...
-    }
-}
-
-bool Config::_handleKeyEvent( const eq::KeyEvent& event )
-{
-    switch( event.key )
-    {
-        ...
-        case 'v':
-        case 'V':
-        {
-            NextViewFinder finder( _frameData.getCurrentViewID( ));
-            accept( finder );
-            const eq::View* view = finder.getResult();
-            if( view )
-                _frameData.setCurrentViewID( view->getID( ));
-            else
-                _frameData.setCurrentViewID( EQ_ID_INVALID );
-            return true;
-        }
-        ...
-    }
-}
-\end{lstlisting}}
+For layout and model selection, \textsf{eqPly} maintains an active view
+and canvas. The identifier of the active view is stored in the frame
+data, which is used by the render client to highlight it using a
+different background color. The active view can be selected by clicking
+into a view, or by cycling through all the views using a keyboard
+shortcut.
 
 The model of the active view can be changed using a keyboard
 shortcut. The model is view-specific, and therefore the model identifier
 for each view is stored on the view, which is used to retrieve the model
-on the render clients. View-specific data is not limited to a
-model. Applications can choose to make any application-specific data
-view-specific, e.g., cameras, rendering modes or annotations. A view is
-a generic concept for an application-specific view on data,
-\textsf{eqPly} is using different models to illustrate the concept:
+on the render clients. 
+
+View-specific data is not limited to a model. Applications can choose to
+make any application-specific data view-specific, e.g., cameras,
+rendering modes or annotations. A view is a generic concept for an
+application-specific view on data, \textsf{eqPly} is using different
+models to illustrate the concept:
 
 {\footnotesize\begin{lstlisting}
 bool Config::_handleKeyEvent( const eq::KeyEvent& event )
@@ -2396,10 +2381,6 @@ void Channel::frameDraw( const uint32_t frameID )
     eq::Channel::frameDraw( frameID );
 \end{lstlisting}}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \vspace{-8ex}\includegraphics[width=.382\textwidth]{images/DB.png}
-  {\caption{\label{fDBDest}Destination view of a DB compound}}
-\end{wrapfigure}
 After the basic view setup, a directional light is configured, and the
 model is positioned using the camera parameters from the frame data. The
 camera parameters are transported using the the frame data to ensure
@@ -2471,6 +2452,10 @@ its place:
 }
 \end{lstlisting}}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/DB.png}
+  {\caption{\label{fDBDest}Destination view of a DB compound}}
+\end{wrapfigure}
 To draw the model, a helper class for view frustum culling is set up
 using the view frustum from Equalizer and the camera position from the
 frame data. The frustum helper computes the six frustum planes from the
@@ -3328,6 +3313,11 @@ the scope of Equalizer. Other open source and commercial implementations
 cover this functionality sufficiently and can easily be integrated with
 Equalizer.
 
+An Equalizer configuration has a vector of observers. Each observer has
+its own head matrix and eye separation for tracking. In \textsf{eqPly},
+all observers are updated with the same head matrix. A typical
+application would assign different tracking data to different observers.
+
 \begin{figure}[h!t]
   \subfigure[]{\label{fMono}
     \includegraphics[height=3.5cm]{images/mono}}\hfil
@@ -3442,7 +3432,7 @@ windows, pipes and nodes.
 
 Due to the entity (de-)-initialization and the potential need to
 initialize view-specific data, e.g., a model, a layout switch is
-relatively expensive and will stall the application for about a second.
+relatively expensive and will stall \textsf{eqPly} for about a second.
 
 Initializing an entity can fail. If that happens, the server will exit
 the whole configuration, and send an \textsf{EXIT} event to the
