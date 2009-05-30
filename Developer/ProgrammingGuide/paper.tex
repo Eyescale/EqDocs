@@ -23,7 +23,7 @@
   {\Large\sffamily The official reference for creating parallel,
     scalable OpenGL\texttrademark\ applications with the Equalizer
     parallel rendering framework}\\\vspace{1cm}
-  Version 1.5.7 for Equalizer 0.6+svn\\[\medskipamount]
+  Version 1.5.8 for Equalizer 0.6+svn\\[\medskipamount]
 %  \today
 }
 
@@ -110,8 +110,7 @@ The images on the back page show the following scalable rendering modes:
 \pagenumbering{roman}
 \pagestyle{headings}
 \tableofcontents
-\listoffigures
-\vfill{\center\begin{tabularx}{\textwidth}{|l|l|X|}
+\listoffigures \vfill{\center\begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
     \bf Rev & \bf Date     & \bf Changes \\
     \hline
@@ -125,6 +124,7 @@ The images on the back page show the following scalable rendering modes:
     1.5.5   & Mar 10, 2009 & Updated to reflect new AGL event dispatch\\
     1.5.6   & Mar 23, 2009 & Documented Layout API\\
     1.5.7   & Apr 17, 2009 & Updated Layout API (multiple observers)\\
+    1.5.8   & May 30, 2009 & Added \sref{sEqualizers}, updated \sref{sLoadBalancing} and \sref{sSwapBarrier}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -511,39 +511,21 @@ therefore not be rendered in place, like with the other compound modes.
 \end{figure}
 
 
-\subsection{\label{sLoadBalancing}Load-Balancing}
+\subsection{\label{sLoadBalancing}Automatic Runtime Adjustments}
 
-While pixel and stereo compounds are naturally load-balanced, 2D, DB and
-DPlex compounds might need load-balancing to provide optimal
-performance. Using a load-balancer is transparent to the application,
-and can be used on any application for 2D and DPlex, and on most
-applications for DB load-balancing. Some applications supporting DB
-decomposition do not support dynamic updates of the database range, and
-therefore cannot be used with DB load-balancing.
+Some scalable rendering parameters have to be updated at run-time to
+provide optimal performance or influence other scalable rendering
+features. These adjustments are often referred to as load-balancing, but
+are called \textsf{equalizers}, since their functionality is not limited
+to load-balancing in Equalizer.
 
-Using a 2D or DB load-balancer will adapt the 2D split or database range
-automatically each frame. The 2D load-balancer exists in three flavors:
-\textsf{2D} using tiles, \textsf{VERTICAL} using columns and
-\textsf{HORIZONTAL} using rows. The current load-balancing algorithm for
-2D and DB is a technology preview and will improve in future versions.
+The server provides a number of equalizers, which automatically update
+certain parameters of compounds based on run-time information. They
+balance the load of 2D and DB compounds, optimally distribute render
+resources for multi-view configurations, adapt the resolution to provide
+a constant framerate or zoom images to allow monitoring of another view.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/lb.pdf}
-  {\caption{\label{fLoadBalancing}\small 2D load-balancing}}
-\end{wrapfigure}
-2D load-balancing increases the framerate over a static decomposition in
-virtually all cases. It works best if the application data is relatively
-uniformly distributed in screen-space.
-
-DB load-balancing is beneficial for applications which cannot precisely
-predict the load for their scene data. Volume rendering is a
-counterexample, where the data is uniform and a static DB decomposition
-typically results in a better performance.
-
-DPlex compounds require a smoothing of the framerate at the destination
-channel, otherwise the framerate will become periodically faster and
-slower. Using a DPlex load-balancer will smoothen the swap buffer rate
-on the destination window for optimal user experience.
+Equalizer are described in more detail in \sref{sEqualizers}.
 
 \section{The Programming Interface}
 
@@ -582,6 +564,10 @@ are executed from this thread. This threading model is the OpenGL
 thread. If structured correctly, the application rarely has to take care
 of thread synchronization or protection of shared data.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/model.pdf}
+  {\caption{\label{fModel}Simplified execution model}}
+\end{wrapfigure}
 The main thread is responsible for maintaining the application logic. It
 reacts on user events, updates the data model and requests new frames to
 be rendered. It drives the whole application, as shown in \fig{fModel}.
@@ -591,10 +577,6 @@ database. The data\-base should be accessed in a read-only fashion
 during rendering to avoid threading problems. This is normally the case,
 for example all modern scene graphs use read-only render traversals.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/model.pdf}
-  {\caption{\label{fModel}Simplified execution model}}
-\end{wrapfigure}
 All rendering threads in the configuration run asynchronously to the
 application's main thread. Depending on the configuration's latency,
 they can fall $n$ frames behind the last frame finished by the
@@ -741,6 +723,11 @@ segment for the left and right eye fully overlap.
 
 \subsection{\label{sLayout}Layouts}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/layout.png}
+  {\caption{\label{fLayout}A layout with four views}}
+  \vspace{-4ex}
+\end{wrapfigure}
 A layout is the grouping of logical views. It is used by one or more
 canvases. For all given layouts, Equalizer creates destination channels
 when the configuration file is loaded. These destination channels can be
@@ -751,10 +738,6 @@ layout will activate different destination channels for rendering.
 
 \subsubsection{Views}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/layout.png}
-  {\caption{\label{fLayout}A layout with four views}}
-\end{wrapfigure}
 A view is a logical view of the application data, in the sense used by
 the Model-View-Controller pattern. It can be a scene, viewing mode,
 viewing position, or any other representation of the application's data.
@@ -773,7 +756,7 @@ this observer.
 
 \begin{figure}[ht!]\center
   \includegraphics[width=.9\textwidth]{images/wallLayout.jpg}
-  {\caption{A display wall using a six-segment canvas with a two-view layout.}}
+  {\caption{A display wall using a six-segment canvas with a two-view layout}}
 \end{figure}
 
 \subsection{Observers}
@@ -869,14 +852,15 @@ the output frame. This composition process is extensively described in
 tree, that is, an output frame from one compound tree cannot be used as
 an input frame of another compound tree.
 
-\subsubsection{Synchronization - Swapbarrier}
-Compounds may have a swapbarrier to synchronize the buffer swap of
-multiple channels. Windows with a swapbarrier of the same name enter a
-barrier before executing the swap buffer task. Before entering the
-barrier, \textsf{Window::finish} is called to ensure that all OpenGL
-commands have been executed.
+\subsubsection{\label{sSwapBarrier}Synchronization - Swapbarriers}
+Compounds may have a software or hardware swapbarrier to synchronize the
+buffer swap of multiple channels. A software swapbarrier is configured
+by giving it a name. Windows with a swapbarrier of the same name
+synchronize with each other before executing the swap buffer
+task. Before entering the barrier, \textsf{Window::finish} is called to
+ensure that all OpenGL commands have been executed.
 
-Note that this software swap barrier is not accurate enough for
+Note that a software swap barrier is not accurate enough for
 edge-blended projection system. Such installations typically use a
 hardware synchronization, e.g., nVidia G-Sync cards. It is however
 sufficient for display walls made out of LCD's and for some
@@ -886,11 +870,151 @@ Swapbarrier names are only valid within the compound tree, that is, a
 compound from one compound tree cannot be synchronized with a compound
 from another compound tree.
 
+A hardware swapbarrier is configured by setting the \textsf{NV\_group}
+and \textsf{NV\_barrier} parameters. These parameters follow the
+\textsf{NV\_swap\_group} extension, which synchronizes all windows bound
+to the same group on a single machine, and all groups bound to the same
+barrier across systems.
+
+\subsubsection{\label{sEqualizers}Adaptation - Equalizers}
+
+Equalizers are used to update compound parameters based on run-time
+data. They are attached to a compound (sub-)tree, on which they
+operate. The Equalizer distribution contains numerous example
+configuration files using equalizers.
+
+\paragraph{Load Equalizer}
+\vspace{-2ex}\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/lb.pdf}
+  {\caption{\label{fLoadBalancing}\small 2D load-balancing}}
+\end{wrapfigure}
+While pixel and stereo compounds are naturally load-balanced, 2D and DB
+compounds often need load-balancing for optimal rendering
+performance. Using a load equalizer is transparent to the application,
+and can be used on any application for 2D, and on most applications for
+DB load-balancing. Some applications do not support dynamic updates of
+the database range, and therefore cannot be used with DB load-balancing.
+
+Using a 2D or DB load-balancer will adapt the 2D split or database range
+automatically each frame. The 2D load-balancer exists in three flavors:
+\textsf{2D} using tiles, \textsf{VERTICAL} using columns and
+\textsf{HORIZONTAL} using rows.
+
+2D load-balancing increases the framerate over a static decomposition in
+virtually all cases. It works best if the application data is relatively
+uniformly distributed in screen-space. A damping parameter can be used
+to fine-tune the algorithm.
+
+DB load-balancing is beneficial for applications which cannot precisely
+predict the load for their scene data. Volume rendering is a
+counterexample, where the data is uniform and a static DB decomposition
+typically results in a better performance.
+
+\paragraph{View Equalizer}
+Depending on the model position and data structure, each segment of a
+multi-display system has a different rendering load. The segment with
+the biggest load determines the overall performance when using a static
+assignment of resources to segments. The view equalizer analyzes the
+load of all segments, and adapts the resource usage each frame. It
+equalizes the load on all segments of a view.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/viewLB.pdf}
+  {\caption{\label{fViewLoadBalancing}\small Cross-segment
+      load-balancing for two segments using eight GPU's}}
+\end{wrapfigure}
+\fig{fViewLoadBalancing}\footnote{Image Copyright Realtime Technology
+  AG, 2008} illustrates this process. On the left side, a static
+assigment of resources to display segments is used. The right-hand
+segment has a higher load than the left-hand segment, causing
+sub-optimal performance. The configuration on the left uses a view
+equalizer, which assigns two GPU's to the left segment and four GPU's to
+the right segment, which leads to optimal performance for this model and
+camera position.
+
+The view equalizer can also use resources from another display resource,
+if this resource has little rendering load by itself. It is therefore
+possible to improve the rendering performance of a multi-display system
+without any additional resources. This is particulary useful for
+installations with a higher number of displays where the rendering load
+is typically in a few segments only, e.g., for a CAVE.
+
+\begin{wrapfigure}{l}{.382\textwidth} 
+    \includegraphics[width=.382\textwidth]{images/viewLB.png}
+    {\caption{\label{fViewLoadBalancing2}\small Cross-segment
+        load-balancing for a CAVE}}
+\end{wrapfigure}
+\fig{fViewLoadBalancing2} shows cross-usage for a five-sided CAVE driven
+by five GPU's. The front and left segments show the model and have a
+significant rendering load. The view equalizer assigns the GPU's from
+the top, bottom and right wall for rendering the left and front wall in
+this configuration.
+
+Cross-segment load-balan\-cing is configured hierarchically. On the top
+compound level, a view equalizer assigns resources to each of its
+children, so that the optimal number of resources is used for each
+segment. On the next level, a load equalizer on each child computes the
+resource distribution within the segment, taking the resource usage
+given by the view equalizer into account.
+
+\paragraph{Framerate Equalizer}
+Certain configurations, in particular DPlex compounds, require a
+smoothing of the framerate at the destination channel, otherwise the
+framerate will become periodically faster and slower. Using a framerate
+equalizer will smoothen the swap buffer rate on the destination window
+for optimal user experience.
+
+\paragraph{DFR Equalizer}
+Dynamic Frame Resolution (DFR) trades rendering performance for visual
+quality. The rendering for a channel is done at a different resolution
+than the native channel resolution to keep the framerate constant. The
+DFR equalizer adapts the zoom of a channel, based on the target and
+current framerate. It is typically used for fill-rate bound
+applications, such as volume rendering and raytracing.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/dfr.pdf}
+  {\caption{\label{fDFR}\small Dynamic Frame Resolution}}
+\end{wrapfigure}
+\fig{fDFR}\footnote{Data set courtesy of Olaf Ronneberger, Computer
+  Science Institute, University of Freiburg, Germany} shows DFR for
+volume rendering. To achieve 10 frames per second, the model is rendered
+at a lower resolution, and upscaled to the native resolution for
+display. The rendering quality is slightly degraded, while the rendering
+performance remains interactive. When the application is idle, it can
+render a full-resolution view.
+
+The dynamic frame resolution is not limited to down-scaling the
+rendering resolution, it will also up-scale the resolution if the
+parameters allow for it. Upscaled rendering, which will downsample the
+result for display, provides dynamic anti-aliasing at a constant
+framerate.
+
+\paragraph{Monitor Equalizer}
+The monitor equalizer allows the observation of another view,
+potentially made of multiple segments, in a different channel at a
+different resolution. This is typically used to re-use the rendering of
+a large-scale display on an operator station.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/monitorEq.pdf}
+  {\caption{\label{fMonitorEq}\small Monitoring a projection wall}}
+\end{wrapfigure}
+The monitor equalizer adapts the frame zoom of the output frames used to
+observe the rendering, depending on the destination channel size. The
+output frames are downscaled on the GPU before readback, which results
+in optimal performance.
+
+\fig{fMonitorEq} shows a usage of the monitor equalizer. A two-segment
+display wall is driven by a separate control station. The rendering
+happens only on the display wall, and the control window receives the
+correctly downscaled version of the rendering.
+
 \section{\label{sEqPly}The eqPly polygonal renderer}
 
 \begin{figure}[ht!]\center
   \includegraphics[width=.9\textwidth]{images/uml}
-  {\caption{\label{fUml}UML diagram eqPly and relevant Equalizer classes.}}
+  {\caption{\label{fUml}UML diagram eqPly and relevant Equalizer classes}}
 \end{figure}
 
 In this section the source code of \textsf{eqPly} is explained in
