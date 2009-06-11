@@ -906,9 +906,10 @@ uniformly distributed in screen-space. A damping parameter can be used
 to fine-tune the algorithm.
 
 DB load-balancing is beneficial for applications which cannot precisely
-predict the load for their scene data. Volume rendering is a
-counterexample, where the data is uniform and a static DB decomposition
-typically results in a better performance.
+predict the load for their scene data, e.g., when the data is
+non-uniform. Volume rendering is a counterexample, where the data is
+uniform and a static DB decomposition typically results in a better
+performance.
 
 \paragraph{View Equalizer}
 Depending on the model position and data structure, each segment of a
@@ -981,8 +982,8 @@ applications, such as volume rendering and raytracing.
 volume rendering. To achieve 10 frames per second, the model is rendered
 at a lower resolution, and upscaled to the native resolution for
 display. The rendering quality is slightly degraded, while the rendering
-performance remains interactive. When the application is idle, it can
-render a full-resolution view.
+performance remains interactive. When the application is idle, it
+renders a full-resolution view.
 
 The dynamic frame resolution is not limited to down-scaling the
 rendering resolution, it will also up-scale the resolution if the

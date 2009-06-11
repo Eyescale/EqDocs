@@ -19,7 +19,7 @@
 	<key>CanvasOrigin</key>
 	<string>{0, 0}</string>
 	<key>CanvasScale</key>
-	<real>0.79316669702529907</real>
+	<real>1.2814419269561768</real>
 	<key>ColumnAlign</key>
 	<integer>1</integer>
 	<key>ColumnSpacing</key>
@@ -34,6 +34,43 @@
 	<integer>5</integer>
 	<key>GraphicsList</key>
 	<array>
+		<dict>
+			<key>Bounds</key>
+			<string>{{120.472, 155.906}, {14.1732, 14.1732}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>FontInfo</key>
+			<dict>
+				<key>Font</key>
+				<string>ArialRoundedMTBold</string>
+				<key>Size</key>
+				<real>24</real>
+			</dict>
+			<key>ID</key>
+			<integer>1022</integer>
+			<key>Shape</key>
+			<string>Circle</string>
+			<key>Style</key>
+			<dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+			</dict>
+			<key>Text</key>
+			<dict>
+				<key>Pad</key>
+				<integer>2</integer>
+				<key>Text</key>
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
+{\fonttbl\f0\fswiss\fcharset0 ArialRoundedMTBold;}
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+
+\f0\b\fs28 \cf0 +}</string>
+			</dict>
+		</dict>
 		<dict>
 			<key>Bounds</key>
 			<string>{{85.0394, 517.323}, {42.5197, 28.3465}}</string>
@@ -181,7 +218,7 @@
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -345,7 +382,7 @@ up-left
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -435,7 +472,7 @@ output frame}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -525,7 +562,7 @@ output frame}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -542,106 +579,6 @@ bot-right
 \
 \
 output frame}</string>
-			</dict>
-		</dict>
-		<dict>
-			<key>Bounds</key>
-			<string>{{453.543, 694.488}, {141.732, 14.1732}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>FontInfo</key>
-			<dict>
-				<key>Font</key>
-				<string>Helvetica</string>
-				<key>Size</key>
-				<real>12</real>
-			</dict>
-			<key>ID</key>
-			<integer>951</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>shadow</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Align</key>
-				<integer>0</integer>
-				<key>Pad</key>
-				<integer>7</integer>
-				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
-{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
-
-\f0\fs12 \cf1 \expnd0\expndtw0\kerning0
-inputframe     "tile.b3"}</string>
-			</dict>
-		</dict>
-		<dict>
-			<key>Bounds</key>
-			<string>{{325.984, 694.488}, {141.732, 14.1732}}</string>
-			<key>Class</key>
-			<string>ShapedGraphic</string>
-			<key>FontInfo</key>
-			<dict>
-				<key>Font</key>
-				<string>Helvetica</string>
-				<key>Size</key>
-				<real>12</real>
-			</dict>
-			<key>ID</key>
-			<integer>950</integer>
-			<key>Shape</key>
-			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>shadow</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>stroke</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
-			<key>Text</key>
-			<dict>
-				<key>Align</key>
-				<integer>0</integer>
-				<key>Pad</key>
-				<integer>7</integer>
-				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
-{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
-
-\f0\fs12 \cf1 \expnd0\expndtw0\kerning0
-inputframe     "tile.b2"}</string>
 			</dict>
 		</dict>
 		<dict>
@@ -768,7 +705,7 @@ inputframe     "tile.b2"}</string>
 			<key>Points</key>
 			<array>
 				<string>{134.646, 496.063}</string>
-				<string>{162.992, 503.15}</string>
+				<string>{162.991, 503.15}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -897,7 +834,7 @@ inputframe     "tile.b2"}</string>
 			<real>-1</real>
 			<key>Points</key>
 			<array>
-				<string>{162.992, 552.756}</string>
+				<string>{162.991, 552.756}</string>
 				<string>{113.386, 609.449}</string>
 			</array>
 			<key>Style</key>
@@ -1032,7 +969,7 @@ inputframe     "tile.b2"}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{14.1732, 240.945}, {113.386, 85.0394}}</string>
+			<string>{{42.5196, 170.079}, {56.693, 42.5197}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
@@ -1053,11 +990,16 @@ inputframe     "tile.b2"}</string>
 					<key>Draws</key>
 					<string>NO</string>
 				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>CornerRadius</key>
+					<real>4</real>
+				</dict>
 			</dict>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{170.079, 148.819}, {226.772, 170.079}}</string>
+			<string>{{155.906, 120.472}, {113.386, 85.0394}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
@@ -1078,11 +1020,16 @@ inputframe     "tile.b2"}</string>
 					<key>Draws</key>
 					<string>NO</string>
 				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>CornerRadius</key>
+					<real>4</real>
+				</dict>
 			</dict>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{14.1732, 340.158}, {113.386, 85.0394}}</string>
+			<string>{{42.5197, 226.772}, {56.693, 42.5197}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
@@ -1103,11 +1050,16 @@ inputframe     "tile.b2"}</string>
 					<key>Draws</key>
 					<string>NO</string>
 				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>CornerRadius</key>
+					<real>4</real>
+				</dict>
 			</dict>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{14.1732, 141.732}, {113.386, 85.0394}}</string>
+			<string>{{42.5197, 113.386}, {56.693, 42.5197}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
@@ -1128,11 +1080,16 @@ inputframe     "tile.b2"}</string>
 					<key>Draws</key>
 					<string>NO</string>
 				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>CornerRadius</key>
+					<real>4</real>
+				</dict>
 			</dict>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{14.1732, 42.5197}, {113.386, 85.0394}}</string>
+			<string>{{42.5197, 56.6929}, {56.693, 42.5197}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
@@ -1153,6 +1110,11 @@ inputframe     "tile.b2"}</string>
 					<key>Draws</key>
 					<string>NO</string>
 				</dict>
+				<key>stroke</key>
+				<dict>
+					<key>CornerRadius</key>
+					<real>4</real>
+				</dict>
 			</dict>
 		</dict>
 		<dict>
@@ -1172,11 +1134,11 @@ inputframe     "tile.b2"}</string>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>5.3599014282226562</real>
+			<real>12.446662902832031</real>
 			<key>Points</key>
 			<array>
-				<string>{127.559, 85.0394}</string>
-				<string>{170.079, 233.858}</string>
+				<string>{99.2127, 77.9528}</string>
+				<string>{155.906, 162.992}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -1219,11 +1181,11 @@ inputframe     "tile.b2"}</string>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>5.359893798828125</real>
+			<real>12.196659088134766</real>
 			<key>Points</key>
 			<array>
-				<string>{127.559, 382.678}</string>
-				<string>{170.079, 233.858}</string>
+				<string>{99.7127, 248.032}</string>
+				<string>{155.906, 162.992}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -1266,11 +1228,11 @@ inputframe     "tile.b2"}</string>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>5.109893798828125</real>
+			<real>12.196659088134766</real>
 			<key>Points</key>
 			<array>
-				<string>{128.059, 184.252}</string>
-				<string>{170.079, 233.858}</string>
+				<string>{99.7127, 134.646}</string>
+				<string>{155.906, 162.992}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -1311,11 +1273,11 @@ inputframe     "tile.b2"}</string>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>5.109893798828125</real>
+			<real>12.196704864501953</real>
 			<key>Points</key>
 			<array>
-				<string>{128.059, 283.465}</string>
-				<string>{170.079, 233.858}</string>
+				<string>{99.7126, 191.339}</string>
+				<string>{155.906, 162.992}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -1412,7 +1374,7 @@ inputframe     "tile.b2"}</string>
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf270
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1443,9 +1405,9 @@ wall \{ ... \}\
 	<key>GridInfo</key>
 	<dict>
 		<key>GridSpacing</key>
-		<real>7.0866141319274902</real>
+		<real>14.17322826385498</real>
 		<key>MajorGridSpacing</key>
-		<integer>20</integer>
+		<integer>10</integer>
 		<key>ShowsGrid</key>
 		<string>YES</string>
 		<key>SnapsToGrid</key>
@@ -1577,7 +1539,7 @@ wall \{ ... \}\
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2008-03-22 14:39:51 +0100</string>
+	<string>2009-06-07 19:31:45 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -1662,12 +1624,14 @@ wall \{ ... \}\
 		<string>Outline</string>
 		<key>DrawerWidth</key>
 		<real>209</real>
+		<key>FitInWindow</key>
+		<true/>
 		<key>Frame</key>
-		<string>{{378, 0}, {611, 878}}</string>
+		<string>{{363, 19}, {476, 759}}</string>
 		<key>VisibleRegion</key>
-		<string>{{0, 338.516}, {375.709, 491.7}}</string>
+		<string>{{0, 0}, {446, 639.492}}</string>
 		<key>Zoom</key>
-		<real>2</real>
+		<real>0.80661654472351074</real>
 	</dict>
 </dict>
 </plist>

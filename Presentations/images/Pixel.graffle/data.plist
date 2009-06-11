@@ -35,6 +35,43 @@
 	<key>GraphicsList</key>
 	<array>
 		<dict>
+			<key>Bounds</key>
+			<string>{{375.591, 673.228}, {14.1732, 14.1732}}</string>
+			<key>Class</key>
+			<string>ShapedGraphic</string>
+			<key>FontInfo</key>
+			<dict>
+				<key>Font</key>
+				<string>ArialRoundedMTBold</string>
+				<key>Size</key>
+				<real>24</real>
+			</dict>
+			<key>ID</key>
+			<integer>1033</integer>
+			<key>Shape</key>
+			<string>Circle</string>
+			<key>Style</key>
+			<dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+			</dict>
+			<key>Text</key>
+			<dict>
+				<key>Pad</key>
+				<integer>2</integer>
+				<key>Text</key>
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
+{\fonttbl\f0\fswiss\fcharset0 ArialRoundedMTBold;}
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+
+\f0\b\fs28 \cf0 +}</string>
+			</dict>
+		</dict>
+		<dict>
 			<key>AllowLabelDrop</key>
 			<false/>
 			<key>Class</key>
@@ -344,7 +381,7 @@
 				<key>Pad</key>
 				<integer>3</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf420
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -443,7 +480,7 @@ inputframe "frame3"\
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf420
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -531,7 +568,7 @@ outputframe "frame3"}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf420
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -658,11 +695,11 @@ outputframe "frame3"}</string>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>12.3212890625</real>
+			<real>12.44635009765625</real>
 			<key>Points</key>
 			<array>
-				<string>{404.187, 807.874}</string>
-				<string>{460.63, 659.055}</string>
+				<string>{453.543, 651.968}</string>
+				<string>{382.676, 708.661}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -705,11 +742,11 @@ outputframe "frame3"}</string>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>12.3212890625</real>
+			<real>12.44635009765625</real>
 			<key>Points</key>
 			<array>
-				<string>{404.187, 510.236}</string>
-				<string>{460.63, 659.055}</string>
+				<string>{311.811, 651.968}</string>
+				<string>{382.676, 708.661}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -753,8 +790,8 @@ outputframe "frame3"}</string>
 			<real>-1</real>
 			<key>Points</key>
 			<array>
-				<string>{404.187, 659.055}</string>
-				<string>{460.63, 659.055}</string>
+				<string>{382.677, 651.968}</string>
+				<string>{382.676, 708.661}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -782,7 +819,7 @@ outputframe "frame3"}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{318.898, 588.189}, {85.0394, 141.732}}</string>
+			<string>{{354.331, 566.929}, {56.6929, 85.0394}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FontInfo</key>
@@ -798,8 +835,8 @@ outputframe "frame3"}</string>
 			<integer>16</integer>
 			<key>Magnets</key>
 			<array>
-				<string>{1, 0}</string>
-				<string>{-1, 0}</string>
+				<string>{0, 1}</string>
+				<string>{0, -1}</string>
 			</array>
 			<key>Shape</key>
 			<string>Rectangle</string>
@@ -826,14 +863,14 @@ outputframe "frame3"}</string>
 						<key>r</key>
 						<string>1</string>
 					</dict>
-					<key>Width</key>
-					<real>0.5</real>
+					<key>CornerRadius</key>
+					<real>4</real>
 				</dict>
 			</dict>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{318.898, 439.37}, {85.0394, 141.732}}</string>
+			<string>{{283.465, 566.929}, {56.6929, 85.0394}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FontInfo</key>
@@ -849,8 +886,8 @@ outputframe "frame3"}</string>
 			<integer>15</integer>
 			<key>Magnets</key>
 			<array>
-				<string>{1, 0}</string>
-				<string>{-1, 0}</string>
+				<string>{0, 1}</string>
+				<string>{0, -1}</string>
 			</array>
 			<key>Shape</key>
 			<string>Rectangle</string>
@@ -877,14 +914,14 @@ outputframe "frame3"}</string>
 						<key>r</key>
 						<string>1</string>
 					</dict>
-					<key>Width</key>
-					<real>0.5</real>
+					<key>CornerRadius</key>
+					<real>4</real>
 				</dict>
 			</dict>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{318.898, 737.008}, {85.0394, 141.732}}</string>
+			<string>{{425.197, 566.929}, {56.6929, 85.0394}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FontInfo</key>
@@ -900,8 +937,8 @@ outputframe "frame3"}</string>
 			<integer>17</integer>
 			<key>Magnets</key>
 			<array>
-				<string>{1, 0}</string>
-				<string>{-1, 0}</string>
+				<string>{0, 1}</string>
+				<string>{0, -1}</string>
 			</array>
 			<key>Shape</key>
 			<string>Rectangle</string>
@@ -928,14 +965,14 @@ outputframe "frame3"}</string>
 						<key>r</key>
 						<string>1</string>
 					</dict>
-					<key>Width</key>
-					<real>0.5</real>
+					<key>CornerRadius</key>
+					<real>4</real>
 				</dict>
 			</dict>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{460.63, 588.189}, {255.118, 141.732}}</string>
+			<string>{{297.638, 708.661}, {170.077, 85.0394}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FontInfo</key>
@@ -951,8 +988,8 @@ outputframe "frame3"}</string>
 			<integer>14</integer>
 			<key>Magnets</key>
 			<array>
-				<string>{1, 0}</string>
-				<string>{-1, 0}</string>
+				<string>{0, 1}</string>
+				<string>{0, -1}</string>
 			</array>
 			<key>Shape</key>
 			<string>Rectangle</string>
@@ -979,8 +1016,8 @@ outputframe "frame3"}</string>
 						<key>r</key>
 						<string>1</string>
 					</dict>
-					<key>Width</key>
-					<real>0.5</real>
+					<key>CornerRadius</key>
+					<real>4</real>
 				</dict>
 			</dict>
 		</dict>
@@ -1210,7 +1247,7 @@ outputframe "frame3"}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf420
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1298,7 +1335,7 @@ output frame}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf420
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1386,7 +1423,7 @@ output frame}</string>
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf420
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2341,7 +2378,7 @@ output frame}</string>
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf420
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2436,7 +2473,7 @@ wall \{ ... \}\
 				<key>Pad</key>
 				<integer>0</integer>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf420
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf460
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2592,9 +2629,9 @@ outputframe "frame1"}</string>
 	<key>GridInfo</key>
 	<dict>
 		<key>GridSpacing</key>
-		<real>7.0866141319274902</real>
+		<real>14.17322826385498</real>
 		<key>MajorGridSpacing</key>
-		<integer>20</integer>
+		<integer>10</integer>
 		<key>ShowsGrid</key>
 		<string>YES</string>
 		<key>SnapsToGrid</key>
@@ -2732,7 +2769,7 @@ outputframe "frame1"}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2008-11-18 17:59:18 +0100</string>
+	<string>2009-06-08 10:30:26 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -2818,11 +2855,11 @@ outputframe "frame1"}</string>
 		<key>DrawerWidth</key>
 		<real>209</real>
 		<key>Frame</key>
-		<string>{{489, 182}, {901, 858}}</string>
+		<string>{{24, 0}, {1158, 778}}</string>
 		<key>VisibleRegion</key>
-		<string>{{-224, 267.143}, {1265.71, 1085.71}}</string>
+		<string>{{0, 490.714}, {816.429, 485.714}}</string>
 		<key>Zoom</key>
-		<real>1</real>
+		<real>2</real>
 	</dict>
 </dict>
 </plist>
