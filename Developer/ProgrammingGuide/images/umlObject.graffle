@@ -47,7 +47,7 @@
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>6.929412841796875</real>
+			<real>6.9295654296875</real>
 			<key>Points</key>
 			<array>
 				<string>{192.747, 566.929}</string>
@@ -235,7 +235,7 @@ unpack}</string>
 			<key>OrthogonalBarAutomatic</key>
 			<true/>
 			<key>OrthogonalBarPosition</key>
-			<real>6.929168701171875</real>
+			<real>6.929046630859375</real>
 			<key>Points</key>
 			<array>
 				<string>{133.237, 566.929}</string>
@@ -462,7 +462,7 @@ unpack}</string>
 			<key>Points</key>
 			<array>
 				<string>{85.0394, 411.024}</string>
-				<string>{85.0394, 438.87}</string>
+				<string>{85.0395, 438.87}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -531,7 +531,7 @@ unpack}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{166.293, 339.443}, {17, 14}}</string>
+			<string>{{166.293, 339.444}, {17, 14}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -620,6 +620,8 @@ unpack}</string>
 					<integer>2</integer>
 					<key>TailArrow</key>
 					<string>StickArrow</string>
+					<key>Width</key>
+					<real>2</real>
 				</dict>
 			</dict>
 			<key>Tail</key>
@@ -1137,7 +1139,7 @@ isDirty}</string>
 			<real>-1</real>
 			<key>Points</key>
 			<array>
-				<string>{141.732, 113.906}</string>
+				<string>{141.733, 113.906}</string>
 				<string>{184.252, 113.906}</string>
 			</array>
 			<key>Style</key>
@@ -1288,7 +1290,7 @@ isDirty}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2009-07-24 14:08:29 +0200</string>
+	<string>2009-07-28 09:34:15 +0200</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -1358,7 +1360,7 @@ isDirty}</string>
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{341, 0}, {505, 778}}</string>
+		<string>{{341, 11}, {505, 778}}</string>
 		<key>VisibleRegion</key>
 		<string>{{-8, 0}, {589.441, 818}}</string>
 		<key>Zoom</key>

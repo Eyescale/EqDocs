@@ -15,15 +15,17 @@
   \usepackage{hyperref}
 \fi
 
-\title{Equalizer Programming Guide}
+\title{Equalizer\\Programming and User Guide}
 \author{Eyescale Software GmbH}
 
 \date{
-  \vspace{15cm}
-  {\Large\sffamily The official reference for creating parallel,
-    scalable OpenGL\texttrademark\ applications with the Equalizer
-    parallel rendering framework}\\\vspace{1cm}
-  Version 1.5.9 for Equalizer 0.6+svn\\[\medskipamount]
+  \vspace{14cm}
+\begin{textblock}{}(0,4.5)
+  \hspace{-1cm}\includegraphics[width=22cm]{images/teaser.pdf}
+\end{textblock} {\Large The official reference for developing and
+  deploying parallel, scalable OpenGL\texttrademark\ applications based on
+  the Equalizer parallel rendering framework}\\\vspace{1cm}
+Version 1.5.10 for Equalizer 0.6+svn\\[\medskipamount]
 %  \today
 }
 
@@ -46,14 +48,11 @@
 \pagestyle{empty}
 \maketitle
 \thispagestyle{empty}
-\begin{textblock}{}(0,4.5)
-  \hspace{-1cm}\includegraphics[width=22cm]{images/teaser.pdf}
-\end{textblock}
 
-\clearpage
+%\clearpage
 
 \lstset{language=C++}
-\section*{Equalizer 0.6 Programming Guide}
+\section*{Equalizer 0.6 Programming and User Guide}
 \today
 \subsection*{Contributors}
 
@@ -125,7 +124,8 @@ The images on the back page show the following scalable rendering modes:
     1.5.6   & Mar 23, 2009 & Documented Layout API\\
     1.5.7   & Apr 17, 2009 & Updated Layout API (multiple observers)\\
     1.5.8   & May 30, 2009 & Added \sref{sEqualizers}, updated \sref{sLoadBalancing} and \sref{sSwapBarrier}\\
-    1.5.9.  & Jul 27, 2009 & Major review pass before release\\
+    1.5.9   & Jul 27, 2009 & Major review pass before release\\
+    1.5.10  & Jul 28, 2009 & Split in User and Programming Guide, added \sref{sNamespaces}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -133,28 +133,25 @@ The images on the back page show the following scalable rendering modes:
 \pagenumbering{arabic}
 \pagestyle{headings}
 
+\part{User Guide}
 \section{Introduction}
 
-Equalizer provides a framework for the development of parallel OpenGL
-applications. Equalizer-based applications can run from a single
-shared-memory system with one or multiple graphics cards up to
-large-scale graphics clusters. This Programming Guide introduces the
-programming interface, often using the Equalizer example \textsf{eqPly}
-as a guideline.
+Equalizer is the standard middleware for the development and deployment
+of parallel OpenGL applications. It enables applications to benefit from
+multiple graphics cards, processors and computers to scale rendering
+performance, visual quality and display size. An Equalizer-based
+application runs unmodified on any visualization system, from a simple
+workstation to large scale graphics clusters, multi-GPU workstations and
+Virtual Reality installations.
 
-Equalizer is used for scientific simulation visualization at various
-research institutes, for creating electronic art exhibitions as well as
-in commercial 3D design applications.
+This User and Programming Guide introduces parallel rendering concepts,
+the configuration of Equalizer-based applications and programming using
+the Equalizer parallel rendering framework.
 
-Equalizer is the next step in the evolution of generic parallel programming
-interfaces for OpenGL-based visualization applications. Existing
-solutions, such as OpenGL Multipipe SDK, Cavelib and VRJuggler,
-implement a subset of concepts similar to Equalizer. In other areas,
-e.g., tracking device support, they provide more functionality.
-
-To adapt an application for Equalizer, the programmer structures the
-source code so that the OpenGL rendering can be executed in parallel,
-potentially using multiple processes for cluster-based execution.
+Equalizer is the next step in the evolution of middleware for scalable
+OpenGL applications. Existing solutions, such as OpenGL Multipipe SDK,
+Cavelib and VRJuggler, implement a subset of Equalizer. In other areas,
+e.g., tracking device support, some of them provide more functionality.
 
 Equalizer provides the domain-specific parallel rendering know-how and
 abstracts configuration, threading, synchronization, windowing and event
@@ -162,9 +159,9 @@ handling. It is a `GLUT on steroids', providing parallel and distributed
 execution, scalable rendering features, network data distribution and
 fully customizable event handling.
 
-If you have any question regarding Equalizer programming, this
-programming guide, or other specific problems you encountered, please
-direct them to the \textsf{eq-dev} mailing
+If you have any question regarding Equalizer programming, this guide, or
+other specific problems you encountered, please direct them to the
+\textsf{eq-dev} mailing
 list\footnote{\link{http://www.equalizergraphics.com/lists.html}}.
 
 
@@ -252,50 +249,6 @@ render client, the Equalizer initialization routine does not return and
 takes over the control by calling the render client task
 methods. Complex applications usually implement a separate, lightweight
 rendering client.
-
-
-\section{Hello, World!}
-
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/eqHello.png}
-  {\caption{\label{fHello}Hello, World!}}
-\end{wrapfigure}
-The \textsf{eqHello} example is a minimal application to illustrate the
-basic principle of an Equalizer application: The application developer
-has to implement the rendering method \textsf{Channel::frameDraw},
-similar to the \textsf{glutDisplayFunc} in GLUT applications. It can be
-run as a stand-alone application from the command line.
-
-The \textsf{eqHello} redraw function renders six colored quads, rotating
-around the origin. The \textsf{frameDraw} meth\-od provided by the
-\textsf{eq::Channel} can be used as a convenience function to setup the
-frustum and other OpenGL state. After setting up some lighting
-parameters, \textsf{eqHello} rotates the scene and renders the quads
-using immediate mode:
-
-{\footnotesize\begin{lstlisting}
-void Channel::frameDraw( const uint32_t spin )
-{
-    // setup OpenGL State
-    eq::Channel::frameDraw( spin );
-    
-    const float lightPos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
-    glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
-
-    const float lightAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
-
-    // rotate scene around the origin
-    glRotatef( static_cast< float >( spin ) * 0.5f, 1.0f, 0.5f, 0.25f );
-
-    // render six axis-aligned colored quads around the origin
-    [...]
-}
-\end{lstlisting}}
-
-The \textsf{eqHello} main function sets up the communication with the
-server, initializes and drives the rendering. The details of this setup
-are explained in \sref{sEqPly}.
 
 
 \section{Scalable Rendering}
@@ -410,10 +363,6 @@ copied to the appropriate stereo buffer. This mode supports a variety of
 stereo modes, including active (quad-buffered) stereo, anaglyphic stereo
 and auto-stereo displays with multiple eye passes.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/EYE.pdf}
-  {\caption{\label{fStereoCmp}\small A Stereo compound}}
-\end{wrapfigure}
 Due to the frame consistency between the eye views, this modes scales
 very well. The IO requirements for pixel transfer are small and
 constant.
@@ -424,6 +373,10 @@ the number of eye passes, typically two.
 Stereo compounds are used by all applications when rendering in stereo,
 and is often combined with other modes.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/EYE.pdf}
+  {\caption{\label{fStereoCmp}\small A stereo compound}}
+\end{wrapfigure}
 Eye compounds in Equalizer are configured using the \textsf{eye}
 parameter, limiting the child to render the \textsf{[ LEFT ]} or
 \textsf{[ RIGHT ]} eye. Each child compound uses an output frame, which
@@ -462,11 +415,6 @@ uses a DPlex load-balancer to smoothen the framerate.
 
 \subsection{Pixel Compounds}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-1ex}\includegraphics[width=.618\textwidth]{images/Pixel.pdf}
-  {\caption{\label{fPixel}\small A pixel compound}}
-  \vspace{-6ex}
-\end{wrapfigure}
 Pixel compounds are similar to 2D compounds. The frusta of the
 source rendering units are modified so that each unit renders an evenly
 distributed subset of pixels, as shown in \fig{fPixel}\footnote{3D model courtesy of AVS, USA.}
@@ -474,6 +422,10 @@ distributed subset of pixels, as shown in \fig{fPixel}\footnote{3D model courtes
 As 2D compounds, pixels compounds have low, constant IO requirements for
 the pixel transfers during recomposition.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/Pixel.pdf}
+  {\caption{\label{fPixel}\small A pixel compound}}
+\end{wrapfigure}
 OpenGL functionality influenced by the raster position will not work
 correctly with pixel compounds, or needs at least special
 attention. Among them are: lines, points, sprites, glDrawPixels,
@@ -527,7 +479,7 @@ resources for multi-segment projections systems, adapt the resolution to
 provide a constant framerate or zoom images to allow monitoring of
 another view.
 
-Equalizer are described in more detail in \sref{sEqualizers}.
+Equalizers are described in more detail in \sref{sEqualizers}.
 
 
 \section{\label{sConfig}Writing Configurations}
@@ -1080,6 +1032,56 @@ display wall is driven by a separate control station. The rendering
 happens only on the display wall, and the control window receives the
 correctly downscaled version of the rendering.
 
+\part{Programming Guide}
+
+To adapt an application for Equalizer, the programmer structures the
+source code so that the OpenGL rendering can be executed in parallel,
+potentially using multiple processes for cluster-based execution.
+
+\section{Hello, World!}
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/eqHello.png}
+  {\caption{\label{fHello}Hello, World!}}
+\end{wrapfigure}
+The \textsf{eqHello} example is a minimal application to illustrate the
+basic principle of an Equalizer application: The application developer
+has to implement the rendering method \textsf{Channel::frameDraw},
+similar to the \textsf{glutDisplayFunc} in GLUT applications. It can be
+run as a stand-alone application from the command line.
+
+The \textsf{eqHello} redraw function renders six colored quads, rotating
+around the origin. The \textsf{frameDraw} meth\-od provided by the
+\textsf{eq::Channel} can be used as a convenience function to setup the
+frustum and other OpenGL state. After setting up some lighting
+parameters, \textsf{eqHello} rotates the scene and renders the quads
+using immediate mode:
+
+{\footnotesize\begin{lstlisting}
+void Channel::frameDraw( const uint32_t spin )
+{
+    // setup OpenGL State
+    eq::Channel::frameDraw( spin );
+    
+    const float lightPos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
+    glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
+
+    const float lightAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
+
+    // rotate scene around the origin
+    glRotatef( static_cast< float >( spin ) * 0.5f, 1.0f, 0.5f, 0.25f );
+
+    // render six axis-aligned colored quads around the origin
+    [...]
+}
+\end{lstlisting}}
+
+The \textsf{eqHello} main function sets up the communication with the
+server, initializes and drives the rendering. The details of this setup
+are explained in \sref{sEqPly}.
+
+
 \section{The Programming Interface}
 
 Equalizer uses a C++ programming interface. The API is minimally
@@ -1096,6 +1098,44 @@ whereas methods called by Equalizer (`Task Methods') have the form
 other things-- \textsf{Node::frameStart} to be called in all active
 render clients.
 
+\subsection{\label{sNamespaces}Namespaces}
+
+Application developers are exposed to the following namespaces:
+
+\begin{description}
+\item[eq::base] The eq::base namespace provides C++ classes to abstract
+  the underlying operating system and implements common helper
+  functionality. One example is the \textsf{eq::base::Clock} class
+  providing a high-resolution timer. Classes in this namespace are well
+  documented on the API documentation on the Equalizer website, and are
+  not subject of this Programming Guide.
+\item[eq::net] The Equalizer network layer provides basic functionality
+  for network communication, such as \textsf{Connection} and
+  \textsf{ConnectionSet}, as well as higher-level functionality such as
+  \textsf{Node}, \textsf{Session} and \textsf{Object}. Please refer to
+  \sref{sNetwork} for an introduction into the network layer, and to
+  \sref{sNetObject} for distributed objects.
+\item[eq] The core namespace for the Equalizer client library. The class
+  hierarchy in this namespace closely models the configuration file
+  format. The classes in the \textsf{eq} namespace are the main subject
+  of this Programming Guide.
+\end{description}
+
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/namespaces}
+  {\caption{\label{fNamespaces}Namespace layering for eqPly and eqServer}}
+\end{wrapfigure}
+Examples shipped with Equalizer are implemented in their own namespaces,
+e.g., \textsf{eqPly} or \textsf{eVolve}. They rely mostly on subclassing
+classes from the \textsf{eq} namespace, with the occasional usage of
+functionality from the \textsf{eq::net} and \textsf{eq::base} namespace.
+
+The functionality of the Equalizer server is implemented in the
+\textsf{eq::server} namespace. This namespace does not yet expose an API
+intended to be used by developers.
+
+\fig{fNamespaces} shows the namespace layering for \textsf{eqPly} and
+\textsf{eqServer}.
 
 \subsection{\label{sTaskMethods}Task Methods}
 
@@ -1604,7 +1644,6 @@ position to the rendering methods.
 
 \begin{wrapfigure}{r}{.382\textwidth}
 %\begin{figure}[h!t]
-  \vspace{-2ex}
   \subfigure[]{\label{fObjectDist1}
     \includegraphics[width=.382\textwidth]{images/umlObjectSubclass}}\hfil
   \subfigure[]{\label{fObjectDist2}
@@ -1613,7 +1652,6 @@ position to the rendering methods.
     \includegraphics[width=.382\textwidth]{images/umlObjectMI}}%
   {\caption{\label{fObjectDist}Object distribution using subclassing,
       proxies or multiple inheritance}}
-  \vspace{-4ex}
 \end{wrapfigure}
 Distributed objects are addressed using session-unique identifiers,
 because pointers to other objects cannot be distributed directly; they
@@ -3739,7 +3777,7 @@ positioned using the channel's head transformation, which can be
 retrieved using \textsf{Channel::getHeadTransform}.
 
 For head-mounted displays (HMD), the tracking information is used to
-move the frusta with the observer, as shown in \fig{fHMF}. This results
+move the frusta with the observer, as shown in \fig{fHMD}. This results
 in different projections compared to normal tracking with fixed
 projection screens.
 
