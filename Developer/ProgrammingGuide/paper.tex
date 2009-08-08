@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications based on
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.6 RC1 for Equalizer 0.9\\[\medskipamount]
+Version 1.6 for Equalizer 0.9\\[\medskipamount]
 %  \today
 }
 
@@ -77,13 +77,14 @@ Trademark of the University of Illinois. The CAVE is a registered
 Trademark of the Board of Trustees of the University of Illinois at
 Chicago. Qt is a registered Trademark of Trolltech. TripleHead2Go is a
 Trademark of Matrox Graphics. PowerWall is a Trademark of Mechdyne
-Corporation. All other trademarks and copyrights herein are the property
-of their respective owners.
+Corporation. CUDA is a Trademark of NVIDIA Corporation. All other
+trademarks and copyrights herein are the property of their respective
+owners.
 
 \subsection*{Feedback}
 
 If you have comments about the content, accuracy or comprehensibility of
-this programming guide, please contact
+this Programming and User Guide, please contact
 \htmladdnormallink{eile@eyescale.ch}
 {mailto:eile@eyescale.ch?subject=Equalizer\%20Programming\%20Guide}.
 
@@ -92,19 +93,25 @@ this programming guide, please contact
 \subsection*{Front and Back Page}
 
 The images on the front page show the following applications build using
-Equalizer: RTT DeltaGen\footnote{Image copyright Realtime Technology AG,
-  2008} [top left], a flow visualization application for climate
-research\footnote{Image courtesy of Computer Graphics and Multimedia
-  Systems, University of Siegen}, the \textsf{eVolve} volume
-renderer\footnote{Data set courtesy of General Electric, USA} [bottom
-left] the \textsf{eqPly} polygonal renderer in a three-sided CAVE
-[bottom center], and a six-node sort-last database decomposition with
-parallel direct-send recomposition\footnote{Data set courtesy of
-  Stanford University Computer Graphics Laboratory} [bottom right].
+Equalizer: 
+RTT DeltaGen\footnote{Image copyright Realtime Technology AG, 2008} [top
+right], 
+\textsf{eqRaster}, a scalable terrain visualization\footnote{Image
+  courtesy of Visualization and Multimedia Lab, University of Zurich}
+[middle center],
+a flow visualization application for climate research\footnote{Image
+  courtesy of Computer Graphics and Multimedia Systems, University of
+  Siegen} [middle right],
+the \textsf{eqPly} polygonal renderer in a three-sided CAVE [bottom
+left],
+the \textsf{eVolve} volume renderer\footnote{Data set courtesy of
+  General Electric, USA} [bottom center],
+and the \textsf{eqNBody} gravitational n-body simulation, based on the
+N-Body CUDA example [bottom right].
 
 The images on the back page show the following scalable rendering modes:
-2D (sort-first, SFR), DB (sort-last), stereo, pixel and DPlex
-(time-multiplex, AFR).
+Combined 2D/DB [top left], DPlex [middle left], Pixel [middle center],
+2D [bottom left], DB [bottom center] and stereo [bottom right].
 
 \clearpage
 \pagenumbering{roman}
@@ -117,7 +124,7 @@ The images on the back page show the following scalable rendering modes:
     1.0     & Oct 28, 2007 & Initial Version for Equalizer 0.4\\
     1.2     & Apr 15, 2008 & Revision for Equalizer 0.5\\
     1.4     & Nov 25, 2008 & Revision for Equalizer 0.6\\
-    1.6 RC1 & Jul 31, 2009 & Release Candidate 1 for Equalizer 0.9\\
+    1.6     & Aug 07, 2009 & Revision for Equalizer 0.9\\
     \hline
   \end{tabularx}}
 \clearpage
