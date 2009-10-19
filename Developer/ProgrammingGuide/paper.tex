@@ -2610,11 +2610,15 @@ execution. This separation allows an easy implementation and adaption to
 another window system or application.
 
 Equalizer provides a generic interface and implementation for the three
-most common window systems: AGL, WGL and glX. The interfaces define the
+most common window systems through the OpenGL specific 
+\textsf{eq::GLWindow} class: AGL, WGL and glX. The interfaces define the
 minimal functionality needed to reuse other window system specific
-classes, for example the AGL, WGL and glX event handlers. The
-implementation derived from these interfaces provides a sample
-implementation which honors all configurable window attributes.
+classes, for example the AGL, WGL and glX event handlers. The separation 
+of the OpenGL calls from the \textsf{OSWindow} permits to implement 
+window systems which don't use any OpenGL context and therefore to use a 
+different renderer. The implementation derived from these interfaces 
+provides a sample implementation which honors all configurable window 
+attributes.
 
 \subsubsection{Initialization and Exit}
 
@@ -2657,10 +2661,13 @@ bool Window::configInitGL( const uint32_t initID )
 
     EQASSERT( !_state );
     _state = new VertexBufferState( getObjectManager( ));
-    _loadLogo();
-
+    
     const Config*   config   = static_cast< const Config* >( getConfig( ));
     const InitData& initData = config->getInitData();
+
+    if( initData.showLogo( ))
+        _loadLogo();
+
     if( initData.useGLSL() )
         _loadShaders();
 
