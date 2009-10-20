@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications based on
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.7.0 for Equalizer 0.9+svn\\[\medskipamount]
+Version 1.7.1 for Equalizer 0.9+svn\\[\medskipamount]
 %  \today
 }
 
@@ -126,6 +126,7 @@ Combined 2D/DB [top left], DPlex [middle left], Pixel [middle center],
     1.4     & Nov 25, 2008 & Revision for Equalizer 0.6\\
     1.6     & Aug 07, 2009 & Revision for Equalizer 0.9\\
     1.7.0   & Sep 09, 2009 & Updates based on hardcopy print\\
+    1.7.1   & Oct 20, 2009 & Updates for new eq::GLWindow\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -2611,7 +2612,7 @@ another window system or application.
 
 Equalizer provides a generic interface and implementation for the three
 most common window systems through the OpenGL specific 
-\textsf{eq::GLWindow} class: AGL, WGL and glX. The interfaces define the
+\textsf{eq::GL\-Window} class: AGL, WGL and glX. The interfaces define the
 minimal functionality needed to reuse other window system specific
 classes, for example the AGL, WGL and glX event handlers. The separation 
 of the OpenGL calls from the \textsf{OSWindow} permits to implement 
