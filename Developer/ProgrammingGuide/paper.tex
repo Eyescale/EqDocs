@@ -469,6 +469,35 @@ therefore not be rendered in place, like with the other compound modes.
 \end{figure}
 
 
+\subsection{Subpixel Compounds}
+
+Subpixel decomposes the rendering into different jittered frusta so 
+that the recomposition anti-aliases the final rendering.
+The Subpixel compound is also compatible with applications doing their own software 
+anti-aliasing.
+
+As for the DB compound, the subpixel recomposition has linear increasing 
+IO requirements for the pixel transfer with the difference that only 
+color information has to be transmitted.
+
+Subpixel compounds in Equalizer are configured using the \textsf{subpixel}
+parameter, using the values \textsf{[ index size ]}. The \textsf{index} 
+parameter corresponds to the current ressource's index and the \textsf{size} 
+is the total number of ressources needed.
+
+The \textsf{index} has to be smaller than the ressources \textsf{size}. 
+\fig{fSubpixel} illustrates a four-way subpixel decomposition.
+
+The destination channel can also be used as a source channel. 
+As for the pixel compound, it has to use an output and corresponding 
+input frame.
+
+\begin{figure}[ht!]\center
+  \includegraphics[width=.9\textwidth]{images/subpixel.pdf}
+  {\caption{\label{fSubpixel}A four-way Subpixel compound}}
+\end{figure}
+
+
 \subsection{\label{sLoadBalancing}Automatic Runtime Adjustments}
 
 Some scalable rendering parameters are updated at runtime to provide
@@ -935,11 +964,12 @@ channel and frustum in screen space. A \textsf{range} tells the
 application to render a part of its database, and an \textsf{eye}
 rendering pass can selectively render different stereo passes. A
 \textsf{pixel} parameter adjusts the frustum so that the source channel
-renders an even subset of the parent's pixels. Setting one or multiple
-attributes causes the parent's view to be decomposed
-accordingly. Attributes are cumulative, that is, intermediate compound
-attributes affect and therefore decompose the rendering of all their
-children.
+renders an even subset of the parent's pixels. A \textsf{subpixel} parameter
+tells the source channels to render different jittered frustum to perform
+anti-aliasing. Setting one or multiple attributes causes the parent's view
+to be decomposed accordingly. Attributes are cumulative, that is,
+intermediate compound attributes affect and therefore decompose the
+rendering of all their children.
 
 \subsubsection{Recomposition - Frames}
 Compounds use output and input frames to configure the recomposition of
@@ -1932,7 +1962,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
         os << _translation << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         os << _modelID << _renderMode << _colorMode << _ortho << _statistics
-           << _help << _wireframe << _pilotMode;
+           << _help << _wireframe << _pilotMode << _idleMode;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -1947,7 +1977,7 @@ void FrameData::deserialize( eq::net::DataIStream& is,
         is >> _translation >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         is >> _modelID >> _renderMode >> _colorMode >> _ortho >> _statistics
-           >> _help >> _wireframe >> _pilotMode;
+           >> _help >> _wireframe >> _pilotMode >> _idleMode;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -2197,15 +2227,35 @@ uint32_t Config::startFrame()
     if( _tracker.isRunning() )
     {
         _tracker.update();
-        const vmml::Matrix4f& headMatrix = _tracker.getMatrix();
-        setHeadMatrix( headMatrix );
+        const eq::Matrix4f& headMatrix = _tracker.getMatrix();
+        _setHeadMatrix( headMatrix );
     }
 
     // update database
-    _frameData.data.rotation.preRotateX( -0.001f * _spinX );
-    _frameData.data.rotation.preRotateY( -0.001f * _spinY );
+    if( _animation.isValid( ))
+    {
+        const eq::Vector3f&  modelRotation = _animation.getModelRotation();
+        const CameraAnimation::Step& curStep = _animation.getNextStep();
+
+        _frameData.setModelRotation( modelRotation        );
+        _frameData.setRotation(     curStep.rotation      );
+        _frameData.setTranslation(  curStep.translation   );
+    }
+    else
+    {
+        if( _frameData.usePilotMode())
+            _frameData.spinCamera( -0.001f * _spinX, -0.001f * _spinY );
+        else
+            _frameData.spinModel( -0.001f * _spinX, -0.001f * _spinY );
+
+        _frameData.moveCamera( 0.0f, 0.0f, 0.001f*_advance );
+    }
+
+    [...]
+
     const uint32_t version = _frameData.commit();
 
+    _redraw = false;
     return eq::Config::startFrame( version );
 }
 \end{lstlisting}}
@@ -2834,7 +2884,8 @@ context consist of:
   \textsf{glFrustum}. Typically the frustum used to set up the OpenGL
   projection matrix. The frustum is influenced by the destination
   channel's view definition, compound viewports, head matrix and the
-  current eye pass.
+  current eye pass. If the anti-aliasing idle mode is set, the frustum
+  will be jittered by a vector. This part is described in \ref{sFSAA}.
 \item[Head Transformation] A transformation matrix positioning the
   frustum. This is typically an identity matrix and is used for off-axis
   frusta in immersive rendering. It is normally used to set up the
@@ -2941,6 +2992,8 @@ initialization, a quad is drawn in its place:
         glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
     }
+
+    [...]
 }
 \end{lstlisting}}
 
@@ -3073,11 +3126,11 @@ The main rendering loop in \textsf{eqPly} looks like this:
 \subsubsection{Assembly}
 
 Like most applications, eqPly can use the default implementation of the
-\textsf{frameReadback} and \textsf{frameAssemble} task methods. Only
-\textsf{frameReadback} is overwritten for an optimization. Since eqPly
-does not need the alpha channel on the destination view, the output
-frames are flagged to ignore it, which allows the compressor to drop
-25\% of the data during image transfer:
+\textsf{frameReadback} and \textsf{frameAssemble} task methods.
+\textsf{frameReadback} is overwritten for an optimization since eqPly
+does not need the alpha channel on the destination view.
+The output frames are flagged to ignore it, which allows the compressor to
+drop 25\% of the data during image transfer:
 
 {\footnotesize\begin{lstlisting}
 void Channel::frameReadback( const uint32_t frameID )
@@ -3094,6 +3147,8 @@ void Channel::frameReadback( const uint32_t frameID )
 }
 \end{lstlisting}}
 
+\textsf{frameAssemble} is overwritten for the use of Subpixel compound.
+The whole process is described in \ref{sFSAA}.
 
 \section{Advanced Features}
 
@@ -4289,6 +4344,227 @@ channel. \fig{fVolResult} shows the result of the composition from
 The assembly algorithm described in this section also works with parallel
 compositing algorithms such as direct-send. 
 
+\subsection{\label{sFSAA}Full-scene and Software Anti-Aliasing}
+
+The eqPly example contains support for software anti-aliasing to show 
+how to combine it with the Equalizer Subpixel compound.
+
+\subsubsection{FSAA or Supersampling algorithm}
+
+The anti-aliasing algorithm uses here the supersampling technique which 
+computes samples within a pixel using the jitter algorithm. The pixel is split
+into several sub-pixels and a sample is taken randomly within the sub-pixel. 
+
+The sub-pixel area is a function of the current jitter step and the channel's
+\textsf{subpixel} description. Jitter values for all channels should be evenly 
+distributed over the total sub-pixel grid and we use therefore a precomputed
+prime number table.
+
+{\footnotesize\begin{lstlisting}
+eq::Vector2i Channel::_getJitterStep() const
+{
+    uint32_t channelID  = getSubPixel().index;
+    uint32_t idx = ( channelID * _totalSteps );
+    idx += ( _jitterStep * primeNumberTable[ channelID ] ) \% _totalSteps;
+
+    uint32_t sampleSize = _getSampleSize();
+    const int dx = idx \% sampleSize;
+    const int dy = idx / sampleSize;
+
+    return eq::Vector2i( dx, dy );
+}
+\end{lstlisting}}
+
+Next to that, sizes of a pixel and a sub-pixel on the near plane are computed.
+A random position within the sub-pixel is set as a sample position and the 
+vector values are correctly defined to finally be passed to the frustum.
+
+{\footnotesize\begin{lstlisting}
+eq::Vector2f Channel::_getJitter() const
+{
+    const eq::PixelViewport& pvp = getPixelViewport();
+    float pvp_w = static_cast<float>( pvp.w );
+    float pvp_h = static_cast<float>( pvp.h );
+    float frustum_w = static_cast<float>(( getFrustum().get_width( )));
+    float frustum_h = static_cast<float>(( getFrustum().get_height( )));
+
+    float pixel_w = frustum_w / pvp_w;
+    float pixel_h = frustum_h / pvp_h;
+
+    uint32_t sampleSize = _getSampleSize();
+    float subpixel_w = pixel_w / static_cast<float>( sampleSize );
+    float subpixel_h = pixel_h / static_cast<float>( sampleSize );
+
+    eq::Vector2i jitterStep = _getJitterStep();
+
+    // Sample value randomly computed within the subpixel
+    eq::base::RNG rng;
+    float value_i = rng.get< float >() * subpixel_w
+                    + static_cast<float>( jitterStep.x( )) * subpixel_w;
+
+    float value_j = rng.get< float >() * subpixel_h
+                    + static_cast<float>( jitterStep.y( )) * subpixel_h;
+
+    return eq::Vector2f( value_i, value_j );
+}
+\end{lstlisting}}
+
+\subsubsection{SWAA in eqPly}
+
+This is the \textsf{FrameData} class which will give the information to the
+application about being in idle mode or not. \textsf{Config} will update the 
+idle mode information to the new \textsf{FrameData} version depending of the 
+application state.
+
+Since the application has a notion of idle/non-idle rendering, the 
+\textsf{Channel} will be able to perform anti-aliasing when no user event is
+detected and more frames are requested.
+
+If the application is in idle mode, the \textsf{applyFrustum} operation will 
+apply the computed jitter vector to the current frustum.
+
+{\footnotesize\begin{lstlisting}
+void Channel::applyFrustum() const
+{
+    const FrameData& frameData = _getFrameData();
+
+    if( frameData.isIdle() && _jitterStep > 0 )
+    {
+        eq::Vector2f jitter = _getJitter();
+
+        if( frameData.useOrtho( ))
+        {
+            eq::Frustumf ortho = getOrtho();
+            ortho.apply_jitter( jitter );
+
+            glOrtho( ortho.left(), ortho.right(),
+                     ortho.bottom(), ortho.top(),
+                     ortho.near_plane(), ortho.far_plane( ));
+        }
+        else
+        {
+            eq::Frustumf frustum = getFrustum();
+            frustum.apply_jitter( jitter );
+
+            glFrustum( frustum.left(), frustum.right(),
+                       frustum.bottom(), frustum.top(),
+                       frustum.near_plane(), frustum.far_plane( ));
+        }
+        return;
+    }
+    //else
+    
+    eq::Channel::applyFrustum();
+}
+\end{lstlisting}}
+
+Then, \textsf{frameViewFinish} will get the frame buffer and accumulate 
+it into an accumulation buffer. At each jitter step, the average result 
+contained in the accumulation buffer will be displayed until all the steps
+are done.
+If the current pixel viewport is different from the one saved in 
+\textsf{frameViewStart}, the accumulation buffer needs also to be resized 
+and the idle anti-aliasing is reset.
+
+{\footnotesize\begin{lstlisting}
+void Channel::frameViewFinish( const uint32_t frameID )
+{
+    const FrameData& frameData = _getFrameData();
+
+    const eq::PixelViewport& pvp = getPixelViewport();
+    bool isResized = _accum->resize( pvp.w, pvp.h );
+
+    if( isResized )
+    {
+        _accum->clear();
+        _jitterStep = _totalSteps;
+        _subpixelStep = 0;
+        return;
+    }
+    //else
+
+    if( frameData.isIdle() && _needsTransfer )
+    {
+        setupAssemblyState();
+
+        _accum->accum();
+        _accum->display();
+
+        resetAssemblyState();
+    }
+
+    _drawOverlay();
+    _drawHelp();
+
+    if( frameData.useStatistics())
+        EQ_GL_CALL( drawStatistics( ));
+}
+\end{lstlisting}}
+
+At the end, \textsf{frameFinish} will decrement the jitter step and create a
+new event to inform the \textsf{Config} of how much frames which remain to 
+draw.
+
+\subsubsection{SWAA in Equalizer}
+
+As the software anti-aliasing decomposition should also work with the idle 
+anti-aliasing in the application, the accumulation buffer is part of the 
+\textsf{ObjectManager}. \textsf{frameAssemble} and \textsf{frameViewFinish} 
+will then share the same accumulation buffer.
+
+As for the application, the \textsf{eq::Channel::applyFrustum} will apply the
+jitter vector if it exists. Then, if the function is not overwritten in the
+application but if it still uses \textsf{subpixel} compounds, anti-aliasing 
+will be correctly computed in Equalizer.
+
+The main bit here is the assembly operation. \textsf{assembleFramesUnsorted} 
+and \textsf{assembleFramesSorted} are similarly modified to handle the 
+Subpixel decomposition.
+
+For each Subpixel decomposition in input frames, all input frames are 
+assembled with \textsf{subpixel} decomposition. The result is then accumulated
+and displayed.
+
+For example a 2-way subpixel compound configuration like 
+\textsf{[0 2] [0 2] [1 2] [1 2]} will first assemble the both \textsf{[0 2]}
+input frames and accumulate the result of the two assemblies. 
+Similarly, the the both \textsf{[1 2]} frames are assembled and their result 
+accumulated to the previous one.
+In another hand, a 4-way subpixel compound configuration will do four 
+assemblies and four accumulations.
+
+{\footnotesize\begin{lstlisting}
+void Compositor::assembleFramesUnsorted( const FrameVector& frames, 
+                                         Channel* channel, Accum* accum )
+{
+    if( frames.empty( ))
+        return;
+
+    if( _isSubPixelDecomposition( frames ))
+    {
+        if( !accum )
+        {
+            accum = obtainAccum( channel );
+            accum->clear();
+        }
+
+        FrameVector framesLeft = frames;
+    	while( !framesLeft.empty( ))
+    	{
+            // Get the frames with the same subpixel compound
+    	    FrameVector current = _extractOneSubPixel( framesLeft );
+            assembleFramesUnsorted( current, channel, accum );
+            accum->accum();
+            accum->display();
+        }
+        return;
+    }
+
+    [...]
+
+    // assemble frame
+}
+\end{lstlisting}}
 
 \subsection{\label{sStatistics}Statistics}
 
@@ -5557,9 +5833,10 @@ output frames. Output frames may change the buffer attachments used.
 The viewport restricts the rendering to the area relative to the parent
 compound. The range restricts the database range, relative to the
 parent. The pixel setting selects the pixel decomposition kernel,
-relative to the parent. The eye pass select the mono, left or right eye
-passes rendered by the compound. The zoom scales the parent pixel
-viewport resolution. The DPlex period defines that $\frac{1}{period}$
+relative to the parent. The subpixel defines the jittering applied to
+the frustum, relative to the parent. The eye pass select the mono, left
+or right eye passes rendered by the compound. The zoom scales the parent
+pixel viewport resolution. The DPlex period defines that $\frac{1}{period}$
 frames are rendered, and the phase defines when in the period the
 rendering starts. All these attributes are inherited by the children of
 a compound. Viewport, range, pixel and period parameters are cumulative.
@@ -5611,6 +5888,7 @@ compound
     viewport [ viewport ]            # wrt parent compound, sort-first
     range    [ float float ]         # DB-range for sort-last
     pixel    [ int int ]             # pixel decomposition (step size)
+    subpixel [ int int ]			 # subpixel decomposition (index size)
     eye      [ CYCLOP LEFT RIGHT ]   # monoscopic or stereo view
     zoom     [ float float ]         # up/downscale of parent pvp
     period   int                     # DPlex period, every nth frame rendered
