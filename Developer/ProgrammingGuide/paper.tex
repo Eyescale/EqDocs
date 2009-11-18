@@ -5887,8 +5887,8 @@ compound
 
     viewport [ viewport ]            # wrt parent compound, sort-first
     range    [ float float ]         # DB-range for sort-last
-    pixel    [ int int ]             # pixel decomposition (step size)
-    subpixel [ int int ]			 # subpixel decomposition (index size)
+    pixel    [ int int int int ]     # pixel decomposition (x y w h)
+    subpixel [ int int ]	     # subpixel decomposition (index size)
     eye      [ CYCLOP LEFT RIGHT ]   # monoscopic or stereo view
     zoom     [ float float ]         # up/downscale of parent pvp
     period   int                     # DPlex period, every nth frame rendered
