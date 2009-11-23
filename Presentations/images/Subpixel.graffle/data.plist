@@ -35,6 +35,48 @@
 	<key>GraphicsList</key>
 	<array>
 		<dict>
+			<key>AllowLabelDrop</key>
+			<false/>
+			<key>Class</key>
+			<string>LineGraphic</string>
+			<key>ID</key>
+			<integer>1043</integer>
+			<key>OrthogonalBarAutomatic</key>
+			<true/>
+			<key>OrthogonalBarPosition</key>
+			<real>-1</real>
+			<key>Points</key>
+			<array>
+				<string>{212.598, 651.969}</string>
+				<string>{212.598, 680.315}</string>
+			</array>
+			<key>Style</key>
+			<dict>
+				<key>stroke</key>
+				<dict>
+					<key>Cap</key>
+					<integer>0</integer>
+					<key>CornerRadius</key>
+					<real>4</real>
+					<key>HeadArrow</key>
+					<string>FilledArrow</string>
+					<key>LineType</key>
+					<integer>2</integer>
+					<key>TailArrow</key>
+					<string>0</string>
+					<key>Width</key>
+					<real>2</real>
+				</dict>
+			</dict>
+			<key>Tail</key>
+			<dict>
+				<key>ID</key>
+				<integer>950</integer>
+				<key>Info</key>
+				<integer>1</integer>
+			</dict>
+		</dict>
+		<dict>
 			<key>Bounds</key>
 			<string>{{240.945, 198.425}, {113.386, 113.386}}</string>
 			<key>Class</key>
@@ -275,8 +317,8 @@
 			<integer>973</integer>
 			<key>Points</key>
 			<array>
-				<string>{197.254, 185.424}</string>
-				<string>{227.943, 154.734}</string>
+				<string>{197.607, 185.07}</string>
+				<string>{227.944, 154.734}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -314,7 +356,7 @@
 			<integer>972</integer>
 			<key>Points</key>
 			<array>
-				<string>{197.254, 154.734}</string>
+				<string>{197.607, 155.088}</string>
 				<string>{242.117, 199.597}</string>
 			</array>
 			<key>Style</key>
@@ -1254,7 +1296,7 @@ outputframe "frame.b3"}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2009-11-18 11:39:40 +0100</string>
+	<string>2009-11-23 09:18:18 +0100</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -1342,11 +1384,11 @@ outputframe "frame.b3"}</string>
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{491, 0}, {952, 1115}}</string>
+		<string>{{358, 19}, {476, 759}}</string>
 		<key>VisibleRegion</key>
-		<string>{{-117, 0}, {968.325, 1051}}</string>
+		<string>{{0, 0}, {734, 1052.44}}</string>
 		<key>Zoom</key>
-		<real>1.2410043478012085</real>
+		<real>0.80548954010009766</real>
 	</dict>
 </dict>
 </plist>
