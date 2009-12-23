@@ -58,7 +58,7 @@ Version 1.7.2 for Equalizer 0.9+svn\\[\medskipamount]
 
 Written by Stefan Eilemann.\\
 Engineering contributions by Maxim Makhinya, Jonas B\"osch, Christian
-Marten, Sarah Amsellem and Patrick Bouchaud.
+Marten, Sarah Amsellem, Patrick Bouchaud and Philippe Robert.
 
 \subsection*{Copyright}
 
@@ -4657,7 +4657,31 @@ CPU.
 Note that the remote source window does not execute the swapBuffers in
 this configuration, since it is a single-buffered PBuffer.
 
+\subsection{\label{sCUDA}GPU Computing with CUDA}
 
+The Equalizer parallel rendering framework can be used to scale GPU 
+computing applications (also known as GPGPU) based on CUDA. The necessary
+steps to write a distributed GPGPU application using Equalizer are described
+in the following.
+
+Please note that the support for CUDA is only enabled if the CUDA libraries are found
+in their default locations. Otherwise please adapt the makefiles accordingly.
+
+\subsubsection{CUDA Initialization}
+
+Equalizer automatically initializes a CUDA context on each pipe (using the specified
+device number) whenever \textsf{hint\_cuda\_GL\_interop} is set. The initialization is 
+currently done using the CUDA runtime API in order to support device emulation. 
+On the other side, if this hint is not set the OpenGL interop feature is not enabled, and 
+furthermore, the GPU which executes CUDA code defaults to device 0.
+
+Once CUDA is initialized correctly, C for CUDA can be used as any other GPU 
+programming interface. 
+
+\subsubsection{CUDA Memory Management}
+
+Equalizer does not provide any facility to perform memory transfer from and to the CUDA
+devices. This is entirely left to the programmer.
 
 \section{\label{sNetwork}The Network Layer}
 
@@ -5126,6 +5150,19 @@ name followed by its value. The following attributes are available:
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
+  \textbf{Name} & EQ\_PIPE\_IATTR\_HINT\_CUDA\_GL\_INTEROP\\
+  \textbf{Value} & OFF \textbar \ ON\\
+  \textbf{Default} & OFF\\
+  \textbf{Details} & Determines if the pipe thread enables interoperability between CUDA
+  and OpenGL or not. When set to ON, the CUDA device is configured on which the 
+  thread executes the CUDA device code. If no graphics adapter is specified in the config 
+  file, the one providing the highest compute performances on the particular node is chosen. 
+  When set to OFF, no CUDA device is configured at all.\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
   \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_STEREO\\
   \textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
   \textbf{Default} & AUTO\\
@@ -5531,7 +5568,8 @@ pipe
     viewport [ viewport ] # default: autodetect
     attributes
     {
-        hint_thread   OFF | ON   # default ON
+        hint_thread            OFF | ON   # default ON
+        hint_cuda_GL_interop   OFF | ON   # default OFF
     }
 
     window {...} # 1-n times
