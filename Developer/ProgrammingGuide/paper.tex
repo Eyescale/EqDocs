@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications based on
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.7.2 for Equalizer 0.9+svn\\[\medskipamount]
+Version 1.7.3 for Equalizer 0.9.1\\[\medskipamount]
 %  \today
 }
 
@@ -52,7 +52,7 @@ Version 1.7.2 for Equalizer 0.9+svn\\[\medskipamount]
 %\clearpage
 
 \lstset{language=C++}
-\section*{Equalizer 0.9 Programming and User Guide}
+\section*{Equalizer 0.9.1 Programming and User Guide}
 \today
 \subsection*{Contributors}
 
@@ -62,7 +62,7 @@ Marten, Sarah Amsellem, Patrick Bouchaud and Philippe Robert.
 
 \subsection*{Copyright}
 
-\textcopyright 2007-2009 \htmladdnormallink{Eyescale Software GmbH}
+\textcopyright 2007-2010 \htmladdnormallink{Eyescale Software GmbH}
 {http://www.eyescale.ch}. All rights reserved. No permission is
 granted to copy, distribute, or create derivative works from the
 contents of this electronic documentation in any manner, in whole or in
@@ -110,14 +110,17 @@ and the \textsf{eqNBody} gravitational n-body simulation, based on the
 N-Body CUDA example [bottom right].
 
 The images on the back page show the following scalable rendering modes:
-Combined 2D/DB [top left], DPlex [middle left], Pixel [middle center],
+Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
 2D [bottom left], DB [bottom center] and stereo [bottom right].
 
 \clearpage
 \pagenumbering{roman}
 \pagestyle{headings}
 \tableofcontents
-\listoffigures \vfill{\center\begin{tabularx}{\textwidth}{|l|l|X|}
+\clearpage
+\listoffigures \vfill
+\section*{Revision History}
+{\center\begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
     \bf Rev & \bf Date     & \bf Changes \\
     \hline
@@ -128,6 +131,7 @@ Combined 2D/DB [top left], DPlex [middle left], Pixel [middle center],
     1.7.0   & Sep 09, 2009 & Updates based on hardcopy print\\
     1.7.1   & Oct 20, 2009 & Updates for new eq::GLWindow\\
     1.7.2   & Nov 18, 2009 & Add \sref{sSubpixel} and \sref{sFSAA} for Subpixel compounds\\
+    1.7.3   & Feb 02, 2010 & Revision for Equalizer 0.9.1\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -3896,17 +3900,17 @@ its own head matrix and eye separation for tracking. In \textsf{eqPly},
 all observers are updated with the same head matrix. A typical
 application would assign different tracking data to different observers.
 
-\begin{figure}[h!t]
+\begin{figure}[h!t]\center
   \subfigure[]{\label{fMono}
-    \includegraphics[height=2.5cm]{images/mono}}\hfil
+    \includegraphics[height=4cm]{images/mono}}\hfil
   \subfigure[]{\label{fStereo}
-    \includegraphics[height=2.5cm]{images/stereo}}\hfil
+    \includegraphics[height=4cm]{images/stereo}}
   \subfigure[]{\label{fTracked}
-    \includegraphics[height=2.5cm]{images/tracked}}
+    \includegraphics[height=4cm]{images/tracked}}\hfil
   \subfigure[]{\label{fHMD}
-    \includegraphics[height=2.5cm]{images/hmd}}%
-  {\caption{\label{fImmersive}Monoscopic, Stereoscopic, Tracked and HMD
-    Frusta}}
+    \includegraphics[height=4cm]{images/hmd}}
+  {\caption{\label{fImmersive}Monoscopic (a), Stereoscopic (b), Tracked (c) and
+      HMD (d) Frusta}}
 \end{figure}
 
 \fig{fMono} illustrates a monoscopic view frustum. The viewer is
@@ -4130,16 +4134,15 @@ calculate the compressor characteristics.
 
 \subsubsection{\label{sDirectSend}Parallel Direct Send Compositing}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\label{fDirectSend}Direct Send Compositing}}
-  \vspace{-3ex}
-\end{wrapfigure}
 To provide a motivation for the design of the image compositing
 API, the direct send parallel compositing algorithm is introduced in this
 section. Other parallel compositing algorithms, e.g. binary-swap, can
 also be expressed through an Equalizer configuration file.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\label{fDirectSend}Direct Send Compositing}}
+\end{wrapfigure}
 The main idea behind direct send is to parallelize the costly
 recomposition for database (sort-last) decomposition. With each
 additional source channel, the amount of pixel data to be composited
@@ -4185,10 +4188,6 @@ frame data is the object connecting output with input frames. Output and
 input frames with the same name within the same compound tree will
 reference the same frame data.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\label{fAssembly}Hierarchy of Assembly Classes}}
-\end{wrapfigure}
 The frame data is a holder for images and additional information, such
 as output frame attributes and pixel data availability.
 
@@ -4196,6 +4195,10 @@ An \textsf{eq::Image} holds a
 two-dimensional snapshot of the framebuffer and can contain color and/or
 depth information.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
+  {\caption{\label{fAssembly}Hierarchy of Assembly Classes}}
+\end{wrapfigure}
 The frame synchronization through the frame data allows the input frame
 to wait for the pixel data to become ready, which is signaled by the
 output frame after readback.
@@ -4239,11 +4242,11 @@ implement the various compositing algorithms and low-level
 optimizations. \fig{fCompositor} provides a top-down functional overview
 of the various compositor functions.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-%\begin{figure}[h!t]\center
+%\begin{wrapfigure}{r}{.618\textwidth}
+\begin{figure}[h!t]\center
   \includegraphics[width=.618\textwidth]{images/compositor.pdf}
   {\caption{\label{fCompositor}Functional Diagram of the Compositor}}
-\end{wrapfigure}
+\end{figure}
 On a high level, the compositor combines multiple input frames using 2D
 tiling, depth-compositing for polygonal data or sorted, alpha-blended
 compositing for semitransparent volumetric data. These operations
@@ -4266,16 +4269,16 @@ potentially using GLSL for better performance.
 
 \subsubsection{Custom Assembly in eVolve}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\label{fSlices}Volume Rendering using 3D Textures}}
+\end{wrapfigure}
 The \textsf{eVolve} example is a scalable volume renderer. It uses 3D
 texture-based volume rendering, where the 3D texture is intersected by
 view-aligned slices. The slices are rendered back-to-front and blended
 to produce the final image, as shown in \fig{fSlices}\footnote{Volume
   Data Set courtesy of: SFB-382 of the German Research Council (DFG)}.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\label{fSlices}Volume Rendering using 3D Textures}}
-\end{wrapfigure}
 When using 2D (sort-first) or stereo decompositions, no special
 programming is needed to achieve good scalability, as \textsf{eVolve} is
 mostly fill-limited and therefore scales nicely in these modes. 
@@ -5026,14 +5029,53 @@ name followed by its value. The following attributes are available:
   server is bound to this address. When used for a node, the server
   first tries to connect to the render client node using this hostname,
   and then tries to launch the render client executable on this host.\\
-  \textbf{See also} & EQ\_CONNECTION\_SATTR\_LAUNCH\_COMMAND
-  EQ\_CONNECTION\_IATTR\_TCPIP\_PORT EQ\_CONNECTION\_IATTR\_TYPE\\
+  \textbf{See also} & EQ\_NODE\_SATTR\_LAUNCH\_COMMAND
+  EQ\_CONNECTION\_IATTR\_PORT
+  EQ\_CONNECTION\_IATTR\_TYPE\\
   \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
-  \textbf{Name} & EQ\_CONNECTION\_SATTR\_LAUNCH\_COMMAND\\
+  \textbf{Name} & EQ\_CONNECTION\_IATTR\_TYPE\\
+  \textbf{Value} & TCPIP \textbar \ SDP \textbar \ RSP \textbar \ 
+  PIPE [Win32 only]\\
+  \textbf{Default} & TCPIP\\
+  \textbf{Details} & The protocol for connections. SDP programmatically
+  selects the socket direct protocol (AF\_INET\_SDP) provided by most
+  InfiniBand protocol stacks, TCPIP uses normal TCP
+  sockets (AF\_INET). RSP provides reliable UDP multicast. PIPE uses a named
+  pipe to communicate between two processes on the same machine.\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_CONNECTION\_IATTR\_PORT\\
+  \textbf{Value} & unsigned\\
+  \textbf{Default} & 0\\
+  \textbf{Details} & The listening port used by the server or
+  node. For nodes, the port can be used to contact pre-started, resident
+  render client nodes or to use a specific port for the node. If 0 is
+  specified, a random port is chosen. Note that a server with no
+  connections automatically creates a default connection using the
+  server's default port.\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_CONNECTION\_IATTR\_FILENAME\\
+  \textbf{Value} & string\\
+  \textbf{Default} & none\\
+  \textbf{Details} & The filename of the named pipe used by the server or
+  node. The filename has to be unique on the local host.\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_NODE\_SATTR\_LAUNCH\_COMMAND\\
   \textbf{Value} & string\\
   \textbf{Default} & ssh -n \%h \%c \textgreater\& \%h.\%n.log [POSIX]\\
                    & ssh -n \%h \%c [WIN32]\\
@@ -5044,14 +5086,14 @@ name followed by its value. The following attributes are available:
   hostname, \%c by the render client command to launch, including command line
   arguments and \%n by a node-unique identifier. Each command line
   argument is surrounded by launch command quotes.\\
-  \textbf{See also} & EQ\_CONNECTION\_SATTR\_LAUNCH\_COMMAND\_QUOTE 
-  EQ\_CONNECTION\_IATTR\_LAUNCH\_TIMEOUT\\
+  \textbf{See also} & EQ\_NODE\_SATTR\_LAUNCH\_COMMAND\_QUOTE 
+  EQ\_NODE\_IATTR\_LAUNCH\_TIMEOUT\\
   \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
-  \textbf{Name} & EQ\_CONNECTION\_CATTR\_LAUNCH\_COMMAND\_QUOTE\\
+  \textbf{Name} & EQ\_NODE\_CATTR\_LAUNCH\_COMMAND\_QUOTE\\
   \textbf{Value} & character\\
   \textbf{Default} & ' [POSIX]\\
                    & '' [WIN32]\\
@@ -5066,44 +5108,7 @@ name followed by its value. The following attributes are available:
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
-  \textbf{Name} & EQ\_CONNECTION\_IATTR\_TYPE\\
-  \textbf{Value} & TCPIP \textbar \ SDP \textbar \ PIPE [Win32 only]\\
-  \textbf{Default} & TCPIP\\
-  \textbf{Details} & The protocol for connections. SDP programmatically
-  selects the socket direct protocol (AF\_INET\_SDP) provided by most
-  InfiniBand protocol stacks, TCPIP uses normal TCP
-  sockets (AF\_INET). PIPE uses a named pipe to communicate between
-  two processes on the same machine.\\
-  \hline
-\end{tabularx}\\\vfill
-
-\begin{tabularx}{\textwidth}{|l|X|}
-  \hline
-  \textbf{Name} & EQ\_CONNECTION\_IATTR\_TCPIP\_PORT\\
-  \textbf{Value} & unsigned\\
-  \textbf{Default} & 0\\
-  \textbf{Details} & The listening port used by the server or
-  node. For nodes, the port can be used to contact pre-started, resident
-  render client nodes or to use a specific port for the node. If 0 is
-  specified, a random port is chosen. Note that a server with no
-  connections automatically creates a default connection using the
-  server's default port.\\
-  \hline
-\end{tabularx}\\\vfill
-
-\begin{tabularx}{\textwidth}{|l|X|}
-  \hline
-  \textbf{Name} & EQ\_CONNECTION\_IATTR\_PIPE\_FILENAME\\
-  \textbf{Value} & string\\
-  \textbf{Default} & none\\
-  \textbf{Details} & The filename of the named pipe used by the server or
-  node. The filename has to be unique on the local host.\\
-  \hline
-\end{tabularx}\\\vfill
-
-\begin{tabularx}{\textwidth}{|l|X|}
-  \hline
-  \textbf{Name} & EQ\_CONNECTION\_IATTR\_LAUNCH\_TIMEOUT\\
+  \textbf{Name} & EQ\_NODE\_IATTR\_LAUNCH\_TIMEOUT\\
   \textbf{Value} & unsigned\\
   \textbf{Default} & 60'000 (1 minute)\\
   \textbf{Details} & Defines the timeout in milliseconds to wait for
@@ -5364,7 +5369,7 @@ name followed by its value. The following attributes are available:
   \textbf{See also} & EQ\_NODE\_IATTR\_HINT\_STATISTICS 
   EQ\_WINDOW\_IATTR\_HINT\_STATISTICS\\
   \hline
-\end{tabularx}\\\vfill
+\end{tabularx}\\%\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
@@ -5409,11 +5414,11 @@ server. Currently only the first configuration is used.
 \subsubsection{\label{sConnectionDescription}Connection Description}
 
 A connection description defines the network parameters of an Equalizer
-process. Currently TCP/IP, SDP and PIPE connection types are
-supported. TCP/IP creates a TCP socket. SDP is very similar, except that
-the address family \textsf{AF\_INET\_SDP} instead of \textsf{AF\_INET}
-is used to enforce a SDP connection. PIPE uses a named pipe for fast
-interprocess communication on Windows.
+process. Currently TCP/IP, SDP, RSP and PIPE connection types are
+supported. TCP/IP creates a TCP socket. SDP is very similar, except that the
+address family \textsf{AF\_INET\_SDP} instead of \textsf{AF\_INET} is used to
+enforce a SDP connection. RSP provides reliable UDP multicast. PIPE uses a named
+pipe for fast interprocess communication on Windows.
 
 Note that you can also use the transparent mode provided by most
 InfiniBand implementations to use SDP with TCP connections.
@@ -5424,9 +5429,12 @@ is used. When no port is specified for a node, a random port will be
 chosen by the operating system. For pre-launched render clients, a port
 has to be specified for the server to find the client node.
 
-The hostname is the IP address or (resolvable) host name. A server or
+The hostname is the IP address or resolvable host name. A server or
 node may have multiple connection descriptions, for example to use a
 named pipe for local communications and TCP/IP for remote nodes.
+
+The interface is the IP address or resolvable host name of the adapter to which
+multicast traffic is send.
 
 A server listens on all provided connection descriptions. If no hostname
 is specified for a server connection description, it listens to
@@ -5445,10 +5453,11 @@ server
 {
     connection # 0-n times, listening connections of the server
     {
-        type       TCPIP | SDP | PIPE [Win32 only]
-        TCPIP_port unsigned
-        PIPE_filename string
+        type       TCPIP | SDP | RSP | PIPE [Win32 only]
+        port       unsigned
+        filename   string
         hostname   string
+        interface  string
     }
 
     config {...} # 1-n times, currently only the first one is used by the server
@@ -5914,6 +5923,7 @@ compound
     {
         mode 2D | DB | VERTICAL | HORIZONTAL
         damping float # 0: no damping, 1: no changes
+        boundary [ x y ] | float  # x,y: tile boundary for 2D, float: range
     }
     DFR_equalizer # adjust ZOOM to achieve constant framerate
     {
