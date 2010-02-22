@@ -4925,6 +4925,8 @@ following situations:
 is best to adhere to the following rules:
 \begin{itemize}
 \item Handle the case that a slave instance will receive its own changes again.
+\item Set the appropriate dirty bits when unpacking slave delta data on the
+  master object instance.
 \item Write your application code so that only one object instance is modified
   at any given time. 
 \item When multiple slave instances have to modify the same object at the same
@@ -4948,6 +4950,10 @@ Objects can send command packets to each other by subclassing
 \textsf{SessionPacket}. The object packet extends the session packet by
 the object identifier and an object instance identifier.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
+  {\caption{\label{fNetObject}Communication between two Objects}}
+\end{wrapfigure}
 Multiple instances of the same object (identifier) can be mapped on the
 same node and session simultaneously. Each object instance has a
 node-unique instance identifier. When the instance ID is set to
@@ -4956,10 +4962,6 @@ object instances registered to the session with the correct object
 ID. Multiple object instance per node are used when different threads on
 the node need to process a different version of the same object.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
-  {\caption{\label{fNetObject}Communication between two Objects}}
-\end{wrapfigure}
 Distributed objects provide data synchronization functionality, as described
 above. Additionally, applications can send command packets by creating custom
 object packets with a command greater than \textsf{CMD\_OBJECT\_CUSTOM}.
