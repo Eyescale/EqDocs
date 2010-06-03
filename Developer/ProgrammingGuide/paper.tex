@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications based on
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.7.4 for Equalizer 0.9.1+svn\\[\medskipamount]
+Version 1.7.5 for Equalizer 0.9.1+svn\\[\medskipamount]
 %  \today
 }
 
@@ -117,7 +117,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
 \pagenumbering{roman}
 \pagestyle{headings}
 \tableofcontents
-\clearpage
+%\clearpage
 \listoffigures \vfill
 \section*{Revision History}
 {\center\begin{tabularx}{\textwidth}{|l|l|X|}
@@ -133,6 +133,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.7.2   & Nov 18, 2009 & Add \sref{sSubpixel} and \sref{sFSAA} for Subpixel compounds\\
     1.7.3   & Feb 02, 2010 & Revision for Equalizer 0.9.1\\
     1.7.4   & Feb 22, 2010 & Add \sref{sSlaveCommit}\\
+    1.7.5   & Jun 03, 2010 & Add \sref{sClusterSetup}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -1150,6 +1151,119 @@ in optimal performance.
 display wall is driven by a separate control station. The rendering
 happens only on the display wall, and the control window receives the
 correctly downscaled version of the rendering.
+
+
+\section{\label{sClusterSetup}Setting up a Visualization Cluster}
+This section covers the setup of a visualization cluster to run Equalizer
+applications. It does not cover basic cluster management and driver
+installation. A prerequisite to the following steps is a pre-installed cluster,
+including network and graphics card drivers.
+
+\subsection{Name Resolution}
+Pay attention that your name resolution works properly, that is, the output of
+the hostname command should resolve to the same, non-local IP address on all
+machines. If this is not the case, you will have to provide the public IP
+address for all processes, in the following way:
+\begin{description}
+\item[Server] Specify the server IP as the hostname field in the connection
+  description in the server section.
+\item[Application] Start the application using the IP as the listening port,
+  e.g., \textsf{./build/Linux/bin/eqPly -- --eq-listen 192.168.0.1}
+\item[Render Clients] Specify the client IP's as the hostname field in the
+  connection description of each node section.
+\end{description}
+
+\subsection{The Server}
+The server may be started as a separate process or within the application
+process. If it is started separately, simply provide the desired configuration
+file as a parameter. It will listen on all network addresses, unless other
+connection parameters are specified in the configuration file. If the
+server is started within the application process, using the \textsf{--eq-config}
+parameter, you will have to specify a connection description for the server in
+the configuration file. Application-local servers do not create a listening
+socket by default for security reasons.
+
+\subsection{Starting Render Clients}
+Cluster configurations use multiple Equalizer nodes, where each node represents
+a separate process, typically on a different machine. These node processes have
+to be started for a visualization session, and need to communicate with each
+other.
+
+Equalizer supports pre-launched render clients and automatic render client
+launching, if configured properly. Pre-launched render clients are started
+manually or by an external script on a pre-defined address. Auto-launched render
+client are started and stopped by the Equalizer server on demand.
+
+The two mechanism can co-exist. The server will first try to connect a
+pre-launched render client on the given connection descriptions for each
+node. If this fails, he will try to auto-launch the render client. If the render
+client does not connect back to the server within a certain timeout (default one
+minute), a failure to initialize the configuration is reported back to the
+application.
+
+\subsubsection{Pre-launched Render Clients}
+Pre-launched render clients are useful if setting up auto-launching is too
+time-consuming, e.g., on Windows which does not have a standard remote login
+procedure. The following steps are to be taken to use pre-launched render
+clients:
+
+\begin{itemize}
+\item Set the \textbf{connection} hostname and port parameters of each node in
+  the configuration file.
+\item Start the \textbf{render clients} using the parameters
+  \textsf{--eq-client} and \textsf{--eq-listen}, e.g.,
+  \textsf{./build/Linux/bin/eqPly -- --eq-client --eq-listen
+  192.168.0.2:1234}. Pay attention to use the same connection parameters as in
+    the configuration file.
+\item Start the \textbf{application}. If the server is running on the same
+  machine and user as the application, the application will connect to it
+  automatically. Otherwise use the \textsf{--eq-server} parameter to specify the
+  server address.
+\end{itemize}
+
+The render clients will automatically exit when the config is closed. The
+\textsf{eqPly} example application implements the option \textsf{-r} to keep the
+render client processes resident.
+
+\subsubsection{Auto-launched Render Clients}
+To automatically launch the render clients, the server needs to know the name of
+the render client and the command to launch them without user interaction.
+
+The name of the render client is automatically set to the name of the
+application executable. This may be changed programmatically by the
+application. Normally it suffices to install the application in the same
+directory on all machines, ideally using a shared file system.
+
+The default launch command is set to ssh, which is the most common solution for
+remote logins. To allow the server to launch the render clients without user
+interaction, password-less ssh needs to be set up. Please refer to the ssh
+documentation (cf. \textsf{ssh-keygen} and \textsf{~/.ssh/authorised\_keys}) and
+verify the functionality by logging in to each machine from the host running the
+server.
+
+\subsection{Debugging}
+If your configuration does not work, simplify it as much as possible
+first. Normally this means that there is one server, application and render
+client. Failure to launch a cluster configuration often is caused by one of the
+following reasons:
+\begin{itemize}
+\item A firewall is blocking network connections.
+\item The render client can't access the GPU's on the remote host. Set up your
+  X-Server or application rights correctly. Log into the remote machine using
+  the launch command and try to execute a simple application, e.g.,
+  \textsf{glxinfo -display :0.1}.
+\item The server does not find the pre-launched render client. Verify that the
+  client is listening on the correct IP and port, and that this IP and port are
+  reachable from the server host.
+\item The server can not launch a render client. Check the server log for the
+  launch command used, and try to execute a simple application from the server
+  host using this launch command. It should run without user interaction. Check
+  that the render client is installed in the correct path. Pay attention to the
+  launch command quotes used to separate arguments on Windows. Check that the
+  same software version, including Equalizer, are installed on all machines.
+\item A client can't connect back to the application. Check the client log, this
+  is typically caused by a misconfigured host name resolution.
+\end{itemize}
 
 \clearpage
 \part{Programming Guide}
