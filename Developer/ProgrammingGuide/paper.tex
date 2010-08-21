@@ -1319,11 +1319,11 @@ are explained in \sref{sEqPly}.
 \section{The Programming Interface}
 
 Equalizer uses a C++ programming interface. The API is minimally
-invasive, so Equalizer imposes only a minimal, natural execution
-framework upon the application. It does not provide a scene graph, or
-interferes in any other way with the application's rendering code. The
-restructuring work enforced by Equalizer is the minimal refactoring
-needed to parallelize the application for rendering.
+invasive. Equalizer imposes only a minimal, natural execution framework upon the
+application. It does not provide a scene graph, or interferes in any other way
+with the application's rendering code. The restructuring work enforced by
+Equalizer is the minimal refactoring needed to parallelize the application for
+scalable, distributed rendering.
 
 Methods called by the application have the form \textsf{verb[Noun]},
 whereas methods called by Equalizer (`Task Methods') have the form
@@ -1331,6 +1331,21 @@ whereas methods called by Equalizer (`Task Methods') have the form
 \textsf{Config::startFrame} to render a new frame, which causes, among
 many other things, \textsf{Node::frameStart} to be called in all active
 render clients.
+
+The API documentation on the website or in the header files provides a
+comprehensive documentation on individual methods, types and other elements of
+the API. Methods marked with a specific version are part of the official, public
+API and have been introduced by this Equalizer version. Reasonable care is taken
+to not break API compatibility or change the semantics of these methods within
+future Equalizer versions of the same major revision. Any eventual changes to
+the public is documented in the release notes.
+
+In addition the the official, public API Equalizer exposeses a number of
+unstable methods and, where unavoidable, internal APIs. These are clearly marked
+in the API documentation. Unstable methods may be used by the programmer, but
+their interface or functionality may change in any future Equalizer version. The
+usage of internal methods is discouraged. Undocumented or unversioned methods
+should be considered as part of the unstable API.
 
 \subsection{\label{sNamespaces}Namespaces}
 
@@ -1349,6 +1364,10 @@ Application developers are exposed to the following namespaces:
   \textsf{Node}, \textsf{Session} and \textsf{Object}. Please refer to
   \sref{sNetwork} for an introduction into the network layer, and to
   \sref{sNetObject} for distributed objects.
+\item[eq::util] The eq::util namespace provides common utility classes, which
+  often the usage of OpenGL functions. Most classes in this namespace are used
+  by the the Equalizer client library, but are usable independently from
+  Equalizer for application development.
 \item[eq] The core namespace for the Equalizer client library. The
   classes and their relationship in this namespace closely model the
   configuration file format. The classes in the \textsf{eq} namespace
@@ -1358,6 +1377,7 @@ Application developers are exposed to the following namespaces:
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/namespaces}
   {\caption{\label{fNamespaces}Namespace Layering for eqPly and eqServer}}
+  \vspace{-3ex}
 \end{wrapfigure}
 Examples shipped with Equalizer are implemented in their own namespaces,
 e.g., \textsf{eqPly} or \textsf{eVolve}. They rely mostly on subclassing
@@ -1367,9 +1387,6 @@ functionality from the \textsf{eq::net} and \textsf{eq::base} namespace.
 The functionality of the Equalizer server is implemented in the
 \textsf{eq::server} namespace. This namespace does not yet expose an API
 intended to be used by developers.
-
-\fig{fNamespaces} shows the namespace layering for \textsf{eqPly} and
-\textsf{eqServer}.
 
 \subsection{\label{sTaskMethods}Task Methods}
 
@@ -2017,16 +2034,16 @@ void FrameData::deserialize( eq::net::DataIStream& is,
 
 \subsubsection{\label{sSceneData}Scene Data}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
+  {\caption{\label{fModelDist}Scene Data in eqPly}}
+\end{wrapfigure}
 Some applications might rely on a shared filesystem to access the data,
 for example when out-of-core algorithms are used. Other applications
 prefer to load the data only on the application process, and use
 distributed objects to synchronize the scene data with the render
 clients.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
-  {\caption{\label{fModelDist}Scene Data in eqPly}}
-\end{wrapfigure}
 \textsf{eqPly} uses static distributed objects to distribute the model
 loaded by the application. This approach can be easily extended to
 versioned objects to support dynamic data modifications.
