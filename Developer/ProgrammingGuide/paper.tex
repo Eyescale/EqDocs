@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications based on
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.7.5 for Equalizer 0.9.1+svn\\[\medskipamount]
+Version 1.7.6 for Equalizer 0.9.1+svn\\[\medskipamount]
 %  \today
 }
 
@@ -134,6 +134,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.7.3   & Feb 02, 2010 & Revision for Equalizer 0.9.1\\
     1.7.4   & Feb 22, 2010 & Add \sref{sSlaveCommit}\\
     1.7.5   & Jun 03, 2010 & Add \sref{sClusterSetup}\\
+    1.7.6   & Aug 23, 2010 & General update for fabric changes\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -1352,41 +1353,57 @@ should be considered as part of the unstable API.
 Application developers are exposed to the following namespaces:
 
 \begin{description}
-\item[eq::base] The eq::base namespace provides C++ classes to abstract
-  the underlying operating system and implements common helper
-  functionality. One example is the \textsf{eq::base::Clock} class
-  providing a high-resolution timer. Classes in this namespace are fully
-  documented in the API documentation on the Equalizer website, and are
-  not subject of this Programming Guide.
+\item[eq] The core namespace for the Equalizer client library. The
+  classes and their relationship in this namespace closely model the
+  configuration file format. The classes in the \textsf{eq} namespace
+  are the main subject of this Programming Guide.
+\item[eq::util] The eq::util namespace provides common utility classes, which
+  often simplify the usage of OpenGL functions. Most classes in this namespace
+  are used by the the Equalizer client library, but are usable independently
+  from Equalizer for application development.
+\item[eq::fabric] The eq::fabric namespace is the common data management and
+  transport layer between the client library, the server and the upcoming
+  administrative API. Most Equalizer client classes inherit from base classes in
+  this namespace and have all their data access methods in these base
+  classes. Furthermore, this namespace contains a \textsf{Serializable} class
+  which implements one common use pattern of object-based data distribution
+  using \textsf{eq::net::Object}.
 \item[eq::net] The Equalizer network layer provides basic functionality
   for network communication, such as \textsf{Connection} and
   \textsf{ConnectionSet}, as well as higher-level functionality such as
   \textsf{Node}, \textsf{Session} and \textsf{Object}. Please refer to
   \sref{sNetwork} for an introduction into the network layer, and to
   \sref{sNetObject} for distributed objects.
-\item[eq::util] The eq::util namespace provides common utility classes, which
-  often the usage of OpenGL functions. Most classes in this namespace are used
-  by the the Equalizer client library, but are usable independently from
-  Equalizer for application development.
-\item[eq] The core namespace for the Equalizer client library. The
-  classes and their relationship in this namespace closely model the
-  configuration file format. The classes in the \textsf{eq} namespace
-  are the main subject of this Programming Guide.
+\item[eq::base] The eq::base namespace provides C++ classes to abstract
+  the underlying operating system and implements common helper
+  functionality. One example is the \textsf{eq::base::Clock} class
+  providing a high-resolution timer. Classes in this namespace are fully
+  documented in the API documentation on the Equalizer website, and are
+  not subject of this Programming Guide.
 \end{description}
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/namespaces}
   {\caption{\label{fNamespaces}Namespace Layering for eqPly and eqServer}}
-  \vspace{-3ex}
 \end{wrapfigure}
-Examples shipped with Equalizer are implemented in their own namespaces,
-e.g., \textsf{eqPly} or \textsf{eVolve}. They rely mostly on subclassing
-classes from the \textsf{eq} namespace, with the occasional usage of
-functionality from the \textsf{eq::net} and \textsf{eq::base} namespace.
+Examples shipped with Equalizer are implemented in their own namespaces, e.g.,
+\textsf{eqPly} or \textsf{eVolve}. They rely mostly on subclassing classes from
+the \textsf{eq} namespace, with the occasional usage of functionality from the
+\textsf{eq::util}, \textsf{eq::fabric}, \textsf{eq::net} and \textsf{eq::base}
+namespace.
 
 The functionality of the Equalizer server is implemented in the
-\textsf{eq::server} namespace. This namespace does not yet expose an API
-intended to be used by developers.
+\textsf{eq::server} namespace. The \textsf{eq::admin} namespace enable run-time
+administration of Equalizer servers. These namespace does not yet expose an API
+intended to be used by developers. \fig{fClientUml} provides an overview map of
+the most important classes in the Equalizer namespace, grouped by functionality.
+
+
+\begin{figure}[ht!]\center
+  \includegraphics[width=.9\textwidth]{images/clientUML}
+  {\caption{\label{fClientUml}Equalizer client UML map}}
+\end{figure}
+
 
 \subsection{\label{sTaskMethods}Task Methods}
 
@@ -1403,7 +1420,7 @@ website\footnote{see
 Using threading correctly in OpenGL-based applications is easy with
 Equalizer. Equalizer creates one rendering thread for each graphics
 card. All task methods for a pipe, and therefore all OpenGL commands,
-are executed from this thread. This threading model is the OpenGL
+are executed from this thread. This threading model follows the OpenGL
 `threading model', which maintains a current context for each
 thread. If structured correctly, the application rarely has to take care
 of thread synchronization or protection of shared data.
@@ -1447,11 +1464,6 @@ frame synchronization.
 
 \section{\label{sEqPly}The eqPly Polygonal Renderer}
 
-\begin{figure}[ht!]\center
-  \includegraphics[width=.9\textwidth]{images/uml}
-  {\caption{\label{fUml}UML Diagram eqPly and relevant Equalizer Classes}}
-\end{figure}
-
 In this section the source code of \textsf{eqPly} is explained in
 detail, and relevant design decisions, caveats and other remarks are
 discussed.
@@ -1468,22 +1480,31 @@ application of medium complexity. It focuses on the example usage of
 core Equalizer features, not on advanced rendering features or visual
 quality.
 
-All classes in the example are in the \textsf{eqPly} namespace to avoid
-type name ambiguities, in particular for the \textsf{Window} class which
-is frequently used as a type in the global namespace by windowing
-systems. \fig{fUml} shows how the most important Equalizer classes are
-used through inheritance by the \textsf{eqPly} example.
+\begin{figure}[ht!]\center
+  \includegraphics[width=.9\textwidth]{images/uml}
+  {\caption{\label{fUml}UML Diagram eqPly and relevant Equalizer Classes}}
+\end{figure}
+
+\fig{fUml} shows how the most important Equalizer classes are used through
+inheritance by the \textsf{eqPly} example. All classes in the example are in the
+\textsf{eqPly} namespace to avoid type name ambiguities, in particular for the
+\textsf{Window} class which is frequently used as a type in the global namespace
+by windowing systems.
 
 The \textsf{eqPly} classes fall into two categories: Subclasses of the
 rendering entities introduced in \sref{sConfig}, and classes for
-distributing data. The function and typical usage for each of the
-rendering entities is discussed in this section.
+distributing data.
+
+The function and typical usage for each of the rendering entities is discussed
+in this section. Each of these classes inherits from a base class in the
+\textsf{fabric} name\-space, which implements data distribution for the
+entity. The fabric base classes are omitted in \fig{fUml}.
 
 The distributed data classes are helper classes based on
-\textsf{eq::Object} or its parent class \textsf{eq::net::Object}. They
-illustrate the typical usage of distributed objects for static as well
-as dynamic, frame-specific data. Furthermore they are used for a basic
-scene graph distribution of the model data.
+\textsf{eq::fabric::Serializable} or its base class
+\textsf{eq::net::Object}. They illustrate the typical usage of distributed
+objects for static as well as dynamic, frame-specific data. Furthermore they are
+used for a basic scene graph distribution of the model data.
 
 
 \subsection{The main Function}
@@ -1865,12 +1886,12 @@ bool Application::clientLoop()
 
 \subsection{\label{sNetObject}Distributed Objects}
 
-Equalizer provides distributed objects which facilitate the
-implementation of data distribution in a cluster
-environment. Distributed objects are created by subclassing from
-\textsf{eq::Object} or \textsf{eq::net::Object}. The application
-programmer implements serialization and deserialization of the
-distributed data. \sref{sNetObject2} covers distributed objects in detail.
+Equalizer provides distributed objects which facilitate the implementation of
+data distribution in a cluster environment. Distributed objects are created by
+subclassing from \textsf{eq::fabric::Serializable} or
+\textsf{eq::net::Object}. The application programmer implements serialization
+and deserialization of the distributed data. \sref{sNetObject2} covers
+distributed objects in detail.
 
 Distributed objects can be static (immutable) or dynamic. Dynamic objects are
 versioned. The \textsf{eqPly} example uses static distributed objects to provide
@@ -1936,13 +1957,12 @@ objects currently implemented have the following characteristics:
 
 \begin{itemize}
 \item Only the master instance of the object generates new versions, that is,
-  \textsf{eq::net::Object::com\-mit} should only be called only on the master
-  instance. It is possible to commit on slave instances, but special care has to
-  be taken to handle possible conflicts. \sref{sSlaveCommit} covers slave object
-  commits in detail.
-\item Slave instance versions can only be advanced, that is,
-  \textsf{eq::net::Object::sync( version )} with a version smaller than
-  the current version will fail.
+  \textsf{commit} should only be called only on the master instance. It is
+  possible to commit on slave instances, but special care has to be taken to
+  handle possible conflicts. \sref{sSlaveCommit} covers slave object commits in
+  detail.
+\item Slave instance versions can only be advanced, that is, \textsf{sync(
+  version )} with a version smaller than the current version will fail.
 \item Newly mapped slave instances are mapped to the oldest available
   version by default, or to the version specified when calling
   \textsf{Session::mapObject}.
@@ -1972,22 +1992,22 @@ implementation forwards the (de-)serialization request to
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/umlObject.pdf}
-  {\caption{\label{fUMLObject}eq::Object and eq::net::Object}}
+  {\caption{\label{fUMLObject}eq::fabric::Serializable and eq::net::Object}}
 \end{wrapfigure}
-The creation of distributed, versioned objects is further facilitated by
-\textsf{eq::Object}, which implements the most common way of tracking
-data changes in versioned objects. The concept of a dirty bit mask is
-used to mark parts of the object for serialization, while preserving the
-capability to inherit objects. Other ways of implementing change
-tracking, e.g., using incarnation counters, can still be implemented by
-using \textsf{eq::net::Object} which leaves this flexibility to the
-developer. \fig{fUMLObject} shows the relationship between
-\textsf{eq::Object} and \textsf{eq::net::Object}.
+The creation of distributed, versioned objects is simplified when using
+\textsf{eq::fabric::Serializable}, which implements one common way of tracking
+data changes in versioned objects. The concept of a dirty bit mask is used to
+mark parts of the object for serialization, while preserving the capability to
+inherit objects. Other ways of implementing change tracking, e.g., using
+incarnation counters, can still be implemented by using \textsf{eq::net::Object}
+which leaves all flexibility to the developer. \fig{fUMLObject} shows the
+relationship between \textsf{eq::fabric::Serializable} and
+\textsf{eq::net::Object}.
 
-The \textsf{FrameData} is sub-classed from \textsf{eq::Object}, and
+The \textsf{FrameData} is sub-classed from \textsf{Serializable}, and
 consequently tracks its changes by setting the appropriate dirty bit
 whenever it is changed. The serialization methods are called by the
-\textsf{eq::Object} with the dirty bit mask needed to serialize all
+\textsf{eq::fabric::Serializable} with the dirty bit mask needed to serialize all
 data, or with the dirty bit mask of the changes since the last
 \textsf{commit}. The \textsf{FrameData} only defines its own dirty bits
 and serialization code:
@@ -1996,15 +2016,15 @@ and serialization code:
 /** The changed parts of the data since the last pack(). */
 enum DirtyBits
 {
-    DIRTY_CAMERA  = eq::Object::DIRTY_CUSTOM << 0,
-    DIRTY_FLAGS   = eq::Object::DIRTY_CUSTOM << 1,
-    DIRTY_VIEW    = eq::Object::DIRTY_CUSTOM << 2,
-    DIRTY_MESSAGE = eq::Object::DIRTY_CUSTOM << 3,
+    DIRTY_CAMERA  = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
+    DIRTY_FLAGS   = eq::fabric::Serializable::DIRTY_CUSTOM << 1,
+    DIRTY_VIEW    = eq::fabric::Serializable::DIRTY_CUSTOM << 2,
+    DIRTY_MESSAGE = eq::fabric::Serializable::DIRTY_CUSTOM << 3,
 };
 
 void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
 {
-    eq::Object::serialize( os, dirtyBits );
+    eq::fabric::Serializable::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
         os << _translation << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
@@ -2019,7 +2039,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
 void FrameData::deserialize( eq::net::DataIStream& is,
                              const uint64_t dirtyBits )
 {
-    eq::Object::deserialize( is, dirtyBits );
+    eq::fabric::Serializable::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
         is >> _translation >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
@@ -3239,21 +3259,18 @@ thread, where it is received, to the appropriate pipe thread.
 
 \subsubsection{\label{sMessagePump}Message Pump}
 
-To dispatch events, Equalizer 'pumps' the native events. On WGL and GLX,
-this happens on each thread with windows, whereas on AGL it happens on
-the main thread and each pipe thread. By default, Equalizer pumps these
-events automatically for the application in-between executing task
-methods.
+To dispatch events, Equalizer 'pumps' the native events. On WGL and GLX, this
+happens on each thread with windows, whereas on AGL it happens on the main
+thread and on each pipe thread. By default, Equalizer pumps these events
+automatically for the application in-between executing task methods.
 
-The method \textsf{Pipe::useMessagePump} can be overridden to return
-\textsf{false} to not enable message dispatch for the respective thread.
-
-The method \textsf{useMessagePump} is called by Equalizer during
-application and pipe thread initialization (before configInit!) to
-determine if the pipe's thread shall automatically dispatch OS
-events. For AGL, this affects the node threads and pipe thread, since
-the node thread message pump needs to dispatch the events to the pipe
-thread event queue.
+The method \textsf{Pipe::createMessagePump} is called by Equalizer during
+application and pipe thread initialization (before \textsf{Pipe::configInit}!)
+to create a message pump for the given pipe. For AGL, this affects the node
+thread and pipe threads, since the node thread message pump needs to dispatch
+the events to the pipe thread event queue. Custom message pumps may be
+implemented, and it is valid to return no message pump to disable message
+dispatch for the respective pipe.
 
 If the application disables message pumping in Equalizer, it has to make
 sure the events are pumped externally, as it often done within external
@@ -3988,13 +4005,18 @@ frustum of a view can be changed at runtime.
 
 \subsubsection{Subclassing and Data Distribution}
 
-Layout API entities (Canvas, Segment, Layout, View) are sub-classed like
-all other Equalizer entities using the \textsf{NodeFactory}. Equalizer
-registers the master instance of these entities on the application node,
-so that the application can change mutable parameters and distribute its
-own data to the render clients. \fig{fViewUML} shows the UML class
-hierarchy for the \textsf{eqPly::View}.
+Layout API entities (Canvas, Segment, Layout, View) are sub-classed like all
+other Equalizer entities using the \textsf{NodeFactory}. Equalizer registers the
+master instance of these entities on the server node. Mutable parameters, e.g.,
+the active layout of a canvas, are distributed using slave object commits
+(cf. \sref{sSlaveCommit}). Application-specific data can be attached to a view
+using a distributable \textsf{UserData} object. \fig{fViewUML} shows the UML
+class hierarchy for the \textsf{eqPly::View}.
 
+\begin{wrapfigure}{r}{.612\textwidth}
+  \includegraphics[width=.612\textwidth]{images/viewUML.pdf}
+  {\caption{\label{fViewUML}UML Hierarchy of \textsf{eqPly::View}}}
+\end{wrapfigure}
 The render clients can access a slave instance of the view using
 \textsf{Channel::getView}. When called from one of the frame task
 methods, this method will return the view of the current destination
@@ -4006,37 +4028,68 @@ Equalizer commits dirty layout entities at the beginning of each
 \textsf{Config::startFrame}, and synchronizes the slave instances on the
 render clients correctly with the current frame.
 
-The most common entity to subclass is the \textsf{View}, since the
-application amends it by view-specific data. The view, like all other
-layout entities, is indirectly sub-classed from \textsf{eq::Object}
-through \textsf{eq::Frustum}. The design and usage of
-\textsf{eq::Object} is explained in \sref{sEqObject}. 
+The most common entity to subclass is the \textsf{View}, since the application
+often amends with view-specific application data. A view might have a
+distributable user data object, which has to inherit from
+\textsf{eq::net::Object} to be committed and synchronized with the associated
+object. 
 
-In \textsf{eqPly}, the application-specific data is the model
-identifier. A new dirty bit for the model is defined, and the model
-identifier is serialized when requested:
+Externalizing the data distribution in a \textsf{UserData} object is necessary
+since the server holds the master instance of a view. The server contains no
+application code, and would not be able to (de-)serialize the application data
+of a view. Instead, the user data object has its master and slave instances only
+in application processes, and the server only handles the identifier and version
+of this object.
+
+In \textsf{eqPly}, the application-specific data is the model identifier and the
+number of anti-aliasing steps to be rendered when idle. This data is distributed
+by a \textsf{View::Proxy} object which serves as the view's user data. The proxy
+defines the necessary dirty bits and serializes the data:
 
 {\footnotesize\begin{lstlisting}
 /** The changed parts of the view. */
 enum DirtyBits
 {
-    DIRTY_MODEL       = eq::View::DIRTY_CUSTOM << 0,
+    DIRTY_MODEL       = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
+    DIRTY_IDLE        = eq::fabric::Serializable::DIRTY_CUSTOM << 1
 };
 
-void View::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
+void View::Proxy::serialize( eq::net::DataOStream& os,
+                             const uint64_t dirtyBits )
 {
-    eq::View::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_MODEL )
-        os << _modelID;
+        os << _view->_modelID;
+    if( dirtyBits & DIRTY_IDLE )
+        os << _view->_idleSteps;
 }
 
-void View::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
+void View::Proxy::deserialize( eq::net::DataIStream& is,
+                               const uint64_t dirtyBits )
 {
-    eq::View::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_MODEL )
-        is >> _modelID;
+        is >> _view->_modelID;
+    if( dirtyBits & DIRTY_IDLE )
+    {
+        is >> _view->_idleSteps;
+        if( isMaster( ))
+            setDirty( DIRTY_IDLE ); // redistribute slave settings
+    }
 }
+\end{lstlisting}}
 
+The \textsf{eqPly::View} sets its \textsf{Proxy} as the user data object in the
+constructor. By default, the master instance of the view's user data is on the
+application instance of the view. This may be changed by overriding
+\textsf{hasMasterUserData}. The proxy object registration, mapping and
+synchronization is fully handled be the \textsf{fabric} layer, no further
+handling has to be done by the application:
+
+{\footnotesize\begin{lstlisting}
+View::View( eq::Layout* parent )
+    : [...]
+{
+    setUserData( &_proxy );
+}
 void View::setModelID( const uint32_t id )
 {
     _modelID = id;
@@ -4067,10 +4120,6 @@ since it resets the config's running state.
 
 \subsubsection{View Frustum Update}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/viewUML.pdf}
-  {\caption{\label{fViewUML}UML Hierarchy of \textsf{eqPly::View}}}
-\end{wrapfigure}
 Changing view frustum parameters is typically done for non-fullscreen
 application windows and multi-view layouts, where the rendering is not
 meant to be viewed in real-world size in an immersive environment. A
@@ -4850,6 +4899,10 @@ automatically.
 
 \subsection{Sessions}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netSession.pdf}
+  {\caption{\label{fNetSession}Communication between two Sessions}}
+\end{wrapfigure}
 The \textsf{eq::net::Session} gathers provides higher-level
 functionality to a set of nodes. The master instance of a session is
 registered to a node, which makes this node the session server and
@@ -4865,10 +4918,6 @@ uniquely address data within the cluster. They are also used by the
 session to address distributed objects, which are described in the
 following section.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netSession.pdf}
-  {\caption{\label{fNetSession}Communication between two Sessions}}
-\end{wrapfigure}
 Sessions instances can communicate to each other directly using an
 \textsf{eq::net::Ses\-sion\-Packet}, which is derived from the
 \textsf{NodePacket} and extends it by the session identifier. The
@@ -4891,7 +4940,7 @@ objects. They facilitate the implementation of data distribution in a cluster
 environment. Their functionality and an example use case for parallel rendering
 has been described in \sref{sNetObject}.
 
-Distributed objects are created by subclassing from \textsf{eq::Object} or
+Distributed objects subclass from \textsf{eq::fabric::Serializable} or
 \textsf{eq::net::Object}. The application programmer implements serialization
 and deserialization of the distributed data. Objects are dynamically assigned to
 a session, which assigns session-unique identifiers to objects and manages the
@@ -4935,17 +4984,17 @@ the frame-specific data, e.g., the global camera data, is versioned. The
 frame data identifier is passed in the initial data, and the frame data
 version is passed with each new frame request.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-%\begin{figure}[h!t]
+%\begin{wrapfigure}{r}{.382\textwidth}
+\begin{figure}[h!t]
   \subfigure[]{\label{fObjectDist1}
-    \includegraphics[width=.382\textwidth]{images/umlObjectSubclass}}\hfil
+    \includegraphics[width=.3\textwidth]{images/umlObjectSubclass}}\hfil
   \subfigure[]{\label{fObjectDist2}
-    \includegraphics[width=.382\textwidth]{images/umlObjectProxy}}\hfil
+    \includegraphics[width=.3\textwidth]{images/umlObjectProxy}}\hfil
   \subfigure[]{\label{fObjectDist3}
-    \includegraphics[width=.382\textwidth]{images/umlObjectMI}}%
+    \includegraphics[width=.3\textwidth]{images/umlObjectMI}}%
   {\caption{\label{fObjectDist}Object Distribution using Subclassing,
       Proxies or Multiple Inheritance}}
-\end{wrapfigure}
+\end{figure}
 There are multiple ways of implementing data distribution for an
 existing C++ class hierarchy, such as a scene graph:
 \begin{description}
@@ -5005,15 +5054,15 @@ are possible:
 
 \subsubsection{\label{sSlaveCommit}Slave Object Commit}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/slaveWrites.pdf}
-  {\caption{\label{fSlaveCommit}Slave Commit Communication Sequence}}
-\end{wrapfigure}
 Versioned slave objects may also commit data to the master instance. However,
 this requires the implementation to take special care to resolve conflicts
 during deserialization. The algorithm and constraints for slave object commits
 are explained in this section.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/slaveWrites.pdf}
+  {\caption{\label{fSlaveCommit}Slave Commit Communication Sequence}}
+\end{wrapfigure}
 When using \textsf{commit} on slave object instances, multiple modifications on
 the same database may happen simultaneously. In order to avoid excessive
 synchronization in the network layer, Equalizer a light-weight approach which
@@ -5119,36 +5168,35 @@ The Equalizer client library and server are built on top of the network
 layer. They influence the design of it, and serve as a sample
 implementation on how to use classes in the \textsf{eq::net} namespace.
 
-\subsubsection{\label{sEqObject}eq::Object}
+\subsubsection{\label{sEqObject}eq::fabric::Serializable}
 
-Equalizer uses the \textsf{eq::net::Object} data distribution mechanism
-for implementing data distribution between the server, application and
-render clients. To do this, \textsf{eq::Object} implements one usage
-pattern for the \textsf{eq::net::Object}, allowing inheritance with data
+Equalizer uses the \textsf{eq::net::Object} data distribution mechanism for
+implementing data distribution between the server, application and render
+clients. Based on dirty bits, \textsf{eq::fabric::Serializable} implements one
+usage pattern for the \textsf{eq::net::Object}, allowing inheritance with data
 distribution. It is easier to use, but imposes one typical way to implement data
 distribution.
 
-The \textsf{eq::Object} data distribution is based on the concept of
-dirty bits. Dirty bits form a 64-bit mask which marks which parts of the
+The \textsf{eq::fabric::Serializable} data distribution is based on the concept
+of dirty bits. Dirty bits form a 64-bit mask which marks which parts of the
 object have to be distributed during the next commit.
 
-For serialization, the default \textsf{eq::net::Object} serialization
-functions are implemented by \textsf{eq::Object}, which (de-)serializes
-and resets the dirty bits, and calls \textsf{serialize} or
-\textsf{deserialize} with the bit mask specifying which data has to be
-transmitted or received. During a commit or sync, the current dirty bits
-are given, whereas during object mapping all dirty bits are passed to
-the serialization methods.
+For serialization, the default \textsf{eq::net::Object} serialization functions
+are implemented by \textsf{eq::fabric::Serializable}, which (de-)serializes and
+resets the dirty bits, and calls \textsf{serialize} or \textsf{deserialize} with
+the bit mask specifying which data has to be transmitted or received. During a
+commit or sync, the current dirty bits are given, whereas during object mapping
+all dirty bits are passed to the serialization methods.
 
-To use \textsf{eq::Object}, the following steps have to be taken:
+To use \textsf{eq::fabric::Serializable}, the following steps have to be taken:
 
 \begin{description}
-\item[Inherit from \textsf{eq::Object}:] The base class will provide the
-  dirty bit management and call serialize and deserialize
-  appropriately. By overriding \textsf{getChangeType}, the default
+\item[Inherit from \textsf{eq::fabric::Serializable}:] The base class will
+  provide the dirty bit management and call serialize and deserialize
+  appropriately. By overriding \textsf{get\-Chan\-ge\-Type}, the default
   versioning strategy might be changed.
 \item[Define new dirty bits:] Define dirty bits for each data item by
-  starting at \textsf{Object::DIRTY\_CUSTOM}, shifting this value
+  starting at \textsf{Serializable::DIRTY\_CUSTOM}, shifting this value
   consecutively by each new dirty bit.
 \item[Implement serialize and deserialize:] For each object-specific
   dirty bit which is set, stream the corresponding data item to or from
@@ -5159,17 +5207,18 @@ To use \textsf{eq::Object}, the following steps have to be taken:
   with the corresponding dirty bit.
 \end{description}
 
-The inheritance chain \textsf{eq::View} $\rightarrow$
-\textsf{eq::Frustum} $\rightarrow$ \textsf{eq::Object} $\rightarrow$
-\textsf{eq::net::Object} serves as sample implementation for this
-process. The \textsf{eq::Object} base class provides the facility to set
-a name on the object, which is automatically distributed.
+The Equalizer entities use the common base class
+\textsf{eq::fabric::Object}. This class manages common entity data, and is not
+intended to by subclassed directly.  The inheritance chain \textsf{eq::View}
+$\rightarrow$ \textsf{eq::fabric::View} $\rightarrow$ \textsf{eq::Object}
+$\rightarrow$ \textsf{eq::fabric::Se\-rial\-izable} $\rightarrow$
+\textsf{eq::net::Object} serves as sample implementation for this process.
 
-The registration and mapping of \textsf{eq::Object}s is done in the same
-way as for \textsf{eq::net::Object}s, which has been described in
-\sref{sNetObject2}. Equalizer objects derived from \textsf{eq::Object},
-e.g., \textsf{eq::View}, are typically registered and mapped by
-Equalizer.
+The registration and mapping of \textsf{eq::fabric::Serializable}s is done in
+the same way as for \textsf{eq::net::Object}s, which has been described in
+\sref{sNetObject2}. Equalizer objects derived from
+\textsf{eq::fabric::Serializable}, e.g., \textsf{eq::View}, are typically
+registered, mapped and synchronized by Equalizer.
 
 
 \newpage
