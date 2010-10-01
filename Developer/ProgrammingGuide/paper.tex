@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications based on
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.7.6 for Equalizer 0.9.1+svn\\[\medskipamount]
+Version 1.7.7 for Equalizer 0.9.1+svn\\[\medskipamount]
 %  \today
 }
 
@@ -135,6 +135,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.7.4   & Feb 22, 2010 & Add \sref{sSlaveCommit}\\
     1.7.5   & Jun 03, 2010 & Add \sref{sClusterSetup}\\
     1.7.6   & Aug 23, 2010 & General update for fabric changes\\
+    1.7.7   & Oct 01, 2010 & SystemPipe and SystemWindow renaming\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -661,10 +662,7 @@ without window decorations, using the correct window viewport.
 
 The \textsf{eq::Window} class encapsulates a drawable and an OpenGL
 context. The drawable can be an on-screen window or an off-screen
-PBuffer or FrameBuffer Object (FBO). The window uses an
-\textsf{eq::OSWindow}, which abstracts and manages
-window-system-specific handles to the drawable and context, e.g., an X11
-window \textsf{XID} and \textsf{GLXContext} for the glX window system.
+PBuffer or FrameBuffer Object (FBO).
 
 \subsection{Channel}
 
@@ -708,12 +706,12 @@ A projection is defined by the position and head-pitch-roll orientation
 of the projector, as well as the horizontal and vertical field-of-view
 and distance of the projection wall.
 
+\fig{fFrusta} illustrates the wall and projection frustum parameters.
+
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/frusta.pdf}
   {\caption{\label{fFrusta}Wall and Projection Parameters}}
 \end{wrapfigure}
-
-\fig{fFrusta} illustrates the wall and projection frustum parameters.
 
 Canvases provide a convenient way to configure projection surfaces. A
 canvas uses layouts, which describe logical views. The usage of canvases
@@ -767,15 +765,14 @@ place layout views correctly.
 
 \subsection{\label{sLayout}Layouts}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/layout.png}
-  {\caption{\label{fLayout}A Layout with four Views}}
-\end{wrapfigure}
-
 Configure one \textsf{layout} for each configuration of logical
 views. Name the layout using a unique name. Often only one layout with a
 one view is used for all canvases.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/layout.png}
+  {\caption{\label{fLayout}A Layout with four Views}}
+\end{wrapfigure}
 Enable the layout on each desired canvas by adding it to the
 canvas. Since canvases reference layouts by name or index, layouts have
 to be configured before their respective canvases in the configuration
@@ -787,13 +784,13 @@ destination channels when the configuration file is loaded. These
 destination channels can be referenced by compounds to configure
 scalable rendering.
 
+Layouts can be switched at runtime by the application. Switching a
+layout will activate different destination channels for rendering.
+
 \begin{figure}[ht!]\center
   \includegraphics[width=.9\textwidth]{images/wallLayout.jpg}
   {\caption{A Display Wall using a six-Segment Canvas with a two-View Layout}}
 \end{figure}
-
-Layouts can be switched at runtime by the application. Switching a
-layout will activate different destination channels for rendering.
 
 \subsubsection{Views}
 
@@ -1992,7 +1989,7 @@ implementation forwards the (de-)serialization request to
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/umlObject.pdf}
-  {\caption{\label{fUMLObject}eq::fabric::Serializable and eq::net::Object}}
+  {\caption{\label{fUMLObject}fabric::Serializable and net::Object}}
 \end{wrapfigure}
 The creation of distributed, versioned objects is simplified when using
 \textsf{eq::fabric::Serializable}, which implements one common way of tracking
@@ -2577,6 +2574,10 @@ or cause OpenGL context switches. Later versions of Equalizer might
 introduce threaded windows to allow the parallel and independent
 execution of rendering tasks on a single pipe.
 
+The pipe uses an \textsf{eq::SystemPipe}, which abstracts and manages
+window-system-specific code for the GPU, e.g., an X11 \textsf{Display}
+connection for the glX pipe system.
+
 \subsubsection{Initialization and Exit}
 
 Pipe threads are not explicitly synchronized with each other, that is,
@@ -2684,16 +2685,14 @@ In \textsf{eqPly}, the version of the only frame-specific object
 \textsf{FrameData} is passed as the per-frame id from
 \textsf{Config::startFrame} to the frame task methods. The pipe uses
 this version to update its instance of the frame data to the current
-version, and then unlocks its child entities by calling
+version, and unlocks its child entities by calling
 \textsf{startFrame}:
 
 {\footnotesize\begin{lstlisting}
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
-    node->waitFrameStarted( frameNumber );
-
-    _frameData.sync( frameID );
     startFrame( frameNumber );
+    _frameData.sync( frameID );
 }
 \end{lstlisting}}
 
@@ -2706,6 +2705,10 @@ windows of a pipe share the OpenGL context. This allows reuse of OpenGL
 objects such as display lists and textures between all windows of one
 pipe.
 
+The window uses an \textsf{eq::SystemWindow}, which abstracts and manages
+window-system-specific handles to the drawable and context, e.g., an X11 window
+\textsf{XID} and \textsf{GLXContext} for the glX window system.
+
 The window class is the natural place for the application to maintain
 all data specific to the OpenGL context.
 
@@ -2713,7 +2716,7 @@ all data specific to the OpenGL context.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/osWindow.pdf}
-  {\caption{\label{fOSWindow}eq::OSWindow UML Class Hierarchy}}
+  {\caption{\label{fOSWindow}SystemWindow UML Class Hierarchy}}
 \end{wrapfigure}
 The particulars of creating a window and OpenGL context depend on the
 window system used. One can either use the implementation provided by
@@ -2721,9 +2724,9 @@ the operating system, e.g., AGL, WGL or glX, or some higher-level
 toolkit, e.g., Qt.
 
 All window-system specific functionality is implemented by a
-specialization of \textsf{eq::OS\-Window}. The \textsf{OSWindow} class
+specialization of \textsf{eq::System\-Window}. The \textsf{SystemWindow} class
 defines the minimal interface to be implemented for a new window
-system. Each \textsf{Window} uses one \textsf{OSWindow} during
+system. Each \textsf{Window} uses one \textsf{SystemWindow} during
 execution. This separation allows an easy implementation and adaption to
 another window system or application.
 
@@ -2732,7 +2735,7 @@ most common window systems through the OpenGL specific
 \textsf{eq::GL\-Window} class: AGL, WGL and glX. The interfaces define the
 minimal functionality needed to reuse other window system specific
 classes, for example the AGL, WGL and glX event handlers. The separation 
-of the OpenGL calls from the \textsf{OSWindow} permits to implement 
+of the OpenGL calls from the \textsf{SystemWindow} permits to implement 
 window systems which don't use any OpenGL context and therefore to use a 
 different renderer. The implementation derived from these interfaces 
 provides a sample implementation which honors all configurable window 
@@ -2742,16 +2745,16 @@ attributes.
 
 The initialization sequence uses multiple, override-able task
 methods. The main task method \textsf{configInit} calls first
-\textsf{configInitOSWindow}, which creates and initializes the
-\textsf{OSWindow} for this window. The \textsf{OSWindow} initialization
-code is implementation specific. If the \textsf{OSWindow} was
+\textsf{configInitSystemWindow}, which creates and initializes the
+\textsf{SystemWindow} for this window. The \textsf{SystemWindow} initialization
+code is implementation specific. If the \textsf{SystemWindow} was
 initialized successfully, \textsf{configInit} calls
 \textsf{configInitGL}, which performs the generic OpenGL state
 initialization. The default implementation sets up some typical OpenGL
 state, e.g., it enables the depth test. Most nontrivial applications
 do override this task method.
 
-The \textsf{OSWindow} initialization takes into account various
+The \textsf{SystemWindow} initialization takes into account various
 attributes set in the configuration file. Attributes include the size of
 the various frame buffer planes (color, alpha, depth, stencil) as well
 as other framebuffer attributes, such as quad-buffered stereo,
@@ -2805,9 +2808,9 @@ Equalizer-specific.
 
 The window exit happens in the reverse order of the
 initialization. First, \textsf{configExitGL} is called to de-initialize
-OpenGL, followed by \textsf{configExitOSWindow} which de-initializes the
-drawable and context and deletes the \textsf{OSWindow} allocated in
-\textsf{configInitOSWindow}.
+OpenGL, followed by \textsf{configExitSystemWindow} which de-initializes the
+drawable and context and deletes the \textsf{SystemWindow} allocated in
+\textsf{configInitSystemWindow}.
 
 The window OpenGL exit function of \textsf{eqPly} de-allocates all
 OpenGL objects. The object manager does not delete the object in its
@@ -3279,17 +3282,17 @@ widget sets such as Qt.
 \subsubsection{Event Data Flow}
 
 Events are received by an event handler. The event handler finds the
-\textsf{eq::OSWindow} associated to the event. It then creates a generic
+\textsf{eq::SystemWindow} associated to the event. It then creates a generic
 \textsf{Event}, which holds the event data in an independent
 format. The original native event and this generic \textsf{Event}
-form the \textsf{OSWindowEvent}, which is passed to the concrete
-\textsf{OSWindow} for processing.
+form the \textsf{SystemWindowEvent}, which is passed to the concrete
+\textsf{SystemWindow} for processing.
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
   {\caption{\label{fEventProcessing}Event Processing}}
 \end{wrapfigure}
-The purpose of the \textsf{OSWindow} processing method,
+The purpose of the \textsf{SystemWindow} processing method,
 \textsf{processEvent}, is to perform window-system specific event
 processing. For example, \textsf{AGLWindow::processEvent} calls
 \textsf{aglUpdateContext} whenever a resize event is received. For
@@ -3365,10 +3368,7 @@ parameters \textsf{uMsg}, \textsf{wParam} and \textsf{lParam} to
 
 Later Equalizer versions will introduce \textsf{Pipe::pro\-cess\-Event} and
 \textsf{PipeEvent} to communicate pipe-specific events, e.g., monitor
-resolution changes. It is also likely that an \textsf{OSPipe}
-abstraction, similar to the \textsf{OSWindow}, will be created to
-separate the window system specific code from the \textsf{eq::Pipe}.
-
+resolution changes.
 
 \subsubsection{Custom Events in eqPixelBench}
 
@@ -4225,6 +4225,10 @@ API, the direct send parallel compositing algorithm is introduced in this
 section. Other parallel compositing algorithms, e.g. binary-swap, can
 also be expressed through an Equalizer configuration file.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\label{fDirectSend}Direct Send Compositing}}
+\end{wrapfigure}
 The main idea behind direct send is to parallelize the costly
 recomposition for database (sort-last) decomposition. With each
 additional source channel, the amount of pixel data to be composited
@@ -4234,10 +4238,6 @@ in the system. Direct send distributes this workload evenly across all
 source channels, and thereby keeps the compositing work per channel
 constant.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\label{fDirectSend}Direct Send Compositing}}
-\end{wrapfigure}
 In direct send compositing, each rendering channel is also responsible
 for the sort-last composition of one screen-space tile. He receives
 the framebuffer pixels for his tile from all the other channels. The
@@ -4290,6 +4290,10 @@ frame's compound. The range can be used to compute the assembly order of
 multiple input frames, e.g., for sorted-blend compositing in volume
 rendering applications.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
+  {\caption{\label{fAssembly}Hierarchy of Assembly Classes}}
+\end{wrapfigure}
 Readback and assemble operations on frames and images are designed to be
 asynchronous. They have a start and finish method for both readback and
 assemble to allow the initiation and synchronization of the operation.
@@ -4298,10 +4302,6 @@ Currently, only synchronous readback and assembly using
 respective start method of the image. Later versions of Equalizer will
 implement asynchronous pixel transfers.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\label{fAssembly}Hierarchy of Assembly Classes}}
-\end{wrapfigure}
 The offset of input and output frames characterizes the position of the
 frame data relative to the framebuffer, that is, the \textbf{window's}
 lower-left corner. For output frames this is the position of the channel
@@ -4381,6 +4381,10 @@ through the full texture. Therefore they have to be blen\-ded
 back-to-front in the same way as the slice planes are blended during
 rendering.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 DB compounds have the advantage of scaling any part of the volume
 rendering pipeline: texture and main memory (smaller bricks for each
 channel), fill rate (less samples per channel) and IO bandwidth for
@@ -4389,10 +4393,6 @@ amount of texture memory needed for each node decreases linearly, they
 make it possible to render data sets which are not feasible to
 visualize with any other approach.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 For recomposition, the 2D frame buffer contents are blended to form a
 seamless picture. For correct blending, the frames are ordered in the
 same back-to-front order as the slices used for rendering, and use the
@@ -4753,16 +4753,18 @@ computing applications (also known as GPGPU) based on CUDA. The necessary
 steps to write a distributed GPGPU application using Equalizer are described
 in the following.
 
-Please note that the support for CUDA is only enabled if the CUDA libraries are found
-in their default locations. Otherwise please adapt the makefiles accordingly.
+Please note that the support for CUDA is only enabled if the CUDA libraries are
+found in their default locations. Otherwise please adapt the build system
+accordingly.
 
 \subsubsection{CUDA Initialization}
 
-Equalizer automatically initializes a CUDA context on each pipe (using the specified
-device number) whenever \textsf{hint\_cuda\_GL\_interop} is set. The initialization is 
-currently done using the CUDA runtime API in order to support device emulation. 
-On the other side, if this hint is not set the OpenGL interop feature is not enabled, and 
-furthermore, the GPU which executes CUDA code defaults to device 0.
+Equalizer automatically initializes a CUDA context on each pipe (using the
+specified device number) whenever \textsf{hint\_cuda\_GL\_interop} is set. The
+initialization is currently done using the CUDA runtime API to support device
+emulation. On the other side, if this hint is not set the OpenGL interop feature
+is not enabled, and furthermore, the GPU which executes CUDA code defaults to
+device 0.
 
 Once CUDA is initialized correctly, C for CUDA can be used as any other GPU 
 programming interface. 
