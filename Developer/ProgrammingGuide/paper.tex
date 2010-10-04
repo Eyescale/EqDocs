@@ -23,7 +23,7 @@
 \begin{textblock}{}(0,4.5)
   \hspace{-1cm}\includegraphics[width=22cm]{images/teaser.pdf}
 \end{textblock} {\Large The official reference for developing and
-  deploying parallel, scalable OpenGL\texttrademark\ applications based on
+  deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
 Version 1.7.8 for Equalizer 0.9.1+svn\\[\medskipamount]
 %  \today
@@ -5449,6 +5449,7 @@ name followed by its value. The following attributes are available:
   is used to create the drawable, but an affinity DC is created and can be used
   by the application to render into a FBO. This hint may be ignored in later
   versions of Equalizer, once this workaround has become obsolete.\\
+  \hline
 \end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
@@ -5654,20 +5655,21 @@ name followed by its value. The following attributes are available:
   \textbf{See also} & EQ\_NODE\_IATTR\_HINT\_STATISTICS 
   EQ\_WINDOW\_IATTR\_HINT\_STATISTICS\\
   \hline
-\end{tabularx}\\%\vfill
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
   \textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
-  \textbf{Value} & QUAD \textbar \ ANAGLYPH\\
-  \textbf{Default} & QUAD\\
+  \textbf{Value} & AUTO \textbar QUAD \textbar \ ANAGLYPH\\
+  \textbf{Default} & AUTO\\
   \textbf{Details} & Selects the algorithm used for stereo
   rendering. QUAD-buffered stereo uses the left and right buffers of a
   stereo window (active stereo). Anaglyphic stereo uses
   \textsf{glColorMask} to mask colors for individual eye passes, used in
-  conjunction with colored glasses.\\
+  conjunction with colored glasses. AUTO selects QUAD if the drawable is capable
+  of active stereo rendering, otherwise ANAGLYPH is selected\\
   \hline
-\end{tabularx}\\%\vfill
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
@@ -5677,7 +5679,7 @@ name followed by its value. The following attributes are available:
   \textbf{Details} & Select the color mask for the left eye pass during
   anaglyphic stereo rendering.\\
   \hline
-\end{tabularx}\\%\vfill
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
@@ -6221,7 +6223,7 @@ compound
 
     attributes
     {
-        stereo_mode                  QUAD | ANAGLYPH    # default QUAD
+        stereo_mode                  AUTO | QUAD | ANAGLYPH    # default AUTO
         stereo_anaglyph_left_mask    [ RED GREEN BLUE ] # default red
         stereo_anaglyph_right_mask   [ RED GREEN BLUE ] # df green blue
     }
