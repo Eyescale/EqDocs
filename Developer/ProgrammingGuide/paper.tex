@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications based on
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.7.7 for Equalizer 0.9.1+svn\\[\medskipamount]
+Version 1.7.8 for Equalizer 0.9.1+svn\\[\medskipamount]
 %  \today
 }
 
@@ -136,6 +136,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.7.5   & Jun 03, 2010 & Add \sref{sClusterSetup}\\
     1.7.6   & Aug 23, 2010 & General update for fabric changes\\
     1.7.7   & Oct 01, 2010 & SystemPipe and SystemWindow renaming\\
+    1.7.8   & Oct 04, 2010 & Document GPU affinity workaround hint\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -5436,6 +5437,22 @@ name followed by its value. The following attributes are available:
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
+  \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_AFFINITY\\
+  \textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\textbar \ EXTERN\\
+  \textbf{Default} & AUTO\\
+  \textbf{Details} & Determines how the window handles the affinity context (WGL
+  only). This hint is a workaround for NVidia drivers greater than 200, which
+  contain a faulty implementation of the WGL\_NV\_gpu\_affinity extension. When
+  set to AUTO, the hint is interpreted like EXTERN for windows and pbuffers with
+  these drivers, in all other cases it is interpreted like ON. When set to ON,
+  an affinity DC is used for all drawable types. When set to EXTERN, a normal DC
+  is used to create the drawable, but an affinity DC is created and can be used
+  by the application to render into a FBO. This hint may be ignored in later
+  versions of Equalizer, once this workaround has become obsolete.\\
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
   \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_STEREO\\
   \textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
   \textbf{Default} & AUTO\\
@@ -5881,6 +5898,7 @@ window
 
     attributes
     {
+        hint_affinity       OFF | ON | AUTO | EXTERN
         hint_stereo         OFF | ON | AUTO
         hint_doublebuffer   OFF | ON | AUTO
         hint_decoration     OFF | ON
