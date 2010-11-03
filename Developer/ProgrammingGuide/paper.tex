@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.7.8 for Equalizer 0.9.1+svn\\[\medskipamount]
+Version 1.7.9 for Equalizer 0.9.1+svn\\[\medskipamount]
 %  \today
 }
 
@@ -137,6 +137,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.7.6   & Aug 23, 2010 & General update for fabric changes\\
     1.7.7   & Oct 01, 2010 & SystemPipe and SystemWindow renaming\\
     1.7.8   & Oct 04, 2010 & Document GPU affinity workaround hint\\
+    1.7.9   & Nov 03, 2010 & Add \sref{sErrorHandling}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -241,10 +242,6 @@ on events, updates its data and controls the rendering.
 
 \subsubsection{Render Clients}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/processes.pdf}
-  {\caption{\label{fProcesses}Equalizer Processes}}
-\end{wrapfigure}
 The render client implements the rendering part of an application. Its
 execution is passive, it has no main loop and is completely driven by
 Equalizer. It executes the rendering tasks received from the server by
@@ -253,6 +250,10 @@ correct thread and context. The application either implements the task
 methods with application-specific code or uses the default methods
 provided by Equalizer.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/processes.pdf}
+  {\caption{\label{fProcesses}Equalizer Processes}}
+\end{wrapfigure}
 The application can also be a rendering client, in which case it can
 also contribute to the rendering. If it does not implement any render
 client code, it is reduced to be the application's `master' process
@@ -371,6 +372,10 @@ as described in \sref{sDirectSend}.
 
 \subsection{Stereo Compounds}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/EYE.pdf}
+  {\caption{\label{fStereoCmp}\small A Stereo Compound}}
+\end{wrapfigure}
 Stereo compounds, as shown in \fig{fStereoCmp}\footnote{3D model
   courtesy of Stereolithography Archive at Clemson University.}, assign
 each eye pass to individual rendering units. The resulting images are
@@ -388,10 +393,6 @@ the number of eye passes, typically two.
 Stereo compounds are used by all applications when rendering in stereo,
 and is often combined with other modes.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/EYE.pdf}
-  {\caption{\label{fStereoCmp}\small A Stereo Compound}}
-\end{wrapfigure}
 Eye compounds in Equalizer are configured using the \textsf{eye}
 parameter, limiting the child to render the \textsf{[ LEFT ]} or
 \textsf{[ RIGHT ]} eye. Each child compound uses an output frame, which
@@ -430,12 +431,16 @@ uses a DPlex load-balancer to smoothen the framerate.
 
 \subsection{Pixel Compounds}
 
-Pixel compounds are similar to 2D compounds. The frusta of the
-source rendering units are modified so that each unit renders an evenly
-distributed subset of pixels, as shown in \fig{fPixel}\footnote{3D model courtesy of AVS, USA.}
+Pixel compounds are similar to 2D compounds. While 2D compounds decompose the
+screen space into contiguous regions, pixel compounds assign one pixel of a
+regular kernel to each resource. The frusta of the source rendering units are
+modified so that each unit renders an evenly distributed subset of pixels, as
+shown in \fig{fPixel}\footnote{3D model courtesy of AVS, USA.}
 
 As 2D compounds, pixels compounds have low, constant IO requirements for
-the pixel transfers during recomposition.
+the pixel transfers during recomposition. They are naturally load-balanced for
+fill-limited operations, while they do not decompose the geometry processing at
+all.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/Pixel.pdf}
@@ -1732,8 +1737,6 @@ variable \textsf{EQ\_LOG\_TOPICS}:
     config->setInitData( _initData );
     if( !config->init( ))
     {
-        EQERROR << "Config initialization failed: " 
-                << config->getErrorMessage() << endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;
@@ -3447,6 +3450,118 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 \end{lstlisting}}%>>
 
 
+\subsection{\label{sErrorHandling}Error Handling}
+
+All Equalizer entities use an error code to report error conditions during
+various operations. This error code is reported back from the render processes
+to the application config instance. The last error is propagated from the failed
+resource to the config object, where it can be queried by the application using
+\textsf{Config::getError}.
+
+Each error emitted by Equalizer code has a textual description. This string is
+automatically used for printing an \textsf{Error} on an \textsf{std::ostream},
+and can be queried from the \textsf{base::ErrorRegistry}, which is accessible
+from \textsf{base::Global}.
+
+Applications can register additional error codes and strings. The
+\textsf{eVolve} example uses this to report if required OpenGL extensions are
+missing. The registration of new error codes is not thread-safe, that is, no
+other thread should use the error registry when it is modified. It is therefore
+strongly advised to register application-specific errors before
+\textsf{eq::init} and clear them after \textsf{eq::exit}:
+
+{\footnotesize\begin{lstlisting}
+int main( const int argc, char** argv )
+{
+    ...
+    // 2. Equalizer initialization
+    NodeFactory nodeFactory;
+    eVolve::initErrors();
+
+    if( !eq::init( argc, argv, &nodeFactory ))
+    ...
+
+    eq::exit();
+    eVolve::exitErrors();
+    return ret;
+}
+\end{lstlisting}}
+
+When the application returns false from a \textsf{configInit} task method due to
+an application-specific error, it should set an error code using
+\textsf{setError}. Application-specific errors can have any value equal or
+greater than \textsf{eq::ERROR\_CUSTOM}:
+
+{\footnotesize\begin{lstlisting}
+/** Defines errors produced by eVolve. */
+enum Error
+{
+    ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING = eq::ERROR_CUSTOM,
+    ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING,
+    ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING,
+    ERROR_EVOLVE_LOADSHADERS_FAILED,
+    ERROR_EVOLVE_LOADMODEL_FAILED
+};
+
+bool Window::configInitGL( const uint32_t initID )
+{
+    ...
+    if( !GLEW_ARB_shader_objects )
+    {
+        setError( ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING );
+        return false;
+    }
+    ...
+}
+\end{lstlisting}}
+
+It is not required to register an error string for each application-specific
+error. Registering a string will however cause error printing to use this string
+instead of using only the numerical error value. Applications may also redefine
+existing error strings to their convenience, e.g., for internationalization
+purposes:
+
+{\footnotesize\begin{lstlisting}
+namespace
+{
+struct ErrorData
+{
+    const uint32_t code;
+    const std::string text;
+};
+
+ErrorData _errors[] = {
+    { ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING,
+      "GL_ARB_shader_objects extension missing" },
+    { ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING,
+      "GL_ARB_shader_objects extension missing" },
+    { ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING,
+      "GL_ARB_shader_objects extension missing" },
+    { ERROR_EVOLVE_LOADSHADERS_FAILED, "Can't load shaders" },
+    { ERROR_EVOLVE_LOADMODEL_FAILED, "Can't load model" },
+
+    { 0, "" } // last!
+};
+}
+
+void initErrors()
+{
+    eq::base::ErrorRegistry& registry = eq::base::Global::getErrorRegistry();
+
+    for( size_t i=0; _errors[i].code != 0; ++i )
+        registry.setString( _errors[i].code, _errors[i].text );
+}
+
+void exitErrors()
+{
+    eq::base::ErrorRegistry& registry = eq::base::Global::getErrorRegistry();
+
+    for( size_t i=0; _errors[i].code != 0; ++i )
+        registry.eraseString( _errors[i].code );
+}
+\end{lstlisting}}
+
+
 \subsection{\label{sThreads}Thread Synchronization}
 
 Equalizer applications use multiple, potentially asynchronous execution
@@ -3458,15 +3573,15 @@ performance through higher asynchronicity.
 
 \subsubsection{Threads}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/threads.pdf}
-  {\caption{\label{fThreads}Threads within one Node Process}}
-\end{wrapfigure}
 The application or node main thread is the primary thread of each
 process and executes the \textsf{main} function. The application and
 render clients initialize the local node for communications with other
 nodes, including the server, using \textsf{Client::initLocal}.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/threads.pdf}
+  {\caption{\label{fThreads}Threads within one Node Process}}
+\end{wrapfigure}
 During this initialization, Equalizer creates and manages two threads
 for communication, the receiver thread and the command thread. Normally
 no application code is executed from these two threads.
@@ -3572,10 +3687,6 @@ of the scene data.
 
 \subsubsection{Thread Synchronization in Detail}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
-  {\caption{\label{fFrameSync}Per-Node Frame Synchronization}}
-\end{wrapfigure}
 The application has extended control over the task synchronization
 during a frame. Upon \textsf{Config::startFrame}, Equalizer invokes the
 \textsf{frameStart} task methods of the various entities. The entities
@@ -3610,6 +3721,10 @@ drawing the current frame, and \textsf{Node::frameDrawFinish} calls
 \textsf{Pipe::waitFrameLocal} for each of its pipes to block the node
 thread until the current frame has been drawn.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
+  {\caption{\label{fFrameSync}Per-Node Frame Synchronization}}
+\end{wrapfigure}
 \fig{fFrameSync} illustrates the local frame synchronization.
 
 The second, global synchronization is used for the frame completion
@@ -3712,13 +3827,13 @@ initialization. After a successful \textsf{OSWindow} initialization,
 \textsf{Window::configInitGL} is called for the generic OpenGL state
 setup.
 
-Since window initialization is notoriously error-prone and hard to
-debug, the sample implementation propagates the reason for errors
-from the render clients back to the application. The \textsf{Pipe} and
-\textsf{Window} classes have a \textsf{setErrorMessage} method, which is
-used to set an error string. This string is passed to the
-\textsf{Config} instance on the application node, where it can be
-retrieved using \textsf{getErrorMessage}.
+Since window initialization is notoriously error-prone and hard to debug, the
+sample implementation propagates the reason for errors from the render clients
+back to the application. The \textsf{Pipe} and \textsf{Window} classes have a
+\textsf{setError} method, which is used to set an error code. This string is
+passed to the \textsf{Config} instance on the application node, where it can be
+retrieved using \textsf{getError}. The \sref{sErrorHandling} explains error
+handling in more detail.
 
 The sample implementations \textsf{AGLWindow}, \textsf{GLXWindow} and
 \textsf{WGLWindow} all have similar, override-able methods for all
@@ -3823,20 +3938,30 @@ bool GLXWindow::configInit( )
     GLXContext context = createGLXContext( visualInfo );
     setGLXContext( context );
 
+    // Early glxew init to have function pointers for init code
+    glXMakeCurrent( _xDisplay, None, 0 );
+    glxewInit();
+
     if( !context )
         return false;
 
     const bool success = configInitGLXDrawable( visualInfo );
     XFree( visualInfo );
 
-    if( success && !_xDrawable )
+    if( !success || !_xDrawable )
     {
-        _window->setErrorMessage( 
-            "configInitGLXDrawable did not set a X11 drawable");
+        if( getError() == ERROR_NONE )
+            setError( ERROR_GLXWINDOW_NO_DRAWABLE );
         return false;
     }
 
-    return success;    
+    makeCurrent();
+    initGLEW();
+
+    if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
+        configInitFBO();
+
+    return success;
 }
 \end{lstlisting}}
 
@@ -3876,7 +4001,7 @@ bool WGLWindow::configInit()
 {
     if( !initWGLAffinityDC( ))
     {
-        _window->setErrorMessage( "Can't create affinity dc" );
+        setError( ERROR_WGL_CREATEAFFINITYDC_FAILED );
         return false;
     }
 
@@ -3897,8 +4022,7 @@ bool WGLWindow::configInit()
     {
         exitWGLAffinityDC();
         setWGLDC( 0, WGL_DC_NONE );
-        _window->setErrorMessage(
-            "configInitWGLDrawable did not set a WGL drawable" );
+        setError( ERROR_WGLWINDOW_NO_DRAWABLE );
         return false;
     }
 
@@ -3911,7 +4035,7 @@ bool WGLWindow::configInit()
 
     setWGLContext( context );
     makeCurrent();
-    _initGlew();
+    initGLEW();
 
     if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
     {
@@ -3927,12 +4051,6 @@ bool WGLWindow::configInit()
                    << "swapsync hint" << std::endl;
     }
     
-    if( !joinNVSwapBarrier( ))
-    {
-        _window->setErrorMessage( "Joining NV_swap_group failed" );
-        return false;
-    }
-
     if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         return configInitFBO();
 
@@ -4014,10 +4132,6 @@ the active layout of a canvas, are distributed using slave object commits
 using a distributable \textsf{UserData} object. \fig{fViewUML} shows the UML
 class hierarchy for the \textsf{eqPly::View}.
 
-\begin{wrapfigure}{r}{.612\textwidth}
-  \includegraphics[width=.612\textwidth]{images/viewUML.pdf}
-  {\caption{\label{fViewUML}UML Hierarchy of \textsf{eqPly::View}}}
-\end{wrapfigure}
 The render clients can access a slave instance of the view using
 \textsf{Channel::getView}. When called from one of the frame task
 methods, this method will return the view of the current destination
@@ -4029,6 +4143,10 @@ Equalizer commits dirty layout entities at the beginning of each
 \textsf{Config::startFrame}, and synchronizes the slave instances on the
 render clients correctly with the current frame.
 
+\begin{wrapfigure}{r}{.612\textwidth}
+  \includegraphics[width=.612\textwidth]{images/viewUML.pdf}
+  {\caption{\label{fViewUML}UML Hierarchy of \textsf{eqPly::View}}}
+\end{wrapfigure}
 The most common entity to subclass is the \textsf{View}, since the application
 often amends with view-specific application data. A view might have a
 distributable user data object, which has to inherit from
@@ -4131,6 +4249,10 @@ application process can set the wall or projection parameters at
 runtime. For a description of wall and projection parameters please refer
 to \sref{sFrustum}. The new data will be effective for the next frame.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/viewUpdate.pdf}
+  {\caption{\label{fViewUpdate}Event Flow during a View Update}}
+\end{wrapfigure}
 The frustum of a view overrides the underlying frustum of the
 segments. The frustum of a view does not typically correspond to a
 physical projection, and can therefore be changed at runtime. The
@@ -4142,10 +4264,6 @@ the aspect ratio of destination channels after a window resize. Without
 updating the wall or projection description, the rendering would become
 distorted.
 
-\begin{wrapfigure}{l}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/viewUpdate.pdf}
-  {\caption{\label{fViewUpdate}Event Flow during a View Update}}
-\end{wrapfigure}
 When a window is resized, a \textsf{CHANNEL\_RESIZE} event is eventually
 generated. If the corresponding channel has a view,
 \textsf{Channel::processEvent} sends a \textsf{VIEW\_RESIZE} event to
@@ -4226,10 +4344,6 @@ API, the direct send parallel compositing algorithm is introduced in this
 section. Other parallel compositing algorithms, e.g. binary-swap, can
 also be expressed through an Equalizer configuration file.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\label{fDirectSend}Direct Send Compositing}}
-\end{wrapfigure}
 The main idea behind direct send is to parallelize the costly
 recomposition for database (sort-last) decomposition. With each
 additional source channel, the amount of pixel data to be composited
@@ -4239,6 +4353,10 @@ in the system. Direct send distributes this workload evenly across all
 source channels, and thereby keeps the compositing work per channel
 constant.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\label{fDirectSend}Direct Send Compositing}}
+\end{wrapfigure}
 In direct send compositing, each rendering channel is also responsible
 for the sort-last composition of one screen-space tile. He receives
 the framebuffer pixels for his tile from all the other channels. The
@@ -4291,10 +4409,6 @@ frame's compound. The range can be used to compute the assembly order of
 multiple input frames, e.g., for sorted-blend compositing in volume
 rendering applications.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
-  {\caption{\label{fAssembly}Hierarchy of Assembly Classes}}
-\end{wrapfigure}
 Readback and assemble operations on frames and images are designed to be
 asynchronous. They have a start and finish method for both readback and
 assemble to allow the initiation and synchronization of the operation.
@@ -4303,6 +4417,10 @@ Currently, only synchronous readback and assembly using
 respective start method of the image. Later versions of Equalizer will
 implement asynchronous pixel transfers.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/assembly.pdf}
+  {\caption{\label{fAssembly}Hierarchy of Assembly Classes}}
+\end{wrapfigure}
 The offset of input and output frames characterizes the position of the
 frame data relative to the framebuffer, that is, the \textbf{window's}
 lower-left corner. For output frames this is the position of the channel
@@ -4356,10 +4474,6 @@ potentially using GLSL for better performance.
 
 \subsubsection{Custom Assembly in eVolve}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\label{fSlices}Volume Rendering using 3D Textures}}\vspace{-2ex}
-\end{wrapfigure}
 The \textsf{eVolve} example is a scalable volume renderer. It uses 3D
 texture-based volume rendering, where the 3D texture is intersected by
 view-aligned slices. The slices are rendered back-to-front and blended
@@ -4383,8 +4497,8 @@ back-to-front in the same way as the slice planes are blended during
 rendering.
 
 \begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\label{fSlices}Volume Rendering using 3D Textures}}
 \end{wrapfigure}
 DB compounds have the advantage of scaling any part of the volume
 rendering pipeline: texture and main memory (smaller bricks for each
@@ -4401,6 +4515,10 @@ same blending parameters. Simplified, the frame buffer images are
 `thick' slices which are `rendered' by writing their content to the
 destination frame buffer using the correct order.
 
+\begin{wrapfigure}{l}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -4902,10 +5020,6 @@ automatically.
 
 \subsection{Sessions}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netSession.pdf}
-  {\caption{\label{fNetSession}Communication between two Sessions}}
-\end{wrapfigure}
 The \textsf{eq::net::Session} gathers provides higher-level
 functionality to a set of nodes. The master instance of a session is
 registered to a node, which makes this node the session server and
@@ -4915,6 +5029,10 @@ session's identifier. One given node can participate in any number of
 sessions, both as master and slave. This allows the flexible usage of
 sessions to group different aspects of an application.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netSession.pdf}
+  {\caption{\label{fNetSession}Communication between two Sessions}}
+\end{wrapfigure}
 A session provides the facilitate to allocate session-unique
 identifiers. These identifiers can be used by the application to
 uniquely address data within the cluster. They are also used by the
@@ -5062,10 +5180,6 @@ this requires the implementation to take special care to resolve conflicts
 during deserialization. The algorithm and constraints for slave object commits
 are explained in this section.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/slaveWrites.pdf}
-  {\caption{\label{fSlaveCommit}Slave Commit Communication Sequence}}
-\end{wrapfigure}
 When using \textsf{commit} on slave object instances, multiple modifications on
 the same database may happen simultaneously. In order to avoid excessive
 synchronization in the network layer, Equalizer a light-weight approach which
@@ -5078,6 +5192,10 @@ the object. On the master instance, \textsf{notifyNewVersion} is called from the
 command thread to signal the data availability. No new version is generated on
 the slave instance.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/slaveWrites.pdf}
+  {\caption{\label{fSlaveCommit}Slave Commit Communication Sequence}}
+\end{wrapfigure}
 The master instance can \textsf{sync} delta data received from slaves. The data
 is synchronized in the order it has been received from the slaves. If a specific
 order is needed, it is the application's responsibity to serialize the slave
