@@ -5778,14 +5778,16 @@ name followed by its value. The following attributes are available:
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
   \textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
-  \textbf{Value} & AUTO \textbar QUAD \textbar \ ANAGLYPH\\
+  \textbf{Value} & AUTO \textbar QUAD \textbar \ ANAGLYPH \textbar \ PASSIVE\\
   \textbf{Default} & AUTO\\
   \textbf{Details} & Selects the algorithm used for stereo
-  rendering. QUAD-buffered stereo uses the left and right buffers of a
-  stereo window (active stereo). Anaglyphic stereo uses
-  \textsf{glColorMask} to mask colors for individual eye passes, used in
-  conjunction with colored glasses. AUTO selects QUAD if the drawable is capable
-  of active stereo rendering, otherwise ANAGLYPH is selected\\
+  rendering. QUAD-buffered stereo uses the left and right buffers of a stereo
+  window (active stereo). Anaglyphic stereo uses \textsf{glColorMask} to mask
+  colors for individual eye passes, used in conjunction with colored
+  glasses. PASSIVE stereo never selects a stereo buffer of a quad-buffered
+  drawable. AUTO selects PASSIVE if the left or right eye pass is not used, QUAD
+  if the drawable is capable of active stereo rendering, and ANAGLYPH in all
+  other cases.
   \hline
 \end{tabularx}\\\vfill
 
