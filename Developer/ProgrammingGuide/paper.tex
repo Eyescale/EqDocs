@@ -5555,23 +5555,6 @@ name followed by its value. The following attributes are available:
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
-  \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_AFFINITY\\
-  \textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\textbar \ EXTERN\\
-  \textbf{Default} & AUTO\\
-  \textbf{Details} & Determines how the window handles the affinity context (WGL
-  only). This hint is a workaround for NVidia drivers greater than 200, which
-  contain a faulty implementation of the WGL\_NV\_gpu\_affinity extension. When
-  set to AUTO, the hint is interpreted like EXTERN for windows and pbuffers with
-  these drivers, in all other cases it is interpreted like ON. When set to ON,
-  an affinity DC is used for all drawable types. When set to EXTERN, a normal DC
-  is used to create the drawable, but an affinity DC is created and can be used
-  by the application to render into a FBO. This hint may be ignored in later
-  versions of Equalizer, once this workaround has become obsolete.\\
-  \hline
-\end{tabularx}\\\vfill
-
-\begin{tabularx}{\textwidth}{|l|X|}
-  \hline
   \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_STEREO\\
   \textbf{Value} & OFF \textbar \ ON \textbar \ AUTO\\
   \textbf{Default} & AUTO\\
@@ -5965,7 +5948,7 @@ the system. The GPU can be offline, in this case only PBuffer windows
 can be used. To restrict the OpenGL output to the GPU, the
 \textsf{WGL\_NV\_gpu\_affinity} extension is used. If the extension is
 not present, the window is opened on the \textit{n}th monitor, but
-OpenGL commands are sent to all GPU's.
+OpenGL commands are sent to a different or all GPU's.
 
 The viewport of the pipe can be used to override the pipe
 resolution. The viewport is defined in pixels. The x and y parameter of
@@ -6020,7 +6003,6 @@ window
 
     attributes
     {
-        hint_affinity       OFF | ON | AUTO | EXTERN
         hint_stereo         OFF | ON | AUTO
         hint_doublebuffer   OFF | ON | AUTO
         hint_decoration     OFF | ON
