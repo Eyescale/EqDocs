@@ -18,9 +18,10 @@
 	<key>GuidesVisible</key>
 	<string>YES</string>
 	<key>ImageCounter</key>
-	<integer>42</integer>
+	<integer>43</integer>
 	<key>ImageLinkBack</key>
 	<array>
+		<dict/>
 		<dict/>
 		<dict/>
 		<dict/>
@@ -30,6 +31,7 @@
 	</array>
 	<key>ImageList</key>
 	<array>
+		<string>image42.jpg</string>
 		<string>image41.png</string>
 		<string>image40.tif</string>
 		<string>image38.tiff</string>
@@ -114,7 +116,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2009-08-03 12:22:09 +0200</string>
+	<string>2010-12-20 15:45:10 +0100</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -380,13 +382,13 @@
 					<key>ID</key>
 					<integer>425</integer>
 					<key>ImageID</key>
-					<integer>40</integer>
+					<integer>42</integer>
 					<key>ManualSizeImage</key>
 					<string>YES</string>
 					<key>Offset</key>
-					<string>{-0.19, -0.14}</string>
+					<string>{0.1, 0}</string>
 					<key>Scale</key>
-					<real>1.5</real>
+					<real>0.70999997854232788</real>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
@@ -931,9 +933,9 @@
 		<key>Frame</key>
 		<string>{{474, 298}, {1112, 846}}</string>
 		<key>VisibleRegion</key>
-		<string>{{-23, 0}, {1994.55, 1360}}</string>
+		<string>{{-26, 0}, {1952.01, 1331}}</string>
 		<key>Zoom</key>
-		<real>1.3095238208770752</real>
+		<real>1.3380559682846069</real>
 	</dict>
 </dict>
 </plist>

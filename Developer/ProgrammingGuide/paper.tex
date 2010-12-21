@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.7.9 for Equalizer 0.9.1+svn\\[\medskipamount]
+Version 1.7.10 for Equalizer 1.0$\alpha$ \\[\medskipamount]
 %  \today
 }
 
@@ -52,7 +52,7 @@ Version 1.7.9 for Equalizer 0.9.1+svn\\[\medskipamount]
 %\clearpage
 
 \lstset{language=C++}
-\section*{Equalizer 0.9.1 Programming and User Guide}
+\section*{Equalizer 1.0$\alpha$ Programming and User Guide}
 \today
 \subsection*{Contributors}
 
@@ -96,8 +96,7 @@ The images on the front page show the following applications build using
 Equalizer: 
 RTT DeltaGen\footnote{Image copyright Realtime Technology AG, 2008} [top
 right], 
-\textsf{eqRaster}, a scalable terrain visualization\footnote{Image
-  courtesy of Visualization and Multimedia Lab, University of Zurich}
+\textsf{Bino}, a stereo-capable, multi-display video player\footnote{\link{http://bino.nongnu.org/}}
 [middle center],
 a flow visualization application for climate research\footnote{Image
   courtesy of Computer Graphics and Multimedia Systems, University of
@@ -138,6 +137,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.7.7   & Oct 01, 2010 & SystemPipe and SystemWindow renaming\\
     1.7.8   & Oct 04, 2010 & Document GPU affinity workaround hint\\
     1.7.9   & Nov 03, 2010 & Add \sref{sErrorHandling}\\
+    1.7.10  & Dec 21, 2010 & Review for Equalizer 1.0$\alpha$\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -148,13 +148,12 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
 \part{User Guide}
 \section{Introduction}
 
-Equalizer is the standard middleware for the development and deployment
-of parallel OpenGL applications. It enables applications to benefit from
-multiple graphics cards, processors and computers to scale rendering
-performance, visual quality and display size. An Equalizer-based
-application runs unmodified on any visualization system, from a simple
-workstation to large scale graphics clusters, multi-GPU workstations and
-Virtual Reality installations.
+Equalizer is the standard middleware for the development and deployment of
+parallel OpenGL applications. It enables applications to benefit from multiple
+graphics cards, processors and computers to improve the rendering performance,
+visual quality and display size. An Equalizer-based application runs unmodified
+on any visualization system, from a simple workstation to large scale graphics
+clusters, multi-GPU workstations and Virtual Reality installations.
 
 This User and Programming Guide introduces parallel rendering concepts,
 the configuration of Equalizer-based applications and programming using
@@ -166,11 +165,11 @@ an open source library to any OpenGL application. Many commercial and
 open source applications in a variety of different markets rely on
 Equalizer for flexibility and scalability.
 
-Equalizer provides the domain-specific parallel rendering know-how and
-abstracts configuration, threading, synchronization, windowing and event
-handling. It is a `GLUT on steroids', providing parallel and distributed
-execution, scalable rendering features, network data distribution and
-fully customizable event handling.
+Equalizer provides the domain-specific parallel rendering know-how and abstracts
+configuration, threading, synchronization, windowing and event handling. It is a
+`GLUT on steroids', providing parallel and distributed execution, scalable
+rendering features, an advanced network library and fully customizable event
+handling.
 
 If you have any question regarding Equalizer programming, this guide, or
 other specific problems you encountered, please direct them to the
@@ -210,21 +209,26 @@ Guide\footnote{\link{http://www.equalizergraphics.com/documents/EqualizerGuide.h
 to get familiar with the capabilities of Equalizer and the
 \textsf{eqPly} example.
 
-Compiling Equalizer is as simple as running \textsf{make} on Linux or
-Mac OS X, building the provided XCode project on Mac OS X 10.5, or
-building the Equalizer Visual Studio 2005 solution on Windows. Note that
-on Mac OS X 10.4 (Tiger), some prerequisites have to be installed before
-running \textsf{make}, as explained in \textsf{README.Darwin}.
-
+Equalizer uses CMake to generate platform-specific build files. Compiling
+Equalizer is as simple as running \textsf{make} on Linux or Mac OS X, running
+\textsf{make xcode} and building the generated XCode project on Mac OS X, or
+creating a Equalizer Visual Studio solution using \textsf{CMake} on Windows.
 
 \subsection{Equalizer Processes}
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/processes.pdf}
+  {\caption{\label{fProcesses}Equalizer Processes}}
+\end{wrapfigure}
 The Equalizer architecture is based on a client-server model. The client
 library exposes all functionality discussed in this document to the
 programmer, and provides communication between the different Equalizer
-processes. The underlying network layer uses a peer-to-peer structure,
-allowing render clients to communicate directly with each other, e.g.,
-during parallel compositing.
+processes.
+
+Collage, the underlying network library, uses a peer-to-peer
+structure. Equalizer utilizes this to provide optimal performance scalable
+rendering, e.g., by setting up direct communication between two nodes when
+needed for image compositing or software swap barriers.
 
 \subsubsection{Server}
 Each Equalizer server is responsible for managing one visualization
@@ -250,10 +254,6 @@ correct thread and context. The application either implements the task
 methods with application-specific code or uses the default methods
 provided by Equalizer.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/processes.pdf}
-  {\caption{\label{fProcesses}Equalizer Processes}}
-\end{wrapfigure}
 The application can also be a rendering client, in which case it can
 also contribute to the rendering. If it does not implement any render
 client code, it is reduced to be the application's `master' process
@@ -372,10 +372,6 @@ as described in \sref{sDirectSend}.
 
 \subsection{Stereo Compounds}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/EYE.pdf}
-  {\caption{\label{fStereoCmp}\small A Stereo Compound}}
-\end{wrapfigure}
 Stereo compounds, as shown in \fig{fStereoCmp}\footnote{3D model
   courtesy of Stereolithography Archive at Clemson University.}, assign
 each eye pass to individual rendering units. The resulting images are
@@ -390,6 +386,10 @@ constant.
 The number of rendering resources used by stereo compounds is limited by
 the number of eye passes, typically two. 
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/EYE.pdf}
+  {\caption{\label{fStereoCmp}\small A Stereo Compound}}
+\end{wrapfigure}
 Stereo compounds are used by all applications when rendering in stereo,
 and is often combined with other modes.
 
@@ -491,10 +491,6 @@ anti-aliasing or depth-of-field rendering. The default implementation provides
 transparent, scalable software idle-antialiasing when configuring a subpixel
 compound.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/Subpixel.pdf}
-  {\caption{\label{fSubpixel}\small A Subpixel Compound}}
-\end{wrapfigure}
 Applications can use subpixel compounds to accelerate depth-of-field effects and
 software anti-aliasing, with potentially a different number of idle or non-idle
 samples per pixel.
@@ -503,6 +499,10 @@ As for the DB compound, the subpixel recomposition has linear increasing
 IO requirements for the pixel transfer with the difference that only 
 color information has to be transmitted.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/Subpixel.pdf}
+  {\caption{\label{fSubpixel}\small A Subpixel Compound}}
+\end{wrapfigure}
 Subpixel compounds are configured using the \textsf{subpixel} parameter, using
 the values \textsf{[ index size ]}. The \textsf{index} parameter corresponds to
 the current resource index and the \textsf{size} is the total number of
@@ -527,7 +527,7 @@ to load-balancing in Equalizer.
 The server provides a number of equalizers, which automatically update
 certain parameters of compounds based on runtime information. They
 balance the load of 2D and DB compounds, optimally distribute render
-resources for segment projections systems, adjust the resolution
+resources for multi-display projection systems, adjust the resolution
 to provide a constant framerate or zoom images to allow monitoring of
 another view.
 
@@ -1171,8 +1171,9 @@ address for all processes, in the following way:
 \begin{description}
 \item[Server] Specify the server IP as the hostname field in the connection
   description in the server section.
-\item[Application] Start the application using the IP as the listening port,
-  e.g., \textsf{./build/Linux/bin/eqPly -- --eq-listen 192.168.0.1}
+\item[Application] Specify the application IP as the hostname field in the
+  connection description in the appNode section. If the application should not
+  contribute to the rendering, set up an appNode without a pipe section.
 \item[Render Clients] Specify the client IP's as the hostname field in the
   connection description of each node section.
 \end{description}
@@ -1216,7 +1217,7 @@ clients:
   the configuration file.
 \item Start the \textbf{render clients} using the parameters
   \textsf{--eq-client} and \textsf{--eq-listen}, e.g.,
-  \textsf{./build/Linux/bin/eqPly -- --eq-client --eq-listen
+  \textsf{./build/Linux/bin/eqPly --eq-client --eq-listen
   192.168.0.2:1234}. Pay attention to use the same connection parameters as in
     the configuration file.
 \item Start the \textbf{application}. If the server is running on the same
@@ -1295,25 +1296,8 @@ frustum and other OpenGL state. After setting up some lighting
 parameters, \textsf{eqHello} rotates the scene and renders the quads
 using immediate mode:
 
-{\footnotesize\begin{lstlisting}
-void Channel::frameDraw( const uint32_t spin )
-{
-    // setup OpenGL State
-    eq::Channel::frameDraw( spin );
-    
-    const float lightPos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
-    glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
-
-    const float lightAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
-
-    // rotate scene around the origin
-    glRotatef( static_cast< float >( spin ) * 0.5f, 1.0f, 0.5f, 0.25f );
-
-    // render six axis-aligned colored quads around the origin
-    [...]
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=107, lastline=123]
+  {../../../src/examples/eqHello/hello.cpp}}
 
 The \textsf{eqHello} main function sets up the communication with the
 server, initializes and drives the rendering. The details of this setup
@@ -1342,7 +1326,8 @@ the API. Methods marked with a specific version are part of the official, public
 API and have been introduced by this Equalizer version. Reasonable care is taken
 to not break API compatibility or change the semantics of these methods within
 future Equalizer versions of the same major revision. Any eventual changes to
-the public is documented in the release notes.
+the public API is documented in the release notes and the file
+\textsf{CHANGES.txt}.
 
 In addition the the official, public API Equalizer exposeses a number of
 unstable methods and, where unavoidable, internal APIs. These are clearly marked
@@ -1365,21 +1350,21 @@ Application developers are exposed to the following namespaces:
   are used by the the Equalizer client library, but are usable independently
   from Equalizer for application development.
 \item[eq::fabric] The eq::fabric namespace is the common data management and
-  transport layer between the client library, the server and the upcoming
-  administrative API. Most Equalizer client classes inherit from base classes in
-  this namespace and have all their data access methods in these base
-  classes. Furthermore, this namespace contains a \textsf{Serializable} class
-  which implements one common use pattern of object-based data distribution
-  using \textsf{eq::net::Object}.
-\item[eq::net] The Equalizer network layer provides basic functionality
-  for network communication, such as \textsf{Connection} and
+  transport layer between the client library, the server and the administrative
+  API. Most Equalizer client classes inherit from base classes in this namespace
+  and have all their data access methods in these base classes. Furthermore,
+  this namespace contains a \textsf{Serializable} class which implements one
+  common use pattern of object-based data distribution using
+  \textsf{co::Object}.
+\item[co] Collage is the network library used by Equalizer. It provides basic
+  functionality for network communication, such as \textsf{Connection} and
   \textsf{ConnectionSet}, as well as higher-level functionality such as
-  \textsf{Node}, \textsf{Session} and \textsf{Object}. Please refer to
+  \textsf{Node}, \textsf{LocalNode} and \textsf{Object}. Please refer to
   \sref{sNetwork} for an introduction into the network layer, and to
   \sref{sNetObject} for distributed objects.
-\item[eq::base] The eq::base namespace provides C++ classes to abstract
+\item[co::base] The co::base namespace provides C++ classes to abstract
   the underlying operating system and implements common helper
-  functionality. One example is the \textsf{eq::base::Clock} class
+  functionality. One example is the \textsf{co::base::Clock} class
   providing a high-resolution timer. Classes in this namespace are fully
   documented in the API documentation on the Equalizer website, and are
   not subject of this Programming Guide.
@@ -1392,21 +1377,19 @@ Application developers are exposed to the following namespaces:
 Examples shipped with Equalizer are implemented in their own namespaces, e.g.,
 \textsf{eqPly} or \textsf{eVolve}. They rely mostly on subclassing classes from
 the \textsf{eq} namespace, with the occasional usage of functionality from the
-\textsf{eq::util}, \textsf{eq::fabric}, \textsf{eq::net} and \textsf{eq::base}
+\textsf{eq::util}, \textsf{eq::fabric}, \textsf{co} and \textsf{co::base}
 namespace.
 
 The functionality of the Equalizer server is implemented in the
-\textsf{eq::server} namespace. The \textsf{eq::admin} namespace enable run-time
-administration of Equalizer servers. These namespace does not yet expose an API
-intended to be used by developers. \fig{fClientUml} provides an overview map of
-the most important classes in the Equalizer namespace, grouped by functionality.
-
+\textsf{eq::server} namespace. The \textsf{eq::admin} namespace enables run-time
+administration of Equalizer servers. These namespaces do not yet expose a stable
+API. \fig{fClientUml} provides an overview map of the most important classes in
+the Equalizer namespace, grouped by functionality.
 
 \begin{figure}[ht!]\center
-  \includegraphics[width=.9\textwidth]{images/clientUML}
+  \includegraphics[width=\textwidth]{images/clientUML}
   {\caption{\label{fClientUml}Equalizer client UML map}}
 \end{figure}
-
 
 \subsection{\label{sTaskMethods}Task Methods}
 
@@ -1504,63 +1487,24 @@ in this section. Each of these classes inherits from a base class in the
 entity. The fabric base classes are omitted in \fig{fUml}.
 
 The distributed data classes are helper classes based on
-\textsf{eq::fabric::Serializable} or its base class
-\textsf{eq::net::Object}. They illustrate the typical usage of distributed
-objects for static as well as dynamic, frame-specific data. Furthermore they are
-used for a basic scene graph distribution of the model data.
+\textsf{eq::fabric::Serializable} or its base class \textsf{co::Object}. They
+illustrate the typical usage of distributed objects for static as well as
+dynamic, frame-specific data. Furthermore they are used for a basic scene graph
+distribution of the model data.
 
 
 \subsection{The main Function}
 
-The main function starts off with parsing the command line into the
-\textsf{LocalInitData} data structure. A part of it, the base class
-\textsf{InitData}, will be distributed to all render client nodes. The
-command line parsing is done by the \textsf{LocalInitData} class, which
-is discussed in \sref{sInitData}:
+The main function starts off with initializing the Equalizer library. The
+command line arguments are passed on to Equalizer. The are used to set certain
+default values based on Equalizer-specific options\footnote{Equalizer-specific
+  options always start with -\,-eq-}, e.g., the default server
+address. Furthermore, a \textsf{NodeFactory} is provided. The \textsf{EQERROR}
+macro, and its counterparts \textsf{EQWARN}, \textsf{EQINFO} and \textsf{EQVERB}
+allow selective debugging outputs with various logging levels:
 
-{\footnotesize\begin{lstlisting}
-int main( int argc, char** argv )
-{
-    // 1. parse arguments
-    eqPly::LocalInitData initData;
-    initData.parseArguments( argc, argv );
-\end{lstlisting}}
-
-The second step is to redirect all Equalizer output to a file if this
-was requested through the command line. This should happen before
-initializing Equalizer, so that output during initialization is
-redirected and threads launched by Equalizer will use the given log
-stream. Any \textsf{std::ostream} can be used as log output:
-
-{\footnotesize\begin{lstlisting}
-    // 2. Redirect log output to file, if requested
-    std::ofstream* logFile = 0;
-    const std::string& logFilename = initData.getLogFilename();
-    if( !logFilename.empty( ))
-    {
-        logFile = new ofstream( logFilename.c_str( ));
-        eq::base::Log::setOutput( *logFile );
-    }
-\end{lstlisting}}
-
-The third step is to initialize the Equalizer library. The
-initialization function of Equalizer also parses the command line, which
-is used to set certain default values based on Equalizer-specific
-options\footnote{Equalizer-specific options always start with -\,-eq-},
-e.g., the default server address. Furthermore, a \textsf{NodeFactory} is
-provided. The \textsf{EQERROR} macro, and its counterparts
-\textsf{EQWARN}, \textsf{EQINFO} and \textsf{EQVERB} allow selective
-debugging outputs with various logging levels:
-
-{\footnotesize\begin{lstlisting}
-    // 2. Equalizer initialization
-    NodeFactory nodeFactory;
-    if( !eq::init( argc, argv, &nodeFactory ))
-    {
-        EQERROR << "Equalizer init failed" << endl;
-        return EXIT_FAILURE;
-    }
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=57, lastline=66]
+  {../../../src/examples/eqPly/main.cpp}}
 
 The node factory is used by Equalizer to create the object instances of
 the configured rendering entities. Each of the classes inherits from the
@@ -1573,75 +1517,46 @@ created during initialization. Config, node and pipe objects are created and
 destroyed in the node thread, whereas window and channel objects are
 created and destroyed in the pipe thread:
 
-{\footnotesize\begin{lstlisting}
-class NodeFactory : public eq::NodeFactory
-{
-public:
-    virtual eq::Config*  createConfig( eq::ServerPtr parent )
-        { return new eqPly::Config( parent ); }
-    virtual eq::Node*    createNode( eq::Config* parent )  
-        { return new eqPly::Node( parent ); }
-    virtual eq::Pipe*    createPipe( eq::Node* parent )
-        { return new eqPly::Pipe( parent ); }
-    virtual eq::Window*  createWindow( eq::Pipe* parent )
-        { return new eqPly::Window( parent ); }
-    virtual eq::Channel* createChannel( eq::Window* parent )
-        { return new eqPly::Channel( parent ); }
-    virtual eq::View* createView() { return new eqPly::View(); }
-};
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=40, lastline=55]
+  {../../../src/examples/eqPly/main.cpp}}
 
-The fourth step is to create an instance of the application and to
+The second step is to parse the command line into the
+\textsf{LocalInitData} data structure. A part of it, the base class
+\textsf{InitData}, will be distributed to all render client nodes. The
+command line parsing is done by the \textsf{LocalInitData} class, which
+is discussed in \sref{sInitData}:
+
+{\footnotesize\lstinputlisting[firstline=67, lastline=70]
+  {../../../src/examples/eqPly/main.cpp}}
+
+The third step is to create an instance of the application and to
 initialize it locally. The application is a subclass of
-\textsf{eq::Client}, which in turn is an \textsf{eq::net::Node}. The
-underlying Equalizer network layer, discussed in \sref{sNetwork}, is a
-peer-to-peer network of \textsf{eq::net::Node}s. The client/server
+\textsf{eq::Client}, which in turn is an \textsf{co::LocalNode}. The
+underlying Collage network library, discussed in \sref{sNetwork}, is a
+peer-to-peer network of \textsf{co::LocalNode}s. The client/server
 concept is implement the higher-level \textsf{eq} client namespace.
 
-The local initialization of a node creates at least one local listening
-socket, which allows the \textsf{eq::Client} to communicate over the
-network with other nodes, such as the server and the rendering
-clients. The listening socket(s) can be configured using the
-\textsf{--eq-listen} command line parameter, or by programmatically
-adding connection descriptions to the client before the local
-initialization.
+The local initialization of a node creates at least one local listening socket,
+which allows the \textsf{eq::Client} to communicate over the network with other
+nodes, such as the server and the rendering clients. The listening socket(s) can
+be configured using the \textsf{--eq-listen} command line parameter, by adding
+connections to the \textsf{appNode} in the configuration file, or by
+programmatically adding connection descriptions to the client before the local
+initialization:
 
-{\footnotesize\begin{lstlisting}
-    // 4. initialization of local client node
-    RefPtr< eqPly::Application > client = new eqPly::Application( initData );
-    if( !client->initLocal( argc, argv ))
-    {
-        EQERROR << "Can't init client" << endl;
-        eq::exit();
-        return EXIT_FAILURE;
-    }
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=71, lastline=78]
+  {../../../src/examples/eqPly/main.cpp}}
 
 Finally everything is set up, and the \textsf{eqPly} application is executed:
 
-{\footnotesize\begin{lstlisting}
-    // 5. run client
-    const int ret = client->run();
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=80, lastline=81]
+  {../../../src/examples/eqPly/main.cpp}}
 
 After the application has finished, it is de-initialized and the
 \textsf{main} function returns:
 
-{\footnotesize\begin{lstlisting}
-    // 6. cleanup and exit
-    client->exitLocal();
-    client = 0;
-
-    eq::exit();
-
-    if( logFile )
-        logFile->close();
-    delete logFile;
-
-    return ret;
-}
-\end{lstlisting}}
-
+{\footnotesize\lstinputlisting[firstline=83]
+  {../../../src/examples/eqPly/main.cpp}}
 
 \subsection{Application}
 
@@ -1679,21 +1594,12 @@ configuration\footnote{see
   \link{http://www.equalizergraphics.com/documents/design/standalone.html}}.
 
 Another configuration can be selected using the command-line parameter
-\textsf{--eq-config}. This configuration may only contain an
-\textsf{appNode}, i.e., no distributed configuration is possibly since
-the process-local server does not create a listening socket.
+\textsf{--eq-config}. If this configuration contains additional nodes, the
+\textsf{server} and \textsf{appNode} sections need a globally reachable
+\textsf{connection} configured for the render clients to connect to.
 
-{\footnotesize\begin{lstlisting}
-int Application::run()
-{
-    // 1. connect to server
-    eq::ServerPtr server = new eq::Server;
-    if( !connectServer( server ))
-    {
-        EQERROR << "Can't open server" << endl;
-        return EXIT_FAILURE;
-    }
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=80, lastline=88]
+  {../../../src/examples/eqPly/eqPly.cpp}}
 
 The second step is to ask the server for a configuration. The
 \textsf{ConfigParams} are a placeholder for later Equalizer
@@ -1702,49 +1608,33 @@ server for choosing the configuration. The configuration chosen by the
 server is created locally using
 \textsf{NodeFactory::createConfig}. Therefore it is of type
 \textsf{eqPly::Config}, but the return value is \textsf{eq::Config},
-making the cast necessary:
+making the static\_cast necessary:
 
-{\footnotesize\begin{lstlisting}
-    // 2. choose config
-    eq::ConfigParams configParams;
-    Config* config = static_cast<Config*>(server->chooseConfig( configParams ));
-
-    if( !config )
-    {
-        EQERROR << "No matching config on server" << endl;
-        disconnectServer( server );
-        return EXIT_FAILURE;
-    }
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=90, lastline=101]
+  {../../../src/examples/eqPly/eqPly.cpp}}
 
 Finally it is time to initialize the configuration. For statistics, the
 time for this operation is measured and printed. During initialization
 the server launches and connects all render client nodes, and calls the
 appropriate initialization task methods, as explained in later
 sections. \textsf{Config::init} returns after all nodes, pipes,
-windows and channels are initialized. It returns \textsf{true} only if
-all initialization task methods were successful.
+windows and channels are initialized.
+
+The return value of \textsf{Config::init} depends on the configuration
+robustness attribute. This attribute is by default activated, allowing
+configurations to launch even when some entities failed to initialize. If
+activated, \textsf{Config::init} always returns true. If deactivated, it returns
+\textsf{true} only if all initialization task methods were successful. In any
+case, \textsf{Config::getError} only returns \textsf{ERROR\_NONE} if all
+entities have initialized successfully.
 
 The \textsf{EQLOG} macro allows topic-specific logging. The numeric
 topic values are specified in the respective \textsf{log.h} header
 files, and logging for various topics is enabled using the environment
 variable \textsf{EQ\_LOG\_TOPICS}:
 
-{\footnotesize\begin{lstlisting}
-    // 3. init config
-    eq::base::Clock clock;
-
-    config->setInitData( _initData );
-    if( !config->init( ))
-    {
-        server->releaseConfig( config );
-        disconnectServer( server );
-        return EXIT_FAILURE;
-    }
-
-    EQLOG( eq::LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
-                           << endl;
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=103, lastline=118]
+  {../../../src/examples/eqPly/eqPly.cpp}}
 
 When the configuration was successfully initialized, the main rendering
 loop is executed. It runs until the user exits the
@@ -1798,66 +1688,23 @@ commands are gradually flushed, while still looking for a redraw
 event. Then it waits and handles one event at a time, until a redraw is
 needed:
 
-{\footnotesize\begin{lstlisting}
-    // 4. run main loop
-    uint32_t maxFrames = _initData.getMaxFrames();
-    
-    clock.reset();
-    while( config->isRunning( ) && maxFrames-- )
-    {
-        config->startFrame();
-        // config->renderData(...);
-        config->finishFrame();
-
-        while( !config->needsRedraw( )) // wait for an event requiring redraw
-        {
-            if( hasCommands( )) // execute non-critical pending commands
-            {
-                processCommand();
-                config->handleEvents(); // non-blocking
-            }
-            else  // no pending commands, block on user event
-            {
-                const eq::ConfigEvent* event = config->nextEvent();
-                if( !config->handleEvent( event ))
-                    EQVERB << "Unhandled " << event << endl;
-            }
-        }
-        config->handleEvents(); // process all pending events
-    }
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=120, lastline=147]
+  {../../../src/examples/eqPly/eqPly.cpp}}
 
 When the main rendering loop has finished,
 \textsf{Config::finishAllFrames} is called to catch up with the
 latency. It returns after all outstanding frames have been rendered, and
 is needed to provide an accurate measurement of the framerate:
 
-{\footnotesize\begin{lstlisting}
-    const uint32_t frame = config->finishAllFrames();
-    const float    time  = clock.getTimef();
-    EQLOG( eq::LOG_STATS ) << "Rendering took " << time << " ms (" << frame
-                           << " frames @ " << ( frame / time * 1000.f)
-                           << " FPS)" << endl;
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=148, lastline=152]
+  {../../../src/examples/eqPly/eqPly.cpp}}
 
 The remainder of the application code cleans up in the reverse order of
-initialization. The config is exited, released and the connection to
-the server is closed:
+initialization. The config is exited, released and the connection to the server
+is closed:
 
-{\footnotesize\begin{lstlisting}
-    // 5. exit config
-    clock.reset();
-    config->exit();
-    EQLOG( eq::LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<endl;
-
-    // 6. cleanup and exit
-    server->releaseConfig( config );
-    if( !disconnectServer( server ))
-        EQERROR << "Client::disconnectServer failed" << endl;
-    server = 0;
-    return EXIT_SUCCESS;
-}
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=154, lastline=169]
+  {../../../src/examples/eqPly/eqPly.cpp}}
 
 \subsubsection{Render Clients}
 
@@ -1867,32 +1714,17 @@ returns. Therefore the application's main loop is never executed. To
 keep the client resident, the \textsf{eqPly} example overrides the
 client loop to keep it running beyond one configuration run:
 
-{\footnotesize\begin{lstlisting}
-bool Application::clientLoop()
-{
-    if( !_initData.isResident( )) // execute only one config run
-        return eq::Client::clientLoop();
-
-    // else execute client loops 'forever'
-    while( true ) // TODO: implement SIGHUP handler to exit?
-    {
-        if( !eq::Client::clientLoop( ))
-            return false;
-        EQINFO << "One configuration run successfully executed" << endl;
-    }
-    return true;
-}
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=171, lastline=179]
+  {../../../src/examples/eqPly/eqPly.cpp}}
 
 
 \subsection{\label{sNetObject}Distributed Objects}
 
 Equalizer provides distributed objects which facilitate the implementation of
 data distribution in a cluster environment. Distributed objects are created by
-subclassing from \textsf{eq::fabric::Serializable} or
-\textsf{eq::net::Object}. The application programmer implements serialization
-and deserialization of the distributed data. \sref{sNetObject2} covers
-distributed objects in detail.
+subclassing from \textsf{eq::fabric::Serializable} or \textsf{co::Object}. The
+application programmer implements serialization and deserialization of the
+distributed data. \sref{sNetObject2} covers distributed objects in detail.
 
 Distributed objects can be static (immutable) or dynamic. Dynamic objects are
 versioned. The \textsf{eqPly} example uses static distributed objects to provide
@@ -1917,10 +1749,11 @@ distributed data. These method provide an output or input stream as a
 parameter, which abstracts the data transmission and can be used like a
 \textsf{std::stream}.
 
-The data streams implement efficient buffering and data transport
-between nodes. They perform no type checking or transformation on the
-data. It is the application's responsibility to exactly match the order
-and types of variables during serialization and de-serialization.
+The data streams implement efficient buffering and compression, and
+automatically select the best connection, i.e., multicast where available, for
+data transport. They perform no type checking or transformation on the data. It
+is the application's responsibility to exactly match the order and types of
+variables during serialization and de-serialization.
 
 Custom data type serializers can be implemented by providing the
 appropriate serialization functions. No pointers should be directly
@@ -1933,22 +1766,8 @@ and de-serialization in \textsf{applyInstanceData} is performed by
 streaming all member variables to or from the provided data
 streams:
 
-{\footnotesize\begin{lstlisting}
-void InitData::getInstanceData( eq::net::DataOStream& os )
-{
-    os << _frameDataID << _windowSystem << _renderMode << _useGLSL << _invFaces
-       << _logo;
-}
-
-void InitData::applyInstanceData( eq::net::DataIStream& is )
-{
-    is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces
-       >> _logo;
-
-    EQASSERT( _frameDataID != EQ_ID_INVALID );
-    EQINFO << "New InitData instance" << endl;
-}
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=61, lastline=74]
+  {../../../src/examples/eqPly/initData.cpp}}
 
 \subsubsection{FrameData - a Versioned Distributed Object}
 
@@ -1957,11 +1776,11 @@ how they want to have changes to be handled. All types of versioned
 objects currently implemented have the following characteristics:
 
 \begin{itemize}
-\item Only the master instance of the object generates new versions, that is,
-  \textsf{commit} should only be called only on the master instance. It is
-  possible to commit on slave instances, but special care has to be taken to
-  handle possible conflicts. \sref{sSlaveCommit} covers slave object commits in
-  detail.
+\item The master instance of the object generates new versions for all
+  slaves. These versions are continous, starting at
+  \textsf{co::VERSION\_FIRST}. It is possible to commit on slave instances, but
+  special care has to be taken to handle possible conflicts. \sref{sSlaveCommit}
+  covers slave object commits in detail.
 \item Slave instance versions can only be advanced, that is, \textsf{sync(
   version )} with a version smaller than the current version will fail.
 \item Newly mapped slave instances are mapped to the oldest available
@@ -1993,78 +1812,43 @@ implementation forwards the (de-)serialization request to
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/umlObject.pdf}
-  {\caption{\label{fUMLObject}fabric::Serializable and net::Object}}
+  {\caption{\label{fUMLObject}fabric::Serializable and co::Object}}
 \end{wrapfigure}
 The creation of distributed, versioned objects is simplified when using
 \textsf{eq::fabric::Serializable}, which implements one common way of tracking
 data changes in versioned objects. The concept of a dirty bit mask is used to
 mark parts of the object for serialization, while preserving the capability to
 inherit objects. Other ways of implementing change tracking, e.g., using
-incarnation counters, can still be implemented by using \textsf{eq::net::Object}
+incarnation counters, can still be implemented by using \textsf{co::Object}
 which leaves all flexibility to the developer. \fig{fUMLObject} shows the
-relationship between \textsf{eq::fabric::Serializable} and
-\textsf{eq::net::Object}.
+relationship between \textsf{eq::fabric::Serializable} and \textsf{co::Object}.
 
 The \textsf{FrameData} is sub-classed from \textsf{Serializable}, and
-consequently tracks its changes by setting the appropriate dirty bit
-whenever it is changed. The serialization methods are called by the
-\textsf{eq::fabric::Serializable} with the dirty bit mask needed to serialize all
-data, or with the dirty bit mask of the changes since the last
-\textsf{commit}. The \textsf{FrameData} only defines its own dirty bits
-and serialization code:
+consequently tracks its changes by setting the appropriate dirty bit whenever it
+is changed. The serialization methods are called by the
+\textsf{eq::fabric::Serializable} with the dirty bit mask needed to serialize
+all data, or with the dirty bit mask of the changes since the last
+\textsf{commit}. The \textsf{FrameData} only defines its own dirty bits and
+serialization code:
 
-{\footnotesize\begin{lstlisting}
-/** The changed parts of the data since the last pack(). */
-enum DirtyBits
-{
-    DIRTY_CAMERA  = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
-    DIRTY_FLAGS   = eq::fabric::Serializable::DIRTY_CUSTOM << 1,
-    DIRTY_VIEW    = eq::fabric::Serializable::DIRTY_CUSTOM << 2,
-    DIRTY_MESSAGE = eq::fabric::Serializable::DIRTY_CUSTOM << 3,
-};
+{\footnotesize\lstinputlisting[firstline=122, lastline=129]
+  {../../../src/examples/eqPly/frameData.h}}
+{\footnotesize\lstinputlisting[firstline=51, lastline=77]
+  {../../../src/examples/eqPly/frameData.cpp}}
 
-void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
-{
-    eq::fabric::Serializable::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_CAMERA )
-        os << _translation << _rotation << _modelRotation;
-    if( dirtyBits & DIRTY_FLAGS )
-        os << _modelID << _renderMode << _colorMode << _ortho << _statistics
-           << _help << _wireframe << _pilotMode << _idleMode;
-    if( dirtyBits & DIRTY_VIEW )
-        os << _currentViewID;
-    if( dirtyBits & DIRTY_MESSAGE )
-        os << _message;
-}
-
-void FrameData::deserialize( eq::net::DataIStream& is,
-                             const uint64_t dirtyBits )
-{
-    eq::fabric::Serializable::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_CAMERA )
-        is >> _translation >> _rotation >> _modelRotation;
-    if( dirtyBits & DIRTY_FLAGS )
-        is >> _modelID >> _renderMode >> _colorMode >> _ortho >> _statistics
-           >> _help >> _wireframe >> _pilotMode >> _idleMode;
-    if( dirtyBits & DIRTY_VIEW )
-        is >> _currentViewID;
-    if( dirtyBits & DIRTY_MESSAGE )
-        is >> _message;
-}
-\end{lstlisting}}%>>
 
 \subsubsection{\label{sSceneData}Scene Data}
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
-  {\caption{\label{fModelDist}Scene Data in eqPly}}
-\end{wrapfigure}
 Some applications might rely on a shared filesystem to access the data,
 for example when out-of-core algorithms are used. Other applications
 prefer to load the data only on the application process, and use
 distributed objects to synchronize the scene data with the render
 clients.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/modelDist.pdf}
+  {\caption{\label{fModelDist}Scene Data in eqPly}}
+\end{wrapfigure}
 \textsf{eqPly} uses static distributed objects to distribute the model
 loaded by the application. This approach can be easily extended to
 versioned objects to support dynamic data modifications.
@@ -2100,40 +1884,8 @@ node. The deserialization function \textsf{applyInstanceData} retrieves
 the data in multiple steps, and constructs the model tree on the fly
 based on this information. It is omitted here for brevity:
 
-
-{\footnotesize\begin{lstlisting}
-void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
-{
-    EQASSERT( _node );
-    os << _isRoot;
-
-    if( _left && _right )
-    {
-        os << _left->getID() << _right->getID();
-
-        if( _isRoot )
-        {
-            EQASSERT( _root );
-            const mesh::VertexBufferData& data = _root->_data;
-            
-            os << data.vertices << data.colors << data.normals << data.indices;
-        }
-    }
-    else
-    {
-        os << EQ_ID_INVALID << EQ_ID_INVALID;
-
-        EQASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
-        const mesh::VertexBufferLeaf* leaf = 
-            static_cast< const mesh::VertexBufferLeaf* >( _node );
-
-        os << leaf->_vertexStart << leaf->_vertexLength << leaf->_indexStart
-           << leaf->_indexLength;
-    }
-
-    os << _node->_boundingSphere << _node->_range;
-}
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=143, lastline=174]
+  {../../../src/examples/eqPly/vertexBufferDist.cpp}}
 
 %\begin{wrapfigure}{r}{.618\textwidth}
 \begin{figure}[ht!]\center
@@ -2178,155 +1930,82 @@ completion is synchronized afterwards.
   {\caption{\label{fConfigInit}Config Initialization Sequence}}
   \vspace{-4ex}
 \end{figure}
-The tasks are executed by the node and pipe threads in parallel. The
-parent's initialization methods are always executed before any child
-initialization method. This parallelization is necessary to allow a
-speedy startup of the configuration on large-scale graphics clusters. On
-the other hand, it means that initialization functions are called even
-if the parent's initialization has failed. \fig{fConfigInit} shows a
-sequence diagram of the config initialization.
+The tasks are executed by the node and pipe threads in parallel. The parent's
+initialization methods are always executed before any child initialization
+method. This parallelization is necessary to allow a speedy startup of the
+configuration on large-scale graphics clusters. On the other hand, it means that
+initialization functions are called even if the parent's initialization has
+failed. \fig{fConfigInit} shows a sequence diagram of the config initialization.
 
-The \textsf{eqPly::Config} class holds the master versions of the
-initialization and frame data. Both objects are registered with the
-\textsf{eq::Config}, which is the \textsf{eq::net::Session} used for
-rendering. Equalizer takes care of the session setup and exit in
-\textsf{Client::choose\-Config} and \textsf{Client::releaseConfig},
-respectively.
+The \textsf{eqPly::Config} class holds the master versions of the initialization
+and frame data. Both objects are registered with the \textsf{eq::Config}. The
+configuration forwards the registration to the local client node, and retains
+buffered, deregistered object data for $latency$ frames.
 
-The frame data is registered before the initialization data, since its
-identifier is transmitted using the \textsf{InitData}. The identifier of
-the initialization data is transmitted to the render client nodes using
-the \textsf{initID} parameter of \textsf{eq::Config::init}.
+The identifier of the initialization data is transmitted to the render client
+nodes using the \textsf{initID} parameter of \textsf{eq::Config::init}. The
+identifier of the frame data is transmitted using the \textsf{InitData}.
 
 Equalizer will pass this identifier to all \textsf{configInit} calls of
 the respective objects:
 
-{\footnotesize\begin{lstlisting}
-bool Config::init()
-{
-    // init distributed objects
-    _frameData.data.color      = _initData.useColor();
-    _frameData.data.renderMode = _initData.getRenderMode();
-    registerObject( &_frameData );
+{\footnotesize\lstinputlisting[firstline=74, lastline=95]
+  {../../../src/examples/eqPly/config.cpp}}
 
-    _initData.setFrameDataID( _frameData.getID( ));
-    registerObject( &_initData );
+After a successful initialization, the models are loaded and registered for data
+distribution. When idle, Equalizer will pre-distribute object data during
+registration to accelerate the mapping of slave instances. Registering the
+models after \textsf{Config::init} ensures that the render clients are running
+and can cache the data:
 
-    // init config
-    _running = eq::Config::init( _initData.getID( ));
-    if( !_running )
-        return false;
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=97, lastline=99]
+  {../../../src/examples/eqPly/config.cpp}}
 
-If the configuration was initialized correctly, the configuration tries
-to set up a tracking device for head tracking. Equalizer does not
-provide extensive support for tracking devices, as this is an orthogonal
-problem to parallel rendering. Tracking device support has already been
-solved by a number of implementations\footnote{VRCO Trackd, VRPN, etc.},
-which can and have been easily integrated with Equalizer. The example
-code in \textsf{eqPly} provides a reference implementation for the
-integration of such a tracking library. \sref{sTracking} provides more
-background on head tracking.
+The configuration tries to set up a tracking device for head tracking. Equalizer
+does not provide extensive support for tracking devices, as this is an
+orthogonal problem to parallel rendering. Tracking device support has already
+been solved by a number of implementations\footnote{VRCO Trackd, VRPN, etc.},
+which are easily integrated with Equalizer. The example code in \textsf{eqPly}
+provides a reference implementation for the integration of such a tracking
+library. \sref{sTracking} provides more background on head tracking.
 
-{\footnotesize\begin{lstlisting}
-    // init tracker
-    if( !_initData.getTrackerPort().empty( ))
-    {
-        if( !_tracker.init( _initData.getTrackerPort() ))
-            EQWARN << "Failed to initialise tracker" << endl;
-        else
-        {
-            // Set up position of tracking system wrt world space
-            // Note: this depends on the physical installation.
-            vmml::Matrix4f m( vmml::Matrix4f::IDENTITY );
-            m.scale( 1.f, 1.f, -1.f );
-            _tracker.setWorldToEmitter( m );
-
-            m = vmml::Matrix4f::IDENTITY;
-            m.rotateZ( -M_PI_2 );
-            _tracker.setSensorToObject( m );
-            EQINFO << "Tracker initialized" << endl;
-        }
-    }
-
-    return true;
-}
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=100, lastline=118]
+  {../../../src/examples/eqPly/config.cpp}}
 
 The exit function of the configuration stops the render clients by calling
 \textsf{eq::Con\-fig::exit}, and then de-registers the initialization and
 frame data objects with the session:
 
-{\footnotesize\begin{lstlisting}
-bool Config::exit()
-{
-    _running = false;
-    const bool ret = eq::Config::exit();
-
-    _initData.setFrameDataID( EQ_ID_INVALID );
-    deregisterObject( &_initData );
-    deregisterObject( &_frameData );
-
-    return ret;
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=130, lastline=139]
+  {../../../src/examples/eqPly/config.cpp}}
 
 \subsubsection{Frame Control}
 
-The rendering frames are issued by the application. The
-\textsf{eqPly::Config} only overrides \textsf{startFrame} to
-update its data before forwarding the start frame request to the
-\textsf{eq::Config}.
+The rendering frames are issued by the application. The \textsf{eqPly::Config}
+overrides \textsf{startFrame} to update its data, commit a new version of the
+frame data object, and then requests the rendering of a new frame using the
+current frame data version. This version is passed to the rendering callbacks
+and will be used by the rendering threads to synchronize the frame data to the
+state belonging to the current frame:
 
-If a tracker is used, the current head position and orientation is
-retrieved and passed to Equalizer, which uses the head matrix together
-with the wall or projection description to compute the view
-frusta, as explained in \sref{sTracking}.
+{\footnotesize\lstinputlisting[firstline=314, lastline=321]
+  {../../../src/examples/eqPly/config.cpp}}
 
-The camera position is updated and the frame data is committed, which
-generates a new version of this object. This version is passed to the
-rendering callbacks and will be used by the rendering threads to
-synchronize the frame data to the state belonging to the current frame:
+Updating the shared data is decomposed in different steps. If a tracker is used,
+the current head position and orientation is retrieved and passed to Equalizer,
+which uses the head matrix together with the wall or projection description to
+compute the view frusta, as explained in \sref{sTracking}:
 
-{\footnotesize\begin{lstlisting}
-uint32_t Config::startFrame()
-{
-    // update head position
-    if( _tracker.isRunning() )
-    {
-        _tracker.update();
-        const eq::Matrix4f& headMatrix = _tracker.getMatrix();
-        _setHeadMatrix( headMatrix );
-    }
+{\footnotesize\lstinputlisting[firstline=323, lastline=331]
+  {../../../src/examples/eqPly/config.cpp}}
 
-    // update database
-    if( _animation.isValid( ))
-    {
-        const eq::Vector3f&  modelRotation = _animation.getModelRotation();
-        const CameraAnimation::Step& curStep = _animation.getNextStep();
+The camera position is recomputed based on the current navigation mode, and the
+idle state for rendering is set. When idle, \textsf{eqPly} performs
+anti-aliasing to gradually reduce aliasing effects in the rendering. The idle
+state is tracked by the application and used by the rendering callbacks:
 
-        _frameData.setModelRotation( modelRotation        );
-        _frameData.setRotation(     curStep.rotation      );
-        _frameData.setTranslation(  curStep.translation   );
-    }
-    else
-    {
-        if( _frameData.usePilotMode())
-            _frameData.spinCamera( -0.001f * _spinX, -0.001f * _spinY );
-        else
-            _frameData.spinModel( -0.001f * _spinX, -0.001f * _spinY );
-
-        _frameData.moveCamera( 0.0f, 0.0f, 0.001f*_advance );
-    }
-
-    [...]
-
-    const uint32_t version = _frameData.commit();
-
-    _redraw = false;
-    return eq::Config::startFrame( version );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=333, lastline=363]
+  {../../../src/examples/eqPly/config.cpp}}
 
 
 \subsubsection{Event Handling}
@@ -2343,53 +2022,18 @@ dirty state to allow the application to know when a redraw is needed.
 The \textsf{eqPly} example implements \textsf{Config::hand\-le\-Event}
 to provide the various reactions to user input, most importantly camera
 updates based on mouse events. The camera position has to be handled
-correctly regarding latency, and is therefore saved in the frame data:
+correctly regarding latency, and is therefore saved in the frame data.
 
-{\footnotesize\begin{lstlisting}
-bool Config::handleEvent( const eq::ConfigEvent* event )
-{
-    switch( event->type )
-    {
-        [...]
-        case eq::ConfigEvent::POINTER_MOTION:
-            if( event->pointerMotion.buttons == eq::PTR_BUTTON_NONE )
-                return true;
+The event handling code is shortened here. A detailed description on how to
+customize event handling can be found in \sref{sEventHandling}:
 
-            if( event->pointerMotion.buttons == eq::PTR_BUTTON1 )
-            {
-                _spinX = 0;
-                _spinY = 0;
+{\footnotesize\lstinputlisting[firstline=391, lastline=394]
+  {../../../src/examples/eqPly/config.cpp}}
+{\footnotesize\lstinputlisting[firstline=454, lastline=485]
+  {../../../src/examples/eqPly/config.cpp}}
+{\footnotesize\lstinputlisting[firstline=532, lastline=538]
+  {../../../src/examples/eqPly/config.cpp}}
 
-                _frameData.data.rotation.preRotateX( 
-                    -0.005f * event->pointerMotion.dx );
-                _frameData.data.rotation.preRotateY(
-                    -0.005f * event->pointerMotion.dy );
-                _redraw = true;
-            }
-            else if( event->pointerMotion.buttons == eq::PTR_BUTTON2 ||
-                     event->pointerMotion.buttons == ( eq::PTR_BUTTON1 |
-                                                       eq::PTR_BUTTON3 ))
-            {
-                _frameData.data.translation.z +=
-                    .005f * event->pointerMotion.dy;
-                _redraw = true;
-            }
-            else if( event->pointerMotion.buttons == eq::PTR_BUTTON3 )
-            {
-                _frameData.data.translation.x += 
-                    .0005f * event->pointerMotion.dx;
-                _frameData.data.translation.y -= 
-                    .0005f * event->pointerMotion.dy;
-                _redraw = true;
-            }
-            return true;
-            
-        default:
-            break;
-    }
-    return eq::Config::handleEvent( event );
-}
-\end{lstlisting}}
 
 \subsubsection{Model Handling}
 
@@ -2397,46 +2041,20 @@ Model data is handled by the config. Models in eqPly are static,
 and therefore the render clients only need to map one instance of the
 model per node.
 
-Multiple models can be loaded in \textsf{eqPly}. A configuration has a
-default model, stored in \textsf{InitData}, and one model per view,
-stored and distributed using \textsf{View}. The
-loaded models are evenly distributed over the available views of the
-configuration, as shown in \fig{fLayout}.
+Multiple models can be loaded in \textsf{eqPly}. A configuration has a default
+model, stored in \textsf{InitData}, and one model per view, stored and
+distributed using the \textsf{View}. The loaded models are evenly distributed
+over the available views of the configuration, as shown in \fig{fLayout}.
 
 The channel acquires the model during rendering from the config, using
 the model identifier from its current view, or from the frame data if
 no view is configured.
 
-The config maintains the mapped models, and lazily maps new models,
-which are registered by the application process:
+The pre-process config instance maintains the mapped models, and lazily maps new
+models, which are registered by the application process:
 
-{\footnotesize\begin{lstlisting}
-const Model* Config::getModel( const uint32_t modelID )
-{
-    if( modelID == EQ_ID_INVALID ) // no model loaded by application
-        return 0;
-
-    // Accessed concurrently from pipe threads
-    eq::base::ScopedMutex< eq::base::SpinLock > _mutex( _modelLock );
-
-    const size_t nModels = _models.size();
-    EQASSERT( _modelDist.size() == nModels );
-
-    for( size_t i = 0; i < nModels; ++i )
-    {
-        const ModelDist* dist = _modelDist[ i ];
-        if( dist->getID() == modelID )
-            return _models[ i ];
-    }
-    
-    _modelDist.push_back( new ModelDist );
-    Model* model = _modelDist.back()->mapModel( this, modelID );
-    EQASSERT( model );
-    _models.push_back( model );
-
-    return model;
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=288, lastline=312]
+  {../../../src/examples/eqPly/config.cpp}}
 
 \subsubsection{Layout and View Handling}
 
@@ -2458,49 +2076,8 @@ rendering modes or annotations. A view is a generic concept for an
 application-specific view on data, \textsf{eqPly} is using different
 models to illustrate the concept:
 
-{\footnotesize\begin{lstlisting}
-bool Config::_handleKeyEvent( const eq::KeyEvent& event )
-{
-    switch( event.key )
-    {
-        ...
-        case 'm':
-        case 'M':
-        {
-            if( _modelDist.empty( )) // no models
-                return true;
-
-            // current model
-            const uint32_t viewID = _frameData.getCurrentViewID();
-            View* view = static_cast< View* >( findView( viewID ));
-            const uint32_t currentID = view ? 
-                view->getModelID() : _frameData.getModelID();
-
-            // next model
-            ModelDistVector::const_iterator i;
-            for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
-            {
-                if( (*i)->getID() != currentID )
-                    continue;
-                
-                ++i;
-                break;
-            }
-            if( i == _modelDist.end( ))
-                i = _modelDist.begin(); // wrap around
-            
-            // set identifier on view or frame data (default model)
-            const uint32_t modelID = (*i)->getID();
-            if( view )
-                view->setModelID( modelID );
-            else
-                _frameData.setModelID( modelID );
-            return true;
-        }
-        ...
-    }
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=833, lastline=870]
+  {../../../src/examples/eqPly/config.cpp}}
 
 The layout of the canvas with the active view can also be dynamically
 switched using a keyboard shortcut. The first canvas using the layout is
@@ -2509,7 +2086,7 @@ canvas.
 
 Switching a layout causes the initialization and de-initialization task
 methods to be called on the involved channels, and potentially windows,
-pipes and nodes. This operation might fail, which will cause the config
+pipes and nodes. This operation might fail, which may cause the config
 to stop running.
 
 Layout switching is typically used to change the presentation of views
@@ -2518,13 +2095,13 @@ at runtime. The source code omitted for brevity.
 
 \subsection{Node}
 
-For each active render client, one \textsf{eq::Node} instance is
-created on the appropriate machine. Nodes are only instantiated on their
-render client processes, i.e., each process will only have one
-instance of the \textsf{eq::Node} class. The application process might
-also have a node class, which is handled in exactly the same way as the
-render client nodes. The application and render clients might use a
-different node factory, instantiating a different type of \textsf{eq::Node}.
+For each active render client, one \textsf{eq::Node} instance is created on the
+appropriate machine. Nodes are only instantiated on their render client
+processes, i.e., each process will only have one instance of the
+\textsf{eq::Node} class. The application process might also have a node class,
+which is handled in exactly the same way as the render client nodes. The
+application and render clients might use a different node factory, instantiating
+a different type of \textsf{eq::Node} and children.
 
 All dynamic data is multi-buffered in \textsf{eqPly}. During
 initialization, the node relaxes the thread synchronization between the
@@ -2537,37 +2114,15 @@ local instance using the identifier passed from
 \textsf{Config::init}. No pipe, window or channel tasks methods are
 executed before \textsf{Node::configInit} has returned:
 
-{\footnotesize\begin{lstlisting}
-bool Node::configInit( const uint32_t initID )
-{
-    if( !eq::Node::configInit( initID ))
-        return false;
-
-    // All render data is static or multi-buffered, we can run asynchronously
-    if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
-        setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
-
-    Config*    config = static_cast< Config* >( getConfig( ));
-    return config->mapData( initID );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=35, lastline=48]
+  {../../../src/examples/eqPly/node.cpp}}
 
 The actual mapping of the static data is done by the config. The config
-retrieves the distributed \textsf{InitData}. The object is directly
-unmapped since it is static, and the data has been retrieved:
+retrieves the distributed \textsf{InitData}. The object is directly unmapped
+since it is static, and therefore all data has been retrieved:
 
-{\footnotesize\begin{lstlisting}
-bool Config::mapData( const uint32_t initDataID )
-{
-    if( _initData.getID() == EQ_ID_INVALID )
-    {
-        EQCHECK( mapObject( &_initData, initDataID ));
-        unmapObject( &_initData ); // data was retrieved, unmap immediately
-    }
-    else  // appNode, _initData is registered already
-        EQASSERT( _initData.getID() == initDataID );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=261, lastline=272]
+  {../../../src/examples/eqPly/config.cpp}}
 
 \subsection{Pipe}
 
@@ -2584,44 +2139,26 @@ connection for the glX pipe system.
 
 \subsubsection{Initialization and Exit}
 
-Pipe threads are not explicitly synchronized with each other, that is,
-pipes might be rendering different frames at any given time. Therefore
-frame-specific data has to be allocated for each pipe thread, which in
-the case of \textsf{eqPly} is the frame data. The frame data is a member
-variable of the \textsf{eqPly::Pipe}, and is mapped to the identifier
-provided by the initialization data. The initialization in
+Pipe threads are not explicitly synchronized with each other in \textsf{eqPly}
+due to the use of the async thread model. Pipes might be rendering different
+frames at any given time. Therefore frame-specific data has to be allocated for
+each pipe thread, which applies only to the frame data.
+
+The frame data is a member variable of the \textsf{eqPly::Pipe}, and is mapped
+to the identifier provided by the initialization data. The initialization in
 \textsf{eq::Pipe} does the GPU-specific initialization, which is
-window-system-dependent. On AGL the display ID is determined, and on glX
-the display connection is opened.
+window-system-dependent. On AGL the display ID is determined, and on glX the
+display connection is opened:
 
-{\footnotesize\begin{lstlisting}
-bool Pipe::configInit( const uint32_t initID )
-{
-    const Config*     config    = static_cast<Config*>( getConfig( ));
-    const InitData& initData    = config->getInitData();
-    const uint32_t  frameDataID = initData.getFrameDataID();
-    eq::Config*     config      = getConfig();
-
-    const bool mapped = config->mapObject( &_frameData, frameDataID );
-    EQASSERT( mapped );
-
-    return eq::Pipe::configInit( initID );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=57, lastline=70]
+  {../../../src/examples/eqPly/pipe.cpp}}
 
 The config exit function is similar to the config initialization. The
 frame data is unmapped and GPU-specific data is de-initialized by
 \textsf{eq::Config::exit}:
 
-{\footnotesize\begin{lstlisting}
-bool Pipe::configExit()
-{
-    eq::Config* config = getConfig();
-    config->unmapObject( &_frameData );
-
-    return eq::Pipe::configExit();
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=72, lastline=78]
+  {../../../src/examples/eqPly/pipe.cpp}}
 
 \subsubsection{Window System}
 
@@ -2643,38 +2180,20 @@ command line option. Therefore the implementation of
 \textsf{selectWindowSystem} is overwritten and returns the specified
 window system, if supported:
 
-{\footnotesize\begin{lstlisting}
-eq::WindowSystem Pipe::selectWindowSystem() const
-{
-    const Config*            config = static_cast<Config*>( getConfig( ));
-    const InitData&        initData = config->getInitData();
-    const eq::WindowSystem ws       = initData.getWindowSystem();
-
-    if( ws == eq::WINDOW_SYSTEM_NONE )
-        return eq::Pipe::selectWindowSystem();
-    if( !supportsWindowSystem( ws ))
-    {
-        EQWARN << "Window system " << ws 
-               << " not supported, using default window system" << endl;
-        return eq::Pipe::selectWindowSystem();
-    }
-
-    return ws;
-}
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=39, lastline=55]
+  {../../../src/examples/eqPly/pipe.cpp}}
 
 \subsubsection{\label{sCarbonThread}Carbon/AGL Thread Safety}
 
-Parts of the Carbon API used for window and event handling in the AGL
-window system are not thread safe. The application has to call
-\textsf{eq::Global::enterCarbon} before any thread-unsafe Carbon call,
-and \textsf{eq::Global::leaveCarbon} afterwards. These functions should
-be used only during window initialization and exit, not during
-rendering. For various reasons \textsf{enterCarbon} might block up to 50
-milliseconds. Carbon calls in the window event handling routine
-\textsf{Window::processEvent} are thread-safe, since the global carbon
-lock is set in this method. Please contact the Equalizer developer
-mailing list if you need to use Carbon calls on a per-frame basis.
+Parts of the Carbon API used for window and event handling in the AGL window
+system are not thread safe. The application has to call
+\textsf{eq::Global::enterCarbon} before any thread-unsafe Carbon call, and
+\textsf{eq::Global::leaveCarbon} afterwards. These functions should be used only
+during window initialization and exit, not during rendering. For implementation
+reasons \textsf{enterCarbon} might block up to 50 milliseconds. Carbon calls in
+the window event handling routine \textsf{Window::processEvent} are thread-safe,
+since the global carbon lock is set in this method. Please contact the Equalizer
+developer mailing list if you need to use Carbon calls on a per-frame basis.
 
 \subsubsection{Frame Control}
 
@@ -2692,13 +2211,8 @@ this version to update its instance of the frame data to the current
 version, and unlocks its child entities by calling
 \textsf{startFrame}:
 
-{\footnotesize\begin{lstlisting}
-void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
-{
-    startFrame( frameNumber );
-    _frameData.sync( frameID );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=80, lastline=84]
+  {../../../src/examples/eqPly/pipe.cpp}}
 
 
 \subsection{\label{sEqplyWIndow}Window}
@@ -2718,21 +2232,21 @@ all data specific to the OpenGL context.
 
 \subsubsection{Window System Interface}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/osWindow.pdf}
-  {\caption{\label{fOSWindow}SystemWindow UML Class Hierarchy}}
-\end{wrapfigure}
 The particulars of creating a window and OpenGL context depend on the
 window system used. One can either use the implementation provided by
 the operating system, e.g., AGL, WGL or glX, or some higher-level
 toolkit, e.g., Qt.
 
-All window-system specific functionality is implemented by a
-specialization of \textsf{eq::System\-Window}. The \textsf{SystemWindow} class
-defines the minimal interface to be implemented for a new window
-system. Each \textsf{Window} uses one \textsf{SystemWindow} during
-execution. This separation allows an easy implementation and adaption to
-another window system or application.
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/osWindow.pdf}
+  {\caption{\label{fOSWindow}SystemWindow UML Class Hierarchy}}
+\end{wrapfigure}
+All window-system specific functionality is implemented by a specialization of
+\textsf{eq::Sys\-tem\-Window}. The \textsf{SystemWindow} class defines the
+minimal interface to be implemented for a new window system. Each
+\textsf{Window} uses one \textsf{SystemWindow} during execution. This separation
+allows an easy implementation and adaption to another window system or
+application.
 
 Equalizer provides a generic interface and implementation for the three
 most common window systems through the OpenGL specific 
@@ -2774,65 +2288,29 @@ function \textsf{configInitGL} to initialize a state object and
 an overlay logo. This function is only called if an OpenGL context was
 created and made current:
 
-{\footnotesize\begin{lstlisting}
-bool Window::configInitGL( const uint32_t initID )
-{
-    if( !eq::Window::configInitGL( initID ))
-        return false;
-
-    glLightModeli( GL_LIGHT_MODEL_LOCAL_VIEWER, 1 );
-    glEnable( GL_CULL_FACE ); // OPT - produces sparser images in DB mode
-    glCullFace( GL_BACK );
-
-    EQASSERT( !_state );
-    _state = new VertexBufferState( getObjectManager( ));
-    
-    const Config*   config   = static_cast< const Config* >( getConfig( ));
-    const InitData& initData = config->getInitData();
-
-    if( initData.showLogo( ))
-        _loadLogo();
-
-    if( initData.useGLSL() )
-        _loadShaders();
-
-    return true;
-}
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=76, lastline=98]
+  {../../../src/examples/eqPly/window.cpp}}
 
 The state object is used to handle the creation of OpenGL objects in a
-multipipe, multithreaded execution environment. It uses the object
-manager of the \textsf{eq::Window}, which is described in detail in
-\sref{sObjectManager}.
+multipipe, multithreaded execution environment. It uses the object manager of
+the \textsf{eq::Window}, which is described in detail in \sref{sObjectManager}.
 
-The logo texture is loaded from the file system and bound to a texture
-ID used later by the channel for rendering. A code listing is omitted,
-since the code consists of standard OpenGL calls and is not
-Equalizer-specific.
+The logo texture is loaded from the file system and bound to a texture ID used
+later by the channel for rendering. A code listing is omitted, since the code
+consists of standard OpenGL calls and is not Equalizer-specific.
 
-The window exit happens in the reverse order of the
-initialization. First, \textsf{configExitGL} is called to de-initialize
-OpenGL, followed by \textsf{configExitSystemWindow} which de-initializes the
-drawable and context and deletes the \textsf{SystemWindow} allocated in
+The window exit happens in the reverse order of the initialization. First,
+\textsf{configExitGL} is called to de-initialize OpenGL, followed by
+\textsf{configExitSystemWindow} which de-initializes the drawable and context
+and deletes the \textsf{SystemWindow} allocated in
 \textsf{configInitSystemWindow}.
 
-The window OpenGL exit function of \textsf{eqPly} de-allocates all
-OpenGL objects. The object manager does not delete the object in its
-destructor, since it does not know if an OpenGL context is still
-current.
+The window OpenGL exit function of \textsf{eqPly} de-allocates all OpenGL
+objects. The object manager does not delete the object in its destructor, since
+it does not know if an OpenGL context is still current.
 
-{\footnotesize\begin{lstlisting}
-bool Window::configExitGL()
-{
-    if( _state )
-        _state->deleteAll();
-
-    delete _state;
-    _state = 0;
-
-    return eq::Window::configExitGL();
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=100, lastline=109]
+  {../../../src/examples/eqPly/window.cpp}}
 
 \subsubsection{\label{sObjectManager}Object Manager}
 
@@ -2886,11 +2364,11 @@ following functions are available:
 
 \subsection{Channel}
 
-The channel is the heart of the application, it contains the actual
-rendering code. The channel is used to perform the various rendering
-operations for the compounds. Each channel has a set of task methods to
-execute the clear, draw, readback and assemble stages needed to render a
-frame.
+The channel is the heart of the application's rendering code, it executes all
+task methods needed to produce the configured rendering. It is used to perform
+the various rendering operations for the compounds. Each channel has a set of
+task methods to execute the clear, draw, readback and assemble stages needed to
+render a frame.
 
 \subsubsection{Initialization and Exit}
 
@@ -2898,13 +2376,8 @@ During channel initialization, the near and far planes are set to
 reasonable values to contain the whole model. During rendering, the near
 and far planes are adjusted dynamically to the current model position:
 
-{\footnotesize\begin{lstlisting}
-bool Channel::configInit( const uint32_t initID )
-{
-    setNearFar( 0.1f, 10.0f );
-    return true;
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=69, lastline=78]
+  {../../../src/examples/eqPly/channel.cpp}}
 
 \subsubsection{Rendering}
 
@@ -2959,7 +2432,7 @@ context consist of:
   matrix. The frustum is influenced by the destination channel's view
   definition, compound viewports, head matrix and the current eye pass. If the
   channel has a subpixel parameter, the frustum will be jittered before it is
-  applied. Please refer to \ref{sFSAA} for more information.
+  applied. Please refer to \sref{sFSAA} for more information.
 \item[Head Transformation] A transformation matrix positioning the
   frustum. This is typically an identity matrix and is used for off-axis
   frusta in immersive rendering. It is normally used to set up the
@@ -2971,15 +2444,21 @@ context consist of:
   compound range attribute.
 \end{description}
 
-The \textsf{frameDraw} method in \textsf{eqPly} calls the
-\textsf{frameDraw} method from the parent class, the Equalizer
-channel. The default \textsf{frameDraw} method uses the apply
-convenience functions to setup the OpenGL state for all render context
-information, except for the range which will be used later during
-rendering:
+The rendering first checks a number of preconditions, such as if the rendering
+was interrupted by a reset and if the idle anti-aliasing is finished. Then the
+near and far planes are re-computed, before the rendering context is applied:
+
+{\footnotesize\lstinputlisting[firstline=123, lastline=137]
+  {../../../src/examples/eqPly/channel.cpp}}
+
+The \textsf{frameDraw} method in \textsf{eqPly} calls the \textsf{frameDraw}
+method from the parent class, the Equalizer channel. The default
+\textsf{frameDraw} method uses the apply convenience functions to setup the
+OpenGL state for all render context information, except for the range which will
+be used later during rendering:
 
 {\footnotesize\begin{lstlisting}
-void eq::Channel::frameDraw( const uint32_t frameID )
+void eq::Channel::frameDraw( const uin128_t& frameID )
 {
     applyBuffer();
     applyViewport();
@@ -2992,11 +2471,6 @@ void eq::Channel::frameDraw( const uint32_t frameID )
     glLoadIdentity();
     applyHeadTransform();
 }
-
-void Channel::frameDraw( const uint32_t frameID )
-{
-    // Setup OpenGL state
-    eq::Channel::frameDraw( frameID );
 \end{lstlisting}}
 
 \begin{wrapfigure}{r}{.382\textwidth}
@@ -3016,60 +2490,15 @@ anaglyphic stereo. The model colors are per-vertex and are set during
 rendering, whereas the unique per-channel color is set in
 \textsf{frameDraw} for the whole model:
 
-{\footnotesize\begin{lstlisting}
-    glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
-    glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
-    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
-    glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
-
-    glMaterialfv( GL_FRONT, GL_AMBIENT,   materialAmbient );
-    glMaterialfv( GL_FRONT, GL_DIFFUSE,   materialDiffuse );
-    glMaterialfv( GL_FRONT, GL_SPECULAR,  materialSpecular );
-    glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
-
-    const FrameData& frameData = getFrameData();
-
-    glPolygonMode( GL_FRONT_AND_BACK, 
-                   frameData.useWireframe() ? GL_LINE : GL_FILL );
-
-    const eq::Vector3f& translation = frameData.getCameraTranslation();
-
-    glMultMatrixf( frameData.getCameraRotation().array );
-    glTranslatef( translation.x(), translation.y(), translation.z() );
-    glMultMatrixf( frameData.getModelRotation().array );
-
-    if( frameData.getColorMode() == COLOR_DEMO )
-    {
-        const eq::Vector3ub color = getUniqueColor();
-        glColor3ub( color.r(), color.g(), color.b() );
-    }
-    else
-        glColor3f( .75f, .75f, .75f );
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=139, lastline=165]
+  {../../../src/examples/eqPly/channel.cpp}}
 
 Finally the model is rendered. If the model was not loaded during node
 initialization, a quad is drawn in its place:
 
-{\footnotesize\begin{lstlisting}
-    const Model* model = _getModel();
-    if( model )
-    {
-        _drawModel( model );
-    }
-    else
-    {
-        glNormal3f( 0.f, -1.f, 0.f );
-        glBegin( GL_TRIANGLE_STRIP );
-        glVertex3f(  .25f, 0.f,  .25f );
-        glVertex3f(  .25f, 0.f, -.25f );
-        glVertex3f( -.25f, 0.f,  .25f );
-        glVertex3f( -.25f, 0.f, -.25f );
-        glEnd();
-    }
+{\footnotesize\lstinputlisting[firstline=167, lastline=178]
+  {../../../src/examples/eqPly/channel.cpp}}
 
-    [...]
-}
-\end{lstlisting}}
 
 To draw the model, a helper class for view frustum culling is set up
 using the view frustum from Equalizer and the camera position from the
@@ -3082,26 +2511,8 @@ Furthermore, the render state from the window and the database range
 from the channel is obtained. The render state manages display list or
 VBO allocation:
 
-{\footnotesize\begin{lstlisting}
-void Channel::_drawModel( const Model* model )
-{
-    Window*                  window    = static_cast<Window*>( getWindow() );
-    mesh::VertexBufferState& state     = window->getState();
-
-    const Pipe*              pipe      = static_cast<Pipe*>( getPipe( ));
-    const FrameData&         frameData = pipe->getFrameData();
-
-    const eq::Range&         range     = getRange();
-    vmml::FrustumCullerf     culler;
-
-    if( frameData.getColorMode() == COLOR_MODEL && model->hasColors( ))
-        state.setColors( true );
-    else
-        state.setColors( false );
-
-    _initFrustum( culler, model->getBoundingSphere( ));
-    model->beginRendering( state );
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=600, lastline=621]
+  {../../../src/examples/eqPly/channel.cpp}}
 
 The model data is spatially organized in a 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
@@ -3138,64 +2549,8 @@ the compiled display lists or VBO's across all windows of a pipe.
 
 The main rendering loop in \textsf{eqPly} looks like this:
 
-{\footnotesize\begin{lstlisting}
-    model->beginRendering( state );
-        
-    // start with root node
-    vector< const VertexBufferBase* > candidates;
-    candidates.push_back( model );
-        
-    while( !candidates.empty() )
-    {
-        const VertexBufferBase* treeNode = candidates.back();
-        candidates.pop_back();
-            
-        // completely out of range check
-        if( treeNode->getRange()[0] >= range.end || 
-            treeNode->getRange()[1] < range.start )
-            continue;
-            
-        // bounding sphere view frustum culling
-        switch( culler.testSphere( treeNode->getBoundingSphere() ) )
-        {
-            case vmml::VISIBILITY_FULL:
-                // if fully visible and fully in range, render it
-                if( treeNode->getRange()[0] >= range.start && 
-                    treeNode->getRange()[1] < range.end )
-                {
-                    treeNode->render( state );
-                    break;
-                }
-                // partial range, fall through to partial visibility
-            case vmml::VISIBILITY_PARTIAL:
-            {
-                const VertexBufferBase* left = treeNode->getLeft();
-                const VertexBufferBase* right = treeNode->getRight();
-            
-                if( !left && !right )
-                {
-                    if( treeNode->getRange()[0] >= range.start )
-                        treeNode->render( state );
-                    // else drop, to be drawn by 'previous' channel
-                }
-                else
-                {
-                    if( left )
-                        candidates.push_back( left );
-                    if( right )
-                        candidates.push_back( right );
-                }
-                break;
-            }
-            case vmml::VISIBILITY_NONE:
-                // do nothing
-                break;
-        }
-    }
-        
-    model->endRendering( state );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=628, lastline=698]
+  {../../../src/examples/eqPly/channel.cpp}}
 
 \subsubsection{Assembly}
 
@@ -3206,20 +2561,8 @@ does not need the alpha channel on the destination view.
 The output frames are flagged to ignore it, which allows the compressor to
 drop 25\% of the data during image transfer:
 
-{\footnotesize\begin{lstlisting}
-void Channel::frameReadback( const uint32_t frameID )
-{
-    // OPT: Drop alpha channel from all frames during network transport
-    const eq::FrameVector& frames = getOutputFrames();
-    for( eq::FrameVector::const_iterator i = frames.begin(); 
-         i != frames.end(); ++i )
-    {
-        (*i)->setAlphaUsage( false );
-    }
-
-    eq::Channel::frameReadback( frameID );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=238, lastline=261]
+  {../../../src/examples/eqPly/channel.cpp}}
 
 The \textsf{frameAssemble} method is overwritten for the use of Subpixel
 compound with idle software anti-aliasing, as described in \ref{sFSAA}.
@@ -3326,10 +2669,6 @@ event handling function.
 
 \subsubsection{Default Implementation}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
-  {\caption{\label{fEventUML}UML Diagram for Event Handling Classes}}
-\end{wrapfigure}
 Equalizer provides an \textsf{AGLEvent\-Handler},
 \textsf{GLXEventHandler} and \textsf{WGL\-Event\-Handler}, which handle
 events for an \textsf{AGLWindowIF}, \textsf{GLXWindowIF} and
@@ -3350,29 +2689,21 @@ event handler for all important events. The event handler uses an
 Carbon handler is removed when the window's event handler is deleted. No
 event handling is set up for PBuffers.
 
-GLX uses one X11 Display connection for all windows on a GPU, which is
-managed by the \textsf{eq::Pipe}. For each thread, one
-\textsf{GLXEventHandler} is allocated. The pipe registers the display
-connection with this per-thread event handler. Events for windows
-created using this display connection are automatically received by the
-event handler. No per-window event handling setup needs to be
-done. PBuffers are handled in the same way as window drawables.
-
-The glX event handler iterates over all windows of the registered pipe
-to find the originating \textsf{GLXWindowIF}, which is then used to
-process the event in a fashion similar to AGL. The
-\textsf{GLXWindowEvent} passes the \textsf{XEvent} to
-\textsf{GLXWindowIF::\-process\-Event}.
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
+  {\caption{\label{fEventUML}UML Class Diagram for Event Handling}}
+\end{wrapfigure}
+For each window, one \textsf{GLXEventHandler} is allocated. FBO's and PBuffers
+are handled in the same way as window drawables. The event dispatch finds the
+corresponding event handler for each received event, which is then used to
+process the event in a fashion similar to AGL. The \textsf{GLXWindowEvent}
+passes the \textsf{XEvent} to \textsf{GLXWindowIF::\-process\-Event}.
 
 Each \textsf{WGLWindow} allocates one \textsf{WGLEventHandler} when the
 window handle is set. The WGLEventHandler passes the native event
 parameters \textsf{uMsg}, \textsf{wParam} and \textsf{lParam} to
 \textsf{WGL\-Win\-dowIF::processEvent} as part of the
 \textsf{WGLWindowEvent}. No event handling is set up for PBuffers.
-
-Later Equalizer versions will introduce \textsf{Pipe::pro\-cess\-Event} and
-\textsf{PipeEvent} to communicate pipe-specific events, e.g., monitor
-resolution changes.
 
 \subsubsection{Custom Events in eqPixelBench}
 
@@ -3391,27 +2722,9 @@ config event, which is sent to the application.
 The \textsf{ConfigEvent} derives from the \textsf{eq::ConfigEvent}
 structure and has the following definition:
 
-{\footnotesize\begin{lstlisting}
-struct ConfigEvent : public eq::ConfigEvent
-{
-public:
-    enum Type
-    {
-        READBACK = eq::Event::USER,
-        ASSEMBLE
-    };
+{\footnotesize\lstinputlisting[firstline=36, lastline=57]
+  {../../../src/examples/eqPixelBench/configEvent.h}}
 
-    ConfigEvent()
-        {
-            size = sizeof( ConfigEvent );
-        }
-
-    // channel name is in user event data
-    char           formatType[64];
-    vmml::Vector2i area;
-    float          msec;
-};
-\end{lstlisting}}
 
 The \textsf{Config::sendEvent} method transmits an
 \textsf{eq::ConfigEvent} or derived class to the application. The
@@ -3431,23 +2744,8 @@ On the application end, \textsf{Config::handleEvent} uses the
 \textsf{ostream} operator for the derived config event to output these
 events in a nicely formatted way:
 
-{\footnotesize\begin{lstlisting}
-std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
-...
-bool Config::handleEvent( const eq::ConfigEvent* event )
-{
-    switch( event->type )
-    {
-        case ConfigEvent::READBACK:
-        case ConfigEvent::ASSEMBLE:
-            cout << static_cast< const ConfigEvent* >( event ) << endl;
-            return true;
-
-        default:
-            return eq::Config::handleEvent( event );
-    }
-}
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=58, lastline=71]
+  {../../../src/examples/eqPixelBench/config.cpp}}
 
 
 \subsection{\label{sErrorHandling}Error Handling}
@@ -3470,50 +2768,24 @@ other thread should use the error registry when it is modified. It is therefore
 strongly advised to register application-specific errors before
 \textsf{eq::init} and clear them after \textsf{eq::exit}:
 
-{\footnotesize\begin{lstlisting}
-int main( const int argc, char** argv )
-{
-    ...
-    // 2. Equalizer initialization
-    NodeFactory nodeFactory;
-    eVolve::initErrors();
-
-    if( !eq::init( argc, argv, &nodeFactory ))
-    ...
-
-    eq::exit();
-    eVolve::exitErrors();
-    return ret;
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=55, lastline=61]
+  {../../../src/examples/eVolve/main.cpp}}
+...
+{\footnotesize\lstinputlisting[firstline=92, lastline=95]
+  {../../../src/examples/eVolve/main.cpp}}
 
 When the application returns false from a \textsf{configInit} task method due to
 an application-specific error, it should set an error code using
 \textsf{setError}. Application-specific errors can have any value equal or
 greater than \textsf{eq::ERROR\_CUSTOM}:
 
-{\footnotesize\begin{lstlisting}
-/** Defines errors produced by eVolve. */
-enum Error
-{
-    ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING = eq::ERROR_CUSTOM,
-    ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING,
-    ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING,
-    ERROR_EVOLVE_LOADSHADERS_FAILED,
-    ERROR_EVOLVE_LOADMODEL_FAILED
-};
+{\footnotesize\lstinputlisting[firstline=36, lastline=44]
+  {../../../src/examples/eVolve/error.h}}
 
-bool Window::configInitGL( const uint32_t initID )
-{
-    ...
-    if( !GLEW_ARB_shader_objects )
-    {
-        setError( ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING );
-        return false;
-    }
-    ...
-}
-\end{lstlisting}}
+During initialization, eVolve may use these error codes:
+
+{\footnotesize\lstinputlisting[firstline=45, lastline=57]
+  {../../../src/examples/eVolve/window.cpp}}
 
 It is not required to register an error string for each application-specific
 error. Registering a string will however cause error printing to use this string
@@ -3521,45 +2793,8 @@ instead of using only the numerical error value. Applications may also redefine
 existing error strings to their convenience, e.g., for internationalization
 purposes:
 
-{\footnotesize\begin{lstlisting}
-namespace
-{
-struct ErrorData
-{
-    const uint32_t code;
-    const std::string text;
-};
-
-ErrorData _errors[] = {
-    { ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING,
-      "GL_ARB_shader_objects extension missing" },
-    { ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING,
-      "GL_ARB_shader_objects extension missing" },
-    { ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING,
-      "GL_ARB_shader_objects extension missing" },
-    { ERROR_EVOLVE_LOADSHADERS_FAILED, "Can't load shaders" },
-    { ERROR_EVOLVE_LOADMODEL_FAILED, "Can't load model" },
-
-    { 0, "" } // last!
-};
-}
-
-void initErrors()
-{
-    eq::base::ErrorRegistry& registry = eq::base::Global::getErrorRegistry();
-
-    for( size_t i=0; _errors[i].code != 0; ++i )
-        registry.setString( _errors[i].code, _errors[i].text );
-}
-
-void exitErrors()
-{
-    eq::base::ErrorRegistry& registry = eq::base::Global::getErrorRegistry();
-
-    for( size_t i=0; _errors[i].code != 0; ++i )
-        registry.eraseString( _errors[i].code );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=37, lastline=73]
+  {../../../src/examples/eVolve/error.cpp}}
 
 
 \subsection{\label{sThreads}Thread Synchronization}
@@ -3591,7 +2826,7 @@ receives data. It dispatches the received data either to the application
 threads, or to the command thread.
 
 The command thread processes internal Equalizer request from other
-nodes, for example during \textsf{eq::net::Object} mapping. In some
+nodes, for example during \textsf{co::Object} mapping. In some
 special cases the command thread executes application code, for example
 when a remote node maps a static or unbuffered object,
 \textsf{Object::getInstanceData} is called from the command thread.
@@ -3757,15 +2992,15 @@ implementations of the node task methods do take care of that.
 
 \subsection{OpenGL Extension Handling}
 
-Equalizer uses GLEW\footnote{\link{http://glew.sourceforge.net}} for
-OpenGL extension handling, particularly the GLEW MX implementation
-providing multi-context support.
+Equalizer uses GLEW\footnote{\link{http://glew.sourceforge.net}} for OpenGL
+extension handling, particularly the GLEW\_MX implementation providing
+multi-context support.
 
 Each \textsf{eq::Window} has a \textsf{GLEWContext}. This context can be
-obtained by using \textsf{glewGetContext} on the window or channel. GLEW
-MX uses this function to dispatch the functions to the correct
-context. Equalizer (re-)initializes the GLEW context whenever a new
-OpenGL context is set on the window.
+obtained by using \textsf{glewGetContext} on the window or channel. GLEW\_MX
+uses this function to dispatch the functions to the correct context. Equalizer
+(re-)initializes the GLEW context whenever a new OpenGL context is set on the
+window.
 
 Extended OpenGL functions called from a window or channel instance can
 be called directly. GLEW will call the object's \textsf{glewGetContext}
@@ -3800,12 +3035,16 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
 }
 \end{lstlisting}}
 
+The WGL and GLX pipe manage a WGLEWContext and GLXEWContext, respectively. These
+context are useful if extended wgl or glX functions are used during window
+initialization. The GLEW context structures are initialized using a temporary
+OpenGL context, created using the proper display device of the pipe.
 
 \subsection{Advanced Window Initialization}
 
 This section explains window initialization in detail. It discusses in
 detail the handling of the different window systems. Window systems are
-integrated through the \textsf{OSWindow} interface, which externalizes
+integrated through the \textsf{SystemWindow} interface, which externalizes
 the details of the windowing API from the \textsf{eq::Window}
 implementation and facilitates the integration with new windowing API's
 and custom applications.
@@ -3818,12 +3057,12 @@ customized.
 An application typically choses to subclass the sample implementation if
 only minor tweaks are needed for integration. For major changes or new
 window systems, it is often easier to subclass directly from
-\textsf{OSWindow} and implement the abstract methods of this interface
+\textsf{SystemWindow} and implement the abstract methods of this interface
 class.
 
-The method \textsf{Window::configInitOSWindow} is used to instantiate
-and initialize the \textsf{OSWindow} implementation during config
-initialization. After a successful \textsf{OSWindow} initialization,
+The method \textsf{Window::configInitSystemWindow} is used to instantiate
+and initialize the \textsf{SystemWindow} implementation during config
+initialization. After a successful \textsf{SystemWindow} initialization,
 \textsf{Window::configInitGL} is called for the generic OpenGL state
 setup.
 
@@ -3863,15 +3102,8 @@ example. It does need alpha planes for rendering and compositing. The
 window initialization of \textsf{eVolve} sets the attribute before
 calling the default initialization method of Equalizer:
 
-{\footnotesize\begin{lstlisting}
-bool eVolve::Window::configInit( const uint32_t initID )
-{
-    // Enforce alpha channel, since we need one for rendering
-    setIAttribute( IATTR_PLANES_ALPHA, 8 );
-
-    return eq::Window::configInit( initID );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=37, lastline=43]
+  {../../../src/examples/eVolve/window.cpp}}
 
 
 \subsubsection{AGL Window Initialization}
@@ -3902,23 +3134,8 @@ The drawable creation method \textsf{configInitAGLDrawable} calls either
 
 The top-level AGL window initialization code therefore looks as follows:
 
-{\footnotesize\begin{lstlisting}
-bool AGLWindow::configInit( )
-{
-    AGLPixelFormat pixelFormat = chooseAGLPixelFormat();
-    if( !pixelFormat )
-        return false;
-
-    AGLContext context = createAGLContext( pixelFormat );
-    destroyAGLPixelFormat ( pixelFormat );
-    setAGLContext( context );
-
-    if( !context )
-        return false;
-
-    return configInitAGLDrawable();
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=124, lastline=140]
+  {../../../src/libs/client/aglWindow.cpp}}
 
 
 \subsubsection{GLX Window Initialization}
@@ -3928,42 +3145,8 @@ steps are: choose visual (pixel format), create OpenGL context and then
 create drawable. The only difference is that the data returned by
 \textsf{chooseXVisualInfo} has to be freed using \textsf{XFree}:
 
-{\footnotesize\begin{lstlisting}
-bool GLXWindow::configInit( )
-{
-    XVisualInfo* visualInfo = chooseXVisualInfo();
-    if( !visualInfo )
-        return false;
-
-    GLXContext context = createGLXContext( visualInfo );
-    setGLXContext( context );
-
-    // Early glxew init to have function pointers for init code
-    glXMakeCurrent( _xDisplay, None, 0 );
-    glxewInit();
-
-    if( !context )
-        return false;
-
-    const bool success = configInitGLXDrawable( visualInfo );
-    XFree( visualInfo );
-
-    if( !success || !_xDrawable )
-    {
-        if( getError() == ERROR_NONE )
-            setError( ERROR_GLXWINDOW_NO_DRAWABLE );
-        return false;
-    }
-
-    makeCurrent();
-    initGLEW();
-
-    if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
-        configInitFBO();
-
-    return success;
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=67, lastline=95]
+  {../../../src/libs/client/glXWindow.cpp}}
 
 
 \subsubsection{WGL Window Initialization}
@@ -3996,67 +3179,8 @@ AGL or GLX. The following functions are used to initialize a WGL window:
 The full \textsf{configInitWGL} task method, including error handling
 and cleanup, looks as follows:
 
-{\footnotesize\begin{lstlisting}
-bool WGLWindow::configInit()
-{
-    if( !initWGLAffinityDC( ))
-    {
-        setError( ERROR_WGL_CREATEAFFINITYDC_FAILED );
-        return false;
-    }
-
-    int pixelFormat = chooseWGLPixelFormat();
-    if( pixelFormat == 0 )
-    {
-        exitWGLAffinityDC();
-        return false;
-    }
-
-    if( !configInitWGLDrawable( pixelFormat ))
-    {
-        exitWGLAffinityDC();
-        return false;
-    }
-
-    if( !_wglDC )
-    {
-        exitWGLAffinityDC();
-        setWGLDC( 0, WGL_DC_NONE );
-        setError( ERROR_WGLWINDOW_NO_DRAWABLE );
-        return false;
-    }
-
-    HGLRC context = createWGLContext();
-    if( !context )
-    {
-        configExit();
-        return false;
-    }
-
-    setWGLContext( context );
-    makeCurrent();
-    initGLEW();
-
-    if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
-    {
-        if( WGLEW_EXT_swap_control )
-        {
-            // set vsync on/off
-            const GLint vsync = 
-                ( getIAttribute( Window::IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
-            wglSwapIntervalEXT( vsync );
-        }
-        else
-            EQWARN << "WGLEW_EXT_swap_control not supported, ignoring window "
-                   << "swapsync hint" << std::endl;
-    }
-    
-    if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
-        return configInitFBO();
-
-    return true;
-}
-\end{lstlisting}}%>>
+{\footnotesize\lstinputlisting[firstline=178, lastline=224]
+  {../../../src/libs/client/wglWindow.cpp}}
 
 
 \subsection{\label{sTracking}Head Tracking}
@@ -4149,9 +3273,8 @@ render clients correctly with the current frame.
 \end{wrapfigure}
 The most common entity to subclass is the \textsf{View}, since the application
 often amends with view-specific application data. A view might have a
-distributable user data object, which has to inherit from
-\textsf{eq::net::Object} to be committed and synchronized with the associated
-object. 
+distributable user data object, which has to inherit from \textsf{co::Object} to
+be committed and synchronized with the associated object.
 
 Externalizing the data distribution in a \textsf{UserData} object is necessary
 since the server holds the master instance of a view. The server contains no
@@ -4165,36 +3288,10 @@ number of anti-aliasing steps to be rendered when idle. This data is distributed
 by a \textsf{View::Proxy} object which serves as the view's user data. The proxy
 defines the necessary dirty bits and serializes the data:
 
-{\footnotesize\begin{lstlisting}
-/** The changed parts of the view. */
-enum DirtyBits
-{
-    DIRTY_MODEL       = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
-    DIRTY_IDLE        = eq::fabric::Serializable::DIRTY_CUSTOM << 1
-};
-
-void View::Proxy::serialize( eq::net::DataOStream& os,
-                             const uint64_t dirtyBits )
-{
-    if( dirtyBits & DIRTY_MODEL )
-        os << _view->_modelID;
-    if( dirtyBits & DIRTY_IDLE )
-        os << _view->_idleSteps;
-}
-
-void View::Proxy::deserialize( eq::net::DataIStream& is,
-                               const uint64_t dirtyBits )
-{
-    if( dirtyBits & DIRTY_MODEL )
-        is >> _view->_modelID;
-    if( dirtyBits & DIRTY_IDLE )
-    {
-        is >> _view->_idleSteps;
-        if( isMaster( ))
-            setDirty( DIRTY_IDLE ); // redistribute slave settings
-    }
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=59, lastline=64, xleftmargin=-7em]
+  {../../../src/examples/eqPly/view.h}}
+{\footnotesize\lstinputlisting[firstline=58, lastline=76]
+  {../../../src/examples/eqPly/view.cpp}}
 
 The \textsf{eqPly::View} sets its \textsf{Proxy} as the user data object in the
 constructor. By default, the master instance of the view's user data is on the
@@ -4203,18 +3300,10 @@ application instance of the view. This may be changed by overriding
 synchronization is fully handled be the \textsf{fabric} layer, no further
 handling has to be done by the application:
 
-{\footnotesize\begin{lstlisting}
-View::View( eq::Layout* parent )
-    : [...]
-{
-    setUserData( &_proxy );
-}
-void View::setModelID( const uint32_t id )
-{
-    _modelID = id;
-    setDirty( DIRTY_MODEL );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=40, lastline=47]
+  {../../../src/examples/eqPly/view.cpp}}
+{\footnotesize\lstinputlisting[firstline=78, lastline=85]
+  {../../../src/examples/eqPly/view.cpp}}
 
 \subsubsection{Dynamic Layout Switch}
 
@@ -4500,13 +3589,12 @@ rendering.
   \includegraphics[width=.382\textwidth]{images/slices.pdf}
   {\caption{\label{fSlices}Volume Rendering using 3D Textures}}
 \end{wrapfigure}
-DB compounds have the advantage of scaling any part of the volume
-rendering pipeline: texture and main memory (smaller bricks for each
-channel), fill rate (less samples per channel) and IO bandwidth for
-time-dependent data (less data per time step and channel). Since the
-amount of texture memory needed for each node decreases linearly, they
-make it possible to render data sets which are not feasible to
-visualize with any other approach.
+Database decomposition has the advantage of scaling any part of the volume
+rendering pipeline: texture and main memory (smaller bricks for each channel),
+fill rate (less samples per channel) and IO bandwidth for time-dependent data
+(less data per time step and channel). Since the amount of texture memory needed
+for each node decreases linearly, they make it possible to render data sets
+which are not feasible to visualize with any other approach.
 
 For recomposition, the 2D frame buffer contents are blended to form a
 seamless picture. For correct blending, the frames are ordered in the
@@ -4560,7 +3648,8 @@ compositing algorithms such as direct-send.
 \subsection{\label{sFSAA}Custom Subpixel Processing}
 
 The eqPly example contains support for software anti-aliasing when being idle,
-showing how to combine it with subpixel compounds.
+showing how to combine it with subpixel compounds. The same basic algorithm
+might be applied to ohter multi-sampling effects, e.g., depth-of-field.
 
 \subsubsection{Supersampling Algorithm}
 
@@ -4574,54 +3663,20 @@ The subpixel area is a function of the current jitter step and the channel's
 channels over the total sub-pixel grid a precomputed prime number table is used
 to pseudo-randomly select the subpixel:
 
-{\footnotesize\begin{lstlisting}
-eq::Vector2i Channel::_getJitterStep() const
-{
-    uint32_t channelID  = getSubPixel().index;
-    uint32_t idx = ( channelID * _totalSteps );
-    idx += ( _jitterStep * primeNumberTable[ channelID ] ) % _totalSteps;
+{\footnotesize\lstinputlisting[firstline=556, lastline=579]
+  {../../../src/examples/eqPly/channel.cpp}}
 
-    uint32_t sampleSize = _getSampleSize();
-    const int dx = idx % sampleSize;
-    const int dy = idx / sampleSize;
+When the rendering is not in idle mode, the jitter is queried from
+Equalizer which returns an optimal subpixel offset for the given subpixel
+decomposition. This is used during normal rendering of subpixel compounds.
 
-    return eq::Vector2i( dx, dy );
-}
-\end{lstlisting}}
+During idle rendering of any decomposition, the jitter for the frustum is
+computed using the normalized subpixel center point and the size of a pixel on
+the near plane. A random position within the sub-pixel is set as a sample
+position, which will be used to move the frustum:
 
-Using this normalized subpixel center point and the size of a pixel on the near
-plane, the jitter for the frustum is computed. A random position within the
-sub-pixel is set as a sample position, which will be used to move the frustum:
-
-{\footnotesize\begin{lstlisting}
-eq::Vector2f Channel::_getJitter() const
-{
-    const eq::PixelViewport& pvp = getPixelViewport();
-    float pvp_w = static_cast<float>( pvp.w );
-    float pvp_h = static_cast<float>( pvp.h );
-    float frustum_w = static_cast<float>(( getFrustum().get_width( )));
-    float frustum_h = static_cast<float>(( getFrustum().get_height( )));
-
-    float pixel_w = frustum_w / pvp_w;
-    float pixel_h = frustum_h / pvp_h;
-
-    uint32_t sampleSize = _getSampleSize();
-    float subpixel_w = pixel_w / static_cast<float>( sampleSize );
-    float subpixel_h = pixel_h / static_cast<float>( sampleSize );
-
-    eq::Vector2i jitterStep = _getJitterStep();
-
-    // Sample value randomly computed within the subpixel
-    eq::base::RNG rng;
-    float value_i = rng.get< float >() * subpixel_w
-                    + static_cast<float>( jitterStep.x( )) * subpixel_w;
-
-    float value_j = rng.get< float >() * subpixel_h
-                    + static_cast<float>( jitterStep.y( )) * subpixel_h;
-
-    return eq::Vector2f( value_i, value_j );
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=512, lastline=554]
+  {../../../src/examples/eqPly/channel.cpp}}
 
 \subsubsection{Idle Anti-Aliasing in eqPly}
 
@@ -4631,42 +3686,10 @@ information depending on the application's state.  Each \textsf{Channel} will
 perform anti-aliasing when no user event requires a redraw.
 
 If the application is in idle mode, the \textsf{applyFrustum} operation will 
-apply the computed jitter vector to the current frustum.
+apply the computed jitter vector to the current frustum:
 
-{\footnotesize\begin{lstlisting}
-void Channel::applyFrustum() const
-{
-    const FrameData& frameData = _getFrameData();
-
-    if( frameData.isIdle() && _jitterStep > 0 )
-    {
-        eq::Vector2f jitter = _getJitter();
-
-        if( frameData.useOrtho( ))
-        {
-            eq::Frustumf ortho = getOrtho();
-            ortho.apply_jitter( jitter );
-
-            glOrtho( ortho.left(), ortho.right(),
-                     ortho.bottom(), ortho.top(),
-                     ortho.near_plane(), ortho.far_plane( ));
-        }
-        else
-        {
-            eq::Frustumf frustum = getFrustum();
-            frustum.apply_jitter( jitter );
-
-            glFrustum( frustum.left(), frustum.right(),
-                       frustum.bottom(), frustum.top(),
-                       frustum.near_plane(), frustum.far_plane( ));
-        }
-        return;
-    }
-    //else
-    
-    eq::Channel::applyFrustum();
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=377, lastline=400]
+  {../../../src/examples/eqPly/channel.cpp}}
 
 At the end of the frame, \textsf{frameViewFinish} accumulates the frame buffer
 into an accumulation buffer. Since \textsf{frameViewFinish} is only called on
@@ -4678,44 +3701,16 @@ If the current pixel viewport is different from the one saved in
 \textsf{frameViewStart}, the accumulation buffer needs also to be resized and
 the idle anti-aliasing is reset.
 
-{\footnotesize\begin{lstlisting}
-void Channel::frameViewFinish( const uint32_t frameID )
-{
-    const FrameData& frameData = _getFrameData();
-
-    const eq::PixelViewport& pvp = getPixelViewport();
-    bool isResized = _accum->resize( pvp.w, pvp.h );
-
-    if( isResized )
-    {
-        _accum->clear();
-        _jitterStep = _totalSteps;
-        _subpixelStep = 0;
-        return;
-    }
-    //else
-
-    if( frameData.isIdle() && _needsTransfer )
-    {
-        setupAssemblyState();
-
-        _accum->accum();
-        _accum->display();
-
-        resetAssemblyState();
-    }
-
-    _drawOverlay();
-    _drawHelp();
-
-    if( frameData.useStatistics())
-        EQ_GL_CALL( drawStatistics( ));
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=305, lastline=337]
+  {../../../src/examples/eqPly/channel.cpp}}
 
 At the end of the frame for each channel, \textsf{frameFinish} will decrement
-the jitter step and create a new event to inform the \textsf{Config} of how many
-frames remain to draw before the idle anti-aliasing is complete.
+the jitter step and create a new event to inform the \textsf{Config} using an
+event of how many frames remain to draw before the idle anti-aliasing is
+complete:
+
+{\footnotesize\lstinputlisting[firstline=346, lastline=371]
+  {../../../src/examples/eqPly/channel.cpp}}
 
 \subsubsection{Transparent Software Anti-Aliasing}
 
@@ -4893,69 +3888,75 @@ programming interface.
 Equalizer does not provide any facility to perform memory transfer from and to the CUDA
 devices. This is entirely left to the programmer.
 
-\section{\label{sNetwork}The Network Layer}
+\section{\label{sNetwork}The Collage Network Library}
 
-The Equalizer networking layer provides a peer-to-peer communication
-infrastructure. It is used by Equalizer to communicate between the
-application node, the server and the render clients. It can also be
-used by applications to implement distributed processing independently
-or complementary to the core Equalizer functionality.
+The Collage networking library provides a peer-to-peer communication
+infrastructure. It is used by Equalizer to communicate between the application
+node, the server and the render clients. It can also be used by applications to
+implement distributed processing independently or complementary to the Equalizer
+functionality.
 
-The network layer is implemented in the \textsf{eq::net} namespace. It
-provides layered functionality, which provide higher level functionality
-for the programmer. The main primitives in the network layer are:
+The network library is implemented in the \textsf{co} namespace. It provides
+networking functionality of different abstraction layers, gradually providing
+higher level functionality for the programmer. The main primitives in Collage
+are:
 
 \begin{description}
 \item[Connection] A stream-oriented point-to-point communication
   line. Different implementations of a connection exist.
-\item[Node] The abstraction of a process in the cluster. Nodes
-  communicate with each other using connections.
-\item[Session] Provides unique identifiers and object mapping to a set
-  of nodes.
-\item[Object] Provides object-oriented data distribution of C++ objects
-  between nodes within a session.
+\item[Node/LocalNode] The abstraction of a process in the cluster. Nodes
+  communicate with each other using connections. A LocalNode listens on various
+  various connections and processes requests for a given process. A Node is a
+  proxy for a remote LocalNode.
+\item[Object] Provides object-oriented data distribution of C++ objects between
+  nodes within a session. Objects are registered or mapped on a LocalNode.
 \end{description}
+
+\begin{figure}[ht!]\center
+  \includegraphics[width=\textwidth]{images/collageUML}
+  {\caption{\label{fCollageUML}UML class diagram of the major Collage classes}}
+\end{figure}
+\fig{fCollageUML} provides an overview of the major collage classes and their
+relationship, as discussed in the following sections.
 
 \subsection{Connections}
 
-The \textsf{eq::net::Connection} is the basic primitive used for
-communication between processes in Equalizer. It provides a
-stream-oriented communication between two endpoints.
+The \textsf{co::Connection} is the basic primitive used for communication
+between processes in Equalizer. It provides a stream-oriented communication
+between two endpoints.
 
-A connection is either closed, connected or listening. A closed
-connection cannot be used for communications. A connected connection
-can be used to read or write data to the communication peer. A listening
-connection can accept connection requests.
+A connection is either closed, connected or listening. A closed connection
+cannot be used for communications. A connected connection can be used to read or
+write data to the communication peer. A listening connection can accept
+connection requests.
 
-An \textsf{eq::net::ConnectionSet} is used to manage multiple
-connections. The typical use case is to have one or more listening
-connections for the local process, and a number of connected connections
-for communicating with other processes.
+An \textsf{co::ConnectionSet} is used to manage multiple connections. The
+typical use case is to have one or more listening connections for the local
+process, and a number of connected connections for communicating with other
+processes.
 
 The connection set is used to select one connection which requires some
-action. This can be a connection request on a listening connection,
-pending data on a connected connection or the notification of a
-disconnect.
+action. This can be a connection request on a listening connection, pending data
+on a connected connection or the notification of a disconnect.
 
-The connection and connection set can be used by applications to
-implement other network-related functionality, e.g., to communicate
-with a sound server on a different machine.
+The connection and connection set can be used by applications to implement other
+network-related functionality, e.g., to communicate with a sound server on a
+different machine.
 
 
 \subsection{Packet Handling}
 
-Nodes, sessions and objects communicate using packets derived from
-\textsf{eq::net::Packet}. The basic packet dispatch and handling is
-implemented in the \textsf{eq::net::Base} class, from which
-\textsf{eq::net::Node}, \textsf{eq::net::Session} and
-\textsf{eq::net::Object} is sub-classed.
+Nodes and objects communicate using packets derived from
+\textsf{co::Packet}. The basic packet dispatch is implemented in the
+\textsf{co::Dispatcher} class, from which \textsf{co::Node} and \textsf{co::Object} is sub-classed.
 
-The network base class allows the registration of a packets with a
-dispatch queue and an invocation method. Each packet has a command
-identifier, which is used to identify the registered queue and
-method. The method \textsf{dispatchCommand} pushes the packet to the
-registered queue, whereas the method \textsf{invokeCommand} calls the
-registered command function.
+The dispatcher allows the registration of a packets with a dispatch queue and an
+invocation method. Each packet has a type and command identifier, which is used
+to identify the receiver, registered queue and method. The method
+\textsf{dispatchCommand} pushes the packet to the registered queue and sets the
+registered command function on the packet command. When the
+commands are dequeued by the processing thread the registered method is executed
+using \textsf{Command::invoke}.
 
 A command function groups the method and \textsf{this} pointer, allowing
 to call a C++ method on a concrete instance. If no queue is registered
@@ -4969,30 +3970,34 @@ these threads.
 
 \subsection{Nodes}
 
-The \textsf{eq::net::Node} is the abstraction of one process in the
-cluster. Each node has a unique identifier, based on the UUID
-standard\footnote{\link{http://en.wikipedia.org/wiki/Universally\_Unique\_Identifier}}. This
-identifier is used to address nodes, e.g., to query connection
-information to connect to the node. Nodes use connections to communicate
-with each other by sending packets sub-classed from
-\textsf{eq::net::NodePacket}.
+The \textsf{co::Node} is the abstraction of one process in the cluster. Each
+node has a universally unique identifier. This identifier is used to address
+nodes, e.g., to query connection information to connect to the node. Nodes use
+connections to communicate with each other by sending packets sub-classed from
+\textsf{co::NodePacket}.
 
-Nodes, like connections, are either in the closed, listening or
-connected state. A listening node uses one or more listening connections
-in conjunction with a connection set to wait for data or connection
-requests. For each connection request, a connection and node are created
-to represent this node on the local machine. This node is in the
-connected state, and its connection is added to the connection set of
-the listening node.
+The \textsf{co::LocalNode} is the specialization of the node for the given
+process. It encapsulates the communication logic for connecting remote nodes, as
+well as object registration and mapping. Local nodes are set up in the listening
+state during initialization.
+
+A remote \textsf{Node} can be either be connected explicitly be the application
+or due to a connection from the given remote node. The explicit connection can
+be done by programmatically creating a node, adding the necessary
+\textsf{ConnectionDescription}s and connecting it to the local node. It may also
+be done by connecting the remote node to the local node by using its
+\textsf{NodeID}. This will cause Collage to query connection information for
+this node from the already-connected nodes, instantiating the node and
+connecting it. Both operations may fail.
+
+\fig{fNetNode} shows the communication between two nodes. The nodes in
+the listening state also have a listening connection, which is not shown
+in the Figure for complexity reasons.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/netNode.pdf}
   {\caption{\label{fNetNode}Communication between two Nodes}}
 \end{wrapfigure}
-\fig{fNetNode} shows the communication between two nodes. The nodes in
-the listening state also have a listening connection, which is not shown
-in the Figure for complexity reasons.
-
 When the remote node sends a packet, the listening node receives the
 packet and dispatches it from the receiver thread using the method
 \textsf{dispatchCommand}. The default implementation knows how to
@@ -5001,57 +4006,21 @@ define custom data types for packets, and then have to extend
 \textsf{dispatchCommand} to handle these custom data types.
 
 Node packets are directly dispatched using
-\textsf{Base::dispatchCommand}. For session and object packets, the
-appropriate session is found and \textsf{Session::dispatchCommand} will
-dispatch the packet.
+\textsf{Dispatcher::dispatchCommand}. For object packets, the appropriate object
+is found on the local node and \textsf{LocalNode::dispatchCommand} will dispatch
+the packet.
 
 If \textsf{dispatchCommand} returns false, the packet will be
 re-dispatched later. This is used if an object has not been mapped
 locally, and therefore the packet could not be dispatched.
 
-If an application wants to extend communication on the node level, it
-can either define its own datatype for packets, or to define custom node
-packets. Packets with a custom datatype are handled by overriding
-\textsf{Node::dispatchCommand}. Custom node packets can use any command
-greater than \textsf{CMD\_NODE\_CUSTOM} as the packet command. By
-registering a \textsf{eq::net::CommandFunc} for these commands, the
-\textsf{eq::net::Base} dispatch and invoke mechanism can be used
-automatically.
-
-\subsection{Sessions}
-
-The \textsf{eq::net::Session} gathers provides higher-level
-functionality to a set of nodes. The master instance of a session is
-registered to a node, which makes this node the session server and
-assigns a node-unique identifier to the session. All other nodes map
-their instance of the session to their local listening node using the
-session's identifier. One given node can participate in any number of
-sessions, both as master and slave. This allows the flexible usage of
-sessions to group different aspects of an application.
-
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netSession.pdf}
-  {\caption{\label{fNetSession}Communication between two Sessions}}
-\end{wrapfigure}
-A session provides the facilitate to allocate session-unique
-identifiers. These identifiers can be used by the application to
-uniquely address data within the cluster. They are also used by the
-session to address distributed objects, which are described in the
-following section.
-
-Sessions instances can communicate to each other directly using an
-\textsf{eq::net::Ses\-sion\-Packet}, which is derived from the
-\textsf{NodePacket} and extends it by the session identifier. The
-session ID is used by the node to dispatch the packet to the session.
-
-The session, similar to the node, uses the methods
-\textsf{dispatchCommand} and \textsf{invokeCommand} to dispatch and
-execute packets using either the \textsf{eq::net::Base} class for
-session packets or to dispatch and invoke object packets on the
-appropriate \textsf{eq::net::Object}. Application developers can use
-this mechanism by creating custom session packets with a command greater
-than \textsf{CMD\_SESSION\_CUSTOM} and registering a command function
-for these commands.
+If an application wants to extend communication on the node level, it can either
+define its own datatype for packets, or to define custom node packets. Packets
+with a custom datatype are handled by overriding
+\textsf{LocalNode::dispatchCommand}. Custom node packets can use any command
+greater than \textsf{CMD\_NODE\_CUSTOM} as the packet command. By registering a
+\textsf{co::CommandFunc} for these commands, the \textsf{co::Dispatcher}
+dispatch and invoke mechanism can be used automatically.
 
 
 \subsection{\label{sNetObject2}Objects}
@@ -5062,17 +4031,17 @@ environment. Their functionality and an example use case for parallel rendering
 has been described in \sref{sNetObject}.
 
 Distributed objects subclass from \textsf{eq::fabric::Serializable} or
-\textsf{eq::net::Object}. The application programmer implements serialization
-and deserialization of the distributed data. Objects are dynamically assigned to
-a session, which assigns session-unique identifiers to objects and manages the
-network communication between different instances of the same distributed
-object.
+\textsf{co::Object}. The application programmer implements serialization and
+deserialization of the distributed data. Objects are dynamically attached to a
+listening local node, which manages the network communication and packet
+dispatch between different instances of the same distributed object.
 
-The master version of a distributed object is registered with a
-\textsf{eq::net::Session}, which assigns a session-unique identifier to
-the object. This identifier can be used by other nodes to map their
-instance of the object, thus synchronizing the object's data with the
-remotely registered master version.
+Objects are addresses using a universally unique identifier. The identifier is
+automatically created in the object constructor. The master version of a
+distributed object is registered with the \textsf{co::LocalNode}. The identifier
+of the master instance can be used by other nodes to map their instance of the
+object, thus synchronizing the object's data and identifier with the remotely
+registered master version.
 
 Distributed objects can be static (immutable) or dynamic. Dynamic objects are
 versioned. New versions are commited from the master instance, which sends
@@ -5081,19 +4050,16 @@ objects. The slave objects sync the queued deltas when they need a version.
 
 \subsubsection{Common Usage for Parallel Rendering}
 
-Distributed objects are addressed using session-unique identifiers,
-because pointers to other objects cannot be distributed directly; they
-have no meaning on remote nodes. The session used to register
-distributed objects is normally the \textsf{eq::Config}, which is
-sub-classed from \textsf{eq::net::Session}.
+Distributed objects are addressed using universally unique identifiers, because
+pointers to other objects cannot be distributed directly; they have no meaning
+on remote nodes.
 
-The entry point for shared data on a render client is the identifier
-passed by the application to \textsf{Config::init}. This identifier
-typically contains the identifier of a static distributed object, and is
-passed by Equalizer to all \textsf{configInit} task methods. Normally
-this initial object is mapped by the render clients in
-\textsf{Node::configInit}. It normally contains identifiers of other
-shared data objects.
+The entry point for shared data on a render client is the identifier passed by
+the application to \textsf{Config::init}. This identifier typically contains the
+identifier of a static distributed object, and is passed by Equalizer to all
+\textsf{configInit} task methods. Normally this initial object is mapped by the
+render clients in \textsf{Node::configInit}. It normally contains identifiers of
+other shared data objects.
 
 The distributed data objects referenced by the initial data object are
 often versioned objects, to keep them in sync with the rendered
@@ -5105,7 +4071,27 @@ the frame-specific data, e.g., the global camera data, is versioned. The
 frame data identifier is passed in the initial data, and the frame data
 version is passed with each new frame request.
 
-%\begin{wrapfigure}{r}{.382\textwidth}
+There are multiple ways of implementing data distribution for an
+existing C++ class hierarchy, such as a scene graph:
+\begin{description}
+\item[Subclassing] The classes to be distributed inherit from
+  \textsf{co::Object} and implement the serialization methods. This approach is
+  recommended if the source code of existing classes can be modified. It is used
+  for \textsf{eqPly::InitData} and
+  \textsf{eqPly::FrameData}. (\fig{fObjectDist1})
+\item[Proxies] For each object to be distributed, a proxy object is
+  created which manages data distribution for its associated
+  object. This requires the application to track changes on the object
+  separately from the object itself. The model data distribution of
+  eqPly is using this pattern. (\fig{fObjectDist2})
+\item[Multiple Inheritance] A new class inheriting from the class to be
+  distributed and from \textsf{co::Object} implements the data
+  distribution. This requires the application to instantiate a different type of
+  object instead of the existing object, and to create wrapper methods in the
+  superclass calling the original method and setting the appropriate dirty
+  flags. This pattern is not used in eqPly. (\fig{fObjectDist3})
+\end{description}
+
 \begin{figure}[h!t]
   \subfigure[]{\label{fObjectDist1}
     \includegraphics[width=.3\textwidth]{images/umlObjectSubclass}}\hfil
@@ -5116,27 +4102,6 @@ version is passed with each new frame request.
   {\caption{\label{fObjectDist}Object Distribution using Subclassing,
       Proxies or Multiple Inheritance}}
 \end{figure}
-There are multiple ways of implementing data distribution for an
-existing C++ class hierarchy, such as a scene graph:
-\begin{description}
-\item[Subclassing] The classes to be distributed inherit from
-  \textsf{eq::net::Object} and implement the serialization methods. This
-  approach is recommended if the source code of existing classes can be
-  modified. It is used for \textsf{eqPly::InitData} and
-  \textsf{eqPly::FrameData}. (\fig{fObjectDist1})
-\item[Proxies] For each object to be distributed, a proxy object is
-  created which manages data distribution for its associated
-  object. This requires the application to track changes on the object
-  separately from the object itself. The model data distribution of
-  eqPly is using this pattern. (\fig{fObjectDist2})
-\item[Multiple Inheritance] A new class inheriting from the class to be
-  distributed and from \textsf{eq::net::Object} implements the data
-  distribution. This requires the application to instantiate a different
-  type of object instead of the existing object, and to create wrapper
-  methods in the superclass calling the original method and setting the
-  appropriate dirty flags. This pattern is not used in
-  eqPly. (\fig{fObjectDist3})
-\end{description}
 
 \subsubsection{Change Handling and Serialization}
 
@@ -5155,7 +4120,7 @@ are possible:
     should not create any race conditions. No additional data is stored.
   \item[INSTANCE] The object is versioned, and the instance and delta data is
     identical, that is, only instance data is serialized. The serialization
-    always happens before \textsf{Session::registerObject} or
+    always happens before \textsf{LocalNode::registerObject} or
     \textsf{Object::commit} returns. Previous instance data is saved to be able
     to map old versions.
   \item[DELTA] The object is versioned, and the delta data is typically smaller
@@ -5186,23 +4151,25 @@ synchronization in the network layer, Equalizer a light-weight approach which
 requires the application to avoid or handle conflicting changes on the same
 object.
 
-When a slave object instance commits data, \textsf{pack} is called on the
-object. The data serialized by \textsf{pack} is send to the master instance of
-the object. On the master instance, \textsf{notifyNewVersion} is called from the
-command thread to signal the data availability. No new version is generated on
-the slave instance.
-
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/slaveWrites.pdf}
   {\caption{\label{fSlaveCommit}Slave Commit Communication Sequence}}
 \end{wrapfigure}
-The master instance can \textsf{sync} delta data received from slaves. The data
-is synchronized in the order it has been received from the slaves. If a specific
-order is needed, it is the application's responsibity to serialize the slave
-commits accordingly. When using \textsf{VERSION\_NEXT} as the version parameter
+When a slave object instance commits data, \textsf{pack} is called on the
+object. The data serialized by \textsf{pack} is send to the master instance of
+the object. On the master instance, \textsf{notifyNewVersion} is called from the
+command thread to signal the data availability. The slave instance generates a
+unique, random version. When no data was serialized, \textsf{VERSION\_NONE} is
+returned.
+
+The master instance can \textsf{sync} delta data received from slaves. When
+using the version generated by the slave object commit, only the delta for this
+version is applied. When using \textsf{VERSION\_NEXT} as the version parameter
 to \textsf{sync}, one slave commit is unpacked. This call may block if no data
 is pending. When using \textsf{VERSION\_HEAD} all pending versions are
-unpacked. This call will never block.
+unpacked. The data is synchronized in the order it has been received from the
+slaves. If a specific order is needed, it is the application's responsibity to
+serialize the slave commits accordingly.
 
 Synchronizing slave data on a master instance does not create a new version. The
 application has to explicitly call \textsf{commit} to pack the changed data,
@@ -5227,7 +4194,7 @@ is best to adhere to the following rules:
 \begin{itemize}
 \item Handle the case that a slave instance will receive its own changes again.
 \item Set the appropriate dirty bits when unpacking slave delta data on the
-  master object instance.
+  master object instance to redistribute the changes.
 \item Write your application code so that only one object instance is modified
   at any given time. 
 \item When multiple slave instances have to modify the same object at the same
@@ -5247,35 +4214,37 @@ is best to adhere to the following rules:
 \subsubsection{Communication between Object Instances}
 
 Objects can send command packets to each other by subclassing
-\textsf{eq::net::Ob\-ject\-Packet}, which is derived from
-\textsf{SessionPacket}. The object packet extends the session packet by
-the object identifier and an object instance identifier.
+\textsf{co::Ob\-ject\-Packet}, which is derived from \textsf{NodePacket}. The
+object packet extends the node packet by the object identifier and an object
+instance identifier.
+
+Multiple instances of the same object (identifier) can be mapped on the same
+node and session simultaneously. Each object instance has a node-unique instance
+identifier. When the instance ID is set to \textsf{EQ\_INSTANCE\_ALL} (the
+default value), a command is dispatch to all object instances registered to the
+session with the correct object ID. Multiple object instance per node are used
+when different threads on the node need to process a different version of the
+same object.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/netObject.pdf}
   {\caption{\label{fNetObject}Communication between two Objects}}
 \end{wrapfigure}
-Multiple instances of the same object (identifier) can be mapped on the
-same node and session simultaneously. Each object instance has a
-node-unique instance identifier. When the instance ID is set to
-\textsf{EQ\_ID\_ANY} (the default value), a command is dispatch to all
-object instances registered to the session with the correct object
-ID. Multiple object instance per node are used when different threads on
-the node need to process a different version of the same object.
+When the packet is intended for a specific instance, set the instance identifier
+of the object packet to the corresponding value.
 
 Distributed objects provide data synchronization functionality, as described
 above. Additionally, applications can send command packets by creating custom
 object packets with a command greater than \textsf{CMD\_OBJECT\_CUSTOM}.
 
-Distributed object communication relies on the lower node and session
-communication layers, as shown in \fig{fNetObject}.
+Distributed object communication relies on the lower node communication layers,
+as shown in \fig{fNetObject}.
 
 \subsection{Barrier}
 
-The \textsf{eq::net::Barrier} provides a networked barrier primitive. It
-is an \textsf{eq::net::Object} used by Equalizer for software swap
-barrier support, but it can be used as a generic barrier in application
-code.
+The \textsf{co::Barrier} provides a networked barrier primitive. It is an
+\textsf{co::Object} used by Collage for software swap barrier support, but it
+can be used as a generic barrier in application code.
 
 The barrier uses both the data distribution for synchronizing its data,
 as well as custom command packets to implement the barrier logics. A
@@ -5287,14 +4256,14 @@ and enter request are automatically grouped together by version.
 
 The Equalizer client library and server are built on top of the network
 layer. They influence the design of it, and serve as a sample
-implementation on how to use classes in the \textsf{eq::net} namespace.
+implementation on how to use classes in the \textsf{co} namespace.
 
 \subsubsection{\label{sEqObject}eq::fabric::Serializable}
 
-Equalizer uses the \textsf{eq::net::Object} data distribution mechanism for
+Equalizer uses the \textsf{co::Object} data distribution mechanism for
 implementing data distribution between the server, application and render
 clients. Based on dirty bits, \textsf{eq::fabric::Serializable} implements one
-usage pattern for the \textsf{eq::net::Object}, allowing inheritance with data
+usage pattern for the \textsf{co::Object}, allowing inheritance with data
 distribution. It is easier to use, but imposes one typical way to implement data
 distribution.
 
@@ -5302,8 +4271,8 @@ The \textsf{eq::fabric::Serializable} data distribution is based on the concept
 of dirty bits. Dirty bits form a 64-bit mask which marks which parts of the
 object have to be distributed during the next commit.
 
-For serialization, the default \textsf{eq::net::Object} serialization functions
-are implemented by \textsf{eq::fabric::Serializable}, which (de-)serializes and
+For serialization, the default \textsf{co::Object} serialization functions are
+implemented by \textsf{eq::fabric::Serializable}, which (de-)serializes and
 resets the dirty bits, and calls \textsf{serialize} or \textsf{deserialize} with
 the bit mask specifying which data has to be transmitted or received. During a
 commit or sync, the current dirty bits are given, whereas during object mapping
@@ -5331,15 +4300,16 @@ To use \textsf{eq::fabric::Serializable}, the following steps have to be taken:
 The Equalizer entities use the common base class
 \textsf{eq::fabric::Object}. This class manages common entity data, and is not
 intended to by subclassed directly.  The inheritance chain \textsf{eq::View}
-$\rightarrow$ \textsf{eq::fabric::View} $\rightarrow$ \textsf{eq::Object}
-$\rightarrow$ \textsf{eq::fabric::Se\-rial\-izable} $\rightarrow$
-\textsf{eq::net::Object} serves as sample implementation for this process.
+$\rightarrow$ \textsf{eq::fabric::View} $\rightarrow$
+\textsf{eq::fabric::Object} $\rightarrow$ \textsf{eq::fabric::Se\-rial\-izable}
+$\rightarrow$ \textsf{co::Object} serves as sample implementation for this
+process.
 
 The registration and mapping of \textsf{eq::fabric::Serializable}s is done in
-the same way as for \textsf{eq::net::Object}s, which has been described in
+the same way as for \textsf{co::Object}s, which has been described in
 \sref{sNetObject2}. Equalizer objects derived from
-\textsf{eq::fabric::Serializable}, e.g., \textsf{eq::View}, are typically
-registered, mapped and synchronized by Equalizer.
+\textsf{eq::fabric::Serializable}, e.g., \textsf{eq::View}, are registered,
+mapped and synchronized by Equalizer.
 
 
 \newpage
@@ -5770,7 +4740,7 @@ name followed by its value. The following attributes are available:
   glasses. PASSIVE stereo never selects a stereo buffer of a quad-buffered
   drawable. AUTO selects PASSIVE if the left or right eye pass is not used, QUAD
   if the drawable is capable of active stereo rendering, and ANAGLYPH in all
-  other cases.
+  other cases.\\
   \hline
 \end{tabularx}\\\vfill
 
