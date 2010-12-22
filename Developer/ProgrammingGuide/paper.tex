@@ -1703,7 +1703,7 @@ The remainder of the application code cleans up in the reverse order of
 initialization. The config is exited, released and the connection to the server
 is closed:
 
-{\footnotesize\lstinputlisting[firstline=154, lastline=169]
+{\footnotesize\lstinputlisting[firstline=154, lastline=165]
   {../../../src/examples/eqPly/eqPly.cpp}}
 
 \subsubsection{Render Clients}
@@ -1714,7 +1714,7 @@ returns. Therefore the application's main loop is never executed. To
 keep the client resident, the \textsf{eqPly} example overrides the
 client loop to keep it running beyond one configuration run:
 
-{\footnotesize\lstinputlisting[firstline=171, lastline=179]
+{\footnotesize\lstinputlisting[firstline=167, lastline=175]
   {../../../src/examples/eqPly/eqPly.cpp}}
 
 
