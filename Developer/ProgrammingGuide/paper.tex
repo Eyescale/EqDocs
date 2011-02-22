@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.7.10 for Equalizer 1.0$\alpha$ \\[\medskipamount]
+Version 1.8.RC1 for Equalizer 1.0$\beta$ \\[\medskipamount]
 %  \today
 }
 
@@ -52,7 +52,7 @@ Version 1.7.10 for Equalizer 1.0$\alpha$ \\[\medskipamount]
 %\clearpage
 
 \lstset{language=C++}
-\section*{Equalizer 1.0$\alpha$ Programming and User Guide}
+\section*{Equalizer 1.0$\beta$ Programming and User Guide}
 \today
 \subsection*{Contributors}
 
@@ -138,6 +138,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.7.8   & Oct 04, 2010 & Document GPU affinity workaround hint\\
     1.7.9   & Nov 03, 2010 & Add \sref{sErrorHandling}\\
     1.7.10  & Dec 21, 2010 & Review for Equalizer 1.0$\alpha$\\
+    1.8.RC1  & Feb 22, 2010 & Review for Equalizer 1.0$\beta$\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -752,9 +753,9 @@ covered by the segment on the physical canvas. Set the output
 \end{wrapfigure}
 
 For non-planar displays, configure the frustum as described in
-\sref{sCanvas}. For passive stereo installations, configure one segment
-per eye pass, where the segment for the left and right eye have the same
-viewport.
+\sref{sCanvas}. For passive stereo installations, configure one segment per eye
+pass, where the segment for the left and right eye have the same viewport. Set
+the eyes displayed by the segment, i.e., left or right and potentially cyclop.
 
 A segment represents one output channel of the canvas, e.g., a projector
 or an LCD. A segment has an output channel, which references the channel to
@@ -800,8 +801,8 @@ layout will activate different destination channels for rendering.
 
 \subsubsection{Views}
 
-Configure one \textsf{view} for each logical view in each layout. Set
-the \textsf{viewport} to position the view.
+Configure one \textsf{view} for each logical view in each layout. Set the
+\textsf{viewport} to position the view. Set the mode to stereo if appropriate.
 
 A view is a logical view of the application data, in the sense used by
 the Model-View-Controller pattern. It can be a scene, viewing mode,
@@ -1674,7 +1675,8 @@ framerate. For example, we have observed a speedup of 15\% on a
 five-node rendering cluster when using a latency of one frame instead of
 no
 latency\footnote{\link{http://www.equalizergraphics.com/scalability.html}}. A
-latency of one or two frames is normally not perceived by the user.
+latency of one or two frames is normally not perceived by the user. The
+statistics overlay is explained in detail in \sref{sStatisticsOverlay}.
 
 \textsf{eqPly} uses event-driven execution, that is, it only request new
 rendering frames if an event or animation requires an update. The
@@ -1833,7 +1835,7 @@ serialization code:
 
 {\footnotesize\lstinputlisting[firstline=122, lastline=129]
   {../../../src/examples/eqPly/frameData.h}}
-{\footnotesize\lstinputlisting[firstline=51, lastline=77]
+{\footnotesize\lstinputlisting[firstline=54, lastline=80]
   {../../../src/examples/eqPly/frameData.cpp}}
 
 
@@ -1923,19 +1925,17 @@ The config initialization happens in parallel, that is, all config
 initialization tasks are transmitted by the server at once and their
 completion is synchronized afterwards. 
 
-\begin{figure}[ht!]\center
-%\begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-2ex}
-  \includegraphics[width=.9\textwidth]{images/configInit.pdf}
-  {\caption{\label{fConfigInit}Config Initialization Sequence}}
-  \vspace{-4ex}
-\end{figure}
 The tasks are executed by the node and pipe threads in parallel. The parent's
 initialization methods are always executed before any child initialization
 method. This parallelization is necessary to allow a speedy startup of the
 configuration on large-scale graphics clusters. On the other hand, it means that
 initialization functions are called even if the parent's initialization has
 failed. \fig{fConfigInit} shows a sequence diagram of the config initialization.
+\begin{figure}[ht!]\center
+%\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.9\textwidth]{images/configInit.pdf}
+  {\caption{\label{fConfigInit}Config Initialization Sequence}}
+\end{figure}
 
 The \textsf{eqPly::Config} class holds the master versions of the initialization
 and frame data. Both objects are registered with the \textsf{eq::Config}. The
@@ -1988,7 +1988,7 @@ current frame data version. This version is passed to the rendering callbacks
 and will be used by the rendering threads to synchronize the frame data to the
 state belonging to the current frame:
 
-{\footnotesize\lstinputlisting[firstline=314, lastline=321]
+{\footnotesize\lstinputlisting[firstline=310, lastline=317]
   {../../../src/examples/eqPly/config.cpp}}
 
 Updating the shared data is decomposed in different steps. If a tracker is used,
@@ -1996,7 +1996,7 @@ the current head position and orientation is retrieved and passed to Equalizer,
 which uses the head matrix together with the wall or projection description to
 compute the view frusta, as explained in \sref{sTracking}:
 
-{\footnotesize\lstinputlisting[firstline=323, lastline=331]
+{\footnotesize\lstinputlisting[firstline=319, lastline=327]
   {../../../src/examples/eqPly/config.cpp}}
 
 The camera position is recomputed based on the current navigation mode, and the
@@ -2004,7 +2004,7 @@ idle state for rendering is set. When idle, \textsf{eqPly} performs
 anti-aliasing to gradually reduce aliasing effects in the rendering. The idle
 state is tracked by the application and used by the rendering callbacks:
 
-{\footnotesize\lstinputlisting[firstline=333, lastline=363]
+{\footnotesize\lstinputlisting[firstline=329, lastline=359]
   {../../../src/examples/eqPly/config.cpp}}
 
 
@@ -2027,11 +2027,11 @@ correctly regarding latency, and is therefore saved in the frame data.
 The event handling code is shortened here. A detailed description on how to
 customize event handling can be found in \sref{sEventHandling}:
 
-{\footnotesize\lstinputlisting[firstline=391, lastline=394]
+{\footnotesize\lstinputlisting[firstline=387, lastline=390]
   {../../../src/examples/eqPly/config.cpp}}
-{\footnotesize\lstinputlisting[firstline=454, lastline=485]
+{\footnotesize\lstinputlisting[firstline=450, lastline=481]
   {../../../src/examples/eqPly/config.cpp}}
-{\footnotesize\lstinputlisting[firstline=532, lastline=538]
+{\footnotesize\lstinputlisting[firstline=528, lastline=534]
   {../../../src/examples/eqPly/config.cpp}}
 
 
@@ -2053,7 +2053,7 @@ no view is configured.
 The pre-process config instance maintains the mapped models, and lazily maps new
 models, which are registered by the application process:
 
-{\footnotesize\lstinputlisting[firstline=288, lastline=312]
+{\footnotesize\lstinputlisting[firstline=284, lastline=308]
   {../../../src/examples/eqPly/config.cpp}}
 
 \subsubsection{Layout and View Handling}
@@ -2076,7 +2076,7 @@ rendering modes or annotations. A view is a generic concept for an
 application-specific view on data, \textsf{eqPly} is using different
 models to illustrate the concept:
 
-{\footnotesize\lstinputlisting[firstline=833, lastline=870]
+{\footnotesize\lstinputlisting[firstline=790, lastline=859]
   {../../../src/examples/eqPly/config.cpp}}
 
 The layout of the canvas with the active view can also be dynamically
@@ -2121,7 +2121,7 @@ The actual mapping of the static data is done by the config. The config
 retrieves the distributed \textsf{InitData}. The object is directly unmapped
 since it is static, and therefore all data has been retrieved:
 
-{\footnotesize\lstinputlisting[firstline=261, lastline=272]
+{\footnotesize\lstinputlisting[firstline=257, lastline=268]
   {../../../src/examples/eqPly/config.cpp}}
 
 \subsection{Pipe}
@@ -2474,7 +2474,7 @@ void eq::Channel::frameDraw( const uin128_t& frameID )
 \end{lstlisting}}
 
 \begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/DB.png}
+  \vspace{-2ex}\includegraphics[width=.382\textwidth]{images/DB.png}
   {\caption{\label{fDBDest}Destination View of a DB Compound using
       Demonstrative Coloring}}
 \end{wrapfigure}
@@ -2511,7 +2511,7 @@ Furthermore, the render state from the window and the database range
 from the channel is obtained. The render state manages display list or
 VBO allocation:
 
-{\footnotesize\lstinputlisting[firstline=600, lastline=621]
+{\footnotesize\lstinputlisting[firstline=591, lastline=610]
   {../../../src/examples/eqPly/channel.cpp}}
 
 The model data is spatially organized in a 3-dimensional
@@ -2549,7 +2549,7 @@ the compiled display lists or VBO's across all windows of a pipe.
 
 The main rendering loop in \textsf{eqPly} looks like this:
 
-{\footnotesize\lstinputlisting[firstline=628, lastline=698]
+{\footnotesize\lstinputlisting[firstline=619, lastline=689]
   {../../../src/examples/eqPly/channel.cpp}}
 
 \subsubsection{Assembly}
@@ -2675,6 +2675,10 @@ events for an \textsf{AGLWindowIF}, \textsf{GLXWindowIF} and
 \textsf{WGL\-Win\-dowIF}, respectively. \fig{fEventUML} illustrates the
 class hierarchy for event processing.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
+  {\caption{\label{fEventUML}UML Class Diagram for Event Handling}}
+\end{wrapfigure}
 The concrete implementation of these window interfaces is responsible
 for setting up and de-initializing event handling.
 
@@ -2689,10 +2693,6 @@ event handler for all important events. The event handler uses an
 Carbon handler is removed when the window's event handler is deleted. No
 event handling is set up for PBuffers.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
-  {\caption{\label{fEventUML}UML Class Diagram for Event Handling}}
-\end{wrapfigure}
 For each window, one \textsf{GLXEventHandler} is allocated. FBO's and PBuffers
 are handled in the same way as window drawables. The event dispatch finds the
 corresponding event handler for each received event, which is then used to
@@ -2922,6 +2922,10 @@ of the scene data.
 
 \subsubsection{Thread Synchronization in Detail}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
+  {\caption{\label{fFrameSync}Per-Node Frame Synchronization}}
+\end{wrapfigure}
 The application has extended control over the task synchronization
 during a frame. Upon \textsf{Config::startFrame}, Equalizer invokes the
 \textsf{frameStart} task methods of the various entities. The entities
@@ -2932,6 +2936,7 @@ e.g., \textsf{Window::startFrame}, are currently empty since the
 synchronization is implicit due to the sequential execution within the
 thread.
 
+\fig{fFrameSync} illustrates the local frame synchronization.
 Each entity uses \textsf{waitFrame\-Started} to block on the parent's
 \textsf{startFrame}, e.g., \textsf{Pipe::\-frame\-Start} calls
 \textsf{Node::wait\-Frame\-Started} to wait for the corresponding
@@ -2955,12 +2960,6 @@ for this frame. Consequently, \textsf{Pipe::frameDraw\-Fi\-nish} calls
 drawing the current frame, and \textsf{Node::frameDrawFinish} calls
 \textsf{Pipe::waitFrameLocal} for each of its pipes to block the node
 thread until the current frame has been drawn.
-
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frameSync.pdf}
-  {\caption{\label{fFrameSync}Per-Node Frame Synchronization}}
-\end{wrapfigure}
-\fig{fFrameSync} illustrates the local frame synchronization.
 
 The second, global synchronization is used for the frame completion
 during \textsf{Config::finishFrame}, which causes \textsf{frameFinish}
@@ -3140,12 +3139,12 @@ The top-level AGL window initialization code therefore looks as follows:
 
 \subsubsection{GLX Window Initialization}
 
-GLX initialization is very similar to AGL initialization. Again the
-steps are: choose visual (pixel format), create OpenGL context and then
+GLX initialization is very similar to AGL initialization. Again the steps are:
+choose frame buffer configuration (pixel format), create OpenGL context and then
 create drawable. The only difference is that the data returned by
-\textsf{chooseXVisualInfo} has to be freed using \textsf{XFree}:
+\textsf{chooseGLXFBConfig} has to be freed using \textsf{XFree}:
 
-{\footnotesize\lstinputlisting[firstline=67, lastline=95]
+{\footnotesize\lstinputlisting[firstline=67, lastline=101]
   {../../../src/libs/client/glXWindow.cpp}}
 
 
@@ -3256,6 +3255,10 @@ the active layout of a canvas, are distributed using slave object commits
 using a distributable \textsf{UserData} object. \fig{fViewUML} shows the UML
 class hierarchy for the \textsf{eqPly::View}.
 
+\begin{wrapfigure}{r}{.612\textwidth}
+  \includegraphics[width=.612\textwidth]{images/viewUML.pdf}
+  {\caption{\label{fViewUML}UML Hierarchy of \textsf{eqPly::View}}}
+\end{wrapfigure}
 The render clients can access a slave instance of the view using
 \textsf{Channel::getView}. When called from one of the frame task
 methods, this method will return the view of the current destination
@@ -3267,10 +3270,6 @@ Equalizer commits dirty layout entities at the beginning of each
 \textsf{Config::startFrame}, and synchronizes the slave instances on the
 render clients correctly with the current frame.
 
-\begin{wrapfigure}{r}{.612\textwidth}
-  \includegraphics[width=.612\textwidth]{images/viewUML.pdf}
-  {\caption{\label{fViewUML}UML Hierarchy of \textsf{eqPly::View}}}
-\end{wrapfigure}
 The most common entity to subclass is the \textsf{View}, since the application
 often amends with view-specific application data. A view might have a
 distributable user data object, which has to inherit from \textsf{co::Object} to
@@ -3305,7 +3304,7 @@ handling has to be done by the application:
 {\footnotesize\lstinputlisting[firstline=78, lastline=85]
   {../../../src/examples/eqPly/view.cpp}}
 
-\subsubsection{Dynamic Layout Switch}
+\subsubsection{Run-time Layout Switch}
 
 The application can use a different layout on a canvas. This will cause
 the running entities to be updated on the next frame. At a minimum, this
@@ -3325,6 +3324,37 @@ the whole configuration, and send an \textsf{EXIT} event to the
 application node. The exit event will cause the application to exit,
 since it resets the config's running state.
 
+\subsubsection{Run-time Stereo Switch}
+
+Similar to switch a layout, the stereo mode of each view can be switched at
+runtime. This causes all destination channels of the view to update the cyclop
+eye or the left and right eye.
+
+The configuration contains stereo information in three places: the view, the
+segment and the compound.
+
+The view defines which stereo mode is active: mono or stereo. This setting can
+be done in the configuration file or programmatically.
+
+The segment has the \textsf{eye} attribute in the configuration file which
+defines which eyes are displayed by this segment. This is typically all eyes for
+active stereo projections and the left or right eye for passive stereo. The
+cyclop eye for passive stereo can either be set on a single segment or both,
+depending if the second projector is active during monoscopic rendering. The
+default setting enables all eyes for a segment.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/stereoSwitch.pdf}
+  {\caption{\label{fStereoSwitch}Using two different decompositions during
+      stereo and mono rendering}}
+\end{wrapfigure}
+The compound has an \textsf{eye} attribute defining which eyes it is capable of
+updating. This allows to specify different compounds for the same channel,
+depending on the stereo mode. One use case is to use one GPU each for updating a
+stereo destination channel in stereo mode, and using a 2D compound with the two
+GPUs in mono mode. \fig{fStereoSwitch} illustrates this example. The coloring in
+mono mode is to illustrate the 2D decomposition. The default setting for the
+compound eye attributes is all eyes.
 
 \subsubsection{View Frustum Update}
 
@@ -3333,15 +3363,15 @@ application windows and multi-view layouts, where the rendering is not
 meant to be viewed in real-world size in an immersive environment. A
 typical use case is changing the field-of-view of the rendering.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/viewUpdate.pdf}
+  {\caption{\label{fViewUpdate}Event Flow during a View Update}}
+\end{wrapfigure}
 A view is derived from \textsf{eq::Frustum} (\fig{fViewUML}), and the
 application process can set the wall or projection parameters at
 runtime. For a description of wall and projection parameters please refer
 to \sref{sFrustum}. The new data will be effective for the next frame.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/viewUpdate.pdf}
-  {\caption{\label{fViewUpdate}Event Flow during a View Update}}
-\end{wrapfigure}
 The frustum of a view overrides the underlying frustum of the
 segments. The frustum of a view does not typically correspond to a
 physical projection, and can therefore be changed at runtime. The
@@ -3603,10 +3633,6 @@ same blending parameters. Simplified, the frame buffer images are
 `thick' slices which are `rendered' by writing their content to the
 destination frame buffer using the correct order.
 
-\begin{wrapfigure}{l}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -3615,6 +3641,10 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
+\begin{wrapfigure}{l}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 Finding the correct assembly order for perspective frusta is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frusta. For the view and
@@ -3649,46 +3679,41 @@ compositing algorithms such as direct-send.
 
 The eqPly example contains support for software anti-aliasing when being idle,
 showing how to combine it with subpixel compounds. The same basic algorithm
-might be applied to ohter multi-sampling effects, e.g., depth-of-field.
+might be applied to other multi-sampling effects, e.g., depth-of-field.
 
-\subsubsection{Supersampling Algorithm}
+\subsubsection{Software Anti-Aliasing in eqPly}
 
 The supersampling algorith used by eqPly performs anti-aliasing, using a
 technique which computes samples within a pixel by jittering the frustum by a
 subpixel amount. The pixel is split into several, regular sub-pixels and a
 sample is taken randomly within the sub-pixel.
 
-The subpixel area is a function of the current jitter step and the channel's
-\textsf{subpixel} description. To evenly distribute jitter values for all
-channels over the total sub-pixel grid a precomputed prime number table is used
-to pseudo-randomly select the subpixel:
+The subpixel area is a function of the current jitter step, the channel's
+\textsf{subpixel} description and the idle state. To evenly distribute jitter
+values for all channels over the total sub-pixel grid a precomputed prime number
+table is used to pseudo-randomly select the subpixel:
 
-{\footnotesize\lstinputlisting[firstline=556, lastline=579]
+{\footnotesize\lstinputlisting[firstline=547, lastline=570]
   {../../../src/examples/eqPly/channel.cpp}}
 
 When the rendering is not in idle mode, the jitter is queried from
 Equalizer which returns an optimal subpixel offset for the given subpixel
 decomposition. This is used during normal rendering of subpixel compounds.
 
-During idle rendering of any decomposition, the jitter for the frustum is
-computed using the normalized subpixel center point and the size of a pixel on
-the near plane. A random position within the sub-pixel is set as a sample
-position, which will be used to move the frustum:
-
-{\footnotesize\lstinputlisting[firstline=512, lastline=554]
-  {../../../src/examples/eqPly/channel.cpp}}
-
-\subsubsection{Idle Anti-Aliasing in eqPly}
-
 The \textsf{FrameData} class holds the information whether or not the
 application is in idle mode. The \textsf{Config} updates the idle mode
 information depending on the application's state.  Each \textsf{Channel} will
 perform anti-aliasing when no user event requires a redraw.
 
-If the application is in idle mode, the \textsf{applyFrustum} operation will 
-apply the computed jitter vector to the current frustum:
+During idle rendering of any decomposition, the jitter for the frustum is
+computed using the normalized subpixel center point and the size of a pixel on
+the near plane. A random position within the sub-pixel is set as a sample
+position, which will be used to move the frustum. The \textsf{getJitter} method
+will return the the computed jitter vector for the current frustum. This method
+has a default implementation in \textsf{eq::Channel} for subpixel compounds, but
+is overwritten in \textsf{eqPly} to perform idle anti-aliasing:
 
-{\footnotesize\lstinputlisting[firstline=377, lastline=400]
+{\footnotesize\lstinputlisting[firstline=491, lastline=533]
   {../../../src/examples/eqPly/channel.cpp}}
 
 At the end of the frame, \textsf{frameViewFinish} accumulates the frame buffer
@@ -3752,44 +3777,42 @@ much faster if the current configuration uses a subpixel compound.
 \subsubsection{Statistics Gathering}
 
 Statistics are measured in milliseconds since the configuration was
-initialized. On each node, the global configuration clock is synchronized
-with the server clock. Each statistic event records the originator's
-(channel, window, frame or config) unique identifier.
+initialized. The server synchronizes the per-configuration clock on each node
+automatically. Each statistic event records the originator's (channel, window,
+pipe, node, view or config) unique identifier.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/statistics}
-  {\caption{\label{fStatistics}Statistics for a two-Node 2D Compound}}
+  {\caption{\label{fStatistics}Statistics for a two node 2D compound}}
 \end{wrapfigure}
-Statistics are enabled per entity using an attribute hint. The hint
-determines how precise the gathered statistics are. When set to
-\textsf{fastest}, the per-frame clock is sampled directly when the event
-occurs. When set to \textsf{nicest}, all OpenGL commands will be
-finished before sampling the event. This incurs a performance penalty,
-but gives more correct results. The default setting is fastest in
-release builds, and nicest in debug builds.
+Statistics are enabled per entity using an attribute hint. The hint determines
+how precise the gathered statistics are. When set to \textsf{fastest}, the
+per-frame clock is sampled directly when the event occurs. When set to
+\textsf{nicest}, all OpenGL commands will be finished before sampling the
+event. This may incur a performance penalty, but gives more correct results. The
+default setting is fastest in release builds, and nicest in debug builds. The
+fastest setting often attributes times to the operation causing an OpenGL
+synchronization instead of the operation submitting the OpenGL commands, e.g.,
+the readback time contains operations from the preceding draw operation.
 
-The events are processed by the channel's and window's
-\textsf{processEvent} method. The default implementation sends these
-events to the config using \textsf{Config::sendEvent}, as explained in
-\sref{sEventHandling}. When the default implementation of
-\textsf{Config::handleEvent} receives the statistics event, it sorts the
-event per frame and per originator. When a frame has been finished, the
-events are pushed to the local (app-)node for visualization.
+The events are processed by the channel's and window's \textsf{processEvent}
+method. The default implementation sends these events to the config using
+\textsf{Config::sendEvent}, as explained in \sref{sEventHandling}. When the
+default implementation of \textsf{Config::handleEvent} receives the statistics
+event, it sorts the event per frame and per originator. When a frame has been
+finished, the events are pushed to the local (app-)node for visualization.
 
 \fig{fStatistics} shows the visualization of statistics events in an
 overlay\footnote{3D model courtesy Cyberware, Inc.}.
 
-\subsubsection{Statistics Overlay}
+\subsubsection{\label{sStatisticsOverlay}Statistics Overlay}
 
-The Equalizer examples render a statistics overlay using the gathered
-statistics events directly before
-\textsf{Window::swapBuffers}. Statistics are toggled on and off using
-the 's' key. The overlay rendering method,
-\textsf{Channel::drawStatistics}, can be called directly by any
-application to render the overlay. It can also be overwritten by a
-custom implementation.
+The \textsf{eq::Channel} provides the method \textsf{drawStatistics} which
+renders a statistics overlay using the gathered statistics events. Statistics
+rendering is toggled on and off using the 's' key in the shipped Equalizer
+examples.
 
-\fig{fStatisticsDetail} shows a detail view of \fig{fStatistics}. The
+\fig{fStatisticsDetail} shows a detailed view of \fig{fStatistics}. The
 statistics shown are for a two-node 2D compound. The destination channel
 is on the \textsf{appNode} and contributes to the rendering.
 
@@ -3804,61 +3827,65 @@ This configuration executes two \textsf{Channel::frameDraw} tasks, one
 \textsf{Channel::frameAssemble} task on the local node, as well as frame
 transmission and compression.
 
-The X axis is the time. One pixel on the screen corresponds to a given
-time unit, here one millisecond per pixel. The scale is zoomed dynamically
-to powers-of-ten milliseconds to fit the statistics into the available
-viewport. This allows easy and accurate evaluations of bottlenecks or
-misconfigurations in the rendering pipeline. The scale of the statistics
-is printed.
+The X axis is the time, the right-most pixel is the most current time. One
+pixel on the screen corresponds to a given time unit, here one millisecond per
+pixel. The scale is zoomed dynamically to powers-of-ten milliseconds to fit the
+statistics into the available viewport. This allows easy and accurate
+evaluations of bottlenecks or misconfigurations in the rendering pipeline. The
+scale of the statistics is printed directly above the legend.
 
-The rightmost pixel is the most current time. On the Y axis are the
-entities: channels, windows, frames and the config. The upper channel is
-the local channel since it executes \textsf{frameAssemble}, and the
-lower channel is the remote channel, executing \textsf{frameReadback}.
+On the Y axis are the entities: channels, windows, nodes and the config. The
+top-most channel is the local channel since it executes \textsf{frameAssemble},
+and the lower channel is the remote channel, executing \textsf{frameReadback}.
 
-The draw time has been artificially inflated by using immediate mode
-rendering to provide more expressive statistics.
+To facilitate the understanding, older frames are gradually grayed out. The
+rightmost, current frame is brighter than the frame before it.
 
-To facilitate the understanding, older frames are gradually grayed
-out. The rightmost, current frame is brighter than the
-frame-before-last.
+The configuration uses the default latency of one frame. Consequently, the
+execution of two frames overlaps. This can be observed in the early execution of
+the remote channel's \textsf{frameDraw}, which starts while the local channel is
+still drawing and assembling the previous frame. 
 
-The configuration used has a latency of one frame. Consequently, the
-execution of two frames overlaps. This can be observed in the early
-execution of the remote channel's \textsf{frameDraw}, which starts while
-the local channel is still assembling the previous frame.
+The asynchronous execution allows operations to be pipelined, i.e., the
+compression, network transfer and assembly with the actual rendering and
+readback. This increases performance by minimizing idle and wait times. In this
+example, the remote \textsf{channel2} has no idle times, and executes the
+compression and network transfer of its output frame in parallel with rendering
+and readback. Likewise, the application node receives and decompresses the frame
+in parallel to its rendering thread.
 
-The beginning of a frame is marked by a vertical green line, and the end
-of a frame by a vertical gray line. These lines are also attenuated. The
-brightness and color matches the event for \textsf{Config::startFrame}
-and \textsf{Config::finishFrame}, respectively. The event for
-\textsf{startFrame} is typically not visible, since it takes less than
-one millisecond to execute. If no idle processing is done by the
-application, the event for \textsf{finishFrame} occupies a full frame,
-since the config is blocked here waiting for the frame to complete.
+In the above example, the local channel finishes drawing the frame early, and
+therefore spends a couple of milliseconds waiting for the input frame from the
+remote channel. These wait events, rendered red, are a sub-event of the yellow
+\textsf{frameAssemble} task. Using a \textsf{load\_equalizer} instead of a
+static 2D decomposition would balance the rendering in this example better and
+minimize or even eliminate this wait time.
 
-In the above example, the local channel finishes drawing the frame
-early, and therefore spends a considerable amount of time waiting for
-the input frame from the remote channel. These wait events, rendered
-red, are a sub-event of the yellow \textsf{frameAssemble} task.
+The white \textsf{Window::swapBuffers} task might take a longer time, since the
+execution of the swap buffer is locked to the vertical retrace of the
+display. Note that the remote source window does not execute swapBuffers in
+this configuration, since it is a single-buffered FBO.
 
-The frame statistics provide information on the image transmission for
-scalable rendering. They are grouped per frame, not per node, that is,
-the transmit and compress part are executed by one node and the receive
-by another, even though the statistics are drawn in the same line. The
-decompression time is part of the receive statistic. The total
-compression ratio is printed with each compression statistic, in this
-case the image has been compressed to 11\% of its original size.
+The beginning of a frame is marked by a vertical green line, and the end of a
+frame by a vertical gray line. These lines are also attenuated. The brightness
+and color matches the event for \textsf{Config::startFrame} and
+\textsf{Config::finishFrame}, respectively. The event for \textsf{startFrame} is
+typically not visible, since it takes less than one millisecond to execute. If
+no idle processing is done by the application, the event for
+\textsf{finishFrame} occupies a full frame, since the config is blocked here
+waiting for the frame \textsf{current - latency} to complete.
 
-The white \textsf{Window::swapBuffers} task might also take also a long
-time, since the execution of the swap buffer is locked to the vertical
-retrace of the display, and enforced by \textsf{glFinish} before
-sampling the end time of the event. In release builds, this does not
-happen and all OpenGL commands are pipelined with the execution on the
-CPU.
-
-Note that the remote source window does not execute the swapBuffers in
-this configuration, since it is a single-buffered PBuffer.
+A legend directly below the statistics facilitates understanding. It lists the
+per-entity operations with its associated color. Furthermore, some other textual
+information is overlayed with the statistics. The total compression ratio is
+printed with each readback and compression statistic. In this case the image has
+been not been compressed during download. For network transfer it has been
+compressed to 1\% of its original size since it contains a lot of black
+background pixels. For readback the plugin with the name \textsf{0x101,
+  EQ\_COMPRESSOR\_TRANS\-FER\_RGBA\_TO\_BGRA} has been used, and for compression
+the plugin \textsf{0x11, EQ\_COM\-PRESSOR\_RLE\_DIFF\_BGRA} was used. The
+compressor names are listed in the associated plugin header
+\textsf{compressorTypes.h}.
 
 \subsection{\label{sCUDA}GPU Computing with CUDA}
 
@@ -3990,14 +4017,14 @@ be done by connecting the remote node to the local node by using its
 this node from the already-connected nodes, instantiating the node and
 connecting it. Both operations may fail.
 
-\fig{fNetNode} shows the communication between two nodes. The nodes in
-the listening state also have a listening connection, which is not shown
-in the Figure for complexity reasons.
-
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/netNode.pdf}
   {\caption{\label{fNetNode}Communication between two Nodes}}
 \end{wrapfigure}
+\fig{fNetNode} shows the communication between two nodes. The nodes in
+the listening state also have a listening connection, which is not shown
+in the Figure for complexity reasons.
+
 When the remote node sends a packet, the listening node receives the
 packet and dispatches it from the receiver thread using the method
 \textsf{dispatchCommand}. The default implementation knows how to
@@ -4071,6 +4098,17 @@ the frame-specific data, e.g., the global camera data, is versioned. The
 frame data identifier is passed in the initial data, and the frame data
 version is passed with each new frame request.
 
+\begin{figure}[h!t]
+  \subfigure[]{\label{fObjectDist1}
+    \includegraphics[width=.3\textwidth]{images/umlObjectSubclass}}\hfil
+  \subfigure[]{\label{fObjectDist2}
+    \includegraphics[width=.3\textwidth]{images/umlObjectProxy}}\hfil
+  \subfigure[]{\label{fObjectDist3}
+    \includegraphics[width=.3\textwidth]{images/umlObjectMI}}%
+  {\caption{\label{fObjectDist}Object Distribution using Subclassing,
+      Proxies or Multiple Inheritance}}
+\end{figure}
+
 There are multiple ways of implementing data distribution for an
 existing C++ class hierarchy, such as a scene graph:
 \begin{description}
@@ -4091,17 +4129,6 @@ existing C++ class hierarchy, such as a scene graph:
   superclass calling the original method and setting the appropriate dirty
   flags. This pattern is not used in eqPly. (\fig{fObjectDist3})
 \end{description}
-
-\begin{figure}[h!t]
-  \subfigure[]{\label{fObjectDist1}
-    \includegraphics[width=.3\textwidth]{images/umlObjectSubclass}}\hfil
-  \subfigure[]{\label{fObjectDist2}
-    \includegraphics[width=.3\textwidth]{images/umlObjectProxy}}\hfil
-  \subfigure[]{\label{fObjectDist3}
-    \includegraphics[width=.3\textwidth]{images/umlObjectMI}}%
-  {\caption{\label{fObjectDist}Object Distribution using Subclassing,
-      Proxies or Multiple Inheritance}}
-\end{figure}
 
 \subsubsection{Change Handling and Serialization}
 
@@ -4218,6 +4245,10 @@ Objects can send command packets to each other by subclassing
 object packet extends the node packet by the object identifier and an object
 instance identifier.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
+  {\caption{\label{fNetObject}Communication between two Objects}}
+\end{wrapfigure}
 Multiple instances of the same object (identifier) can be mapped on the same
 node and session simultaneously. Each object instance has a node-unique instance
 identifier. When the instance ID is set to \textsf{EQ\_INSTANCE\_ALL} (the
@@ -4226,10 +4257,6 @@ session with the correct object ID. Multiple object instance per node are used
 when different threads on the node need to process a different version of the
 same object.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
-  {\caption{\label{fNetObject}Communication between two Objects}}
-\end{wrapfigure}
 When the packet is intended for a specific instance, set the instance identifier
 of the object packet to the corresponding value.
 
@@ -4432,6 +4459,29 @@ name followed by its value. The following attributes are available:
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
+  \textbf{Name} & EQ\_CONFIG\_IATTR\_ROBUSTNESS\\
+  \textbf{Value} & ON \textbar \ OFF\\
+  \textbf{Default} & ON\\
+  \textbf{Details} & Handle initialization failures robustly by deactivating the
+  failed resources but keeping the configuration running.\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_CONFIG\_FATTR\_EYE\_BASE\\
+  \textbf{Value} & float\\
+  \textbf{Default} & 0.05\\
+  \textbf{Details} & The default distance in meters between the left and
+  the right eye, i.e., the eye separation. The eye base influences the
+  frustum during stereo rendering. See \sref{sTracking} for details.\\
+  \textbf{See also} & EQ\_WINDOW\_IATTR\_HINT\_STEREO
+  EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
   \textbf{Name} & EQ\_NODE\_SATTR\_LAUNCH\_COMMAND\\
   \textbf{Value} & string\\
   \textbf{Default} & ssh -n \%h \%c \textgreater\& \%h.\%n.log [POSIX]\\
@@ -4472,19 +4522,6 @@ name followed by its value. The following attributes are available:
   an auto-launched node. If the render client process did not contact
   the server within that time, the node is considered to be unreachable
   and the initialization of the configuration fails.\\
-  \hline
-\end{tabularx}\\\vfill
-
-\begin{tabularx}{\textwidth}{|l|X|}
-  \hline
-  \textbf{Name} & EQ\_CONFIG\_FATTR\_EYE\_BASE\\
-  \textbf{Value} & float\\
-  \textbf{Default} & 0.05\\
-  \textbf{Details} & The default distance in meters between the left and
-  the right eye, i.e., the eye separation. The eye base influences the
-  frustum during stereo rendering. See \sref{sTracking} for details.\\
-  \textbf{See also} & EQ\_WINDOW\_IATTR\_HINT\_STEREO
-  EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -4731,7 +4768,7 @@ name followed by its value. The following attributes are available:
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
   \textbf{Name} & EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
-  \textbf{Value} & AUTO \textbar QUAD \textbar \ ANAGLYPH \textbar \ PASSIVE\\
+  \textbf{Value} & AUTO \textbar \ QUAD \textbar \ ANAGLYPH \textbar \ PASSIVE\\
   \textbf{Default} & AUTO\\
   \textbf{Details} & Selects the algorithm used for stereo
   rendering. QUAD-buffered stereo uses the left and right buffers of a stereo
@@ -4762,7 +4799,7 @@ name followed by its value. The following attributes are available:
   \textbf{Details} & Select the color mask for the right eye pass during
   anaglyphic stereo rendering.\\
   \hline
-\end{tabularx}\\%\vfill
+\end{tabularx}\\\vfill
 \end{center}
 
 \subsection{Server Section}
@@ -4808,21 +4845,8 @@ establish a connection to the node. When auto-launched by the server,
 all connection descriptions of the node are passed to the launched node
 process, which will cause it to bind to all provided descriptions.
 
-{\footnotesize\begin{lstlisting}
-server
-{
-    connection # 0-n times, listening connections of the server
-    {
-        type       TCPIP | SDP | RSP | PIPE [Win32 only]
-        port       unsigned
-        filename   string
-        hostname   string
-        interface  string
-    }
-
-    config {...} # 1-n times, currently only the first one is used by the server
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=87, lastline=98]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{Config Section}
 
@@ -4845,23 +4869,16 @@ rendering tasks started one frame ago in \textsf{finishFrame}.
 
 For a description of config attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\begin{lstlisting}
-config
-{
-    latency int    # Nr. of frames nodes may fall behind application, default 1
-    attributes
-    {
-         eye_base float # distance between left and right eye
-    }
-
-    appNode {...}  # 0|1 times, launches render threads within app process
-    node {...}     # 1-n times, a system in the cluster
-    observer {...} # 0-n times, one tracked entity
-    layout {...}   # 0-n times, logical views on canvases
-    canvas {...}   # 0-n times, physical segment layout of a projection surface
-    compound {...} # 0-n times, rendering description
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=98, lastline=108]
+  {../../../website/documents/design/fileFormat.shtml}}
+{\footnotesize\lstinputlisting[firstline=172, lastline=172]
+  {../../../website/documents/design/fileFormat.shtml}}
+{\footnotesize\lstinputlisting[firstline=178, lastline=178]
+  {../../../website/documents/design/fileFormat.shtml}}
+{\footnotesize\lstinputlisting[firstline=205, lastline=205]
+  {../../../website/documents/design/fileFormat.shtml}}
+{\footnotesize\lstinputlisting[firstline=249, lastline=249]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{Node Section}
 
@@ -4871,27 +4888,8 @@ name of the node can be used for debugging, it has no influence on the
 execution of Equalizer. For a description of node and connection
 attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\begin{lstlisting}
-node
-{
-    name     string
-    connection # 0-n times, possible connections to this node
-    {
-        type          TCPIP | SDP | PIPE
-        TCPIP_port    unsigned
-        PIPE_filename string
-        hostname      string
-        command       string      # render client launch command
-        command_quote 'character' # launch command argument quote char
-        timeout       unsigned    # timeout in milliseconds for launch
-    }
-    attributes
-    {
-        thread_model    ASYNC | DRAW_SYNC | LOCAL_SYNC
-    }
-    pipe {...} # 1-n times
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=107, lastline=125]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{Pipe Section}
 
@@ -4928,22 +4926,8 @@ used.
 
 For a description of pipe attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\begin{lstlisting}
-pipe
-{
-    name     string
-    port     unsigned     # X server number or ignored
-    device   unsigned     # graphics adapter number
-    viewport [ viewport ] # default: autodetect
-    attributes
-    {
-        hint_thread            OFF | ON   # default ON
-        hint_cuda_GL_interop   OFF | ON   # default OFF
-    }
-
-    window {...} # 1-n times
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=125, lastline=136]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{Window Section}
 
@@ -4965,33 +4949,8 @@ full-screen window.
 
 For a description of window attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\begin{lstlisting}
-window
-{
-    name     string
-    viewport [ viewport ] # wrt pipe, default full screen
-
-    attributes
-    {
-        hint_stereo         OFF | ON | AUTO
-        hint_doublebuffer   OFF | ON | AUTO
-        hint_decoration     OFF | ON
-        hint_fullscreen     OFF | ON
-        hint_swapsync       OFF | ON         # AGL, WGL only
-        hint_drawable       window | pbuffer | FBO
-        hint_statistics     off | fastest [on] | nicest
-        planes_color        unsigned | RGBA16F | RGBA32F
-        planes_alpha        unsigned
-        planes_depth        unsigned
-        planes_stencil      unsigned
-        planes_accum        unsigned
-        planes_accum_alpha  unsigned
-        planes_samples      unsigned
-    }
-
-    channel {...} # 1-n times
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=136, lastline=158]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{Channel Section}
 
@@ -5011,19 +4970,8 @@ partially overwritten with framebuffer objects.
 
 For a description of channel attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\begin{lstlisting}
-channel
-{
-    name     string
-    viewport [ viewport ] #wrt window, default full window
-    drawable [ FBO_COLOR FBO_DEPTH FBO_STENCIL ]
-
-    attributes
-    {
-        hint_statistics     OFF | FASTEST [ON] | NICEST
-    }
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=158, lastline=167]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{Observer Section}
 
@@ -5033,13 +4981,8 @@ debugging, it has no influence on the execution of Equalizer. It can be
 used to reference the observer in views, in which case the name should
 be unique. Not all views have to be tracked by an observer.
 
-{\footnotesize\begin{lstlisting}
-observer # 0...n times
-{
-    name    string
-    eyeBase float
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=172, lastline=176]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{Layout Section}
 
@@ -5057,20 +5000,17 @@ intersection between views and segments defines which output
 as destination channels in a compound. They are automatically created
 during configuration loading or creation.
 
-{\footnotesize\begin{lstlisting}
-layout  # 0...n times
-{
-    name string
-    view {...}  # 1...n times
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=178, lastline=181]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{View Section}
 
 A view represents a 2D area on a canvas. It has a name, viewport,
 observer and frustum. The name of a view can be used for debugging, it
 has no influence on the execution of Equalizer. It can be used to
-reference the view, in which case the name should be unique.
+reference the view, in which case the name should be unique. The viewport
+specifies which 2D area of the parent layout is covered by this view in
+normalized coordinates.
 
 A view can have a frustum description. The view's frustum overrides
 frusta specified at the canvas or segment level. This is typically used
@@ -5079,33 +5019,15 @@ side-by-side. If the view does not specify a frustum, the corresponding
 destination channels will use the sub-frustum resulting from the
 view/segment intersection.
 
+A view has a stereo mode, which defines if the corresponding destination channel
+update the cyclop or left and right eye.
+
 A view is a view on the application's model, in the sense used by the
 Model-View-Controller pattern. It can be a scene, viewing mode, viewing
 position, or any other representation of the application's data.
 
-{\footnotesize\begin{lstlisting}
-view  # 1...n times
-{
-    name     string
-    observer observer-ref
-    viewport [ viewport ]
-
-    wall       // frustum description
-    {
-        bottom_left  [ float float float ]
-        bottom_right [ float float float ]
-        top_left     [ float float float ]
-        type         fixed | HMD
-    }
-    projection // alternate frustum description, last one wins
-    {
-        origin       [ float float float ]
-        distance     float
-        fov          [ float float ]
-        hpr          [ float float float ]
-    }
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=181, lastline=202]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{Canvas Section}
 
@@ -5117,37 +5039,15 @@ name should be unique.
 
 Each canvas is made of one or more segments. Segments can be planar or
 non-planar to each other, and can overlap or have gaps between each
-other. A canvas can define a frustum, which will create default, planar
+other. A canvas can define a frustum, which will create default planar
 sub-frusta for its segments.
 
 The layouts referenced by the canvas can be applied to it by the
 application at runtime. One layout can be referenced by multiple
 canvases. The first layout is the layout active by default.
 
-{\footnotesize\begin{lstlisting}
-canvas  # 0...n times
-{
-    name    string
-    layout  layout-ref   # 1...n times
-
-    wall       
-    {
-            bottom_left  [ float float float ]
-            bottom_right [ float float float ]
-            top_left     [ float float float ]
-            type         fixed | HMD
-    }
-    projection
-    {
-            origin       [ float float float ]
-            distance     float
-            fov          [ float float ]
-            hpr          [ float float float ]
-    }
-    
-    segment {...}   # 1...n times
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=205, lastline=225]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{Segment Section}
 
@@ -5162,32 +5062,15 @@ viewport of the section defines the 2D area covered by the channel on
 the canvas. Segments can overlap each other, e.g., when edge-blended
 projectors or passive stereo is used.
 
+The segment eyes define which eyes are displayed by this segment. For active
+stereo outputs the default setting 'all' is normally used, while passive stereo
+segments define the left or right eye, and potentially the cyclop eye.
+
 A segment can define a frustum, in which case it overrides the default
 frustum calculated from the canvas frustum and segment viewport.
 
-{\footnotesize\begin{lstlisting}
-segment # 1...n times
-{
-    channel  string
-    name     string
-    viewport [ viewport ] 
-
-    wall       // frustum description
-    {
-        bottom_left  [ float float float ]
-        bottom_right [ float float float ]
-        top_left     [ float float float ]
-        type         fixed | HMD
-    }
-    projection // alternate frustum description, last one wins
-    {
-        origin       [ float float float ]
-        distance     float
-        fov          [ float float ]
-        hpr          [ float float float ]
-    }
-}
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=225, lastline=246]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \subsubsection{Compound Section}
 
@@ -5215,12 +5098,15 @@ compound.
 The buffer defines the default frame buffer attachments read back by
 output frames. Output frames may change the buffer attachments used.
 
+The eye attribute defines which eyes are handled by this compound. This
+attribute can be used to write one compound for monoscopic rendering and another
+for stereoscopic rendering, as illustrated in \fig{fStereoSwitch}.
+
 The viewport restricts the rendering to the area relative to the parent
 compound. The range restricts the database range, relative to the
 parent. The pixel setting selects the pixel decomposition kernel,
 relative to the parent. The subpixel defines the jittering applied to
-the frustum, relative to the parent. The eye pass select the mono, left
-or right eye passes rendered by the compound. The zoom scales the parent
+the frustum, relative to the parent. The zoom scales the parent
 pixel viewport resolution. The DPlex period defines that $\frac{1}{period}$
 frames are rendered, and the phase defines when in the period the
 rendering starts. All these attributes are inherited by the children of
@@ -5241,7 +5127,9 @@ A wall or projection description is used to define the view frustum of
 the compound. The frustum is inherited and typically only defined on the
 topmost compound. The last specified frustum description is used. Sizes
 are specified in meters. \fig{fFrusta} illustrates the frustum
-parameters.
+parameters. Setting a frustum on a compound is discouraged, a proper view and
+segment description should be used instead. View frusta override segment frusta
+which override compound frusta.
 
 A swap barrier is used to synchronize the output of multiple
 compounds. All swap barriers of the same name are synchronized The
@@ -5261,88 +5149,8 @@ frames. Frames of type \textsf{texture} copy the framebuffer contents to
 a texture, and can only be used to composite frames between windows of
 the same pipe.
 
-{\footnotesize\begin{lstlisting}
-compound
-{
-    name     string
-    channel  channel-ref  # where the compound tasks are executed
-
-    task     [ CLEAR DRAW READBACK ASSEMBLE ]
-    buffer   [ COLOR DEPTH ]         # default COLOR
-
-    viewport [ viewport ]            # wrt parent compound, sort-first
-    range    [ float float ]         # DB-range for sort-last
-    pixel    [ int int int int ]     # pixel decomposition (x y w h)
-    subpixel [ int int ]	     # subpixel decomposition (index size)
-    eye      [ CYCLOP LEFT RIGHT ]   # monoscopic or stereo view
-    zoom     [ float float ]         # up/downscale of parent pvp
-    period   int                     # DPlex period, every nth frame rendered
-    phase    int                     # DPlex phase, when to start rendering
-
-    load_equalizer # adjust 2D tiling or DB range of children
-    {
-        mode 2D | DB | VERTICAL | HORIZONTAL
-        damping float # 0: no damping, 1: no changes
-        boundary [ x y ] | float  # x,y: tile boundary for 2D, float: range
-    }
-    DFR_equalizer # adjust ZOOM to achieve constant framerate
-    {
-        framerate float # target framerate
-        damping float   # 0: no damping, 1: no changes
-    }
-    framerate_equalizer {} # smoothen window swapbuffer rate (DPlex)
-    monitor_equalizer {}   # set frame zoom when monitoring other views
-
-    attributes
-    {
-        stereo_mode                  AUTO | QUAD | ANAGLYPH    # default AUTO
-        stereo_anaglyph_left_mask    [ RED GREEN BLUE ] # default red
-        stereo_anaglyph_right_mask   [ RED GREEN BLUE ] # df green blue
-    }
-
-    wall       # frustum description
-    {
-        bottom_left  [ float float float ]
-        bottom_right [ float float float ]
-        top_left     [ float float float ]
-        type         fixed | HMD
-    }
-    projection # alternate frustum description, last one wins
-    {
-        origin       [ float float float ]
-        distance     float
-        fov          [ float float ]
-        hpr          [ float float float ]
-    }
-    
-    child-compounds
-
-    swapbarrier  # compounds with the same barriername sync swap
-    {
-        name string
-        NV_group OFF | ON | unsigned
-        NV_barrier OFF | ON | unsigned
-    }
-    outputframe
-    {
-        name   string
-        buffer [ COLOR DEPTH ]
-        type texture | memory
-    }
-    inputframe
-    {
-        name string # corresponding output frame
-    }
-}
-
-channel-ref:  'string' | '(' channel-segment-ref ')'
-channel-segment-ref: ( canvas-ref ) segment-ref ( layout-ref ) view-ref
-canvas-ref:   'string' | 'index'
-segment-ref:  'string' | 'index'
-layout-ref:   'string' | 'index'
-view-ref:     'string' | 'index'
-observer-ref: 'string' | 'index'
-\end{lstlisting}}
+{\footnotesize\lstinputlisting[firstline=249, lastline=333]
+  {../../../website/documents/design/fileFormat.shtml}}
 
 \if 0
 {\footnotesize\begin{lstlisting}
