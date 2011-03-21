@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.8.RC1 for Equalizer 1.0$\beta$ \\[\medskipamount]
+Version 1.8 for Equalizer 1.0 \\[\medskipamount]
 %  \today
 }
 
@@ -52,7 +52,7 @@ Version 1.8.RC1 for Equalizer 1.0$\beta$ \\[\medskipamount]
 %\clearpage
 
 \lstset{language=C++}
-\section*{Equalizer 1.0$\beta$ Programming and User Guide}
+\section*{Equalizer 1.0 Programming and User Guide}
 \today
 \subsection*{Contributors}
 
@@ -62,7 +62,7 @@ Hauck and Lucas Peetz Dulley.
 
 \subsection*{Copyright}
 
-\textcopyright 2007-2010 \htmladdnormallink{Eyescale Software GmbH}
+\textcopyright 2007-2011 \htmladdnormallink{Eyescale Software GmbH}
 {http://www.eyescale.ch}. All rights reserved. No permission is
 granted to copy, distribute, or create derivative works from the
 contents of this electronic documentation in any manner, in whole or in
@@ -127,18 +127,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.2     & Apr 15, 2008 & Revision for Equalizer 0.5\\
     1.4     & Nov 25, 2008 & Revision for Equalizer 0.6\\
     1.6     & Aug 07, 2009 & Revision for Equalizer 0.9\\
-    1.7.0   & Sep 09, 2009 & Updates based on hardcopy print\\
-    1.7.1   & Oct 20, 2009 & Updates for new eq::GLWindow\\
-    1.7.2   & Nov 18, 2009 & Add \sref{sSubpixel} and \sref{sFSAA} for Subpixel compounds\\
-    1.7.3   & Feb 02, 2010 & Revision for Equalizer 0.9.1\\
-    1.7.4   & Feb 22, 2010 & Add \sref{sSlaveCommit}\\
-    1.7.5   & Jun 03, 2010 & Add \sref{sClusterSetup}\\
-    1.7.6   & Aug 23, 2010 & General update for fabric changes\\
-    1.7.7   & Oct 01, 2010 & SystemPipe and SystemWindow renaming\\
-    1.7.8   & Oct 04, 2010 & Document GPU affinity workaround hint\\
-    1.7.9   & Nov 03, 2010 & Add \sref{sErrorHandling}\\
-    1.7.10  & Dec 21, 2010 & Review for Equalizer 1.0$\alpha$\\
-    1.8.RC1  & Feb 22, 2010 & Review for Equalizer 1.0$\beta$\\
+    1.8     & Mar 21, 2011 & Revision for Equalizer 1.0\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -166,11 +155,11 @@ an open source library to any OpenGL application. Many commercial and
 open source applications in a variety of different markets rely on
 Equalizer for flexibility and scalability.
 
-Equalizer provides the domain-specific parallel rendering know-how and abstracts
-configuration, threading, synchronization, windowing and event handling. It is a
-`GLUT on steroids', providing parallel and distributed execution, scalable
-rendering features, an advanced network library and fully customizable event
-handling.
+Equalizer provides the domain-specific parallel rendering expertise and
+abstracts configuration, threading, synchronization, windowing and event
+handling. It is a `GLUT on steroids', providing parallel and distributed
+execution, scalable rendering features, an advanced network library and fully
+customizable event handling.
 
 If you have any question regarding Equalizer programming, this guide, or
 other specific problems you encountered, please direct them to the
@@ -226,8 +215,8 @@ library exposes all functionality discussed in this document to the
 programmer, and provides communication between the different Equalizer
 processes.
 
-Collage, the underlying network library, uses a peer-to-peer
-structure. Equalizer utilizes this to provide optimal performance scalable
+Collage, the underlying network library, uses a peer-to-peer communication
+structure. Equalizer uses Collage to provide optimal performance scalable
 rendering, e.g., by setting up direct communication between two nodes when
 needed for image compositing or software swap barriers.
 
@@ -562,7 +551,7 @@ information:
   scalability modes and features.
 \end{itemize}
 
-\subsection{Overview}
+\subsection{Summary}
 
 Equalizer applications are configured at runtime by the Equalizer
 server. The server loads its configuration from a text file, which is a
@@ -651,10 +640,6 @@ thread, or in the case of non-threaded pipes from the main application
 thread\footnote{see
   \link{http://www.equalizergraphics.com/documents/design/nonthreaded.html}}.
 
-Further versions of Equalizer might introduce threaded windows, where
-all window-related task methods are executed in a separate operating
-system thread.
-
 \subsection{Window}
 
 Configure one \textsf{window} for each desired application window on the
@@ -715,15 +700,14 @@ and distance of the projection wall.
 
 \fig{fFrusta} illustrates the wall and projection frustum parameters.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frusta.pdf}
-  {\caption{\label{fFrusta}Wall and Projection Parameters}}
-\end{wrapfigure}
-
 Canvases provide a convenient way to configure projection surfaces. A
 canvas uses layouts, which describe logical views. The usage of canvases
 and layouts is optional. Typically, each desktop window uses one canvas.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frusta.pdf}
+  {\caption{\label{fFrusta}Wall and Projection Parameters}}
+\end{wrapfigure}
 A canvas represents one logical projection surface, e.g., a PowerWall, a
 curved screen or an immersive installation. One configuration might
 drive multiple canvases, for example an immersive installation and an
@@ -761,14 +745,13 @@ A segment represents one output channel of the canvas, e.g., a projector
 or an LCD. A segment has an output channel, which references the channel to
 which the display device is connected.
 
-A segment covers a part of its parent canvas, which is configured using
-the segment viewport. The viewport is in normalized coordinates with
-respect to the canvas. Segments might overlap (edge-blended projectors)
-or have gaps between each other (display walls,
-\fig{fCanvas}\footnote{Dataset courtesy of VolVis distribution of SUNY
-  Stony Brook, NY, USA.}). The viewport is used to configure the
-segment's default frustum from the canvas frustum description, and to
-place layout views correctly.
+A segment covers a part of its parent canvas, which is configured using the
+segment viewport. The viewport is in normalized coordinates relative to the
+canvas. Segments might overlap (edge-blended projectors) or have gaps between
+each other (display walls, \fig{fCanvas}\footnote{Dataset courtesy of VolVis
+  distribution of SUNY Stony Brook, NY, USA.}). The viewport is used to
+configure the segment's default frustum from the canvas frustum description, and
+to place layout views correctly.
 
 \subsection{\label{sLayout}Layouts}
 
@@ -880,20 +863,19 @@ configurations:
   \item[Standalone channels] Set the channel by using the channel name
     from the resource section. Define a frustum as explained in
     \sref{sCanvas}.
-  \item[View/Segment channels] Set the channel by using the canvas,
-    segment, layout and view name. The compound frustum will be
-    calculated automatically based on the segment or view frustum. Note
-    that one segment may created multiple view/segment channels, one for
-    each view intersection of each layout used on the canvas. Only the
-    compounds belonging to the active layout of a canvas are activate at
-    runtime.
+  \item[View/Segment channels] Set the channel by using the canvas, segment,
+    layout and view name. The compound frustum will be calculated automatically
+    based on the segment or view frustum. Note that one segment may created
+    multiple view/segment channels, one for each view intersection of each
+    layout used on the canvas. Only the compounds belonging to the active layout
+    of a canvas are active at runtime.
     \begin{description}
     \item [Software swap lock] When using software swap synchronization,
-      swap-lock the destination compounds using a swapbarrier. All
-      windows with a swapbarrier of the same name synchronize their
+      swap-lock the destination compounds using a swap barrier. All
+      windows with a swap barrier of the same name synchronize their
       swapbuffers.
     \item [Hardware swap lock] When using hardware swap synchronization,
-      use swapbarriers for the destination compounds, setting
+      use swap barriers for the destination compounds, setting
       \textsf{NV\_group} and \textsf{NV\_barrier} appropriately. The
       swap barrier name is ignored in this case. All windows of the same
       group on a single node synchronize their swap buffer. All groups
@@ -996,10 +978,10 @@ the output frame. This composition process is extensively described in
 tree, that is, an output frame from one compound tree cannot be used as
 an input frame of another compound tree.
 
-\subsubsection{\label{sSwapBarrier}Synchronization - Swapbarriers}
-Compounds may have a software or hardware swapbarrier to synchronize the
-buffer swap of multiple channels. A software swapbarrier is configured
-by giving it a name. Windows with a swapbarrier of the same name
+\subsubsection{\label{sSwapBarrier}Synchronization - Swap Barriers}
+Compounds may have a software or hardware swap barrier to synchronize the
+buffer swap of multiple channels. A software swap barrier is configured
+by giving it a name. Windows with a swap barrier of the same name
 synchronize with each other before executing the swap buffer
 task. Before entering the barrier, \textsf{Window::finish} is called to
 ensure that all OpenGL commands have been executed.
@@ -1010,15 +992,15 @@ installations typically use a hardware synchronization, e.g., nVidia
 G-Sync cards. It is however sufficient for display walls made out of
 LCD's and for some non-immersive projection systems.
 
-Swapbarrier names are only valid within the compound tree, that is, a
+Swap barrier names are only valid within the compound tree, that is, a
 compound from one compound tree cannot be synchronized with a compound
 from another compound tree.
 
-A hardware swapbarrier is configured by setting the \textsf{NV\_group}
-and \textsf{NV\_barrier} parameters. These parameters follow the
-\textsf{NV\_swap\_group} extension, which synchronizes all windows bound
-to the same group on a single machine, and all groups bound to the same
-barrier across systems.
+A hardware swap barrier is configured by setting the \textsf{NV\_group} and
+\textsf{NV\_barrier} parameters. These parameters follow the
+\textsf{NV\_swap\_group} extension, which synchronizes all windows bound to the
+same group on a single machine, and all groups bound to the same barrier across
+systems.
 
 \subsubsection{\label{sEqualizers}Adjustments - Equalizers}
 
@@ -1131,11 +1113,10 @@ display. The rendering quality is slightly degraded, while the rendering
 performance remains interactive. When the application is idle, it
 renders a full-resolution view.
 
-The dynamic frame resolution is not limited to downscaling the
-rendering resolution, it will also upscale the resolution if the
-parameters allow for it. Upscaled rendering, which will down-sample the
-result for display, provides dynamic anti-aliasing at a constant
-framerate.
+The dynamic frame resolution is not limited to subsampling the rendering
+resolution, it will also supersample the image if the source buffer is big
+enough. Upscaled rendering, which will down-sample the result for display,
+provides dynamic anti-aliasing at a constant framerate.
 
 \paragraph{Monitor Equalizer}
 The monitor equalizer allows the observation of another view,
@@ -1161,7 +1142,7 @@ correctly downscaled version of the rendering.
 \section{\label{sClusterSetup}Setting up a Visualization Cluster}
 This section covers the setup of a visualization cluster to run Equalizer
 applications. It does not cover basic cluster management and driver
-installation. A prerequisite to the following steps is a pre-installed cluster,
+installation. A prerequisite to the following steps is a preinstalled cluster,
 including network and graphics card drivers.
 
 \subsection{Name Resolution}
@@ -1195,22 +1176,22 @@ a separate process, typically on a different machine. These node processes have
 to be started for a visualization session, and need to communicate with each
 other.
 
-Equalizer supports pre-launched render clients and automatic render client
-launching, if configured properly. Pre-launched render clients are started
-manually or by an external script on a pre-defined address. Auto-launched render
+Equalizer supports prelaunched render clients and automatic render client
+launching, if configured properly. Prelaunched render clients are started
+manually or by an external script on a predefined address. Auto-launched render
 client are started and stopped by the Equalizer server on demand.
 
-The two mechanism can co-exist. The server will first try to connect a
-pre-launched render client on the given connection descriptions for each
+The two mechanism can coexist. The server will first try to connect a
+prelaunched render client on the given connection descriptions for each
 node. If this fails, he will try to auto-launch the render client. If the render
 client does not connect back to the server within a certain timeout (default one
 minute), a failure to initialize the configuration is reported back to the
 application.
 
-\subsubsection{Pre-launched Render Clients}
-Pre-launched render clients are useful if setting up auto-launching is too
+\subsubsection{Prelaunched Render Clients}
+Prelaunched render clients are useful if setting up auto-launching is too
 time-consuming, e.g., on Windows which does not have a standard remote login
-procedure. The following steps are to be taken to use pre-launched render
+procedure. The following steps are to be taken to use prelaunched render
 clients:
 
 \begin{itemize}
@@ -1258,10 +1239,10 @@ following reasons:
   X-Server or application rights correctly. Log into the remote machine using
   the launch command and try to execute a simple application, e.g.,
   \textsf{glxinfo -display :0.1}.
-\item The server does not find the pre-launched render client. Verify that the
+\item The server does not find the prelaunched render client. Verify that the
   client is listening on the correct IP and port, and that this IP and port are
   reachable from the server host.
-\item The server can not launch a render client. Check the server log for the
+\item The server cannot launch a render client. Check the server log for the
   launch command used, and try to execute a simple application from the server
   host using this launch command. It should run without user interaction. Check
   that the render client is installed in the correct path. Pay attention to the
@@ -1330,7 +1311,7 @@ future Equalizer versions of the same major revision. Any eventual changes to
 the public API is documented in the release notes and the file
 \textsf{CHANGES.txt}.
 
-In addition the the official, public API Equalizer exposeses a number of
+In addition the official, public API Equalizer exposes a number of
 unstable methods and, where unavoidable, internal APIs. These are clearly marked
 in the API documentation. Unstable methods may be used by the programmer, but
 their interface or functionality may change in any future Equalizer version. The
@@ -1348,8 +1329,11 @@ Application developers are exposed to the following namespaces:
   are the main subject of this Programming Guide.
 \item[eq::util] The eq::util namespace provides common utility classes, which
   often simplify the usage of OpenGL functions. Most classes in this namespace
-  are used by the the Equalizer client library, but are usable independently
+  are used by the Equalizer client library, but are usable independently
   from Equalizer for application development.
+\item[eq::admin] The eq::admin namespace implements an administrative API to
+  change the configurations of a running server. This admin API is not yet
+  finalized and will very likely change in the future.
 \item[eq::fabric] The eq::fabric namespace is the common data management and
   transport layer between the client library, the server and the administrative
   API. Most Equalizer client classes inherit from base classes in this namespace
@@ -1530,12 +1514,12 @@ is discussed in \sref{sInitData}:
 {\footnotesize\lstinputlisting[firstline=67, lastline=70]
   {../../../src/examples/eqPly/main.cpp}}
 
-The third step is to create an instance of the application and to
-initialize it locally. The application is a subclass of
-\textsf{eq::Client}, which in turn is an \textsf{co::LocalNode}. The
-underlying Collage network library, discussed in \sref{sNetwork}, is a
-peer-to-peer network of \textsf{co::LocalNode}s. The client/server
-concept is implement the higher-level \textsf{eq} client namespace.
+The third step is to create an instance of the application and to initialize it
+locally. The application is a subclass of \textsf{eq::Client}, which in turn is
+an \textsf{co::LocalNode}. The underlying Collage network library, discussed in
+\sref{sNetwork}, is a peer-to-peer network of \textsf{co::LocalNode}s. The
+client-server concept is implement the higher-level \textsf{eq} client
+namespace.
 
 The local initialization of a node creates at least one local listening socket,
 which allows the \textsf{eq::Client} to communicate over the network with other
@@ -1574,7 +1558,7 @@ client. The \textsf{eqPly} executable has three runtime behaviors:
   the server starts the render client using \textsf{ssh}. The launch
   command can be used to configure another program to auto-launch render
   clients.
-\item \textbf{Resident render client}: Manually pre-started render
+\item \textbf{Resident render client}: Manually prestarted render
   client, listening on a specified port for server commands. This mode
   is selected using the command-line option \textsf{--eq-client} and
   \textsf{--eq-listen \textless address\textgreater} to specify a
@@ -1622,9 +1606,9 @@ sections. \textsf{Config::init} returns after all nodes, pipes,
 windows and channels are initialized.
 
 The return value of \textsf{Config::init} depends on the configuration
-robustness attribute. This attribute is by default activated, allowing
-configurations to launch even when some entities failed to initialize. If
-activated, \textsf{Config::init} always returns true. If deactivated, it returns
+robustness attribute. This attribute is set by default, allowing configurations
+to launch even when some entities failed to initialize. If set,
+\textsf{Config::init} always returns true. If deactivated, it returns
 \textsf{true} only if all initialization task methods were successful. In any
 case, \textsf{Config::getError} only returns \textsf{ERROR\_NONE} if all
 entities have initialized successfully.
@@ -1779,7 +1763,7 @@ objects currently implemented have the following characteristics:
 
 \begin{itemize}
 \item The master instance of the object generates new versions for all
-  slaves. These versions are continous, starting at
+  slaves. These versions are continuous, starting at
   \textsf{co::VERSION\_FIRST}. It is possible to commit on slave instances, but
   special care has to be taken to handle possible conflicts. \sref{sSlaveCommit}
   covers slave object commits in detail.
@@ -1953,7 +1937,7 @@ the respective objects:
   {../../../src/examples/eqPly/config.cpp}}
 
 After a successful initialization, the models are loaded and registered for data
-distribution. When idle, Equalizer will pre-distribute object data during
+distribution. When idle, Equalizer will predistribute object data during
 registration to accelerate the mapping of slave instances. Registering the
 models after \textsf{Config::init} ensures that the render clients are running
 and can cache the data:
@@ -2050,7 +2034,7 @@ The channel acquires the model during rendering from the config, using
 the model identifier from its current view, or from the frame data if
 no view is configured.
 
-The pre-process config instance maintains the mapped models, and lazily maps new
+The preprocess config instance maintains the mapped models, and lazily maps new
 models, which are registered by the application process:
 
 {\footnotesize\lstinputlisting[firstline=284, lastline=308]
@@ -2586,7 +2570,7 @@ differences in the specific implementation. On the other hand, each
 application and widget set has its own model on how events are to be
 handled. Therefore, event handling in Equalizer is customizable at any
 stage of the processing, to the extreme of making it possible to disable
-all event-related code in Equalizer. In this aspect, Equalizer
+all event handling code in Equalizer. In this aspect, Equalizer
 substantially differs from GLUT, which imposes an event model and hides
 most of the event handling in \textsf{glutMainLoop}. More information on
 event handling can be found on the Equalizer website\footnote{see
@@ -2859,7 +2843,7 @@ The following thread synchronization models are implemented:
   synchronization model provides the best performance and should be used
   by all applications which multi-buffer all non-static, frame-specific
   data.
-\item[DRAW\_SYNC:] Additionaly to the synchronization of the async
+\item[DRAW\_SYNC:] Additionally to the synchronization of the async
   thread model, all local render threads are synchronized, so that the
   draw operations happen synchronously with the node main loop. This
   model allows to use the same database for rendering, and safe
@@ -2868,7 +2852,7 @@ The following thread synchronization models are implemented:
   frames. This is the default threading model. This threading model
   should be used by applications which keep one copy of the scene graph
   per node.
-\item[LOCAL\_SYNC:] Additionaly to the synchronization of the async
+\item[LOCAL\_SYNC:] Additionally to the synchronization of the async
   thread model, all local frame operations, including readback, assemble
   and swap buffer are synchronized with the node main loop. This
   threading model should be used by applications which need to access
@@ -2899,9 +2883,9 @@ one render client process per GPU to benefit from DPlex task
 decomposition.
 
 Non-threaded pipes should not be used for DPlex source and destination
-channels. Applications using the \textsf{local\_sync} thread model can
-not benefit from DPlex if the application node uses a DPlex source or
-destination channel.
+channels. Applications using the \textsf{local\_sync} thread model cannot
+benefit from DPlex if the application node uses a DPlex source or destination
+channel.
 
 Applications using the \textsf{async} thread synchronization model can
 fully profit from DPlex using multiple render threads on a multi-GPU
@@ -3388,11 +3372,10 @@ generated. If the corresponding channel has a view,
 \textsf{Channel::processEvent} sends a \textsf{VIEW\_RESIZE} event to
 the application. This event contains the identifier of the view. 
 
-The config event is dispatched to \textsf{View::handleEvent}. Based on
-the original size and wall or projection description of the view, a new
-wall or projection is computed, keeping the aspect ratio and the height
-of the frustum constant. This new frustum is automatically applied by
-Equalizer at the next config frame.
+The config event is dispatched to \textsf{View::handleEvent}. Using the original
+size and wall or projection description of the view, a new wall or projection is
+computed, keeping the aspect ratio and the height of the frustum constant. This
+new frustum is automatically applied by Equalizer at the next config frame.
 
 \fig{fViewUpdate} shows a sequence diagram of such a view update.
 
@@ -3500,10 +3483,10 @@ algorithm:
 \item Positioning the pixel data correctly on the receiving channels
 \end{itemize}
 
-Furthermore it should be possible for the application to implement a
-read back of only the relevant region of interest, that is, the 2D area
-of the framebuffer actually updated during rendering. This optimization
-will be fully supported by later versions of Equalizer.
+Furthermore it has to be possible for the application to implement a read back
+of only the relevant region of interest, that is, the 2D area of the framebuffer
+updated during rendering. This optimization will be fully supported by later
+versions of Equalizer.
 
 \subsubsection{Frame, Frame Data and Images}
 
@@ -3575,7 +3558,7 @@ On a high level, the compositor combines multiple input frames using 2D
 tiling, depth-compositing for polygonal data or sorted, alpha-blended
 compositing for semitransparent volumetric data. These operations
 composite either directly all images on the GPU, or use a CPU-based
-compositor and then transfer the pre-integrated result to the GPU. The
+compositor and then transfer the preintegrated result to the GPU. The
 high-level entry points automatically select the best algorithm. The
 CPU-based compositor uses, based on availability, OpenMP and the
 Paracomp compositing library to accelerate its operation.
@@ -3679,11 +3662,11 @@ compositing algorithms such as direct-send.
 
 The eqPly example contains support for software anti-aliasing when being idle,
 showing how to combine it with subpixel compounds. The same basic algorithm
-might be applied to other multi-sampling effects, e.g., depth-of-field.
+might be applied to other multisampling effects, e.g., depth-of-field.
 
 \subsubsection{Software Anti-Aliasing in eqPly}
 
-The supersampling algorith used by eqPly performs anti-aliasing, using a
+The supersampling algorithm used by eqPly performs anti-aliasing, using a
 technique which computes samples within a pixel by jittering the frustum by a
 subpixel amount. The pixel is split into several, regular sub-pixels and a
 sample is taken randomly within the sub-pixel.
@@ -3700,18 +3683,18 @@ When the rendering is not in idle mode, the jitter is queried from
 Equalizer which returns an optimal subpixel offset for the given subpixel
 decomposition. This is used during normal rendering of subpixel compounds.
 
-The \textsf{FrameData} class holds the information whether or not the
-application is in idle mode. The \textsf{Config} updates the idle mode
-information depending on the application's state.  Each \textsf{Channel} will
-perform anti-aliasing when no user event requires a redraw.
+The \textsf{FrameData} class holds the information whether the application is in
+idle mode. The \textsf{Config} updates the idle mode information depending on
+the application's state.  Each \textsf{Channel} will perform anti-aliasing when
+no user event requires a redraw.
 
 During idle rendering of any decomposition, the jitter for the frustum is
 computed using the normalized subpixel center point and the size of a pixel on
 the near plane. A random position within the sub-pixel is set as a sample
 position, which will be used to move the frustum. The \textsf{getJitter} method
-will return the the computed jitter vector for the current frustum. This method
-has a default implementation in \textsf{eq::Channel} for subpixel compounds, but
-is overwritten in \textsf{eqPly} to perform idle anti-aliasing:
+will return the computed jitter vector for the current frustum. This method has
+a default implementation in \textsf{eq::Channel} for subpixel compounds, but is
+overwritten in \textsf{eqPly} to perform idle anti-aliasing:
 
 {\footnotesize\lstinputlisting[firstline=491, lastline=533]
   {../../../src/examples/eqPly/channel.cpp}}
@@ -3880,8 +3863,8 @@ per-entity operations with its associated color. Furthermore, some other textual
 information is overlayed with the statistics. The total compression ratio is
 printed with each readback and compression statistic. In this case the image has
 been not been compressed during download. For network transfer it has been
-compressed to 1\% of its original size since it contains a lot of black
-background pixels. For readback the plugin with the name \textsf{0x101,
+compressed to 1\% of its original size since it contains many black background
+pixels. For readback the plugin with the name \textsf{0x101,
   EQ\_COMPRESSOR\_TRANS\-FER\_RGBA\_TO\_BGRA} has been used, and for compression
 the plugin \textsf{0x11, EQ\_COM\-PRESSOR\_RLE\_DIFF\_BGRA} was used. The
 compressor names are listed in the associated plugin header
@@ -3933,8 +3916,8 @@ are:
   line. Different implementations of a connection exist.
 \item[Node/LocalNode] The abstraction of a process in the cluster. Nodes
   communicate with each other using connections. A LocalNode listens on various
-  various connections and processes requests for a given process. A Node is a
-  proxy for a remote LocalNode.
+  connections and processes requests for a given process. A Node is a proxy for
+  a remote LocalNode.
 \item[Object] Provides object-oriented data distribution of C++ objects between
   nodes within a session. Objects are registered or mapped on a LocalNode.
 \end{description}
@@ -4071,7 +4054,7 @@ object, thus synchronizing the object's data and identifier with the remotely
 registered master version.
 
 Distributed objects can be static (immutable) or dynamic. Dynamic objects are
-versioned. New versions are commited from the master instance, which sends
+versioned. New versions are committed from the master instance, which sends
 the delta between the previous and current version to all mapped slave
 objects. The slave objects sync the queued deltas when they need a version.
 
@@ -4173,10 +4156,9 @@ during deserialization. The algorithm and constraints for slave object commits
 are explained in this section.
 
 When using \textsf{commit} on slave object instances, multiple modifications on
-the same database may happen simultaneously. In order to avoid excessive
-synchronization in the network layer, Equalizer a light-weight approach which
-requires the application to avoid or handle conflicting changes on the same
-object.
+the same database may happen simultaneously. To avoid excessive synchronization
+in the network layer, Equalizer a lightweight approach which requires the
+application to avoid or handle conflicting changes on the same object.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/slaveWrites.pdf}
@@ -4195,7 +4177,7 @@ version is applied. When using \textsf{VERSION\_NEXT} as the version parameter
 to \textsf{sync}, one slave commit is unpacked. This call may block if no data
 is pending. When using \textsf{VERSION\_HEAD} all pending versions are
 unpacked. The data is synchronized in the order it has been received from the
-slaves. If a specific order is needed, it is the application's responsibity to
+slaves. If a specific order is needed, it is the application's responsibility to
 serialize the slave commits accordingly.
 
 Synchronizing slave data on a master instance does not create a new version. The
@@ -4216,8 +4198,8 @@ following situations:
   modifying its instance. 
 \end{itemize}
 
-\fig{fSlaveCommit} depicts one possible communication sequence. In general, it
-is best to adhere to the following rules:
+\fig{fSlaveCommit} depicts one possible communication sequence. Where possible,
+it is best to adhere to the following rules:
 \begin{itemize}
 \item Handle the case that a slave instance will receive its own changes again.
 \item Set the appropriate dirty bits when unpacking slave delta data on the
@@ -4289,7 +4271,7 @@ implementation on how to use classes in the \textsf{co} namespace.
 
 Equalizer uses the \textsf{co::Object} data distribution mechanism for
 implementing data distribution between the server, application and render
-clients. Based on dirty bits, \textsf{eq::fabric::Serializable} implements one
+clients. Using dirty bits, \textsf{eq::fabric::Serializable} implements one
 usage pattern for the \textsf{co::Object}, allowing inheritance with data
 distribution. It is easier to use, but imposes one typical way to implement data
 distribution.
@@ -4439,7 +4421,7 @@ name followed by its value. The following attributes are available:
   \textbf{Value} & unsigned\\
   \textbf{Default} & 0\\
   \textbf{Details} & The listening port used by the server or
-  node. For nodes, the port can be used to contact pre-started, resident
+  node. For nodes, the port can be used to contact prestarted, resident
   render client nodes or to use a specific port for the node. If 0 is
   specified, a random port is chosen. Note that a server with no
   connections automatically creates a default connection using the
@@ -4820,11 +4802,11 @@ pipe for fast interprocess communication on Windows.
 Note that you can also use the transparent mode provided by most
 InfiniBand implementations to use SDP with TCP connections.
 
-Furthermore, a port for the socket can be specified. When no port is
-specified for the server, the default port 4242 (+UID on Posix systems)
-is used. When no port is specified for a node, a random port will be
-chosen by the operating system. For pre-launched render clients, a port
-has to be specified for the server to find the client node.
+Furthermore, a port for the socket can be specified. When no port is specified
+for the server, the default port 4242 (+UID on Posix systems) is used. When no
+port is specified for a node, a random port will be chosen by the operating
+system. For prelaunched render clients, a port has to be specified for the
+server to find the client node.
 
 The hostname is the IP address or resolvable host name. A server or
 node may have multiple connection descriptions, for example to use a
@@ -4937,15 +4919,14 @@ for debugging, it has no influence on the execution of Equalizer, other
 then it being used as the window title by the default window creation
 methods.
 
-The viewport of the window is relative to the pipe. It can be specified
-in relative or absolute coordinates. Relative coordinates are normalized
-coordinates with respect to the pipe, e.g., a viewport of \textsf{[ 0.25
-  0.25 0.5 0.5 ]} creates a window in the middle of the screen, using
-50\% of the pipe's size. Absolute coordinates are integer pixel values,
-e.g., a viewport of \textsf{[ 50 50 800 600 ]} creates a window 50 pixels
-from the upper-left corner, sized 800x600 pixels, regardless of the
-pipe's size. The default viewport is \textsf{[ 0 0 1 1 ]}, i.e., a
-full-screen window. 
+The viewport of the window is relative to the pipe. It can be specified in
+relative or absolute coordinates. Relative coordinates are normalized
+coordinates relative to the pipe, e.g., a viewport of \textsf{[ 0.25 0.25 0.5
+    0.5 ]} creates a window in the middle of the screen, using 50\% of the
+pipe's size. Absolute coordinates are integer pixel values, e.g., a viewport of
+\textsf{[ 50 50 800 600 ]} creates a window 50 pixels from the upper-left
+corner, sized 800x600 pixels, regardless of the pipe's size. The default
+viewport is \textsf{[ 0 0 1 1 ]}, i.e., a full-screen window.
 
 For a description of window attributes please refer to \sref{sGlobal}.
 
