@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.8 for Equalizer 1.0 \\[\medskipamount]
+Version 1.8.1 for Equalizer 1.0 \\[\medskipamount]
 %  \today
 }
 
@@ -128,6 +128,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.4     & Nov 25, 2008 & Revision for Equalizer 0.6\\
     1.6     & Aug 07, 2009 & Revision for Equalizer 0.9\\
     1.8     & Mar 21, 2011 & Revision for Equalizer 1.0\\
+    1.8.1   & Mar 25, 2011 & Minor Revision\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -1481,7 +1482,7 @@ distribution of the model data.
 \subsection{The main Function}
 
 The main function starts off with initializing the Equalizer library. The
-command line arguments are passed on to Equalizer. The are used to set certain
+command line arguments are passed on to Equalizer. They are used to set certain
 default values based on Equalizer-specific options\footnote{Equalizer-specific
   options always start with -\,-eq-}, e.g., the default server
 address. Furthermore, a \textsf{NodeFactory} is provided. The \textsf{EQERROR}
@@ -1731,7 +1732,7 @@ in \textsf{InitData}.
 
 A static distributed object has to implement \textsf{getInstanceData}
 and \textsf{applyInstanceData} to serialize and deserialize the object's
-distributed data. These method provide an output or input stream as a
+distributed data. These methods provide an output or input stream as a
 parameter, which abstracts the data transmission and can be used like a
 \textsf{std::stream}.
 
@@ -3940,7 +3941,7 @@ cannot be used for communications. A connected connection can be used to read or
 write data to the communication peer. A listening connection can accept
 connection requests.
 
-An \textsf{co::ConnectionSet} is used to manage multiple connections. The
+A \textsf{co::ConnectionSet} is used to manage multiple connections. The
 typical use case is to have one or more listening connections for the local
 process, and a number of connected connections for communicating with other
 processes.
@@ -3991,19 +3992,19 @@ process. It encapsulates the communication logic for connecting remote nodes, as
 well as object registration and mapping. Local nodes are set up in the listening
 state during initialization.
 
-A remote \textsf{Node} can be either be connected explicitly be the application
-or due to a connection from the given remote node. The explicit connection can
-be done by programmatically creating a node, adding the necessary
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netNode.pdf}
+  {\caption{\label{fNetNode}Communication between two Nodes}}
+\end{wrapfigure}
+A remote \textsf{Node} can either be connected explicitly by the application or
+due to a connection from the given remote node. The explicit connection can be
+done by programmatically creating a node, adding the necessary
 \textsf{ConnectionDescription}s and connecting it to the local node. It may also
 be done by connecting the remote node to the local node by using its
 \textsf{NodeID}. This will cause Collage to query connection information for
 this node from the already-connected nodes, instantiating the node and
 connecting it. Both operations may fail.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netNode.pdf}
-  {\caption{\label{fNetNode}Communication between two Nodes}}
-\end{wrapfigure}
 \fig{fNetNode} shows the communication between two nodes. The nodes in
 the listening state also have a listening connection, which is not shown
 in the Figure for complexity reasons.
