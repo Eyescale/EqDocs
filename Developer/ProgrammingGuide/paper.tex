@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.8.1 for Equalizer 1.0 \\[\medskipamount]
+Version 1.8.2 for Equalizer 1.0+git \\[\medskipamount]
 %  \today
 }
 
@@ -129,6 +129,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.6     & Aug 07, 2009 & Revision for Equalizer 0.9\\
     1.8     & Mar 21, 2011 & Revision for Equalizer 1.0\\
     1.8.1   & Mar 25, 2011 & Minor Revision\\
+    1.8.2   & Apr 04, 2011 & Added \sref{sFocusDistance}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -1280,7 +1281,7 @@ parameters, \textsf{eqHello} rotates the scene and renders the quads
 using immediate mode:
 
 {\footnotesize\lstinputlisting[firstline=107, lastline=123]
-  {../../../src/examples/eqHello/hello.cpp}}
+  {../../../Equalizer/examples/eqHello/hello.cpp}}
 
 The \textsf{eqHello} main function sets up the communication with the
 server, initializes and drives the rendering. The details of this setup
@@ -1490,7 +1491,7 @@ macro, and its counterparts \textsf{EQWARN}, \textsf{EQINFO} and \textsf{EQVERB}
 allow selective debugging outputs with various logging levels:
 
 {\footnotesize\lstinputlisting[firstline=57, lastline=66]
-  {../../../src/examples/eqPly/main.cpp}}
+  {../../../Equalizer/examples/eqPly/main.cpp}}
 
 The node factory is used by Equalizer to create the object instances of
 the configured rendering entities. Each of the classes inherits from the
@@ -1504,7 +1505,7 @@ destroyed in the node thread, whereas window and channel objects are
 created and destroyed in the pipe thread:
 
 {\footnotesize\lstinputlisting[firstline=40, lastline=55]
-  {../../../src/examples/eqPly/main.cpp}}
+  {../../../Equalizer/examples/eqPly/main.cpp}}
 
 The second step is to parse the command line into the
 \textsf{LocalInitData} data structure. A part of it, the base class
@@ -1513,7 +1514,7 @@ command line parsing is done by the \textsf{LocalInitData} class, which
 is discussed in \sref{sInitData}:
 
 {\footnotesize\lstinputlisting[firstline=67, lastline=70]
-  {../../../src/examples/eqPly/main.cpp}}
+  {../../../Equalizer/examples/eqPly/main.cpp}}
 
 The third step is to create an instance of the application and to initialize it
 locally. The application is a subclass of \textsf{eq::Client}, which in turn is
@@ -1531,18 +1532,18 @@ programmatically adding connection descriptions to the client before the local
 initialization:
 
 {\footnotesize\lstinputlisting[firstline=71, lastline=78]
-  {../../../src/examples/eqPly/main.cpp}}
+  {../../../Equalizer/examples/eqPly/main.cpp}}
 
 Finally everything is set up, and the \textsf{eqPly} application is executed:
 
 {\footnotesize\lstinputlisting[firstline=80, lastline=81]
-  {../../../src/examples/eqPly/main.cpp}}
+  {../../../Equalizer/examples/eqPly/main.cpp}}
 
 After the application has finished, it is de-initialized and the
 \textsf{main} function returns:
 
 {\footnotesize\lstinputlisting[firstline=83]
-  {../../../src/examples/eqPly/main.cpp}}
+  {../../../Equalizer/examples/eqPly/main.cpp}}
 
 \subsection{Application}
 
@@ -1585,7 +1586,7 @@ Another configuration can be selected using the command-line parameter
 \textsf{connection} configured for the render clients to connect to.
 
 {\footnotesize\lstinputlisting[firstline=80, lastline=88]
-  {../../../src/examples/eqPly/eqPly.cpp}}
+  {../../../Equalizer/examples/eqPly/eqPly.cpp}}
 
 The second step is to ask the server for a configuration. The
 \textsf{ConfigParams} are a placeholder for later Equalizer
@@ -1597,7 +1598,7 @@ server is created locally using
 making the static\_cast necessary:
 
 {\footnotesize\lstinputlisting[firstline=90, lastline=100]
-  {../../../src/examples/eqPly/eqPly.cpp}}
+  {../../../Equalizer/examples/eqPly/eqPly.cpp}}
 
 Finally it is time to initialize the configuration. For statistics, the
 time for this operation is measured and printed. During initialization
@@ -1620,7 +1621,7 @@ files, and logging for various topics is enabled using the environment
 variable \textsf{EQ\_LOG\_TOPICS}:
 
 {\footnotesize\lstinputlisting[firstline=101, lastline=118]
-  {../../../src/examples/eqPly/eqPly.cpp}}
+  {../../../Equalizer/examples/eqPly/eqPly.cpp}}
 
 When the configuration was successfully initialized, the main rendering
 loop is executed. It runs until the user exits the
@@ -1676,7 +1677,7 @@ event. Then it waits and handles one event at a time, until a redraw is
 needed:
 
 {\footnotesize\lstinputlisting[firstline=120, lastline=147]
-  {../../../src/examples/eqPly/eqPly.cpp}}
+  {../../../Equalizer/examples/eqPly/eqPly.cpp}}
 
 When the main rendering loop has finished,
 \textsf{Config::finishAllFrames} is called to catch up with the
@@ -1684,14 +1685,14 @@ latency. It returns after all outstanding frames have been rendered, and
 is needed to provide an accurate measurement of the framerate:
 
 {\footnotesize\lstinputlisting[firstline=148, lastline=152]
-  {../../../src/examples/eqPly/eqPly.cpp}}
+  {../../../Equalizer/examples/eqPly/eqPly.cpp}}
 
 The remainder of the application code cleans up in the reverse order of
 initialization. The config is exited, released and the connection to the server
 is closed:
 
 {\footnotesize\lstinputlisting[firstline=154, lastline=165]
-  {../../../src/examples/eqPly/eqPly.cpp}}
+  {../../../Equalizer/examples/eqPly/eqPly.cpp}}
 
 \subsubsection{Render Clients}
 
@@ -1702,7 +1703,7 @@ keep the client resident, the \textsf{eqPly} example overrides the
 client loop to keep it running beyond one configuration run:
 
 {\footnotesize\lstinputlisting[firstline=167, lastline=175]
-  {../../../src/examples/eqPly/eqPly.cpp}}
+  {../../../Equalizer/examples/eqPly/eqPly.cpp}}
 
 
 \subsection{\label{sNetObject}Distributed Objects}
@@ -1754,7 +1755,7 @@ streaming all member variables to or from the provided data
 streams:
 
 {\footnotesize\lstinputlisting[firstline=61, lastline=74]
-  {../../../src/examples/eqPly/initData.cpp}}
+  {../../../Equalizer/examples/eqPly/initData.cpp}}
 
 \subsubsection{FrameData - a Versioned Distributed Object}
 
@@ -1819,9 +1820,9 @@ all data, or with the dirty bit mask of the changes since the last
 serialization code:
 
 {\footnotesize\lstinputlisting[firstline=122, lastline=129]
-  {../../../src/examples/eqPly/frameData.h}}
+  {../../../Equalizer/examples/eqPly/frameData.h}}
 {\footnotesize\lstinputlisting[firstline=54, lastline=80]
-  {../../../src/examples/eqPly/frameData.cpp}}
+  {../../../Equalizer/examples/eqPly/frameData.cpp}}
 
 
 \subsubsection{\label{sSceneData}Scene Data}
@@ -1872,7 +1873,7 @@ the data in multiple steps, and constructs the model tree on the fly
 based on this information. It is omitted here for brevity:
 
 {\footnotesize\lstinputlisting[firstline=143, lastline=174]
-  {../../../src/examples/eqPly/vertexBufferDist.cpp}}
+  {../../../Equalizer/examples/eqPly/vertexBufferDist.cpp}}
 
 %\begin{wrapfigure}{r}{.618\textwidth}
 \begin{figure}[ht!]\center
@@ -1935,7 +1936,7 @@ Equalizer will pass this identifier to all \textsf{configInit} calls of
 the respective objects:
 
 {\footnotesize\lstinputlisting[firstline=74, lastline=95]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 After a successful initialization, the models are loaded and registered for data
 distribution. When idle, Equalizer will predistribute object data during
@@ -1944,7 +1945,7 @@ models after \textsf{Config::init} ensures that the render clients are running
 and can cache the data:
 
 {\footnotesize\lstinputlisting[firstline=97, lastline=99]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 The configuration tries to set up a tracking device for head tracking. Equalizer
 does not provide extensive support for tracking devices, as this is an
@@ -1955,14 +1956,14 @@ provides a reference implementation for the integration of such a tracking
 library. \sref{sTracking} provides more background on head tracking.
 
 {\footnotesize\lstinputlisting[firstline=100, lastline=118]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 The exit function of the configuration stops the render clients by calling
 \textsf{eq::Con\-fig::exit}, and then de-registers the initialization and
 frame data objects with the session:
 
 {\footnotesize\lstinputlisting[firstline=130, lastline=139]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 \subsubsection{Frame Control}
 
@@ -1974,7 +1975,7 @@ and will be used by the rendering threads to synchronize the frame data to the
 state belonging to the current frame:
 
 {\footnotesize\lstinputlisting[firstline=310, lastline=317]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 Updating the shared data is decomposed in different steps. If a tracker is used,
 the current head position and orientation is retrieved and passed to Equalizer,
@@ -1982,7 +1983,7 @@ which uses the head matrix together with the wall or projection description to
 compute the view frusta, as explained in \sref{sTracking}:
 
 {\footnotesize\lstinputlisting[firstline=319, lastline=327]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 The camera position is recomputed based on the current navigation mode, and the
 idle state for rendering is set. When idle, \textsf{eqPly} performs
@@ -1990,7 +1991,7 @@ anti-aliasing to gradually reduce aliasing effects in the rendering. The idle
 state is tracked by the application and used by the rendering callbacks:
 
 {\footnotesize\lstinputlisting[firstline=329, lastline=359]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 
 \subsubsection{Event Handling}
@@ -2013,11 +2014,11 @@ The event handling code is shortened here. A detailed description on how to
 customize event handling can be found in \sref{sEventHandling}:
 
 {\footnotesize\lstinputlisting[firstline=387, lastline=390]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 {\footnotesize\lstinputlisting[firstline=450, lastline=481]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 {\footnotesize\lstinputlisting[firstline=528, lastline=534]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 
 \subsubsection{Model Handling}
@@ -2039,7 +2040,7 @@ The preprocess config instance maintains the mapped models, and lazily maps new
 models, which are registered by the application process:
 
 {\footnotesize\lstinputlisting[firstline=284, lastline=308]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 \subsubsection{Layout and View Handling}
 
@@ -2062,7 +2063,7 @@ application-specific view on data, \textsf{eqPly} is using different
 models to illustrate the concept:
 
 {\footnotesize\lstinputlisting[firstline=790, lastline=859]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 The layout of the canvas with the active view can also be dynamically
 switched using a keyboard shortcut. The first canvas using the layout is
@@ -2100,14 +2101,14 @@ local instance using the identifier passed from
 executed before \textsf{Node::configInit} has returned:
 
 {\footnotesize\lstinputlisting[firstline=35, lastline=48]
-  {../../../src/examples/eqPly/node.cpp}}
+  {../../../Equalizer/examples/eqPly/node.cpp}}
 
 The actual mapping of the static data is done by the config. The config
 retrieves the distributed \textsf{InitData}. The object is directly unmapped
 since it is static, and therefore all data has been retrieved:
 
 {\footnotesize\lstinputlisting[firstline=257, lastline=268]
-  {../../../src/examples/eqPly/config.cpp}}
+  {../../../Equalizer/examples/eqPly/config.cpp}}
 
 \subsection{Pipe}
 
@@ -2136,14 +2137,14 @@ window-system-dependent. On AGL the display ID is determined, and on glX the
 display connection is opened:
 
 {\footnotesize\lstinputlisting[firstline=57, lastline=70]
-  {../../../src/examples/eqPly/pipe.cpp}}
+  {../../../Equalizer/examples/eqPly/pipe.cpp}}
 
 The config exit function is similar to the config initialization. The
 frame data is unmapped and GPU-specific data is de-initialized by
 \textsf{eq::Config::exit}:
 
 {\footnotesize\lstinputlisting[firstline=72, lastline=78]
-  {../../../src/examples/eqPly/pipe.cpp}}
+  {../../../Equalizer/examples/eqPly/pipe.cpp}}
 
 \subsubsection{Window System}
 
@@ -2166,7 +2167,7 @@ command line option. Therefore the implementation of
 window system, if supported:
 
 {\footnotesize\lstinputlisting[firstline=39, lastline=55]
-  {../../../src/examples/eqPly/pipe.cpp}}
+  {../../../Equalizer/examples/eqPly/pipe.cpp}}
 
 \subsubsection{\label{sCarbonThread}Carbon/AGL Thread Safety}
 
@@ -2197,7 +2198,7 @@ version, and unlocks its child entities by calling
 \textsf{startFrame}:
 
 {\footnotesize\lstinputlisting[firstline=80, lastline=84]
-  {../../../src/examples/eqPly/pipe.cpp}}
+  {../../../Equalizer/examples/eqPly/pipe.cpp}}
 
 
 \subsection{\label{sEqplyWIndow}Window}
@@ -2274,7 +2275,7 @@ an overlay logo. This function is only called if an OpenGL context was
 created and made current:
 
 {\footnotesize\lstinputlisting[firstline=76, lastline=98]
-  {../../../src/examples/eqPly/window.cpp}}
+  {../../../Equalizer/examples/eqPly/window.cpp}}
 
 The state object is used to handle the creation of OpenGL objects in a
 multipipe, multithreaded execution environment. It uses the object manager of
@@ -2295,7 +2296,7 @@ objects. The object manager does not delete the object in its destructor, since
 it does not know if an OpenGL context is still current.
 
 {\footnotesize\lstinputlisting[firstline=100, lastline=109]
-  {../../../src/examples/eqPly/window.cpp}}
+  {../../../Equalizer/examples/eqPly/window.cpp}}
 
 \subsubsection{\label{sObjectManager}Object Manager}
 
@@ -2362,7 +2363,7 @@ reasonable values to contain the whole model. During rendering, the near
 and far planes are adjusted dynamically to the current model position:
 
 {\footnotesize\lstinputlisting[firstline=69, lastline=78]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 \subsubsection{Rendering}
 
@@ -2434,7 +2435,7 @@ was interrupted by a reset and if the idle anti-aliasing is finished. Then the
 near and far planes are re-computed, before the rendering context is applied:
 
 {\footnotesize\lstinputlisting[firstline=123, lastline=137]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 The \textsf{frameDraw} method in \textsf{eqPly} calls the \textsf{frameDraw}
 method from the parent class, the Equalizer channel. The default
@@ -2476,13 +2477,13 @@ rendering, whereas the unique per-channel color is set in
 \textsf{frameDraw} for the whole model:
 
 {\footnotesize\lstinputlisting[firstline=139, lastline=165]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 Finally the model is rendered. If the model was not loaded during node
 initialization, a quad is drawn in its place:
 
 {\footnotesize\lstinputlisting[firstline=167, lastline=178]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 
 To draw the model, a helper class for view frustum culling is set up
@@ -2497,7 +2498,7 @@ from the channel is obtained. The render state manages display list or
 VBO allocation:
 
 {\footnotesize\lstinputlisting[firstline=591, lastline=610]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 The model data is spatially organized in a 3-dimensional
 kD-tree\footnote{See also \link{http://en.wikipedia.org/wiki/Kd-tree}}
@@ -2535,7 +2536,7 @@ the compiled display lists or VBO's across all windows of a pipe.
 The main rendering loop in \textsf{eqPly} looks like this:
 
 {\footnotesize\lstinputlisting[firstline=619, lastline=689]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 \subsubsection{Assembly}
 
@@ -2547,7 +2548,7 @@ The output frames are flagged to ignore it, which allows the compressor to
 drop 25\% of the data during image transfer:
 
 {\footnotesize\lstinputlisting[firstline=238, lastline=261]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 The \textsf{frameAssemble} method is overwritten for the use of Subpixel
 compound with idle software anti-aliasing, as described in \ref{sFSAA}.
@@ -2708,7 +2709,7 @@ The \textsf{ConfigEvent} derives from the \textsf{eq::ConfigEvent}
 structure and has the following definition:
 
 {\footnotesize\lstinputlisting[firstline=36, lastline=57]
-  {../../../src/examples/eqPixelBench/configEvent.h}}
+  {../../../Equalizer/examples/eqPixelBench/configEvent.h}}
 
 
 The \textsf{Config::sendEvent} method transmits an
@@ -2730,7 +2731,7 @@ On the application end, \textsf{Config::handleEvent} uses the
 events in a nicely formatted way:
 
 {\footnotesize\lstinputlisting[firstline=58, lastline=71]
-  {../../../src/examples/eqPixelBench/config.cpp}}
+  {../../../Equalizer/examples/eqPixelBench/config.cpp}}
 
 
 \subsection{\label{sErrorHandling}Error Handling}
@@ -2754,10 +2755,10 @@ strongly advised to register application-specific errors before
 \textsf{eq::init} and clear them after \textsf{eq::exit}:
 
 {\footnotesize\lstinputlisting[firstline=55, lastline=61]
-  {../../../src/examples/eVolve/main.cpp}}
+  {../../../Equalizer/examples/eVolve/main.cpp}}
 ...
 {\footnotesize\lstinputlisting[firstline=92, lastline=95]
-  {../../../src/examples/eVolve/main.cpp}}
+  {../../../Equalizer/examples/eVolve/main.cpp}}
 
 When the application returns false from a \textsf{configInit} task method due to
 an application-specific error, it should set an error code using
@@ -2765,12 +2766,12 @@ an application-specific error, it should set an error code using
 greater than \textsf{eq::ERROR\_CUSTOM}:
 
 {\footnotesize\lstinputlisting[firstline=36, lastline=44]
-  {../../../src/examples/eVolve/error.h}}
+  {../../../Equalizer/examples/eVolve/error.h}}
 
 During initialization, eVolve may use these error codes:
 
 {\footnotesize\lstinputlisting[firstline=45, lastline=57]
-  {../../../src/examples/eVolve/window.cpp}}
+  {../../../Equalizer/examples/eVolve/window.cpp}}
 
 It is not required to register an error string for each application-specific
 error. Registering a string will however cause error printing to use this string
@@ -2779,7 +2780,7 @@ existing error strings to their convenience, e.g., for internationalization
 purposes:
 
 {\footnotesize\lstinputlisting[firstline=37, lastline=73]
-  {../../../src/examples/eVolve/error.cpp}}
+  {../../../Equalizer/examples/eVolve/error.cpp}}
 
 
 \subsection{\label{sThreads}Thread Synchronization}
@@ -3087,7 +3088,7 @@ window initialization of \textsf{eVolve} sets the attribute before
 calling the default initialization method of Equalizer:
 
 {\footnotesize\lstinputlisting[firstline=37, lastline=43]
-  {../../../src/examples/eVolve/window.cpp}}
+  {../../../Equalizer/examples/eVolve/window.cpp}}
 
 
 \subsubsection{AGL Window Initialization}
@@ -3119,7 +3120,7 @@ The drawable creation method \textsf{configInitAGLDrawable} calls either
 The top-level AGL window initialization code therefore looks as follows:
 
 {\footnotesize\lstinputlisting[firstline=124, lastline=140]
-  {../../../src/libs/client/aglWindow.cpp}}
+  {../../../Equalizer/libs/client/aglWindow.cpp}}
 
 
 \subsubsection{GLX Window Initialization}
@@ -3130,7 +3131,7 @@ create drawable. The only difference is that the data returned by
 \textsf{chooseGLXFBConfig} has to be freed using \textsf{XFree}:
 
 {\footnotesize\lstinputlisting[firstline=67, lastline=101]
-  {../../../src/libs/client/glXWindow.cpp}}
+  {../../../Equalizer/libs/client/glXWindow.cpp}}
 
 
 \subsubsection{WGL Window Initialization}
@@ -3164,56 +3165,145 @@ The full \textsf{configInitWGL} task method, including error handling
 and cleanup, looks as follows:
 
 {\footnotesize\lstinputlisting[firstline=178, lastline=224]
-  {../../../src/libs/client/wglWindow.cpp}}
+  {../../../Equalizer/libs/client/wglWindow.cpp}}
 
 
-\subsection{\label{sTracking}Head Tracking}
+\subsection{\label{sTracking}Stereo and Immersive Rendering}
 
-The \textsf{eqPly} example contains rudimentary support for head
-tracking to show how head tracking can be integrated with
-Equalizer. Support for a wide range of tracking devices is not within
-the scope of Equalizer. Other open source and commercial implementations
-cover this functionality sufficiently and can easily be integrated with
-Equalizer.
+Equalizer fully supports immersive rendering for Virtual Reality, supporting
+multiple tracked observers, head-mounted displays (HMD) and flexible focus
+distance support. Equalizer does not support tracking devices directly. Other
+open source and commercial implementations cover this functionality well
+and can easily be integrated with Equalizer.
 
-An Equalizer configuration has a vector of observers. Each observer has
-its own head matrix and eye separation for tracking. In \textsf{eqPly},
-all observers are updated with the same head matrix. A typical
-application would assign different tracking data to different observers.
+An Equalizer configuration contains a number of observers. Each observer
+represents on tracked entity. Most immersive configurations only have one
+observer. It is possible to support multiple tracked viewers in the same
+configuration, e.g., to use two HMDs.
 
-\begin{figure}[h!t]\center
-  \subfigure[]{\label{fMono}
-    \includegraphics[height=4cm]{images/mono}}\hfil
-  \subfigure[]{\label{fStereo}
-    \includegraphics[height=4cm]{images/stereo}}
-  \subfigure[]{\label{fTracked}
-    \includegraphics[height=4cm]{images/tracked}}\hfil
-  \subfigure[]{\label{fHMD}
-    \includegraphics[height=4cm]{images/hmd}}
-  {\caption{\label{fImmersive}Monoscopic (a), Stereoscopic (b), Tracked (c) and
-      HMD (d) Frusta}}
-\end{figure}
+Each observer has its own head matrix, eye separation and focus information for
+tracking. In \textsf{eqPly}, all observers are updated with the same data. A
+typical application would assign different tracking data to different observers.
+
+The \textsf{eqPly} example contains basic support for head tracking to
+illustrate how applications use these features.
+
+\subsubsection{Stereo Rendering}
 
 \fig{fMono} illustrates a monoscopic view frustum. The viewer is
 positioned at the origin of the global coordinate system, and the
 frustum is completely symmetric. This is the typical view frustum for
 non-stereoscopic applications.
 
+\begin{figure}[h!t]\center
+  \subfigure[]{\label{fMono}
+    \includegraphics[width=.382\textwidth]{images/mono}}\hfil
+  \subfigure[]{\label{fStereo}
+    \includegraphics[width=.382\textwidth]{images/stereo}}
+  {\caption{Monoscopic (a) and Stereoscopic (b) Frusta}}
+\end{figure}
+
 In stereo rendering, the scene is rendered twice, with the two frusta
-'moved' by the distance between the eyes, as shown in \fig{fStereo}.
+'moved' by the distance between the eyes, as shown in \fig{fStereo}. The stereo
+frusta are asymmetric, offset by half of the eye base. The stereo convergence
+plane is the same as the projection surface, unless specified otherwise using
+the focus distance API (see \sref{sFocusDistance}).
+
+Note that while stereo rendering is often implemented the simpler toe-in method,
+Equalizer uses the correct approach using asymmetric frusta.
+
+\subsubsection{Immersive Rendering}
 
 In immersive visualization, the observer is tracked in and the view
 frusta are adapted to the viewer's position and orientation, as shown
 in \fig{fTracked}. The transformation $origin \rightarrow viewer$ is set by
 the application using \textsf{Config::setHead\-Matrix}, which is used by
-the server to compute the frusta. The resulting off-axis frusta are
-positioned using the channel's head transformation, which can be
-retrieved using \textsf{Channel::getHeadTransform}.
+the server to compute the eye positions, and consequently the view frusta.
+
+\begin{figure}[h!t]\center
+  \subfigure[]{\label{fTracked}
+    \includegraphics[width=.382\textwidth]{images/tracked}}\hfil
+  \subfigure[]{\label{fHMD}
+    \includegraphics[width=.382\textwidth]{images/hmd}}
+  {\caption{\label{fImmersive}Tracked (a) and HMD (b) Immersive Frusta}}
+\end{figure}
+
+Projection surfaces which are not X/Y-planar create frusta which are not
+oriented along the Z axis, as shown in \fig{fFixed}. These frusta are positioned
+using the channel's head transformation, which can be retrieved using
+\textsf{Channel::getHeadTransform}.
 
 For head-mounted displays (HMD), the tracking information is used to
 move the frusta with the observer, as shown in \fig{fHMD}. This results
 in different projections compared to normal tracking with fixed
-projection screens.
+projection screens. These difference is transparent to Equalizer applications,
+only the configuration file uses a different wall type for HMD's.
+
+\subsubsection{\label{sFocusDistance}Focus Distance}
+
+The focus distance, also called stereo convergence, is the Z distance in which
+the left and right eye frusta converge. A plane parallel to the near plane
+positioned in the focus distance creates the same 2D image for both eyes.
+
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/focusFixed}
+  {\caption{\label{fFixed}Fixed focus distance}}
+\end{wrapfigure}
+The frustum calculation up to Equalizer version 1.0 places the stereo
+convergence on the projection surface, as shown in \fig{fFixed}. The focus
+distance is therefore the distance between the origin and the middle of the
+projection surface.
+
+In Equalizer 1.1 and later the focus distance and mode can be configured and
+changed at runtime for each \textsf{observer} and on the \textsf{config} for
+untracked views.
+
+The default focus mode \textsf{fixed} implements the algorithm used by Equalizer
+1.0. This mode ignores the focus distance setting. The focus modes
+\textsf{relative\_to\_origin} and \textsf{relative\_to\_observer} use the focus
+distance to dynamically change the stereo convergence.
+
+\begin{figure}[h!t]\center
+  \subfigure[]{\label{fOrigin}
+    \includegraphics[width=.49\textwidth]{images/focusOrigin}}\hfil
+  \subfigure[]{\label{fObserver}
+    \includegraphics[width=.49\textwidth]{images/focusObserver}}
+  {\caption{\label{fImmersive}Dynamic focus distance relative to origin
+      (a) and observer (b)}}
+\end{figure}
+
+The focus distance calculation relative to the origin allows to change the
+focus independent of the observer position by separating the projection surface
+from the stereo convergence plane upon which the observer focuses itself. The
+convergence plane of the first wall in the negative Z direction is moved to be
+at the given focus distance, as shown in \fig{fOrigin}. All other walls are
+moved by the same relative amount. The movement is made from the view of the
+central eye, thus leaving the mono frustum unchanged. \fig{fOrigin} shows the
+new logical 'walls' used for frustum calculations in white, while the physical
+projection from \fig{fFixed} is still visible in the background.
+
+The focus distance calculation relative to the observer is similar to the origin
+algorithm, but it keeps the closest wall in the observer's view direction at the
+given focus distance, as shown in \fig{fObserver}. When the observer moves
+forward, the focal plane moves forward as well. Consequently, when the observer
+looks in a different direction, a different object in the scene is focused, as
+indictated by the dotted circle in \fig{fObserver}.
+
+\begin{figure}[h!t]\center
+  \subfigure[]{\label{fFixedEx}
+    \includegraphics[height=6.3cm]{images/focusFixedEx}}\hfil
+  \subfigure[]{\label{fOriginEx}
+    \includegraphics[height=6.3cm]{images/focusOriginEx}}\hfil
+  \subfigure[]{\label{fObserverEx}
+    \includegraphics[height=6.3cm]{images/focusObserverEx}}
+            {\caption{\label{fImmersiveEx}Fixed(a), relative to origin(b) and
+                observer(c) focus distance examples}}
+\end{figure}
+
+\fig{fImmersiveEx} shows an example for the three focus distance modes. The
+configured wall is one meter behind the origin, the model two meters behind and
+the observer is half a meter in front of the origin. The focus distance was set
+to two meters.
 
 \subsection{\label{sLayoutAPI}Layout API}
 
@@ -3273,9 +3363,9 @@ by a \textsf{View::Proxy} object which serves as the view's user data. The proxy
 defines the necessary dirty bits and serializes the data:
 
 {\footnotesize\lstinputlisting[firstline=59, lastline=64, xleftmargin=-7em]
-  {../../../src/examples/eqPly/view.h}}
+  {../../../Equalizer/examples/eqPly/view.h}}
 {\footnotesize\lstinputlisting[firstline=58, lastline=76]
-  {../../../src/examples/eqPly/view.cpp}}
+  {../../../Equalizer/examples/eqPly/view.cpp}}
 
 The \textsf{eqPly::View} sets its \textsf{Proxy} as the user data object in the
 constructor. By default, the master instance of the view's user data is on the
@@ -3285,9 +3375,9 @@ synchronization is fully handled be the \textsf{fabric} layer, no further
 handling has to be done by the application:
 
 {\footnotesize\lstinputlisting[firstline=40, lastline=47]
-  {../../../src/examples/eqPly/view.cpp}}
+  {../../../Equalizer/examples/eqPly/view.cpp}}
 {\footnotesize\lstinputlisting[firstline=78, lastline=85]
-  {../../../src/examples/eqPly/view.cpp}}
+  {../../../Equalizer/examples/eqPly/view.cpp}}
 
 \subsubsection{Run-time Layout Switch}
 
@@ -3678,7 +3768,7 @@ values for all channels over the total sub-pixel grid a precomputed prime number
 table is used to pseudo-randomly select the subpixel:
 
 {\footnotesize\lstinputlisting[firstline=547, lastline=570]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 When the rendering is not in idle mode, the jitter is queried from
 Equalizer which returns an optimal subpixel offset for the given subpixel
@@ -3698,7 +3788,7 @@ a default implementation in \textsf{eq::Channel} for subpixel compounds, but is
 overwritten in \textsf{eqPly} to perform idle anti-aliasing:
 
 {\footnotesize\lstinputlisting[firstline=491, lastline=533]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 At the end of the frame, \textsf{frameViewFinish} accumulates the frame buffer
 into an accumulation buffer. Since \textsf{frameViewFinish} is only called on
@@ -3711,7 +3801,7 @@ If the current pixel viewport is different from the one saved in
 the idle anti-aliasing is reset.
 
 {\footnotesize\lstinputlisting[firstline=305, lastline=337]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 At the end of the frame for each channel, \textsf{frameFinish} will decrement
 the jitter step and create a new event to inform the \textsf{Config} using an
@@ -3719,7 +3809,7 @@ event of how many frames remain to draw before the idle anti-aliasing is
 complete:
 
 {\footnotesize\lstinputlisting[firstline=346, lastline=371]
-  {../../../src/examples/eqPly/channel.cpp}}
+  {../../../Equalizer/examples/eqPly/channel.cpp}}
 
 \subsubsection{Transparent Software Anti-Aliasing}
 
@@ -4829,7 +4919,7 @@ all connection descriptions of the node are passed to the launched node
 process, which will cause it to bind to all provided descriptions.
 
 {\footnotesize\lstinputlisting[firstline=87, lastline=98]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Config Section}
 
@@ -4853,15 +4943,15 @@ rendering tasks started one frame ago in \textsf{finishFrame}.
 For a description of config attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\lstinputlisting[firstline=98, lastline=108]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 {\footnotesize\lstinputlisting[firstline=172, lastline=172]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 {\footnotesize\lstinputlisting[firstline=178, lastline=178]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 {\footnotesize\lstinputlisting[firstline=205, lastline=205]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 {\footnotesize\lstinputlisting[firstline=249, lastline=249]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Node Section}
 
@@ -4872,7 +4962,7 @@ execution of Equalizer. For a description of node and connection
 attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\lstinputlisting[firstline=107, lastline=125]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Pipe Section}
 
@@ -4910,7 +5000,7 @@ used.
 For a description of pipe attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\lstinputlisting[firstline=125, lastline=136]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Window Section}
 
@@ -4932,7 +5022,7 @@ viewport is \textsf{[ 0 0 1 1 ]}, i.e., a full-screen window.
 For a description of window attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\lstinputlisting[firstline=136, lastline=158]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Channel Section}
 
@@ -4953,7 +5043,7 @@ partially overwritten with framebuffer objects.
 For a description of channel attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\lstinputlisting[firstline=158, lastline=167]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Observer Section}
 
@@ -4964,7 +5054,7 @@ used to reference the observer in views, in which case the name should
 be unique. Not all views have to be tracked by an observer.
 
 {\footnotesize\lstinputlisting[firstline=172, lastline=176]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Layout Section}
 
@@ -4983,7 +5073,7 @@ as destination channels in a compound. They are automatically created
 during configuration loading or creation.
 
 {\footnotesize\lstinputlisting[firstline=178, lastline=181]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{View Section}
 
@@ -5009,7 +5099,7 @@ Model-View-Controller pattern. It can be a scene, viewing mode, viewing
 position, or any other representation of the application's data.
 
 {\footnotesize\lstinputlisting[firstline=181, lastline=202]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Canvas Section}
 
@@ -5029,7 +5119,7 @@ application at runtime. One layout can be referenced by multiple
 canvases. The first layout is the layout active by default.
 
 {\footnotesize\lstinputlisting[firstline=205, lastline=225]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Segment Section}
 
@@ -5052,7 +5142,7 @@ A segment can define a frustum, in which case it overrides the default
 frustum calculated from the canvas frustum and segment viewport.
 
 {\footnotesize\lstinputlisting[firstline=225, lastline=246]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Compound Section}
 
@@ -5132,7 +5222,7 @@ a texture, and can only be used to composite frames between windows of
 the same pipe.
 
 {\footnotesize\lstinputlisting[firstline=249, lastline=333]
-  {../../../website/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \cleardoublepage
 \pagestyle{empty}
