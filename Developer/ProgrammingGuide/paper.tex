@@ -4248,7 +4248,7 @@ are explained in this section.
 
 When using \textsf{commit} on slave object instances, multiple modifications on
 the same database may happen simultaneously. To avoid excessive synchronization
-in the network layer, Equalizer a lightweight approach which requires the
+in the network layer, Equalizer implements a lightweight approach which requires the
 application to avoid or handle conflicting changes on the same object.
 
 \begin{wrapfigure}{r}{.618\textwidth}
@@ -4399,7 +4399,7 @@ To use \textsf{eq::fabric::Serializable}, the following steps have to be taken:
 
 The Equalizer entities use the common base class
 \textsf{eq::fabric::Object}. This class manages common entity data, and is not
-intended to by subclassed directly.  The inheritance chain \textsf{eq::View}
+intended to be subclassed directly.  The inheritance chain \textsf{eq::View}
 $\rightarrow$ \textsf{eq::fabric::View} $\rightarrow$
 \textsf{eq::fabric::Object} $\rightarrow$ \textsf{eq::fabric::Se\-rial\-izable}
 $\rightarrow$ \textsf{co::Object} serves as sample implementation for this
