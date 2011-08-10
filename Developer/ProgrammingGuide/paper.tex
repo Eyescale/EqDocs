@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.8.2 for Equalizer 1.0+git \\[\medskipamount]
+Version 1.8.3 for Equalizer 1.1.3+git \\[\medskipamount]
 %  \today
 }
 
@@ -130,6 +130,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.8     & Mar 21, 2011 & Revision for Equalizer 1.0\\
     1.8.1   & Mar 25, 2011 & Minor Revision\\
     1.8.2   & Apr 04, 2011 & Added \sref{sFocusDistance}\\
+    1.8.3   & Aug 10, 2011 & Rewrote \sref{sHello}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -1261,31 +1262,78 @@ To modify an application for Equalizer, the programmer structures the
 source code so that the OpenGL rendering can be executed in parallel,
 potentially using multiple processes for cluster-based execution.
 
-\section{Hello, World!}
+\section{\label{sHello}Hello, World!}
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/eqHello.png}
   {\caption{\label{fHello}Hello, World!}}
 \end{wrapfigure}
-The \textsf{eqHello} example is a minimal application to illustrate the
-basic principle of an Equalizer application: The application developer
-has to implement the rendering method \textsf{Channel::frameDraw},
-similar to the \textsf{glutDisplayFunc} in GLUT applications. It can be
-run as a stand-alone application from the command line.
+The \textsf{eqHello} example is a minimal application to illustrate the basic
+principle of any Equalizer application: The application developer has to
+implement a rendering method similar to the \textsf{glutDisplayFunc} in GLUT
+applications.
 
-The \textsf{eqHello} redraw function renders six colored quads, rotating
-around the origin. The \textsf{frameDraw} meth\-od provided by the
-\textsf{eq::Channel} can be used as a convenience function to setup the
-frustum and other OpenGL state. After setting up some lighting
-parameters, \textsf{eqHello} rotates the scene and renders the quads
-using immediate mode:
+It can be run as a stand-alone application from the command line or using an
+explicit configuration file for a visualization cluster. In the stand-alone
+case, any Equalizer application including eqHello, will automatically
+configure itself to use all graphics cards found on the local system for
+scalability.
 
-{\footnotesize\lstinputlisting[firstline=107, lastline=123]
+\subsection{Sequel}
+
+Sequel is a thin layer on top of the canonical Equalizer programming
+interface. It substantially simplifies the creation of parallel rendering
+applications by implementing proven design patterns of Equalizer
+applications. Sequel does not prohibit the usage of Equalizer or Collage
+functionality, it simply makes it easier to use for the common use cases.
+
+\subsection{The main Function}
+
+The main function instantiates an application object, initializes it, starts the
+main loop and finally de-initializes the application:
+
+{\footnotesize\lstinputlisting[firstline=58, lastline=66]
   {../../../Equalizer/examples/eqHello/hello.cpp}}
 
-The \textsf{eqHello} main function sets up the communication with the
-server, initializes and drives the rendering. The details of this setup
-are explained in \sref{sEqPly}.
+\subsection{The Application}
+
+The application object in Sequel represents one process in the cluster. The main
+application instance has the rendering loop and controls all execution. All
+other instances used for render client processes are passive and driven by
+Equalizer.
+
+The application is responsible for creating renderers. Sequel will request one
+renderer for each GPU rendering thread. Sequel also provides automatic mapping
+and synchronization of distributed objects, for which the application has to
+provide a creation callback. Since \textsf{eqHello} does not need any
+distributed objects it provides an empty implementation of
+\textsf{createObject}:
+
+{\footnotesize\lstinputlisting[firstline=47, lastline=55]
+  {../../../Equalizer/examples/eqHello/hello.cpp}}
+
+\subsection{The Renderer}
+
+The renderer is responsible for executing the application's rendering code. One
+instance for each GPU is used. All calls to a single renderer are executed
+serially and therefore thread-safe.
+
+In \textsf{eqHello}, the renderer draws six colored quads. The only change from
+a standard OpenGL application is the usage of the rendering context provided by
+Equalizer, most notably the frustum and viewport. The rendering context is
+described in detail in \sref{sRenderContext}, and \textsf{eqHello} simply calls
+\textsf{applyRenderContext} which will execute the appropriate OpenGL calls.
+
+After setting up lighting, the model is positioned using
+\textsf{applyModelMatrix}. For convenience, Sequel maintains one camera per
+view. The usage of this camera is purely optional, an application can implement
+its own camera model.
+
+The actual OpenGL code, rendering six colored quads, is omitted here for
+brevity:
+
+{\footnotesize\lstinputlisting[firstline=69, lastline=81]
+  {../../../Equalizer/examples/eqHello/hello.cpp}}
 
 
 \section{The Programming Interface}
@@ -1490,7 +1538,7 @@ address. Furthermore, a \textsf{NodeFactory} is provided. The \textsf{EQERROR}
 macro, and its counterparts \textsf{EQWARN}, \textsf{EQINFO} and \textsf{EQVERB}
 allow selective debugging outputs with various logging levels:
 
-{\footnotesize\lstinputlisting[firstline=57, lastline=66]
+{\footnotesize\lstinputlisting[firstline=57, lastline=68]
   {../../../Equalizer/examples/eqPly/main.cpp}}
 
 The node factory is used by Equalizer to create the object instances of
@@ -1504,7 +1552,7 @@ created during initialization. Config, node and pipe objects are created and
 destroyed in the node thread, whereas window and channel objects are
 created and destroyed in the pipe thread:
 
-{\footnotesize\lstinputlisting[firstline=40, lastline=55]
+{\footnotesize\lstinputlisting[firstline=40, lastline=57]
   {../../../Equalizer/examples/eqPly/main.cpp}}
 
 The second step is to parse the command line into the
@@ -1513,7 +1561,7 @@ The second step is to parse the command line into the
 command line parsing is done by the \textsf{LocalInitData} class, which
 is discussed in \sref{sInitData}:
 
-{\footnotesize\lstinputlisting[firstline=67, lastline=70]
+{\footnotesize\lstinputlisting[firstline=70, lastline=73]
   {../../../Equalizer/examples/eqPly/main.cpp}}
 
 The third step is to create an instance of the application and to initialize it
@@ -1531,18 +1579,18 @@ connections to the \textsf{appNode} in the configuration file, or by
 programmatically adding connection descriptions to the client before the local
 initialization:
 
-{\footnotesize\lstinputlisting[firstline=71, lastline=78]
+{\footnotesize\lstinputlisting[firstline=74, lastline=81]
   {../../../Equalizer/examples/eqPly/main.cpp}}
 
 Finally everything is set up, and the \textsf{eqPly} application is executed:
 
-{\footnotesize\lstinputlisting[firstline=80, lastline=81]
+{\footnotesize\lstinputlisting[firstline=83, lastline=84]
   {../../../Equalizer/examples/eqPly/main.cpp}}
 
 After the application has finished, it is de-initialized and the
 \textsf{main} function returns:
 
-{\footnotesize\lstinputlisting[firstline=83]
+{\footnotesize\lstinputlisting[firstline=85]
   {../../../Equalizer/examples/eqPly/main.cpp}}
 
 \subsection{Application}
@@ -1754,7 +1802,7 @@ and de-serialization in \textsf{applyInstanceData} is performed by
 streaming all member variables to or from the provided data
 streams:
 
-{\footnotesize\lstinputlisting[firstline=61, lastline=74]
+{\footnotesize\lstinputlisting[firstline=60, lastline=73]
   {../../../Equalizer/examples/eqPly/initData.cpp}}
 
 \subsubsection{FrameData - a Versioned Distributed Object}
@@ -2399,6 +2447,7 @@ void eq::Channel::applyBuffer()
 }
 \end{lstlisting}}
 
+\label{sRenderContext}
 The contextual information has to be used to render the view as
 expected by Equalizer. Failure to use certain information will result in
 incorrect rendering for some or all configurations. The channel render
@@ -2661,10 +2710,6 @@ events for an \textsf{AGLWindowIF}, \textsf{GLXWindowIF} and
 \textsf{WGL\-Win\-dowIF}, respectively. \fig{fEventUML} illustrates the
 class hierarchy for event processing.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
-  {\caption{\label{fEventUML}UML Class Diagram for Event Handling}}
-\end{wrapfigure}
 The concrete implementation of these window interfaces is responsible
 for setting up and de-initializing event handling.
 
@@ -2679,6 +2724,10 @@ event handler for all important events. The event handler uses an
 Carbon handler is removed when the window's event handler is deleted. No
 event handling is set up for PBuffers.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/eventUML.pdf}
+  {\caption{\label{fEventUML}UML Class Diagram for Event Handling}}
+\end{wrapfigure}
 For each window, one \textsf{GLXEventHandler} is allocated. FBO's and PBuffers
 are handled in the same way as window drawables. The event dispatch finds the
 corresponding event handler for each received event, which is then used to
@@ -3119,8 +3168,8 @@ The drawable creation method \textsf{configInitAGLDrawable} calls either
 
 The top-level AGL window initialization code therefore looks as follows:
 
-{\footnotesize\lstinputlisting[firstline=124, lastline=140]
-  {../../../Equalizer/libs/client/aglWindow.cpp}}
+{\footnotesize\lstinputlisting[firstline=138, lastline=154]
+  {../../../Equalizer/libs/eq/client/agl/window.cpp}}
 
 
 \subsubsection{GLX Window Initialization}
@@ -3130,8 +3179,8 @@ choose frame buffer configuration (pixel format), create OpenGL context and then
 create drawable. The only difference is that the data returned by
 \textsf{chooseGLXFBConfig} has to be freed using \textsf{XFree}:
 
-{\footnotesize\lstinputlisting[firstline=67, lastline=101]
-  {../../../Equalizer/libs/client/glXWindow.cpp}}
+{\footnotesize\lstinputlisting[firstline=70, lastline=106]
+  {../../../Equalizer/libs/eq/client/glx/window.cpp}}
 
 
 \subsubsection{WGL Window Initialization}
@@ -3164,8 +3213,8 @@ AGL or GLX. The following functions are used to initialize a WGL window:
 The full \textsf{configInitWGL} task method, including error handling
 and cleanup, looks as follows:
 
-{\footnotesize\lstinputlisting[firstline=178, lastline=224]
-  {../../../Equalizer/libs/client/wglWindow.cpp}}
+{\footnotesize\lstinputlisting[firstline=180, lastline=226]
+  {../../../Equalizer/libs/eq/client/wgl/window.cpp}}
 
 
 \subsection{\label{sTracking}Stereo and Immersive Rendering}
@@ -3330,10 +3379,6 @@ the active layout of a canvas, are distributed using slave object commits
 using a distributable \textsf{UserData} object. \fig{fViewUML} shows the UML
 class hierarchy for the \textsf{eqPly::View}.
 
-\begin{wrapfigure}{r}{.612\textwidth}
-  \includegraphics[width=.612\textwidth]{images/viewUML.pdf}
-  {\caption{\label{fViewUML}UML Hierarchy of \textsf{eqPly::View}}}
-\end{wrapfigure}
 The render clients can access a slave instance of the view using
 \textsf{Channel::getView}. When called from one of the frame task
 methods, this method will return the view of the current destination
@@ -3341,6 +3386,10 @@ channel for which the task method is executed. Otherwise it returns the
 channel's native view, if it has one. Only destination channels of an
 active canvas have a native view.
 
+\begin{wrapfigure}{r}{.612\textwidth}
+  \includegraphics[width=.612\textwidth]{images/viewUML.pdf}
+  {\caption{\label{fViewUML}UML Hierarchy of \textsf{eqPly::View}}}
+\end{wrapfigure}
 Equalizer commits dirty layout entities at the beginning of each
 \textsf{Config::startFrame}, and synchronizes the slave instances on the
 render clients correctly with the current frame.
@@ -3405,6 +3454,11 @@ Similar to switch a layout, the stereo mode of each view can be switched at
 runtime. This causes all destination channels of the view to update the cyclop
 eye or the left and right eye.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/stereoSwitch.pdf}
+  {\caption{\label{fStereoSwitch}Using two different decompositions during
+      stereo and mono rendering}}
+\end{wrapfigure}
 The configuration contains stereo information in three places: the view, the
 segment and the compound.
 
@@ -3418,11 +3472,6 @@ cyclop eye for passive stereo can either be set on a single segment or both,
 depending if the second projector is active during monoscopic rendering. The
 default setting enables all eyes for a segment.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/stereoSwitch.pdf}
-  {\caption{\label{fStereoSwitch}Using two different decompositions during
-      stereo and mono rendering}}
-\end{wrapfigure}
 The compound has an \textsf{eye} attribute defining which eyes it is capable of
 updating. This allows to specify different compounds for the same channel,
 depending on the stereo mode. One use case is to use one GPU each for updating a
@@ -3546,16 +3595,16 @@ in the system. Direct send distributes this workload evenly across all
 source channels, and thereby keeps the compositing work per channel
 constant.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
-  {\caption{\label{fDirectSend}Direct Send Compositing}}
-\end{wrapfigure}
 In direct send compositing, each rendering channel is also responsible
 for the sort-last composition of one screen-space tile. He receives
 the framebuffer pixels for his tile from all the other channels. The
 size of one tile decreases linearly with the number of source channels,
 which keeps the total amount of pixel data per channel constant.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/directSend.pdf}
+  {\caption{\label{fDirectSend}Direct Send Compositing}}
+\end{wrapfigure}
 After performing the sort-last compositing, the color information is
 transferred to the destination channel, similarly to a 2D (sort-first)
 compound. The amount of pixel data for this part of the compositing
@@ -3683,16 +3732,16 @@ of the bricks is rendered like a separate volume. For recomposition, the
 \textsf{RGBA} frame buffer data resulting from these render passes then
 has to be assembled correctly. 
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/slices.pdf}
+  {\caption{\label{fSlices}Volume Rendering using 3D Textures}}
+\end{wrapfigure}
 Conceptually, the individual volume bricks of each of the source
 channels produces pixel data which can be handled like one big 'slice'
 through the full texture. Therefore they have to be blen\-ded
 back-to-front in the same way as the slice planes are blended during
 rendering.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/slices.pdf}
-  {\caption{\label{fSlices}Volume Rendering using 3D Textures}}
-\end{wrapfigure}
 Database decomposition has the advantage of scaling any part of the volume
 rendering pipeline: texture and main memory (smaller bricks for each channel),
 fill rate (less samples per channel) and IO bandwidth for time-dependent data
@@ -3707,6 +3756,10 @@ same blending parameters. Simplified, the frame buffer images are
 `thick' slices which are `rendered' by writing their content to the
 destination frame buffer using the correct order.
 
+\begin{wrapfigure}{l}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/volResult.png}
+  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
+\end{wrapfigure}
 For orthographic rendering, determining the compositing order of the
 input frames is trivial. The screen-space orientation of the volume
 bricks determines the order in which they have to be composited. The
@@ -3715,10 +3768,6 @@ dimension. Therefore the range of the resulting frame buffer images,
 together with the sorting order, is used to arrange the frames during
 compositing. \fig{fBlendOrtho} shows this composition for one view.
 
-\begin{wrapfigure}{l}{.382\textwidth}
-  \includegraphics[width=.382\textwidth]{images/volResult.png}
-  {\caption{\label{fVolResult}Result of \fig{fBlendPerspective}}}
-\end{wrapfigure}
 Finding the correct assembly order for perspective frusta is more
 complex. The perspective distortion invalidates a simple orientation
 criteria like the one used for orthographic frusta. For the view and
