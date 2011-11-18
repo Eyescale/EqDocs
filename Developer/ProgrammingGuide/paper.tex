@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.8.3 for Equalizer 1.1.3+git \\[\medskipamount]
+Version 1.8.4 for Equalizer 1.1.5+git \\[\medskipamount]
 %  \today
 }
 
@@ -131,6 +131,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.8.1   & Mar 25, 2011 & Minor Revision\\
     1.8.2   & Apr 04, 2011 & Added \sref{sFocusDistance}\\
     1.8.3   & Aug 10, 2011 & Rewrote \sref{sHello}\\
+    1.8.4   & Nov 18, 2011 & Added \sref{sAutoConfig}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -527,7 +528,76 @@ another view.
 Equalizers are described in more detail in \sref{sEqualizers}.
 
 
-\section{\label{sConfig}Writing Configurations}
+\section{\label{sConfig}Configuring Equalizer Clusters}
+
+\subsection{\label{sAutoConfig}Auto-Configuration}
+
+\subsubsection{GPU Service Discovery}
+Equalizer uses the GPU-SD library for discovering local and remote GPUs. Based
+on this information, a typical configuration is dynamically compiled at
+application start. The auto-configuration uses the same format as the static
+configuration files, and can therefore be used to create template configurations
+by running a test application and copying the generated configuration.
+
+Please note that the ZeroConf module is optional and requires a ZeroConf
+implementation when Equalizer is compiled.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/gpu-sd.pdf}
+  {\caption{\label{fGPUSD}GPU discovery for auto-configuration}}
+\end{wrapfigure}
+GPU-SD contains three components: a core library, local and remote discovery
+modules as well as a ZeroConf daemon. The daemon uses the appropriate module to
+query local GPUs and announces them using ZeroConf on the local network.
+
+Equalizer uses the library with the dns\_sd discovery module to gather the
+information announced by all daemons on the local network, as well as the local
+discovery modules for standalone auto-configuration. \fig{fGPUSD} shows how
+GPU-SD is used to discover four remote GPUs on two different machines to use
+them to render a single view on a laptop.
+
+\subsubsection{Usage}
+
+On each node contributing to the configuration, install and start the GPU-SD
+daemon. If multiple, disjoint configurations are used on the same network,
+provide the session name as a parameter when starting the daemon. Verify that
+all GPUs are visible on the application host using the \textsf{gpu\_sd\_list}
+tool. When starting the application, use the command-line parameter
+\textsf{--eq-config}:
+
+\begin{itemize}
+\item The default value is \textsf{local} which uses all local GPUs queried
+  using the cgl, glx or wgl GPU-SD module.
+\item \textsf{--eq-config sessionname} uses the dns\_sd ZeroConf module of
+  GPU-SD to query all GPUs in the subnet for the given session. The default
+  session of the GPU-SD daemon is \textsf{default}. The ZeroConf hostname is
+  used to connect the nodes.
+\item \textsf{--eq-config filename.eqc} loads a static configuration from the
+  given ascii file. The following sections describe how to write configuration
+  files.
+\end{itemize}
+
+The auto-configuration creates one display window on the local machine, and one
+off-screen channel for each GPU. The display window has one full-window channel
+used as an output channel for a single segment. It combines all GPUs into a
+scalability config with different layouts for each of the following scalability
+modes:
+
+\begin{description}
+\item [2D] A dynamically load-balanced sort-first configuration using all GPUs
+  as sources.
+\item [Simple] A no-scalability configuration using only the display GPU for
+  rendering.
+\item [Static DB] A static sort-last configuration distributing the range evenly
+  across all GPUs.
+\item [Dynamic DB] A dynamically load-balanced sort-last configuration using all
+  GPUs as sources.
+\end{description}
+
+The ZeroConf hostname is used to configure the node, that is, the launch command
+has to be able to resolve this hostname for starting the render client
+processes. Given a properly set up ZeroConf installation, the default launch
+command \textsf{ssh} should be able to start the render client correctly.
 
 \subsection{Preparation}
 
@@ -1042,11 +1112,6 @@ performance.
 
 \paragraph{View Equalizer}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/viewLB.pdf}
-  {\caption{\label{fViewLoadBalancing}\small Cross-Segment
-      Load-Balancing for two Segments using eight GPU's}}
-\end{wrapfigure}
 Depending on the model position and data structure, each segment of a
 multi-display system has a different rendering load. The segment with
 the biggest load determines the overall performance when using a static
@@ -1063,10 +1128,10 @@ equalizer, which assigns two GPU's to the left segment and four GPU's to
 the right segment, which leads to optimal performance for this model and
 camera position.
 
-\begin{wrapfigure}{r}{.382\textwidth} 
-    \includegraphics[width=.382\textwidth]{images/viewLB.png}
-    {\caption{\label{fViewLoadBalancing2}\small Cross-Segment
-        Load-Balancing for a CAVE}}
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/viewLB.pdf}
+  {\caption{\label{fViewLoadBalancing}\small Cross-Segment
+      Load-Balancing for two Segments using eight GPU's}}
 \end{wrapfigure}
 The view equalizer can also use resources from another display resource,
 if this resource has little rendering load by itself. It is therefore
@@ -1075,6 +1140,11 @@ without any additional resources. This is particularly useful for
 installations with a higher number of displays where the rendering load
 is typically in a few segments only, e.g., for a CAVE.
 
+\begin{wrapfigure}{l}{.382\textwidth} 
+    \includegraphics[width=.382\textwidth]{images/viewLB.png}
+    {\caption{\label{fViewLoadBalancing2}\small Cross-Segment
+        Load-Balancing for a CAVE}}
+\end{wrapfigure}
 \fig{fViewLoadBalancing2} shows cross-usage for a five-sided CAVE driven
 by five GPU's. The front and left segments show the model and have a
 significant rendering load. The view equalizer assigns the GPU's from
@@ -1098,7 +1168,7 @@ for optimal user experience.
 \paragraph{DFR Equalizer}
 
 \begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/dfr.pdf}
+  \vspace{-3ex}\includegraphics[width=.618\textwidth]{images/dfr.pdf}
   {\caption{\label{fDFR}Dynamic Frame Resolution}}
 \end{wrapfigure}
 Dynamic Frame Resolution (DFR) trades rendering performance for visual
@@ -1250,7 +1320,7 @@ following reasons:
   host using this launch command. It should run without user interaction. Check
   that the render client is installed in the correct path. Pay attention to the
   launch command quotes used to separate arguments on Windows. Check that the
-  same software version, including Equalizer, are installed on all machines.
+  same software versions, including Equalizer, are installed on all machines.
 \item A client can't connect back to the application. Check the client log, this
   is typically caused by a misconfigured host name resolution.
 \end{itemize}
