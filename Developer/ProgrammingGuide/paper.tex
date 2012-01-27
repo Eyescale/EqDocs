@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.8.4 for Equalizer 1.1.5+git \\[\medskipamount]
+Version 1.8.5 for Equalizer 1.2 \\[\medskipamount]
 %  \today
 }
 
@@ -133,6 +133,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.8.2   & Apr 04, 2011 & Added \sref{sFocusDistance}\\
     1.8.3   & Aug 10, 2011 & Rewrote \sref{sHello}\\
     1.8.4   & Nov 18, 2011 & Added \sref{sAutoConfig}\\
+    1.8.5   & Jan 27, 2012 & RC review for Equalizer 1.2\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -3393,7 +3394,7 @@ method, Equalizer implements the correct approach using asymmetric frusta.
 In immersive visualization, the observer is tracked in and the view
 frusta are adapted to the viewer's position and orientation, as shown
 in \fig{fTracked}. The transformation $origin \rightarrow viewer$ is set by
-the application using \textsf{Config::setHead\-Matrix}, which is used by
+the application using \textsf{Observer::setHead\-Matrix}, which is used by
 the server to compute the eye positions, and consequently the view frusta.
 
 \begin{figure}[h!t]\center
@@ -4767,7 +4768,35 @@ name followed by its value. The following attributes are available:
   the right eye, i.e., the eye separation. The eye base influences the
   frustum during stereo rendering. See \sref{sTracking} for details.\\
   \textbf{See also} & EQ\_WINDOW\_IATTR\_HINT\_STEREO
-  EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
+  EQ\_COMPOUND\_IATTR\_STEREO\_MODE EQ\_CONFIG\_FATTR\_FOCUS\_DISTANCE
+  EQ\_CONFIG\_IATTR\_FOCUS\_MODE\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_CONFIG\_FATTR\_FOCUS\_DISTANCE\\
+  \textbf{Value} & float\\
+  \textbf{Default} & 1.0\\
+  \textbf{Details} & The default distance in meters to the focal plane. The
+  focus distance and mode influence the calculation of stereo frusta. See
+  \sref{sFocusDistance} for details.\\
+  \textbf{See also} & EQ\_CONFIG\_IATTR\_FOCUS\_MODE
+  EQ\_CONFIG\_FATTR\_EYE\_BASE\\
+  \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
+  \textbf{Name} & EQ\_CONFIG\_IATTR\_FOCUS\_MODE\\
+  \textbf{Value} & fixed \textbar relative\_to\_origin \textbar
+  relative\_to\_observer\\
+  \textbf{Default} & fixed\\
+  \textbf{Details} & The mode how to use the focus distance. The
+  focus maode and distance influence the calculation of stereo frusta. See
+  \sref{sFocusDistance} for details.\\
+  \textbf{See also} & EQ\_CONFIG\_IATTR\_FOCUS\_DISTANCE
+  EQ\_CONFIG\_FATTR\_EYE\_BASE\\
   \hline
 \end{tabularx}\\\vfill
 
@@ -5080,7 +5109,7 @@ name followed by its value. The following attributes are available:
   \textbf{Details} & Select the color mask for the left eye pass during
   anaglyphic stereo rendering.\\
   \hline
-\end{tabularx}\\
+\end{tabularx}\\\vfill
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
@@ -5140,7 +5169,7 @@ establish a connection to the node. When auto-launched by the server,
 all connection descriptions of the node are passed to the launched node
 process, which will cause it to bind to all provided descriptions.
 
-{\footnotesize\lstinputlisting[firstline=87, lastline=96]
+{\footnotesize\lstinputlisting[firstline=89, lastline=98]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Config Section}
@@ -5164,18 +5193,18 @@ rendering tasks started one frame ago in \textsf{finishFrame}.
 
 For a description of config attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\lstinputlisting[firstline=98, lastline=105]
+{\footnotesize\lstinputlisting[firstline=100, lastline=109]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Node Section}
 
-A node represents a machine in the cluster, and is one process. It has a
-name, a number of connection descriptions and at least one pipe. The
-name of the node can be used for debugging, it has no influence on the
-execution of Equalizer. For a description of node and connection
-attributes please refer to \sref{sGlobal}.
+A node represents a machine in the cluster, and is one process. It has a name, a
+hostname, a number of connection descriptions and at least one pipe. The name of
+the node can be used for debugging, it has no influence on the execution of
+Equalizer. The host is used to automatically launch remote render clients. For a
+description of node and connection attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\lstinputlisting[firstline=107, lastline=125]
+{\footnotesize\lstinputlisting[firstline=111, lastline=129]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Pipe Section}
@@ -5198,12 +5227,13 @@ For the AGL window system, the device selects the \textit{n}th display
 in the list of online displays. The OpenGL output is optimized for the
 selected display, but not restricted to the attached GPU.
 
-For the WGL window system, the device selects the \textit{n}th GPU in
-the system. The GPU can be offline, in this case only PBuffer windows
-can be used. To restrict the OpenGL output to the GPU, the
-\textsf{WGL\_NV\_gpu\_affinity} extension is used. If the extension is
-not present, the window is opened on the \textit{n}th monitor, but
-OpenGL commands are sent to a different or all GPU's.
+For the WGL window system, the device selects the \textit{n}th GPU in the
+system. The GPU can be offline, in this case only PBuffer windows can be
+used. To restrict the OpenGL output to the GPU, the
+\textsf{WGL\_NV\_gpu\_affinity} extension is used when available. If the
+extension is not present, the window is opened on the \textit{n}th monitor, but
+OpenGL commands may be sent to a different or all GPU's, depending on the driver
+implementation.
 
 The viewport of the pipe can be used to override the pipe
 resolution. The viewport is defined in pixels. The x and y parameter of
@@ -5213,7 +5243,7 @@ used.
 
 For a description of pipe attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\lstinputlisting[firstline=125, lastline=136]
+{\footnotesize\lstinputlisting[firstline=130, lastline=139]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Window Section}
@@ -5235,7 +5265,7 @@ viewport is \textsf{[ 0 0 1 1 ]}, i.e., a full-screen window.
 
 For a description of window attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\lstinputlisting[firstline=136, lastline=158]
+{\footnotesize\lstinputlisting[firstline=141, lastline=162]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Channel Section}
@@ -5244,6 +5274,9 @@ A channel is a two-dimensional area within a window. It has a name,
 viewport and attributes. The name of the channel is used to identify the
 channel in the respective segments or compounds. It should be unique
 within the config.
+
+Output channels are referenced in their respective segments. Source channels are
+directly referenced by their respective source compounds.
 
 The viewport of the channel is relative to the window. As for windows,
 it can be specified in relative or absolute coordinates. The default
@@ -5256,18 +5289,18 @@ partially overwritten with framebuffer objects.
 
 For a description of channel attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\lstinputlisting[firstline=158, lastline=167]
+{\footnotesize\lstinputlisting[firstline=163, lastline=172]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Observer Section}
 
-An observer represents a tracked entity, i.e, one user. It has a name
-and an eye separation. The name of an observer can be used for
-debugging, it has no influence on the execution of Equalizer. It can be
-used to reference the observer in views, in which case the name should
-be unique. Not all views have to be tracked by an observer.
+An observer represents a tracked entity, i.e, one user. It has a name, eye
+separation and focal plane paramters. The name of an observer can be used for
+debugging, it has no influence on the execution of Equalizer. It can be used to
+reference the observer in views, in which case the name should be unique. Not
+all views have to be tracked by an observer.
 
-{\footnotesize\lstinputlisting[firstline=172, lastline=176]
+{\footnotesize\lstinputlisting[firstline=176, lastline=182]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Layout Section}
@@ -5286,7 +5319,7 @@ intersection between views and segments defines which output
 as destination channels in a compound. They are automatically created
 during configuration loading or creation.
 
-{\footnotesize\lstinputlisting[firstline=178, lastline=181]
+{\footnotesize\lstinputlisting[firstline=184, lastline=187]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{View Section}
@@ -5306,13 +5339,14 @@ destination channels will use the sub-frustum resulting from the
 view/segment intersection.
 
 A view has a stereo mode, which defines if the corresponding destination channel
-update the cyclop or left and right eye.
+update the cyclop or left and right eye. The stereo mode can be changed at
+runtime by the application.
 
 A view is a view on the application's model, in the sense used by the
 Model-View-Controller pattern. It can be a scene, viewing mode, viewing
 position, or any other representation of the application's data.
 
-{\footnotesize\lstinputlisting[firstline=181, lastline=202]
+{\footnotesize\lstinputlisting[firstline=187, lastline=208]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Canvas Section}
@@ -5323,39 +5357,55 @@ canvas can be used for debugging, it has no influence on the execution
 of Equalizer. It can be used to reference the canvas, in which case the
 name should be unique.
 
-Each canvas is made of one or more segments. Segments can be planar or
+Each canvas consists of one or more segments. Segments can be planar or
 non-planar to each other, and can overlap or have gaps between each
 other. A canvas can define a frustum, which will create default planar
 sub-frusta for its segments.
 
-The layouts referenced by the canvas can be applied to it by the
-application at runtime. One layout can be referenced by multiple
-canvases. The first layout is the layout active by default.
+The layouts referenced by the canvas can be applied to it by the application at
+runtime. One layout can be referenced by multiple canvases. The first layout is
+the layout active by default, unless the command line option
+\textsf{--eq-layout} was used to select another default layout.
 
-{\footnotesize\lstinputlisting[firstline=205, lastline=225]
+A canvas may have a swap barrier, which becomes the default swap barrier for all
+its subsequent segments. A swap barrier is used to synchronize the output of
+multiple windows. For software swap synchronization, all windows using a swap
+barriers of the same name are synchronized. Hardware swap synchronization is
+used when a \textsf{NV\_group} is specified. All windows using the same
+\textsf{NV\_group} on a single system are synchronized with each other using
+hardware synchronization. All groups using the same \textsf{NV\_barrier} across
+systems are synchronized with each other using hardware synchronization. When
+using hardware synchronization, the barrier name is ignored.
+
+{\footnotesize\lstinputlisting[firstline=211, lastline=236]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Segment Section}
 
 A segment represents a single display, i.e., a projector or monitor. It
-references a channel, has a name, viewport and frustum. The name of a
-segment can be used for debugging, it has no influence on the execution
-of Equalizer. It can be used to reference the segment, in which case the
-name should be unique.
+references a channel, has a name, viewport, frustum and potentially a swap
+barrier. The name of a segment can be used for debugging, it has no influence on
+the execution of Equalizer. It can be used to reference the segment, in which
+case the name should be unique.
 
-The channel referenced by the segment defines the output channel. The
-viewport of the section defines the 2D area covered by the channel on
-the canvas. Segments can overlap each other, e.g., when edge-blended
-projectors or passive stereo is used.
+The channel referenced by the segment defines the output channel. The viewport
+of the segment defines the 2D area covered by the channel on the
+canvas. Segments can overlap each other, e.g., when edge-blended projectors or
+passive stereo is used. The intersections of a segment with all views of all
+layouts create destination channels for rendering. The destination channels are
+copies of the segment's output channel with a viewport smaller or equal to the
+output channel viewport.
 
 The segment eyes define which eyes are displayed by this segment. For active
 stereo outputs the default setting 'all' is normally used, while passive stereo
 segments define the left or right eye, and potentially the cyclop eye.
 
 A segment can define a frustum, in which case it overrides the default
-frustum calculated from the canvas frustum and segment viewport.
+frustum calculated from the canvas frustum and segment viewport. A segment can
+have a swap barrier, which is used as the swap barrier on the destination
+compounds of all its destincation channels.
 
-{\footnotesize\lstinputlisting[firstline=225, lastline=246]
+{\footnotesize\lstinputlisting[firstline=238, lastline=259]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \subsubsection{Compound Section}
@@ -5374,12 +5424,13 @@ braces, in which the canvas, segment, layout and view describing the
 channel are named, i.e, 'channel ( canvas "PowerWall" segment 0 layout
 "Simple" view 0 )'.
 
-Compound tasks describe the operations the compound executes. The
-default is all tasks for compounds with no children (leaf compounds) and
-\textsf{READBACK ASSEMBLE} for all others. The readback and assemble
-tasks are only executed if the compound has output frames or input
-frames, respectively. Tasks are not inherited by the children of a
-compound.
+Compound tasks describe the operations the compound executes. The default is all
+tasks for compounds with no children (leaf compounds) and \textsf{CLEAR READBACK
+  ASSEMBLE} for all others. A leaf compound using the same channel as its parent
+compound does not have a default clear task, since this has been executed by the
+parent already. The readback and assemble tasks are only executed if the
+compound has output frames or input frames, respectively. Tasks are not
+inherited by the children of a compound.
 
 The buffer defines the default frame buffer attachments read back by
 output frames. Output frames may change the buffer attachments used.
@@ -5417,15 +5468,6 @@ parameters. Setting a frustum on a compound is discouraged, a proper view and
 segment description should be used instead. View frusta override segment frusta
 which override compound frusta.
 
-A swap barrier is used to synchronize the output of multiple
-compounds. All swap barriers of the same name are synchronized The
-default name is \textsf{barrier[.root\-Com\-pound\-Name]}. All windows
-using the same \textsf{NV\_group} on a single system are synchronized
-with each other using hardware synchronization. All groups using the
-same \textsf{NV\_barrier} across systems are synchronized with each
-other using hardware synchronization. When using hardware
-synchronization, the barrier name is ignored.
-
 Output frames transport frame buffer contents to input frames of the
 same name. If the compound has a name, the default frame name is
 \textsf{frame.compoundName}, otherwise the default name is
@@ -5435,7 +5477,7 @@ frames. Frames of type \textsf{texture} copy the framebuffer contents to
 a texture, and can only be used to composite frames between windows of
 the same pipe.
 
-{\footnotesize\lstinputlisting[firstline=249, lastline=333]
+{\footnotesize\lstinputlisting[firstline=262, lastline=333]
   {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
 
 \cleardoublepage
