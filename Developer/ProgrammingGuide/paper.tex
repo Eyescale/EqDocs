@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.8.5 for Equalizer 1.2 \\[\medskipamount]
+Version 1.8.6 for Equalizer 1.2\\[\medskipamount]
 %  \today
 }
 
@@ -134,6 +134,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.8.3   & Aug 10, 2011 & Rewrote \sref{sHello}\\
     1.8.4   & Nov 18, 2011 & Added \sref{sAutoConfig}\\
     1.8.5   & Jan 27, 2012 & RC review for Equalizer 1.2\\
+    1.8.6   & Feb 01, 2012 & RC2, added to \sref{sThreadModel}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -3044,6 +3045,13 @@ nodes.
     Thread Synchronization Models}}
 \end{figure}
 
+An implication of the draw\_sync and local\_sync models is that the application
+node can not issue a new frame until it has completed all its draw tasks. For
+larger cluster configurations it is therefore advisable to assign only assemble
+operations to the application node. If the machine running the application
+process should also contribute for rendering, a second node may be used to
+perform off-screen draw and readback operations for the application node
+process.
 
 \subsubsection{\label{sAdvDPlex}DPlex Compounds}
 
@@ -4035,6 +4043,10 @@ much faster if the current configuration uses a subpixel compound.
 
 \subsubsection{Statistics Gathering}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/statistics}
+  {\caption{\label{fStatistics}Statistics for a two node 2D compound}}
+\end{wrapfigure}
 Statistics are measured in milliseconds since the configuration was
 initialized. The server synchronizes the per-configuration clock on each node
 automatically. Each statistic event records the originator's (channel, window,
@@ -4050,10 +4062,6 @@ fastest setting often attributes times to the operation causing an OpenGL
 synchronization instead of the operation submitting the OpenGL commands, e.g.,
 the readback time contains operations from the preceding draw operation.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/statistics}
-  {\caption{\label{fStatistics}Statistics for a two node 2D compound}}
-\end{wrapfigure}
 The events are processed by the channel's and window's \textsf{processEvent}
 method. The default implementation sends these events to the config using
 \textsf{Config::sendEvent}, as explained in \sref{sEventHandling}. When the
@@ -4258,16 +4266,16 @@ these threads.
 
 \subsection{Nodes}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netNode.pdf}
-  {\caption{\label{fNetNode}Communication between two Nodes}}
-\end{wrapfigure}
 The \textsf{co::Node} is the abstraction of one process in the cluster. Each
 node has a universally unique identifier. This identifier is used to address
 nodes, e.g., to query connection information to connect to the node. Nodes use
 connections to communicate with each other by sending packets sub-classed from
 \textsf{co::NodePacket}.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netNode.pdf}
+  {\caption{\label{fNetNode}Communication between two Nodes}}
+\end{wrapfigure}
 The \textsf{co::LocalNode} is the specialization of the node for the given
 process. It encapsulates the communication logic for connecting remote nodes, as
 well as object registration and mapping. Local nodes are set up in the listening
