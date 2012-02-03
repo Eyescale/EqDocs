@@ -8,7 +8,7 @@
 		<string>129.18</string>
 	</array>
 	<key>CreationDate</key>
-	<string>2007-03-21 07:56:57 +0100</string>
+	<string>2007-03-21 06:56:57 +0000</string>
 	<key>Creator</key>
 	<string>Stefan Eilemann</string>
 	<key>GraphDocumentVersion</key>
@@ -18,7 +18,7 @@
 	<key>GuidesVisible</key>
 	<string>YES</string>
 	<key>ImageCounter</key>
-	<integer>43</integer>
+	<integer>45</integer>
 	<key>ImageLinkBack</key>
 	<array>
 		<dict/>
@@ -31,8 +31,8 @@
 	</array>
 	<key>ImageList</key>
 	<array>
+		<string>image44.png</string>
 		<string>image42.jpg</string>
-		<string>image41.png</string>
 		<string>image40.tif</string>
 		<string>image38.tiff</string>
 		<string>image36.png</string>
@@ -116,7 +116,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2010-12-20 15:45:10 +0100</string>
+	<string>2012-02-03 16:16:23 +0000</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -186,25 +186,56 @@
 			<array>
 				<dict>
 					<key>Bounds</key>
-					<string>{{1190.55, 737.008}, {425.197, 311.811}}</string>
+					<string>{{1190.55, 737.008}, {425.19699, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
 					<integer>863</integer>
 					<key>ImageID</key>
-					<integer>41</integer>
+					<integer>44</integer>
 					<key>ManualSizeImage</key>
 					<string>YES</string>
-					<key>Scale</key>
-					<real>0.60000002384185791</real>
+					<key>Offset</key>
+					<string>{-0.07, 0}</string>
 					<key>Shape</key>
 					<string>Rectangle</string>
 					<key>Style</key>
 					<dict>
 						<key>fill</key>
 						<dict>
-							<key>Draws</key>
-							<string>NO</string>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>1</string>
+								<key>g</key>
+								<string>1</string>
+								<key>r</key>
+								<string>1</string>
+							</dict>
+							<key>FillType</key>
+							<integer>2</integer>
+							<key>GradientAngle</key>
+							<real>90</real>
+							<key>GradientColor</key>
+							<dict>
+								<key>b</key>
+								<string>1</string>
+								<key>g</key>
+								<string>0.69</string>
+								<key>r</key>
+								<string>0.38</string>
+							</dict>
+							<key>MiddleColor</key>
+							<dict>
+								<key>b</key>
+								<string>1</string>
+								<key>g</key>
+								<string>0.85</string>
+								<key>r</key>
+								<string>0.7</string>
+							</dict>
+							<key>TrippleBlend</key>
+							<string>YES</string>
 						</dict>
 						<key>shadow</key>
 						<dict>
@@ -231,7 +262,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{1190.55, 85.0394}, {425.197, 311.811}}</string>
+					<string>{{1190.55, 85.039398}, {425.19699, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -241,7 +272,7 @@
 					<key>ManualSizeImage</key>
 					<string>YES</string>
 					<key>Offset</key>
-					<string>{-0.02, -0.06}</string>
+					<string>{-0.02, -0.059999999}</string>
 					<key>Scale</key>
 					<real>0.27000001072883606</real>
 					<key>Shape</key>
@@ -278,7 +309,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{751.181, 737.008}, {425.197, 311.811}}</string>
+					<string>{{751.18103, 737.008}, {425.19699, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -324,7 +355,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{1190.55, 411.024}, {425.197, 311.811}}</string>
+					<string>{{1190.55, 411.02399}, {425.19699, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -334,7 +365,7 @@
 					<key>ManualSizeImage</key>
 					<string>YES</string>
 					<key>Offset</key>
-					<string>{0.04, 0}</string>
+					<string>{0.039999999, 0}</string>
 					<key>Scale</key>
 					<real>0.5</real>
 					<key>Shape</key>
@@ -376,7 +407,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{751.181, 411.024}, {425.197, 311.811}}</string>
+					<string>{{751.18103, 411.02399}, {425.19699, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -423,7 +454,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{311.811, 737.008}, {425.197, 311.811}}</string>
+					<string>{{311.811, 737.008}, {425.19699, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -468,7 +499,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{28.3464, 28.3464}, {1870.87, 1077.17}}</string>
+					<string>{{28.346399, 28.346399}, {1870.87, 1077.17}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>HFlip</key>
@@ -586,7 +617,7 @@
 			<array>
 				<dict>
 					<key>Bounds</key>
-					<string>{{623.622, 99.2125}, {311.811, 311.811}}</string>
+					<string>{{623.62201, 99.212502}, {311.811, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -596,7 +627,7 @@
 					<key>ManualSizeImage</key>
 					<string>YES</string>
 					<key>Offset</key>
-					<string>{-0.17, -0.06}</string>
+					<string>{-0.17, -0.059999999}</string>
 					<key>Scale</key>
 					<real>0.28999999165534973</real>
 					<key>Shape</key>
@@ -631,7 +662,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{935.429, 411.024}, {311.811, 311.811}}</string>
+					<string>{{935.42902, 411.02399}, {311.811, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -679,7 +710,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{311.811, 411.023}, {311.811, 311.811}}</string>
+					<string>{{311.811, 411.02301}, {311.811, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -729,7 +760,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{623.62, 722.835}, {311.811, 311.811}}</string>
+					<string>{{623.62, 722.83502}, {311.811, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -739,7 +770,7 @@
 					<key>ManualSizeImage</key>
 					<string>YES</string>
 					<key>Offset</key>
-					<string>{-0.32, -0.14}</string>
+					<string>{-0.31999999, -0.14}</string>
 					<key>Scale</key>
 					<real>1.5</real>
 					<key>Shape</key>
@@ -774,7 +805,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{1247.24, 411.024}, {311.811, 311.811}}</string>
+					<string>{{1247.24, 411.02399}, {311.811, 311.811}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>ID</key>
@@ -819,7 +850,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{28.3464, 28.3464}, {1870.87, 1077.17}}</string>
+					<string>{{28.346399, 28.346399}, {1870.87, 1077.17}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>HFlip</key>
@@ -931,11 +962,11 @@
 		<key>FitInWindow</key>
 		<true/>
 		<key>Frame</key>
-		<string>{{474, 298}, {1112, 846}}</string>
+		<string>{{410, 256}, {1112, 846}}</string>
 		<key>VisibleRegion</key>
-		<string>{{-26, 0}, {1952.01, 1331}}</string>
+		<string>{{-23, 0}, {1994.5454, 1359.9999}}</string>
 		<key>Zoom</key>
-		<real>1.3380559682846069</real>
+		<real>1.3095238208770752</real>
 	</dict>
 </dict>
 </plist>
