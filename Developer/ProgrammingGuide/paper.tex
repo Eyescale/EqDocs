@@ -25,7 +25,7 @@
 \end{textblock} {\Large The official reference for developing and
   deploying parallel, scalable OpenGL\texttrademark\ applications using
   the Equalizer parallel rendering framework}\\\vspace{1cm}
-Version 1.8.6 for Equalizer 1.2\\[\medskipamount]
+Version 1.10 for Equalizer 1.2\\[\medskipamount]
 %  \today
 }
 
@@ -125,12 +125,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.4     & Nov 25, 2008 & Revision for Equalizer 0.6\\
     1.6     & Aug 07, 2009 & Revision for Equalizer 0.9\\
     1.8     & Mar 21, 2011 & Revision for Equalizer 1.0\\
-    1.8.1   & Mar 25, 2011 & Minor Revision\\
-    1.8.2   & Apr 04, 2011 & Added \sref{sFocusDistance}\\
-    1.8.3   & Aug 10, 2011 & Rewrote \sref{sHello}\\
-    1.8.4   & Nov 18, 2011 & Added \sref{sAutoConfig}\\
-    1.8.5   & Jan 27, 2012 & RC review for Equalizer 1.2\\
-    1.8.6   & Feb 01, 2012 & RC2, added to \sref{sThreadModel}\\
+    1.10    & Feb 09, 2012 & Revision for Equalizer 1.2\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -415,7 +410,7 @@ it renders in the correct stereo buffer and no output frame is needed.
 \subsection{\label{sDPlex}DPlex Compounds}
 
 \begin{wrapfigure}{r}{.618\textwidth}
-  \vspace{-2em}
+  \vspace{-2ex}
   \includegraphics[width=.618\textwidth]{images/DPlex.pdf}
   {\caption{ A DPlex Compound}}
 \end{wrapfigure}
@@ -440,18 +435,40 @@ to an input frame on the destination channel. The destination channel
 uses a \textsf{framerate\_equalizer} to smoothen the framerate.
 
 
+\subsection{\label{sTileCompunds}Tile Compounds}
+
+Tile compounds are similar to 2D compounds. They decompose the rendering in
+screen-space, where each rendering unit pulls and processes regular tiles of the
+final view. Tile compounds are ideal for purely fill-limited applications such
+as volume rendering and raytracing.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/tile.pdf}
+  {\caption{\label{fPixel}\small A Tile Compound}}
+\end{wrapfigure}
+Tile compounds have a low, constant IO overhead for the image transfers and can
+provide good scalability when used with fill-limited applications. Tile
+decomposition works transparently for all Equalizer-based applications.
+
+Contrary to all other compounds, the work distribution is not decided
+before-hand using a push model, but each resource pulls work from a central work
+queue, until all tiles have been processed. Therefore the rendering is naturally
+load-balanced since all sources pull data on an as-needed basis. The queue
+implementation uses prefetching to hide the communication overhead of the
+central, distributed tile queue.
+
 \subsection{Pixel Compounds}
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/Pixel.pdf}
+  {\caption{\label{fPixel}\small A Pixel Compound}}\vspace{-8ex}
+\end{wrapfigure}
 Pixel compounds are similar to 2D compounds. While 2D compounds decompose the
 screen space into contiguous regions, pixel compounds assign one pixel of a
 regular kernel to each resource. The frusta of the source rendering units are
 modified so that each unit renders an evenly distributed subset of pixels, as
 shown in \fig{fPixel}\footnote{3D model courtesy of AVS, USA.}
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/Pixel.pdf}
-  {\caption{\label{fPixel}\small A Pixel Compound}}
-\end{wrapfigure}
 As 2D compounds, pixel compounds have low, constant IO requirements for the
 pixel transfers during recomposition. They are naturally load-balanced for
 fill-limited operations, but do not scale geometry processing at all.
@@ -501,10 +518,6 @@ anti-aliasing or depth-of-field rendering. The default implementation provides
 transparent, scalable software idle-antialiasing when configuring a subpixel
 compound.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/Subpixel.pdf}
-  {\caption{\label{fSubpixel}\small A Subpixel Compound}}
-\end{wrapfigure}
 Applications can use subpixel compounds to accelerate depth-of-field effects and
 software anti-aliasing, with potentially a different number of idle or non-idle
 samples per pixel.
@@ -513,6 +526,10 @@ As for the DB compound, the subpixel recomposition has linear increasing
 IO requirements for the pixel transfer, with the difference that only 
 color information has to be transmitted.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/Subpixel.pdf}
+  {\caption{\label{fSubpixel}\small A Subpixel Compound}}
+\end{wrapfigure}
 Subpixel compounds are configured using the \textsf{subpixel} parameter, using
 the values \textsf{[~index size ]}. The \textsf{index} parameter corresponds to
 the current resource index and the \textsf{size} is the total number of
@@ -549,6 +566,11 @@ Equalizers are described in more detail in \sref{sEqualizers}.
 \subsection{\label{sAutoConfig}Auto-Configuration}
 
 \subsubsection{GPU Service Discovery}
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/gpu-sd.pdf}
+  {\caption{\label{fGPUSD}GPU discovery for auto-configuration}}
+\end{wrapfigure}
 Equalizer uses the GPU-SD library for discovering local and remote GPUs. Based
 on this information, a typical configuration is dynamically compiled at
 application start. The auto-configuration uses the same format as the static
@@ -558,10 +580,6 @@ by running a test application and copying the generated configuration.
 Please note that both GPU-SD and the GPU-SD ZeroConf module are optional and
 requires GPU-SD and a ZeroConf implementation when Equalizer is compiled.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/gpu-sd.pdf}
-  {\caption{\label{fGPUSD}GPU discovery for auto-configuration}}
-\end{wrapfigure}
 GPU-SD contains three components: a core library, local and remote discovery
 modules as well as a ZeroConf daemon. The daemon uses the appropriate module to
 query local GPUs and announces them using ZeroConf on the local network.
@@ -786,10 +804,6 @@ A projection is defined by the position and head-pitch-roll orientation
 of the projector, as well as the horizontal and vertical field-of-view
 and distance of the projection wall.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/frusta.pdf}
-  {\caption{\label{fFrusta}Wall and Projection Parameters}}
-\end{wrapfigure}
 \fig{fFrusta} illustrates the wall and projection frustum parameters.
 
 A canvas represents one physical projection surface, e.g., a PowerWall, a
@@ -803,6 +817,10 @@ segments. Non-planar frusta are configured using the segment
 frusta. These frusta typically describe a physically correct display
 setup for Virtual Reality installations.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/frusta.pdf}
+  {\caption{\label{fFrusta}Wall and Projection Parameters}}
+\end{wrapfigure}
 A canvas has one or more layouts. One of the layouts is the active
 layout, that is, this set of views is currently used for rendering. It
 is possible to specify \textsf{OFF} as a layout, which deactivates the
