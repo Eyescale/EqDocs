@@ -27,7 +27,7 @@ Equalizer\\Programming and User Guide}
       {\Large The official reference for developing and
         deploying parallel, scalable OpenGL\texttrademark\ applications using
         the Equalizer parallel rendering framework}\\\vspace{1cm}
-      Version 1.10 for Equalizer 1.2\\[\medskipamount]
+      Version 1.11.1 for Equalizer 1.2+git\\[\medskipamount]
   \today
 }
 
@@ -130,6 +130,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.6     & Aug 07, 2009 & Revision for Equalizer 0.9\\
     1.8     & Mar 21, 2011 & Revision for Equalizer 1.0\\
     1.10    & Feb 17, 2012 & Revision for Equalizer 1.2\\
+    1.11.1  & Apr 10, 2012 & Minor revision\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -304,7 +305,7 @@ address different bottlenecks in a flexible way.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/2D.pdf}
-  {\caption{A 2D Compound}}
+  {\caption{2D Compound}}
 \end{wrapfigure}
 2D decomposes the rendering in screen-space, that is, each contributing
 rendering unit processes a tile of the final view. The recomposition
@@ -345,7 +346,7 @@ decomposition approach used by HPC applications.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/DB.pdf}
-  {\caption{\label{fDB}\small A Database Compound}}
+  {\caption{\label{fDB}Database Compound}}
 \end{wrapfigure}
 Volume rendering applications use an ordered alpha-based blending to
 composite the result image. The depth buffer information is used to
@@ -392,7 +393,7 @@ and auto-stereo displays with multiple eye passes.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/EYE.pdf}
-  {\caption{\label{fStereoCmp}\small A Stereo Compound}}
+  {\caption{\label{fStereoCmp}Stereo Compound}}
 \end{wrapfigure}
 Due to the frame consistency between the eye views, this modes scales very
 well. The IO requirements for pixel transfer are small and constant. The number
@@ -415,7 +416,7 @@ it renders in the correct stereo buffer and no output frame is needed.
 \begin{wrapfigure}{r}{.618\textwidth}
   \vspace{-2ex}
   \includegraphics[width=.618\textwidth]{images/DPlex.pdf}
-  {\caption{ A DPlex Compound}}
+  {\caption{A DPlex Compound}}
 \end{wrapfigure}
 DPlex compounds assign full, alternating frames to individual rendering
 units. The resulting images are copied to the destination channel, and
@@ -447,7 +448,7 @@ as volume rendering and raytracing.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/tile.pdf}
-  {\caption{\label{fTile}\small A Tile Compound}}
+  {\caption{\label{fTile}Tile Compound}}
 \end{wrapfigure}
 Tile compounds have a low, constant IO overhead for the image transfers and can
 provide good scalability when used with fill-limited applications. Tile
@@ -464,7 +465,7 @@ central, distributed tile queue.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \vspace{-2ex}\includegraphics[width=.618\textwidth]{images/Pixel.pdf}
-  {\caption{\label{fPixel}\small A Pixel Compound}}\vspace{-8ex}
+  {\caption{\label{fPixel}Pixel Compound}}\vspace{-8ex}
 \end{wrapfigure}
 Pixel compounds are similar to 2D compounds. While 2D compounds decompose the
 screen space into contiguous regions, pixel compounds assign one pixel of a
@@ -531,7 +532,7 @@ color information has to be transmitted.
 
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/Subpixel.pdf}
-  {\caption{\label{fSubpixel}\small A Subpixel Compound}}
+  {\caption{\label{fSubpixel}Subpixel Compound}}
 \end{wrapfigure}
 Subpixel compounds are configured using the \textsf{subpixel} parameter, using
 the values \textsf{[~index size ]}. The \textsf{index} parameter corresponds to
@@ -891,7 +892,7 @@ one view is used for all canvases.
 
 \begin{wrapfigure}{r}{.382\textwidth}
   \includegraphics[width=.382\textwidth]{images/layout.png}
-  {\caption{\label{fLayout}A Layout with four Views}}
+  {\caption{\label{fLayout}Layout with four Views}}
 \end{wrapfigure}
 Enable the layout on each desired canvas by adding it to the
 canvas. Since canvases reference layouts by name or index, layouts have
@@ -909,7 +910,7 @@ layout will activate different destination channels for rendering.
 
 \begin{figure}[ht!]\center
   \includegraphics[width=.9\textwidth]{images/wallLayout.jpg}
-  {\caption{A Display Wall using a six-Segment Canvas with a two-View Layout}}
+  {\caption{Display Wall using a six-Segment Canvas with a two-View Layout}}
 \end{figure}
 
 \subsubsection{Views}
@@ -1254,7 +1255,7 @@ potentially made of multiple segments, in a different channel at a
 different resolution. This is typically used to reuse the rendering of
 a large-scale display on an operator station.
 
-\begin{wrapfigure}{r}{.618\textwidth}
+\begin{wrapfigure}{l}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/monitorEq.pdf}
   {\caption{\label{fMonitorEq}Monitoring a Projection Wall}}
 \end{wrapfigure}
@@ -1290,7 +1291,7 @@ address for all processes, in the following way:
   connection description of each node section.
 \end{description}
 
-\subsection{The Server}
+\subsection{Server}
 The server may be started as a separate process or within the application
 process. If it is started separately, simply provide the desired configuration
 file as a parameter. It will listen on all network addresses, unless other
@@ -1414,7 +1415,7 @@ applications by implementing proven design patterns of Equalizer
 applications. Sequel does not prohibit the usage of Equalizer or Collage
 functionality, it simply makes it easier to use for the common use cases.
 
-\subsection{The main Function}
+\subsection{main Function}
 
 The main function instantiates an application object, initializes it, starts the
 main loop and finally de-initializes the application:
@@ -1422,7 +1423,7 @@ main loop and finally de-initializes the application:
 {\footnotesize\lstinputlisting[firstline=58, lastline=66]
   {../../../Equalizer/examples/eqHello/hello.cpp}}
 
-\subsection{The Application}
+\subsection{Application}
 
 The application object in Sequel represents one process in the cluster. The main
 application instance has the rendering loop and controls all execution. All
@@ -1439,7 +1440,7 @@ distributed objects it provides an empty implementation of
 {\footnotesize\lstinputlisting[firstline=47, lastline=55]
   {../../../Equalizer/examples/eqHello/hello.cpp}}
 
-\subsection{The Renderer}
+\subsection{Renderer}
 
 The renderer is responsible for executing the application's rendering code. One
 instance for each GPU is used. All calls to a single renderer are executed
@@ -1463,7 +1464,7 @@ brevity:
   {../../../Equalizer/examples/eqHello/hello.cpp}}
 
 
-\section{The Programming Interface}
+\section{Programming Interface}
 
 Equalizer uses a C++ programming interface. The API is minimally
 invasive. Equalizer imposes only a minimal, natural execution framework upon the
@@ -1521,18 +1522,19 @@ Application developers are exposed to the following namespaces:
   \textsf{Node}, \textsf{LocalNode}, \textsf{Object} and
   \textsf{Serializable}. Please refer to \sref{sNetwork} for an introduction
   into the network layer, and to \sref{sNetObject} for distributed objects.
-\item[co::base] The co::base namespace provides C++ classes to abstract
-  the underlying operating system and implements common helper
-  functionality. One example is the \textsf{co::base::Clock} class
-  providing a high-resolution timer. Classes in this namespace are fully
-  documented in the API documentation on the Equalizer website, and are
-  not subject of this Programming Guide.
+\item[lunchbox] The lunchbox library provides C++ classes to abstract the
+  underlying operating system and to implement common helper functionality for
+  multi-threaded applications. Examples are \textsf{lunchbox::Clock} providing a
+  high-resolution timer, or \textsf{lunchbox::MTQueue} providing a thread-safe,
+  blocking fifo. Classes in this namespace are fully documented in the API
+  documentation on the Equalizer website, and are not subject of this
+  Programming Guide.
 \end{description}
 
 Examples shipped with Equalizer are implemented in their own namespaces, e.g.,
 \textsf{eqPly} or \textsf{eVolve}. They rely mostly on subclassing from the
 \textsf{eq} namespace, with the occasional usage of functionality from the
-\textsf{eq::util}, \textsf{eq::fabric}, \textsf{co} and \textsf{co::base}
+\textsf{eq::util}, \textsf{eq::fabric}, \textsf{co} and \textsf{lunchbox}
 namespace.
 
 \begin{wrapfigure}{r}{.382\textwidth}
@@ -1653,7 +1655,7 @@ frame-specific data. Furthermore they are used for a basic scene graph
 distribution of the model data to the render client processes.
 
 
-\subsection{The main Function}
+\subsection{main Function}
 
 The main function starts off with initializing the Equalizer library. The
 command line arguments are passed on to Equalizer. They are used to set certain
@@ -5196,7 +5198,7 @@ all connection descriptions of the node are passed to the launched node
 process, which will cause it to bind to all provided descriptions.
 
 {\footnotesize\lstinputlisting[firstline=89, lastline=98]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Config Section}
 
@@ -5220,7 +5222,7 @@ rendering tasks started one frame ago in \textsf{finishFrame}.
 For a description of config attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\lstinputlisting[firstline=100, lastline=109]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Node Section}
 
@@ -5231,7 +5233,7 @@ Equalizer. The host is used to automatically launch remote render clients. For a
 description of node and connection attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\lstinputlisting[firstline=111, lastline=129]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Pipe Section}
 
@@ -5270,7 +5272,7 @@ used.
 For a description of pipe attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\lstinputlisting[firstline=130, lastline=139]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Window Section}
 
@@ -5292,7 +5294,7 @@ viewport is \textsf{[ 0 0 1 1 ]}, i.e., a full-screen window.
 For a description of window attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\lstinputlisting[firstline=141, lastline=162]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Channel Section}
 
@@ -5316,7 +5318,7 @@ partially overwritten with framebuffer objects.
 For a description of channel attributes please refer to \sref{sGlobal}.
 
 {\footnotesize\lstinputlisting[firstline=163, lastline=172]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Observer Section}
 
@@ -5327,7 +5329,7 @@ reference the observer in views, in which case the name should be unique. Not
 all views have to be tracked by an observer.
 
 {\footnotesize\lstinputlisting[firstline=176, lastline=182]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Layout Section}
 
@@ -5346,7 +5348,7 @@ as destination channels in a compound. They are automatically created
 during configuration loading or creation.
 
 {\footnotesize\lstinputlisting[firstline=184, lastline=187]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{View Section}
 
@@ -5373,7 +5375,7 @@ Model-View-Controller pattern. It can be a scene, viewing mode, viewing
 position, or any other representation of the application's data.
 
 {\footnotesize\lstinputlisting[firstline=188, lastline=209]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Canvas Section}
 
@@ -5404,7 +5406,7 @@ systems are synchronized with each other using hardware synchronization. When
 using hardware synchronization, the barrier name is ignored.
 
 {\footnotesize\lstinputlisting[firstline=211, lastline=236]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Segment Section}
 
@@ -5432,7 +5434,7 @@ have a swap barrier, which is used as the swap barrier on the destination
 compounds of all its destincation channels.
 
 {\footnotesize\lstinputlisting[firstline=238, lastline=259]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Compound Section}
 
@@ -5504,7 +5506,7 @@ a texture, and can only be used to composite frames between windows of
 the same pipe.
 
 {\footnotesize\lstinputlisting[firstline=262, lastline=333]
-  {../../../equalizergraphics.com/documents/design/fileFormat.shtml}}
+  {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \cleardoublepage
 \pagestyle{empty}
