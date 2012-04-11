@@ -4533,10 +4533,6 @@ Objects can send command packets to each other by subclassing
 object packet extends the node packet by the object identifier and an object
 instance identifier.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
-  {\caption{\label{fNetObject}Communication between two Objects}}
-\end{wrapfigure}
 Multiple instances of the same object (identifier) can be mapped on the same
 node and session simultaneously. Each object instance has a node-unique instance
 identifier. When the instance ID is set to \textsf{EQ\_INSTANCE\_ALL} (the
@@ -4545,6 +4541,10 @@ session with the correct object ID. Multiple object instance per node are used
 when different threads on the node need to process a different version of the
 same object.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
+  {\caption{\label{fNetObject}Communication between two Objects}}
+\end{wrapfigure}
 When the packet is intended for a specific instance, set the instance identifier
 of the object packet to the corresponding value.
 
@@ -4973,15 +4973,17 @@ name followed by its value. The following attributes are available:
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
   \textbf{Name} & EQ\_WINDOW\_IATTR\_HINT\_DRAWABLE\\
-  \textbf{Value} & window \textbar \ pbuffer \textbar \ FBO\\
+  \textbf{Value} & window \textbar \ pbuffer \textbar \ FBO \textbar \ OFF\\
   \textbf{Default} & window\\
   \textbf{Details} & Selects the window's drawable type. A window is an
   on-screen, window system-dependent window with a full-window OpenGL
   drawable. PBuffers are off-screen drawables created using window
   system-dependent PBuffer API's. FBO are off-screen frame buffer
-  objects. To calculate the PBuffer or FBO size on unconnected devices,
-  a pipe viewport size of 4096x4096 is assumed,
-  unless specified otherwise using the pipe's viewport parameter.\\
+  objects. A disabled drawable creates a system window without a frame buffer
+  for context sharing, e.g., for asynchronous operations in a separate
+  thread. To calculate the PBuffer or FBO size on unconnected devices, a pipe
+  viewport size of 4096x4096 is assumed, unless specified otherwise using the
+  pipe's viewport parameter.\\
   \hline
 \end{tabularx}\\\vfill
 
