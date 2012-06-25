@@ -27,7 +27,7 @@ Equalizer\\Programming and User Guide}
       {\Large The official reference for developing and
         deploying parallel, scalable OpenGL\texttrademark\ applications using
         the Equalizer parallel rendering framework}\\\vspace{1cm}
-      Version 1.11.1 for Equalizer 1.2+git\\[\medskipamount]
+      Version 1.11.2 for Equalizer 1.4-beta\\[\medskipamount]
   \today
 }
 
@@ -38,6 +38,7 @@ Equalizer\\Programming and User Guide}
 \newcommand{\aref}[1]{Appendix~\ref{#1}}
 \newcommand{\link}[1]{\htmladdnormallink{#1}{#1}}
 \indentcaption{2em}
+\setcounter{tocdepth}{2}
 
 % suppress  single floating lines on top (widow) and bottom(club)
 %  10000 is infinity
@@ -131,6 +132,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.8     & Mar 21, 2011 & Revision for Equalizer 1.0\\
     1.10    & Feb 17, 2012 & Revision for Equalizer 1.2\\
     1.11.1  & Apr 10, 2012 & Minor revision\\
+    1.11.2  & Jun 25, 2012 & Added \sref{sScaling} and \sref{sROI}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -3509,6 +3511,21 @@ configured wall is one meter behind the origin, the model two meters behind and
 the observer is half a meter in front of the origin. The focus distance was set
 to two meters.
 
+\subsubsection{\label{sScaling}Application-specific Scaling}
+
+All Equalizer units in the configuration file and API are configured in
+meters. This convention allows the reuse of configurations across multiple
+applications. When visualizing real-world objects, e.g., for architectural
+visualizations, it guarantees that they appear realistic and full immersion
+into the visualization can be achieved. 
+
+Certain applications want to visualize objects in immersive environments in a
+scale different from their natural size, e.g., astronomical simulations. Each
+model, and therefore each view, might have a different scale. Applications can
+declare this scale as part of the \textsf{eq::View}, which will be applied to
+the virtual environment by Equalizer. Common metric model scales are provided as
+constants.
+
 \subsection{\label{sLayoutAPI}Layout API}
 
 The Layout API provides an abstraction for render surfaces (Canvas and
@@ -3642,6 +3659,10 @@ application windows and multi-view layouts, where the rendering is not
 meant to be viewed in real-world size in an immersive environment. A
 typical use case is changing the field-of-view of the rendering.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/viewUpdate.pdf}
+  {\caption{\label{fViewUpdate}Event Flow during a View Update}}
+\end{wrapfigure}
 A view is derived from \textsf{eq::Frustum} (\fig{fViewUML}), and the
 application process can set the wall or projection parameters at
 runtime. For a description of wall and projection parameters please refer
@@ -3653,10 +3674,6 @@ physical projection, and can therefore be changed at runtime. The
 frustum of a segment does however correspond to a physical projection,
 and is therefore immutable.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/viewUpdate.pdf}
-  {\caption{\label{fViewUpdate}Event Flow during a View Update}}
-\end{wrapfigure}
 The default Equalizer event handling is using the view API to maintain
 the aspect ratio of destination channels after a window resize. Without
 updating the wall or projection description, the rendering would become
@@ -3673,6 +3690,74 @@ computed, keeping the aspect ratio and the height of the frustum constant. This
 new frustum is automatically applied by Equalizer at the next config frame.
 
 \fig{fViewUpdate} shows a sequence diagram of such a view update.
+
+
+\subsection{\label{sROI}Region of Interest}
+
+\subsubsection{Motivation}
+Regions of interest (ROI) define which part of the framebuffer was updated by
+the application. They allow Equalizer to perform important optimizations during
+scalable rendering.
+
+\begin{wrapfigure}{r}{.618\textwidth}
+  \subfigure[]{\label{fROIDB2Way}
+    \includegraphics[width=.29\textwidth]{images/roiDB2way.png}
+  }\hfil
+  \subfigure[]{\label{fROIDB4Way}
+    \includegraphics[width=.29\textwidth]{images/roiDB4way.png}
+  }%
+  {\caption{\label{fROIDB}ROI for a two-way (a) and four-way DB (b) compound}}
+\end{wrapfigure}
+The first optimization concerns the compositing operation. The declared ROI
+allows Equalizer to restrict the readback, compression, network transmission and
+assembly to only the relevant pixels. 
+
+This is particularly important for DB compounds, which typically cover less
+screen space on each channel as resources are added to the
+decomposition. \fig{fROIDB} illustrates this for a two-way and four-way
+decomposition. Declaring the ROI alleviates the increasing compositing cost as
+resources are added to a DB compound. 
+
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/roi}
+  {\caption{\label{fROI}ROI for 2D load balancing}}
+\end{wrapfigure}
+For 2D compounds, the same optimization is applied, but has a smaller impact on
+the compositing performance. \fig{fROI} illustrates the ROI for a four-way 2D
+compound.
+
+The second optimization is important for load-balanced 2D compounds. The 2D
+load equalizer uses internal timing statistics to form a 2D load grid for
+computing the split of the next frame. Without ROI, an even load within each
+channel has to be assumed. With ROI, an even load within the declared, smaller
+region of interest can be used. This causes a smaller error in the load
+estimation, and therefore a more accurate load prediction. 
+
+\fig{fROI} illustrates this load grid for a four-way 2D compound with ROI (top)
+and without ROI (bottom).
+
+\subsubsection{ROI in eqPly}
+The application should declare its regions of interest during rendering. This
+declaration can be very fine-grained, e.g., on each leaf node of a scene
+graph. Equalizer will track and optimize multiple regions automatically. The
+current implementation of Equalizer merges all regions of a single channel into
+one region for compositing and load-balancing. Later versions may use different,
+more optimal, heuristics based on the application-declared regions.
+
+Each leaf node of the kd-tree used in eqPly declares its region of interest when
+it is rendered. The region is calculated by projecting the bounding box into
+screen space and normalizing the resulting screen space rectangle:
+
+{\footnotesize
+  \lstinputlisting[firstline=264, lastline=269]
+                  {../../../Equalizer/examples/eqPly/vertexBufferLeaf.cpp}
+                  ...
+  \lstinputlisting[firstline=70, lastline=101]
+                  {../../../Equalizer/examples/eqPly/vertexBufferState.cpp}
+                  ...
+}
+
+The \textsf{declareRegion} is forwarded to \textsf{eq::Channel::declareRegion}.
 
 
 \subsection{\label{sCompositing}Image Compositing for Scalable Rendering}
