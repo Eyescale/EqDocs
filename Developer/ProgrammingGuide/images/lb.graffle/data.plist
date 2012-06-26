@@ -25,7 +25,7 @@
 	<key>ColumnSpacing</key>
 	<real>36</real>
 	<key>CreationDate</key>
-	<string>2008-11-13 10:44:58 +0100</string>
+	<string>2008-11-13 09:44:58 +0000</string>
 	<key>Creator</key>
 	<string>Stefan Eilemann</string>
 	<key>DisplayScale</key>
@@ -46,8 +46,8 @@
 			<integer>6</integer>
 			<key>Points</key>
 			<array>
-				<string>{155.906, 155.905}</string>
-				<string>{155.906, 198.425}</string>
+				<string>{155.9063, 155.90518}</string>
+				<string>{155.9063, 198.42502}</string>
 			</array>
 			<key>Style</key>
 			<dict>
@@ -69,7 +69,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{14.1733, 14.1732}, {283.466, 141.732}}</string>
+			<string>{{14.1733, 14.1732}, {283.466, 141.73199}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
@@ -85,6 +85,11 @@
 					<key>Draws</key>
 					<string>NO</string>
 				</dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
 				<key>stroke</key>
 				<dict>
 					<key>Draws</key>
@@ -94,7 +99,7 @@
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{14.1733, 198.425}, {283.466, 141.732}}</string>
+			<string>{{14.1733, 198.425}, {283.466, 141.73199}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>ID</key>
@@ -106,6 +111,11 @@
 			<key>Style</key>
 			<dict>
 				<key>fill</key>
+				<dict>
+					<key>Draws</key>
+					<string>NO</string>
+				</dict>
+				<key>shadow</key>
 				<dict>
 					<key>Draws</key>
 					<string>NO</string>
@@ -245,7 +255,7 @@
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2009-06-08 11:31:47 +0200</string>
+	<string>2012-06-26 08:44:01 +0000</string>
 	<key>Modifier</key>
 	<string>Stefan Eilemann</string>
 	<key>NotesVisible</key>
@@ -322,7 +332,7 @@
 		<key>Frame</key>
 		<string>{{345, 301}, {555, 477}}</string>
 		<key>VisibleRegion</key>
-		<string>{{0, -1.00001}, {818, 572.6}}</string>
+		<string>{{0, -1.0000144}, {817.99994, 572.59998}}</string>
 		<key>Zoom</key>
 		<real>0.66014671325683594</real>
 	</dict>
