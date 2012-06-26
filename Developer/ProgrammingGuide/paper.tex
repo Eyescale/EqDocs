@@ -132,8 +132,8 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.8     & Mar 21, 2011 & Revision for Equalizer 1.0\\
     1.10    & Feb 17, 2012 & Revision for Equalizer 1.2\\
     1.11.1  & Apr 10, 2012 & Minor revision\\
-    1.11.2  & Jun 25, 2012 & Added \sref{sScaling} and \sref{sROI}\\
-    1.11.3  & Jun 26, 2012 & Update \aref{aFileFormat}\\
+    1.11.2  & Jun 25, 2012 & Add \sref{sScaling} and \sref{sROI}\\
+    1.11.3  & Jun 26, 2012 & Add \sref{sZeroconf}, update \sref{sNetObject2} and \aref{aFileFormat}\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -2815,6 +2815,10 @@ original native event and this generic \textsf{Event} form the
 \textsf{SystemWindowEvent}, which is passed to the concrete
 \textsf{SystemWindow} for processing.
 
+\begin{wrapfigure}{r}{.382\textwidth}
+  \includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
+  {\caption{\label{fEventProcessing}Event Processing}}
+\end{wrapfigure}
 The purpose of the \textsf{SystemWindow} processing method,
 \textsf{processEvent}, is to perform window-system specific event
 processing. For example, \textsf{AGLWindow::processEvent} calls
@@ -2823,10 +2827,6 @@ further, generic processing, the \textsf{Event} is passed on to
 \textsf{Window::processEvent}. This \textsf{Event} no longer contains
 the native event.
 
-\begin{wrapfigure}{r}{.382\textwidth}
-  \vspace{-2ex}\includegraphics[width=.382\textwidth]{images/eventFilter.pdf}
-  {\caption{\label{fEventProcessing}Event Processing}}
-\end{wrapfigure}
 \textsf{Window::processEvent} is responsible for handling
 the event locally and for translating it into a generic
 \textsf{ConfigEvent}. The config events are send to the application
@@ -4384,10 +4384,6 @@ nodes, e.g., to query connection information to connect to the node. Nodes use
 connections to communicate with each other by sending packets sub-classed from
 \textsf{co::NodePacket}.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netNode.pdf}
-  {\caption{\label{fNetNode}Communication between two Nodes}}
-\end{wrapfigure}
 The \textsf{co::LocalNode} is the specialization of the node for the given
 process. It encapsulates the communication logic for connecting remote nodes, as
 well as object registration and mapping. Local nodes are set up in the listening
@@ -4402,6 +4398,23 @@ be done by connecting the remote node to the local node by using its
 this node from the already-connected nodes, instantiating the node and
 connecting it. Both operations may fail.
 
+\subsubsection{\label{sZeroconf}Zeroconf Discovery}
+
+Each \textsf{LocalNode} provides a \textsf{co::Zeroconf} communicator, which
+allows node and resource discovery. This requires compiling using a Lunchbox
+library supporting dns\_sd. The service "\_collage.\_tcp" is used to announce
+the presence of a listening \textsf{LocalNode} using the zeroconf protocol to
+the network, unless the local node has no listening connections. The node
+identifier and all listening connection descriptions are announced using keys
+starting with "co\_". Internally Collage uses this information to connect
+unknown nodes by using the node identifier alone.
+
+Applications may use the zeroconf communicator to add additional key-value pairs
+to announce application-specific data, and to retrieve a snapshot of all
+key-value pairs of all discovered nodes on the network.
+
+\subsubsection{Communication between Nodes}
+
 \fig{fNetNode} shows the communication between two nodes. The nodes in
 the listening state also have a listening connection, which is not shown
 in the Figure for complexity reasons.
@@ -4413,10 +4426,14 @@ dispatch packets of type node, session or object. Applications can
 define custom data types for packets, and then have to extend
 \textsf{dispatchCommand} to handle these custom data types.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netNode.pdf}
+  {\caption{\label{fNetNode}Communication between two Nodes}}
+\end{wrapfigure}
 Node packets are directly dispatched using
-\textsf{Dispatcher::dispatchCommand}. For object packets, the appropriate object
-is found on the local node and \textsf{LocalNode::dispatchCommand} will dispatch
-the packet.
+\textsf{Dispat\-cher::\-dis\-patchCommand}. For object packets, the appropriate
+object is found on the local node and \textsf{LocalNode::dis\-patchCommand} will
+dispatch the packet.
 
 If \textsf{dispatchCommand} returns false, the packet will be
 re-dispatched later. This is used if an object has not been mapped
@@ -4454,7 +4471,21 @@ registered master version.
 Distributed objects can be static (immutable) or dynamic. Dynamic objects are
 versioned. New versions are committed from the master instance, which sends
 the delta between the previous and current version to all mapped slave
-objects. The slave objects sync the queued deltas when they need a version.
+objects. The slave objects sync the queued deltas when they need a
+version.
+
+Objects may have a maximum number of unapplied versions, which will cause the
+commit on the master instance to block if any slave instance has reached the
+maximum number of queued versions. By default, slave instances can queue an
+unlimited amount of unapplied versions.
+
+Objects use compression plugins to reduce the amount of data sent over the
+network. By default, the plugin with the highest compression ratio and lossless
+compression for \textsf{EQ\_COMPRESSOR\_DATATYPE\_BYTE} tokens is chosen. The
+application may override \textsf{Object::chooseCompressor} to deactivate
+compression by returning \textsf{EQ\_COMPRESSOR\_NONE} or to select
+object-specific compressors.
+
 
 \subsubsection{Common Usage for Parallel Rendering}
 
@@ -4546,6 +4577,45 @@ are possible:
 \end{description}
 
 
+\subsubsection{\label{sSerializable}co::Serializable}
+
+\textsf{co::Serializable} implements one typical usage pattern for data
+distribution bsed on \textsf{co::Object}. The \textsf{co::Serializable} data
+distribution is founded on the concept of dirty bits, allowing inheritance with
+data distribution. Dirty bits form a 64-bit mask which marks which parts of the
+object have to be distributed during the next commit. It is easier to use, but
+imposes one typical way to implement data distribution.
+
+For serialization, the default \textsf{co::Object} serialization functions are
+implemented by \textsf{co::Serializable}, which (de-)serializes and
+resets the dirty bits, and calls \textsf{serialize} or \textsf{deserialize} with
+the bit mask specifying which data has to be transmitted or received. During a
+commit or sync, the current dirty bits are given, whereas during object mapping
+all dirty bits are passed to the serialization methods.
+
+To use \textsf{co::Serializable}, the following steps have to be taken:
+
+\begin{description}
+\item[Inherit from \textsf{co::Serializable}:] The base class will
+  provide the dirty bit management and call serialize and deserialize
+  appropriately. By overriding \textsf{get\-Chan\-ge\-Type}, the default
+  versioning strategy might be changed.
+\item[Define new dirty bits:] Define dirty bits for each data item by
+  starting at \textsf{Serializable::DIRTY\_CUSTOM}, shifting this value
+  consecutively for each new dirty bit.
+\item[Implement serialize and deserialize:] For each object-specific
+  dirty bit which is set, stream the corresponding data item to or from
+  the provided stream. Call the parent method first in both
+  functions. For application-specific objects, write a (de-)serialization
+  function.
+\item[Mark dirty data:] In each 'setter' method, call \textsf{setDirty}
+  with the corresponding dirty bit.
+\end{description}
+
+The registration and mapping of \textsf{co::Serializable}s is done in the same
+way as for \textsf{co::Object}s, which has been described in
+\sref{sNetObject2}.
+
 \subsubsection{\label{sSlaveCommit}Slave Object Commit}
 
 Versioned slave objects may also commit data to the master instance. However,
@@ -4553,10 +4623,6 @@ this requires the implementation to take special care to resolve conflicts
 during deserialization. The algorithm and constraints for slave object commits
 are explained in this section.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/slaveWrites.pdf}
-  {\caption{\label{fSlaveCommit}Slave Commit Communication Sequence}}
-\end{wrapfigure}
 When using \textsf{commit} on slave object instances, multiple modifications on
 the same database may happen simultaneously. To avoid excessive synchronization
 in the network layer, Equalizer implements a lightweight approach which requires
@@ -4569,6 +4635,10 @@ command thread to signal the data availability. The slave instance generates a
 unique, random version. When no data was serialized, \textsf{VERSION\_NONE} is
 returned.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/slaveWrites.pdf}
+  {\caption{\label{fSlaveCommit}Slave Commit Communication Sequence}}
+\end{wrapfigure}
 The master instance can \textsf{sync} delta data received from slaves. When
 using the version generated by the slave object commit, only the delta for this
 version is applied. When using \textsf{VERSION\_NEXT} as the version parameter
@@ -4625,6 +4695,10 @@ Objects can send command packets to each other by subclassing
 object packet extends the node packet by the object identifier and an object
 instance identifier.
 
+\begin{wrapfigure}{r}{.618\textwidth}
+  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
+  {\caption{\label{fNetObject}Communication between two Objects}}
+\end{wrapfigure}
 Multiple instances of the same object (identifier) can be mapped on the same
 node and session simultaneously. Each object instance has a node-unique instance
 identifier. When the instance ID is set to \textsf{EQ\_INSTANCE\_ALL} (the
@@ -4633,10 +4707,6 @@ session with the correct object ID. Multiple object instance per node are used
 when different threads on the node need to process a different version of the
 same object.
 
-\begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/netObject.pdf}
-  {\caption{\label{fNetObject}Communication between two Objects}}
-\end{wrapfigure}
 When the packet is intended for a specific instance, set the instance identifier
 of the object packet to the corresponding value.
 
@@ -4647,76 +4717,36 @@ object packets with a command greater than \textsf{CMD\_OBJECT\_CUSTOM}.
 Distributed object communication relies on the lower node communication layers,
 as shown in \fig{fNetObject}.
 
-\subsection{Barrier}
-
-The \textsf{co::Barrier} provides a networked barrier primitive. It is an
-\textsf{co::Object} used by Collage for software swap barrier support, but it
-can be used as a generic barrier in application code.
-
-The barrier uses both the data distribution for synchronizing its data,
-as well as custom command packets to implement the barrier logics. A
-barrier is a versioned object. Each version can have a different height,
-and enter requests are automatically grouped together by version.
-
-
-\subsection{\label{sNetUsage}Usage in Equalizer}
+\subsubsection{\label{sNetUsage}Usage in Equalizer}
 
 The Equalizer client library and server are built on top of the network
 layer. They influence the design of it, and serve as a sample
 implementation on how to use classes in the \textsf{co} namespace.
 
-\subsubsection{\label{sEqObject}co::Serializable}
-
-Equalizer uses the \textsf{co::Object} data distribution mechanism for
-implementing data distribution between the server, application and render
-clients. Using dirty bits, \textsf{co::Serializable} implements one
-usage pattern for the \textsf{co::Object}, allowing inheritance with data
-distribution. It is easier to use, but imposes one typical way to implement data
-distribution.
-
-The \textsf{co::Serializable} data distribution is based on the concept
-of dirty bits. Dirty bits form a 64-bit mask which marks which parts of the
-object have to be distributed during the next commit.
-
-For serialization, the default \textsf{co::Object} serialization functions are
-implemented by \textsf{co::Serializable}, which (de-)serializes and
-resets the dirty bits, and calls \textsf{serialize} or \textsf{deserialize} with
-the bit mask specifying which data has to be transmitted or received. During a
-commit or sync, the current dirty bits are given, whereas during object mapping
-all dirty bits are passed to the serialization methods.
-
-To use \textsf{co::Serializable}, the following steps have to be taken:
-
-\begin{description}
-\item[Inherit from \textsf{co::Serializable}:] The base class will
-  provide the dirty bit management and call serialize and deserialize
-  appropriately. By overriding \textsf{get\-Chan\-ge\-Type}, the default
-  versioning strategy might be changed.
-\item[Define new dirty bits:] Define dirty bits for each data item by
-  starting at \textsf{Serializable::DIRTY\_CUSTOM}, shifting this value
-  consecutively by each new dirty bit.
-\item[Implement serialize and deserialize:] For each object-specific
-  dirty bit which is set, stream the corresponding data item to or from
-  the provided stream. Call the parent method first in both
-  functions. For application-specific objects, write a (de-)serialization
-  function.
-\item[Mark dirty data:] In each 'setter' method, call \textsf{setDirty}
-  with the corresponding dirty bit.
-\end{description}
-
-The Equalizer entities use the common base class
-\textsf{eq::fabric::Object}. This class manages common entity data, and is not
-intended to be subclassed directly.  The inheritance chain \textsf{eq::View}
-$\rightarrow$ \textsf{eq::fabric::View} $\rightarrow$
-\textsf{eq::fabric::Object} $\rightarrow$ \textsf{eq::fabric::Se\-rial\-izable}
+Equalizer uses the common base class \textsf{eq::fabric::Object}, which derives
+from \textsf{co::Se\-ria\-lizable} for implementing data distribution between
+the server, application and render clients. This class manages common entity
+data, and is not intended to be subclassed directly.  The inheritance chain
+\textsf{eq::View} $\rightarrow$ \textsf{eq::fabric::View} $\rightarrow$
+\textsf{eq::fabric::Ob\-ject} $\rightarrow$ \textsf{co::Se\-rial\-izable}
 $\rightarrow$ \textsf{co::Object} serves as sample implementation for this
 process.
 
-The registration and mapping of \textsf{co::Serializable}s is done in
-the same way as for \textsf{co::Object}s, which has been described in
-\sref{sNetObject2}. Equalizer objects derived from
-\textsf{co::Serializable}, e.g., \textsf{eq::View}, are registered,
-mapped and synchronized by Equalizer.
+Equalizer objects derived from \textsf{co::Serializable}, e.g.,
+\textsf{eq::View}, are registered, mapped and synchronized by Equalizer. To
+execute the rendering tasks, the server send the task command packet to the
+render clients, which dispatch and execute them in the received order.
+
+\subsection{Barrier}
+
+The \textsf{co::Barrier} provides a networked barrier primitive. It is an
+\textsf{co::Object} used by Equalizer to implement software swap barriers, but
+it can be used as a generic barrier in application code.
+
+The barrier uses both the data distribution for synchronizing its data,
+as well as custom command packets to implement the barrier logics. A
+barrier is a versioned object. Each version can have a different height,
+and enter requests are automatically grouped together by version.
 
 
 \newpage
