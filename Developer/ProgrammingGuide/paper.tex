@@ -4988,6 +4988,25 @@ name followed by its value. The following attributes are available:
 
 \begin{tabularx}{\textwidth}{|l|X|}
   \hline
+  \textbf{Name} & EQ\_PIPE\_IATTR\_HINT\_AFFINITY\\
+  \textbf{Value} & OFF \textbar \ AUTO \textbar \ CORE unsigned  \textbar
+  \ SOCKET unsigned\\
+  \textbf{Default} & AUTO\\
+  \textbf{Details} & Determines how all pipe threads are bound to processing
+  cores. When set to OFF, threads are unbound and will be scheduled by the
+  operation system on any core. If set to AUTO, threads are bound to all cores
+  of the processor which is closest to the GPU used by the pipe, that is, which
+  have the lowest latency to access the GPU device. This feature requires that
+  Lunchbox and Equalizer have been compiled with the hwloc library version 1.5
+  or later. When set to CORE, the pipe threads will be bound to the given
+  core. When set to SOCKET, the pipe threads will be bound to all cores of the
+  given processor (socket). The CORE and SOCKET settings require that Lunchbox
+  and Equalizer have been compiled with the hwloc library version 1.2 or
+  later.\\ \hline
+\end{tabularx}\\\vfill
+
+\begin{tabularx}{\textwidth}{|l|X|}
+  \hline
   \textbf{Name} & EQ\_PIPE\_IATTR\_HINT\_CUDA\_GL\_INTEROP\\
   \textbf{Value} & OFF \textbar \ ON\\
   \textbf{Default} & OFF\\
@@ -5290,7 +5309,7 @@ establish a connection to the node. When auto-launched by the server,
 all connection descriptions of the node are passed to the launched node
 process, which will cause it to bind to all provided descriptions.
 
-{\footnotesize\lstinputlisting[firstline=89, lastline=98]
+{\footnotesize\lstinputlisting[firstline=90, lastline=99]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Config Section}
@@ -5314,7 +5333,7 @@ rendering tasks started one frame ago in \textsf{finishFrame}.
 
 For a description of config attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\lstinputlisting[firstline=100, lastline=109]
+{\footnotesize\lstinputlisting[firstline=101, lastline=110]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Node Section}
@@ -5325,7 +5344,7 @@ the node can be used for debugging, it has no influence on the execution of
 Equalizer. The host is used to automatically launch remote render clients. For a
 description of node and connection attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\lstinputlisting[firstline=111, lastline=129]
+{\footnotesize\lstinputlisting[firstline=112, lastline=130]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Pipe Section}
@@ -5364,7 +5383,7 @@ used.
 
 For a description of pipe attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\lstinputlisting[firstline=130, lastline=139]
+{\footnotesize\lstinputlisting[firstline=131, lastline=141]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Window Section}
@@ -5386,7 +5405,7 @@ viewport is \textsf{[ 0 0 1 1 ]}, i.e., a full-screen window.
 
 For a description of window attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\lstinputlisting[firstline=141, lastline=162]
+{\footnotesize\lstinputlisting[firstline=143, lastline=163]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Channel Section}
@@ -5410,7 +5429,7 @@ partially overwritten with framebuffer objects.
 
 For a description of channel attributes please refer to \sref{sGlobal}.
 
-{\footnotesize\lstinputlisting[firstline=163, lastline=172]
+{\footnotesize\lstinputlisting[firstline=165, lastline=174]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Observer Section}
@@ -5421,7 +5440,7 @@ debugging, it has no influence on the execution of Equalizer. It can be used to
 reference the observer in views, in which case the name should be unique. Not
 all views have to be tracked by an observer.
 
-{\footnotesize\lstinputlisting[firstline=177, lastline=183]
+{\footnotesize\lstinputlisting[firstline=179, lastline=185]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Layout Section}
@@ -5440,7 +5459,7 @@ intersection between views and segments defines which output
 as destination channels in a compound. They are automatically created
 during configuration loading or creation.
 
-{\footnotesize\lstinputlisting[firstline=185, lastline=188]
+{\footnotesize\lstinputlisting[firstline=187, lastline=190]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{View Section}
@@ -5467,7 +5486,7 @@ A view is a view on the application's model, in the sense used by the
 Model-View-Controller pattern. It can be a scene, viewing mode, viewing
 position, or any other representation of the application's data.
 
-{\footnotesize\lstinputlisting[firstline=188, lastline=209]
+{\footnotesize\lstinputlisting[firstline=190, lastline=211]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Canvas Section}
@@ -5498,7 +5517,7 @@ hardware synchronization. All groups using the same \textsf{NV\_barrier} across
 systems are synchronized with each other using hardware synchronization. When
 using hardware synchronization, the barrier name is ignored.
 
-{\footnotesize\lstinputlisting[firstline=212, lastline=237]
+{\footnotesize\lstinputlisting[firstline=214, lastline=239]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Segment Section}
@@ -5526,7 +5545,7 @@ frustum calculated from the canvas frustum and segment viewport. A segment can
 have a swap barrier, which is used as the swap barrier on the destination
 compounds of all its destincation channels.
 
-{\footnotesize\lstinputlisting[firstline=239, lastline=260]
+{\footnotesize\lstinputlisting[firstline=240, lastline=262]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \subsubsection{Compound Section}
@@ -5598,7 +5617,7 @@ frames. Frames of type \textsf{texture} copy the framebuffer contents to
 a texture, and can only be used to composite frames between windows of
 the same pipe.
 
-{\footnotesize\lstinputlisting[firstline=262, lastline=333]
+{\footnotesize\lstinputlisting[firstline=264, lastline=337]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
 
 \cleardoublepage
