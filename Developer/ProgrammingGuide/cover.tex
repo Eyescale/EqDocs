@@ -7,11 +7,11 @@
 \usepackage[absolute]{textpos}
 
 \geometry{papersize={1227.62pt,860pt}}
-\geometry{papersize={1261.26pt,810pt}}
+\geometry{papersize={1261.60pt,810pt}}
 
 \newcommand{\boxwidth}{5in}
 \newcommand{\spacewidth}{621pt}
-\newcommand{\spinewidth}{19.264pt}
+\newcommand{\spinewidth}{19.602pt} % #pages * 0.168984
 
 \setlength{\evensidemargin}{39.76274pt}
 \setlength{\oddsidemargin}{39.76274pt}
@@ -23,16 +23,16 @@
 \begin{document}
 \thispagestyle{empty}
 
-\begin{textblock}{}(16.48,3.92)
+\begin{textblock}{}(16.48,3.91)
   \begin{rotate}{270}
-    \setlength{\fboxsep}{9.4pt} 
-    \colorbox{red}{\textsf{\bfseries\Large\textcolor{white}{{\hspace{38pt}Equalizer
+    \setlength{\fboxsep}{31.7pt} 
+    \colorbox{red}{\textsf{\bfseries\large\textcolor{white}{{\hspace{38pt}Equalizer
             Programming and User Guide\hspace{38pt}}}}}
   \end{rotate}
 \end{textblock}
 
 \begin{textblock}{}(16.38,13)
-  {\large 1.2}
+  {1.4}
 \end{textblock}
 
 \parbox[t]{\spacewidth}{\hfill}
@@ -54,6 +54,6 @@
 \parbox[t]{\boxwidth}{ \center{\Large The official reference for developing and
     deploying parallel, scalable OpenGL\texttrademark\ applications
     based on the Equalizer parallel rendering framework }\\\vspace{1cm}
-  {\Large Revision 1.10 for Equalizer 1.2}\\[\medskipamount]
+  {\Large Revision 1.12 for Equalizer 1.4}\\[\medskipamount]
 }
 \end{document}
