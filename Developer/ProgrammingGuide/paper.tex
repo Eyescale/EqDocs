@@ -218,7 +218,7 @@ processes.
   \includegraphics[width=.382\textwidth]{images/processes.pdf}
   {\caption{\label{fProcesses}Equalizer Processes}}
 \end{wrapfigure}
-Collage is a cross-platform C++ library for building heterogenous, distributed
+Collage is a cross-platform C++ library for building heterogeneous, distributed
 applications. Collage provides an abstraction of different network connections,
 peer-to-peer messaging, discovery and synchronization as well as
 high-performance, object-oriented, versioned data distribution. Collage is
@@ -228,7 +228,7 @@ backend, e.g., by setting up direct communication between two nodes when needed
 for image compositing or software swap barriers.
 
 \fig{fProcesses} depicts the relationship between the server, application,
-render client and adminstrative processes, which are explained below.
+render client and administrative processes, which are explained below.
 
 \subsubsection{Server}
 The Equalizer server is responsible for managing one visualization session on a
@@ -274,7 +274,7 @@ Equalizer 1.0 introduced the admin library, which can be used to modify a
 running Equalizer server. The admin library is still in development, but already
 allows limited modifications such as adding new windows and changing
 layouts. The admin library may be used to create standalone administration tools
-or from within the application code. In any case, it has an indepedent view of
+or from within the application code. In any case, it has an independent view of
 the server's configuration. Documentation for admin library is not yet part of
 this Programming and User Guide.
 
@@ -615,7 +615,7 @@ tool. When starting the application, use the command-line parameter
   session of the GPU-SD daemon is \textsf{default}. The hostname provided by
   ZeroConf is used to connect the nodes.
 \item \textsf{--eq-config filename.eqc} loads a static configuration from the
-  given ascii file. The following sections describe how to write configuration
+  given ASCII file. The following sections describe how to write configuration
   files.
 \end{itemize}
 
@@ -656,7 +656,7 @@ information:
   top-left corner points of each display surface in meters.
 \item The relative coordinates of all the \textbf{segments} belonging to
   each display surface, and the graphics card \textbf{output} used for
-  each segment. For homogenous setups, it is often enough to know the
+  each segment. For homogeneous setups, it is often enough to know the
   number of rows and columns on each surface, as well as the overlap or
   underlap percentage, if applicable.
 \item The number of desired \textbf{application windows}. Application
@@ -768,7 +768,7 @@ without window decorations, using the correct window viewport.
 
 The \textsf{eq::Window} class encapsulates a drawable and an OpenGL
 context. The drawable can be an on-screen window or an off-screen
-PBuffer or FrameBuffer Object (FBO).
+pbuffer or framebuffer Object (FBO).
 
 \subsection{Channel}
 
@@ -872,7 +872,7 @@ same group on a single node synchronize their swap buffer. All groups of the
 same barrier synchronize their swap buffer across nodes. Please note that the
 driver typically limits the number of groups and barriers to one, and that
 multiple windows per swap group are not supported by all drivers. Hardware swap
-barriers require support from the OpenGL driver, and has been tested on nVidia
+barriers require support from the OpenGL driver, and has been tested on NVIDIA
 Quadro GPUs with the G-Sync option. Please refer to your OpenGL driver
 documentation for details.
 
@@ -899,7 +899,7 @@ barrier of the same name synchronize with each other before executing the swap
 buffer task. Before entering the barrier, \textsf{Window::finish} is called to
 ensure that all OpenGL commands have been executed.  Swap barrier names are only
 valid within the compound tree, that is, a compound from one compound tree
-cannot be synchronized with a compound from another ompound tree.
+cannot be synchronized with a compound from another compound tree.
 
 A hardware swap barrier uses a hardware component to synchronize the buffer swap
 of multiple windows. It guarantees that the swap happens at the same vertical
@@ -926,7 +926,7 @@ always happens with the same retrace. The time window for an output to miss the
 retrace for the buffer swap is however very small, and the output will simply
 swap on the next retrace, typically in 16 milliseconds.
 
-Display walls made out of LCD's, monoscopic or passive stereo projection systems
+Display walls made out of LCDs, monoscopic or passive stereo projection systems
 often only use a software swap barrier and no framelock. The display bezels make
 it very hard to notice the missing synchronization.
 
@@ -1190,14 +1190,14 @@ equalizes the load on all segments of a view.
 \begin{wrapfigure}{r}{.618\textwidth}
   \includegraphics[width=.618\textwidth]{images/viewLB.pdf}
   {\caption{\label{fViewLoadBalancing}\small Cross-Segment
-      Load-Balancing for two Segments using eight GPU's}}
+      Load-Balancing for two Segments using eight GPUs}}
 \end{wrapfigure}
 \fig{fViewLoadBalancing}\footnote{Image Copyright Realtime Technology
   AG, 2008} illustrates this process. On the left side, a static
 assignment of resources to display segments is used. The right-hand
 segment has a higher load than the left-hand segment, causing
 sub-optimal performance. The configuration on the right uses a view
-equalizer, which assigns two GPU's to the left segment and four GPU's to
+equalizer, which assigns two GPUs to the left segment and four GPUs to
 the right segment, which leads to optimal performance for this model and
 camera position.
 
@@ -1214,8 +1214,8 @@ is typically in a few segments only, e.g., for a CAVE.
         Load-Balancing for a CAVE}}
 \end{wrapfigure}
 \fig{fViewLoadBalancing2} shows cross-usage for a five-sided CAVE driven
-by five GPU's. The front and left segments show the model and have a
-significant rendering load. The view equalizer assigns the GPU's from
+by five GPUs. The front and left segments show the model and have a
+significant rendering load. The view equalizer assigns the GPUs from
 the top, bottom and right wall for rendering the left and front wall in
 this configuration.
 
@@ -1297,7 +1297,7 @@ address for all processes, in the following way:
 \item[Application] Specify the application IP as the hostname field in the
   connection description in the appNode section. If the application should not
   contribute to the rendering, set up an appNode without a pipe section.
-\item[Render Clients] Specify the client IP's as the hostname field in the
+\item[Render Clients] Specify the client IPs as the hostname field in the
   connection description of each node section.
 \end{description}
 
@@ -1376,7 +1376,7 @@ client. Failure to launch a cluster configuration often is caused by one of the
 following reasons:
 \begin{itemize}
 \item A firewall is blocking network connections.
-\item The render client can't access the GPU's on the remote host. Set up your
+\item The render client can't access the GPUs on the remote host. Set up your
   X-Server or application rights correctly. Log into the remote machine using
   the launch command and try to execute a simple application, e.g.,
   \textsf{glxinfo -display :0.1}.
@@ -1518,7 +1518,7 @@ following name\-spa\-ces:
   underlying operating system and to implement common helper functionality for
   multi-threaded applications. Examples are \textsf{lunchbox::Clock} providing a
   high-resolution timer, or \textsf{lunchbox::MTQueue} providing a thread-safe,
-  blocking fifo. Classes in this namespace are fully documented in the API
+  blocking FIFO. Classes in this namespace are fully documented in the API
   documentation on the Equalizer website, and are not subject of this
   Programming Guide.
 \item[hwloc, boost, vmmlib, gpu-sd] External libraries providing manual and
@@ -2041,7 +2041,7 @@ variables during serialization and de-serialization.
 Custom data type serializers can be implemented by providing the
 appropriate serialization functions. No pointers should be directly
 transmitted through the data streams. For pointers, the corresponding
-object is typically a distributed object as well, and it's identifier
+object is typically a distributed object as well, and its identifier
 and potentially version is transmitted in place of its pointer.
 
 For \textsf{InitData}, serialization in \textsf{getInstanceData}
@@ -2227,7 +2227,7 @@ configuration forwards the registration to the local client node and augments
 the object registration for buffered objects.
 
 First, it configures the objects to retain its data \textsf{latency+1} commits,
-which corresponds to the typical use case where objects are commited once per
+which corresponds to the typical use case where objects are committed once per
 frame. This allows render clients, which often are behind the application
 process, to map objects with an old version. This does not necessarily translate
 into increased memory usage, since new versions are only created when the object
@@ -2322,7 +2322,7 @@ to provide the various reactions to user input, most importantly camera
 updates based on mouse events. The camera position has to be handled
 correctly regarding latency, and is therefore saved in the frame data.
 
-The event handling code repdroduced here is just showing the handling of one
+The event handling code reproduced here is just showing the handling of one
 type of event. A detailed description on how to customize event handling can be
 found in \sref{sEventHandling}:
 
@@ -2743,7 +2743,7 @@ OpenGL state for all render context information, except for the range which will
 be used later during rendering:
 
 {\footnotesize\begin{lstlisting}
-void eq::Channel::frameDraw( const uin128_t& frameID )
+void eq::Channel::frameDraw( const uint128_t& frameID )
 {
     applyBuffer();
     applyViewport();
@@ -2827,11 +2827,11 @@ efficient view frustum and range culling.
 The actual rendering uses display lists or vertex buffer objects. These
 OpenGL objects are allocated using the object manager. The rendering is
 done by the leaf nodes, which are small enough to store the vertex
-indices in a \textsf{short} value for optimal performance with VBO's.
+indices in a \textsf{short} value for optimal performance with VBOs.
 The leaf nodes reuse the objects stored in the object manager, or create
 and set up new objects if it was not yet set up. Since one object
 manager is used per thread (pipe), this allows a thread-safe sharing of
-the compiled display lists or VBO's across all windows of a pipe.
+the compiled display lists or VBOs across all windows of a pipe.
 
 The main rendering loop is implemented in \textsf{VertexBufferRoot::cullDraw()},
 and not duplicated here.
@@ -2977,10 +2977,10 @@ event handler for all important events. The event handler uses an
 \textsf{AGLWindowEvent} to pass the Carbon \textsf{EventRef} to
 \textsf{AGLWindowIF::processEvent}. During window exit, the installed
 Carbon handler is removed when the window's event handler is deleted. No
-event handling is set up for PBuffers.
+event handling is set up for pbuffers.
 
-For each GLX window, one \textsf{GLXEventHandler} is allocated. FBO's and
-PBuffers are handled in the same way as window drawables. The event dispatch
+For each GLX window, one \textsf{GLXEventHandler} is allocated. FBOs and
+pbuffers are handled in the same way as window drawables. The event dispatch
 finds the corresponding event handler for each received event, which is then
 used to process the event in a fashion similar to AGL. The
 \textsf{GLXWindowEvent} passes the \textsf{XEvent} to
@@ -2990,7 +2990,7 @@ Each \textsf{WGLWindow} allocates one \textsf{WGLEventHandler} when the
 window handle is set. The WGLEventHandler passes the native event
 parameters \textsf{uMsg}, \textsf{wParam} and \textsf{lParam} to
 \textsf{WGL\-Win\-dowIF::processEvent} as part of the
-\textsf{WGLWindowEvent}. No event handling is set up for PBuffers.
+\textsf{WGLWindowEvent}. No event handling is set up for pbuffers.
 
 \subsubsection{Custom Events in eqPixelBench}
 
@@ -3350,7 +3350,7 @@ This section explains window initialization in detail. It discusses in
 detail the handling of the different window systems. Window systems are
 integrated through the \textsf{SystemWindow} interface, which externalizes
 the details of the windowing API from the \textsf{eq::Window}
-implementation and facilitates the integration with new windowing API's
+implementation and facilitates the integration with new windowing APIs
 and custom applications.
 
 Equalizer provides sample implementations for the supported window
@@ -3358,7 +3358,7 @@ systems. These sample implementations are intended to be sub-classed and
 various steps in the window initialization can be overwritten and
 customized.
 
-An application typically choses to subclass the sample implementation if only
+An application typically chooses to subclass the sample implementation if only
 minor tweaks are needed for integration. For major changes or new window
 systems, it is often easier to subclass directly from \textsf{SystemWindow} or
 \textsf{GLWindow} and implement the abstract methods of this interface class.
@@ -3470,7 +3470,7 @@ AGL or GLX. The following functions are used to initialize a WGL window:
 \item\textsf{configInitWGLDrawable} creates the drawable. The device
   context passed to \textsf{configInitWGLDrawable} is used to query the
   pixel format and is used as the device context for creating a
-  PBuffer. If no device context is given, the display device context is
+  pbuffer. If no device context is given, the display device context is
   used. On success, it sets the window handle. Setting a window handle
   also sets the window's device context.
 \item\textsf{createWGLContext} creates an OpenGL rendering context using
@@ -3555,7 +3555,7 @@ For head-mounted displays (HMD), the tracking information is used to move the
 frusta with the observer, as shown in \fig{fHMD}. This results in different
 projections compared to normal tracking with fixed projection screens. This
 difference is transparent to Equalizer applications, only the configuration file
-uses a different wall type for HMD's.
+uses a different wall type for HMDs.
 
 \subsubsection{\label{sFocusDistance}Focus Distance}
 
@@ -3605,7 +3605,7 @@ algorithm, but it keeps the closest wall in the observer's view direction at the
 given focus distance, as shown in \fig{fObserver}. When the observer moves
 forward, the focal plane moves forward as well. Consequently, when the observer
 looks in a different direction, a different object in the scene is focused, as
-indictated by the dotted circle in \fig{fObserver}.
+indicated by the dotted circle in \fig{fObserver}.
 
 \begin{figure}[h!t]\center
   \subfigure[]{\label{fFixedEx}
@@ -4055,7 +4055,7 @@ of the various compositor functions.
 
 On a high level, the compositor combines multiple input frames using 2D
 tiling, depth-compositing for polygonal data or sorted, alpha-blended
-compositing for semitransparent volumetric data. These operations
+compositing for semi-transparent volumetric data. These operations
 composite either directly all images on the GPU, or use a CPU-based
 compositor and then transfer the preintegrated result to the GPU. The
 high-level entry points automatically select the best algorithm. The
@@ -4525,13 +4525,13 @@ connecting it. Both operations may fail.
 Each \textsf{LocalNode} provides a \textsf{co::Zeroconf} communicator, which
 allows node and resource discovery. This requires compiling using a Lunchbox
 library supporting dns\_sd. The service "\_collage.\_tcp" is used to announce
-the presence of a listening \textsf{LocalNode} using the zeroconf protocol to
+the presence of a listening \textsf{LocalNode} using the ZeroConf protocol to
 the network, unless the local node has no listening connections. The node
 identifier and all listening connection descriptions are announced using keys
 starting with "co\_". Internally Collage uses this information to connect
 unknown nodes by using the node identifier alone.
 
-Applications may use the zeroconf communicator to add additional key-value pairs
+Applications may use the ZeroConf communicator to add additional key-value pairs
 to announce application-specific data, and to retrieve a snapshot of all
 key-value pairs of all discovered nodes on the network.
 
@@ -4702,7 +4702,7 @@ are possible:
 \subsubsection{\label{sSerializable}co::Serializable}
 
 \textsf{co::Serializable} implements one typical usage pattern for data
-distribution bsed on \textsf{co::Object}. The \textsf{co::Serializable} data
+distribution based on \textsf{co::Object}. The \textsf{co::Serializable} data
 distribution is founded on the concept of dirty bits, allowing inheritance with
 data distribution. Dirty bits form a 64-bit mask which marks which parts of the
 object have to be distributed during the next commit. It is easier to use, but
@@ -5066,7 +5066,7 @@ name followed by its value. The following attributes are available:
   relative\_to\_observer\\
   \textbf{Default} & fixed\\
   \textbf{Details} & The mode how to use the focus distance. The
-  focus maode and distance influence the calculation of stereo frusta. See
+  focus mode and distance influence the calculation of stereo frusta. See
   \sref{sFocusDistance} for details.\\
   \textbf{See also} & EQ\_CONFIG\_IATTR\_FOCUS\_DISTANCE
   EQ\_CONFIG\_FATTR\_EYE\_BASE\\
@@ -5180,7 +5180,7 @@ name followed by its value. The following attributes are available:
   \textbf{Details} & Determines if the window selects a quad-buffered
   stereo visual. When set to AUTO, the default window initialization methods try
   to allocate a stereo visual for windows, but fall back to a mono
-  visual if allocation fails. For PBuffers, AUTO selects a mono visual.\\
+  visual if allocation fails. For pbuffers, AUTO selects a mono visual.\\
   \textbf{See also} & EQ\_COMPOUND\_IATTR\_STEREO\_MODE\\
   \hline
 \end{tabularx}\\\vfill
@@ -5193,7 +5193,7 @@ name followed by its value. The following attributes are available:
   \textbf{Details} & Determines if the window selects a double-buffered
   stereo visual. When set to AUTO, the default window initialization methods try
   to allocate a double-buffered visual for windows, but fall back to a
-  single-buffered visual if allocation fails. For PBuffers, AUTO selects
+  single-buffered visual if allocation fails. For pbuffers, AUTO selects
   a single-buffered visual.\\
   \hline
 \end{tabularx}\\\vfill
@@ -5241,11 +5241,11 @@ name followed by its value. The following attributes are available:
   \textbf{Default} & window\\
   \textbf{Details} & Selects the window's drawable type. A window is an
   on-screen, window system-dependent window with a full-window OpenGL
-  drawable. PBuffers are off-screen drawables created using window
-  system-dependent PBuffer API's. FBO are off-screen frame buffer
+  drawable. Pbuffers are off-screen drawables created using window
+  system-dependent pbuffer APIs. FBO are off-screen frame buffer
   objects. A disabled drawable creates a system window without a frame buffer
   for context sharing, e.g., for asynchronous operations in a separate
-  thread. To calculate the PBuffer or FBO size on unconnected devices, a pipe
+  thread. To calculate the pbuffer or FBO size on unconnected devices, a pipe
   viewport size of 4096x4096 is assumed, unless specified otherwise using the
   pipe's viewport parameter.\\
   \hline
@@ -5522,17 +5522,17 @@ in the list of online displays. The OpenGL output is optimized for the
 selected display, but not restricted to the attached GPU.
 
 For the WGL window system, the device selects the \textit{n}th GPU in the
-system. The GPU can be offline, in this case only PBuffer windows can be
+system. The GPU can be offline, in this case only pbuffer windows can be
 used. To restrict the OpenGL output to the GPU, the
 \textsf{WGL\_NV\_gpu\_affinity} extension is used when available. If the
 extension is not present, the window is opened on the \textit{n}th monitor, but
-OpenGL commands may be sent to a different or all GPU's, depending on the driver
+OpenGL commands may be sent to a different or all GPUs, depending on the driver
 implementation.
 
 The viewport of the pipe can be used to override the pipe
 resolution. The viewport is defined in pixels. The x and y parameter of
 the viewport are currently ignored. The default viewport is
-automatically detected. For offline GPU's, a default of 4096x4096 is
+automatically detected. For offline GPUs, a default of 4096x4096 is
 used.
 
 For a description of pipe attributes please refer to \sref{sGlobal}.
@@ -5589,7 +5589,7 @@ For a description of channel attributes please refer to \sref{sGlobal}.
 \subsubsection{Observer Section}
 
 An observer represents a tracked entity, i.e, one user. It has a name, eye
-separation and focal plane paramters. The name of an observer can be used for
+separation and focal plane parameters. The name of an observer can be used for
 debugging, it has no influence on the execution of Equalizer. It can be used to
 reference the observer in views, in which case the name should be unique. Not
 all views have to be tracked by an observer.
@@ -5627,7 +5627,7 @@ normalized coordinates.
 
 A view can have a frustum description. The view's frustum overrides
 frusta specified at the canvas or segment level. This is typically used
-for nonphysically correct rendering, e.g., to compare two models
+for non-physically correct rendering, e.g., to compare two models
 side-by-side. If the view does not specify a frustum, the corresponding
 destination channels will use the sub-frustum resulting from the
 view/segment intersection.
@@ -5697,7 +5697,7 @@ segments define the left or right eye, and potentially the cyclop eye.
 A segment can define a frustum, in which case it overrides the default
 frustum calculated from the canvas frustum and segment viewport. A segment can
 have a swap barrier, which is used as the swap barrier on the destination
-compounds of all its destincation channels.
+compounds of all its destination channels.
 
 {\footnotesize\lstinputlisting[firstline=240, lastline=262]
   {../../../equalizergraphics/documents/design/fileFormat.shtml}}
