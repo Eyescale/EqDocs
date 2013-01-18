@@ -4881,29 +4881,42 @@ application namespace for argument, all Equalizer command line options start
 with \textsf{--eq-}. The following options are recognized:
 
 \begin{description}
+\item[--eq-help] shows all available library command line options and their
+  usage.
 \item[--eq-client] is used to start render client processes. Starts a resident
   render client when used without additional arguments, as described in
   \sref{sResident}. The server appends an undocumented argument to this option
   which is used by the \textsf{eq::Client} to connect to the server and identify
   itself.
-\item[--eq-config \textless sessionName\textbar filename.eqc\textgreater] is
-  used to configure an application-local server, as described in
-  \sref{sGPUSDUsage}.
 \item[--eq-layout \textless layoutName\textgreater] activates all layouts of the
   given name on all respective canvases during initialization. This option may
   be used multiple times.
+\item[--eq-modelunit \textless unitValue\textgreater] is used for scaling the
+  rendered models in all views. The model unit defines the size of the model wrt
+  the virtual room unit which is always in meter. The default unit is 1 (1 meter
+  or EQ\_M).
+\item[--eq-logfile \textless filename\textgreater] redirects all Equalizer
+  output to the given file.
+\item[--eq-server \textless connection\textgreater] provides a connection
+  description when using a separate server process.
+\item[--eq-config \textless sessionName\textbar filename.eqc\textgreater] is
+  used to configure an application-local server, as described in
+  \sref{sGPUSDUsage}.
+\item[--eq-config-flags \textless multiprocess\textbar multiprocess\_db\textbar
+  ethernet\textbar infiniband\textbar 2D\_horizontal\textbar
+  2D\_vertical\textbar 2D\_tiles\textgreater] is used as input for the
+  autoconfiguration to tweak the configuration generation.
+\item[--eq-config-prefixes \textless CIDR-prefixes\textgreater] is used as input
+  for the autoconfiguration to filter network interfaces.
+\item[--eq-render-client \textless filename\textgreater] provides an alternate
+  executable name for starting render clients. This option is useful if the
+  client machines use a different directory layout from the application machine.
 \item[--eq-listen \textless connection\textgreater] configures the
   local node to listen on the given connections. The formation of the connection
   argument is documented in
   \textsf{co::Con\-nec\-tionDescription::fromString()}. This option may be used
   multiple times.
-\item[--eq-logfile \textless filename\textgreater] redirects all Equalizer
-  output to the given file.
-\item[--eq-render-client \textless filename\textgreater] provides an alternate
-  executable name for starting render clients. This option is useful if the
-  client machines use a different directory layout from the application machine.
-\item[--eq-server \textless connection\textgreater] provides a connection
-  description when using a separate server process.
+
 \end{description}
 
 \section{\label{aFileFormat}File Format}
