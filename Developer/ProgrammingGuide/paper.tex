@@ -4887,6 +4887,29 @@ as well as custom command packets to implement the barrier logics. A
 barrier is a versioned object. Each version can have a different height,
 and enter requests are automatically grouped together by version.
 
+\subsection{ObjectMap}
+
+The \textsf{co::ObjectMap} is a specialized \textsf{co::Serializable} which
+provides automatic distribution and synchronization of \textsf{co::Object}s.
+All changed objects are committed when \textsf{co::ObjectMap} is committed, and
+sync() on slave instances updates mapped objects to their respective versions.
+
+The objects on slave ObjectMap instances are mapped explicitly, either by
+providing an already constructed instance or using an implicit object creation
+using \textsf{co::ObjectFactory}. The factory needs to be supplied upon
+construction of \textsf{co::ObjectMap} and the implementation for creating the
+desired object types. Implicitly created objects are owned by the object which
+affects the lifetime of those objects considering unmapping operations caused
+by deregister(), explicit unmapping or destruction of the slave instance
+ObjectMap.
+
+In Sequel, the \textsf{co::ObjectMap} is used to distribute and synchronize the
+InitData and FrameData objects. Sequel adds the object IDs for both objects in
+addition to the default ObjectMap for automatic mapping during first access.
+The main advantage comes from the one point commit and synchronization which
+automatically updates changed objects to their correct version.
+
+
 
 \newpage
 \appendix
