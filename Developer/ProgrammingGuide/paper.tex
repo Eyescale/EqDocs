@@ -643,14 +643,14 @@ modes:
   with a dynamically load-balanced sort-first configuration using local GPUs.
 \end{description}
 
-All suitable network interfaces are used to configure the node, that is, the
+All suitable network interfaces are used to configure the nodes, that is, the
 launch command has to be able to resolve one hostname for starting the render
 client processes. Suitable interfaces have to be up and match optional given
 values which can be specified by the following command-line parameters:
 
 \begin{description}
 \item[--eq-config-flags \textless ethernet\textbar infiniband\textgreater]
-  Limit the selection of network interfaces to one of the those types.
+  Limit the selection of network interfaces to one of those types.
 \item[--eq-config-prefixes \textless CIDR-prefixes\textgreater] Limit the
   selection of network interfaces that match the given prefix.
 \end{description}
@@ -1539,7 +1539,7 @@ following name\-spa\-ces:
   automatic thread affinity, serialization and the foundation for RSP multicast,
   vector and matrix mathematics as well as local and remote hardware (GPU,
   network interfaces) discovery, respectively. The hwloc and hwsd libraries are
-  used only internally and not exposed through the API.
+  used only internally and are not exposed through the API.
 \item[eq::server] The server namespace, implementing the functionality of the
   Equalizer server, which is an internal namespace not to be used by application
   developers. The \textsf{eq::admin} namespace enables run-time administration
