@@ -570,50 +570,53 @@ Equalizers are described in more detail in \sref{sEqualizers}.
 
 \subsection{\label{sAutoConfig}Auto-Configuration}
 
-\subsubsection{GPU Service Discovery}
+\subsubsection{Hardware Service Discovery}
 
-Equalizer uses the GPU-SD library for discovering local and remote GPUs. Based
-on this information, a typical configuration is dynamically compiled during the
-initialization of the application. The auto-configuration uses the same format
-as the static configuration files. It can be used to create template
-configurations by running a test application or the eqServer binary and using
-the generated configuration, saved as \textless session\textgreater.auto.eqc.
+Equalizer uses the hwsd library for discovering local and remote GPUs and
+network interfaces. Based on this information, a typical configuration is
+dynamically compiled during the initialization of the application. The
+auto-configuration uses the same format as the static configuration files. It
+can be used to create template configurations by running a test application or
+the eqServer binary and using the generated configuration, saved as
+\textless session\textgreater.auto.eqc.
 
-Please note that both GPU-SD and the GPU-SD ZeroConf module are optional and
-requires GPU-SD and a ZeroConf implementation when Equalizer is compiled.
+Please note that both hwsd and the hwsd ZeroConf module are optional and
+requires hwsd and a ZeroConf implementation when Equalizer is compiled.
 
-GPU-SD contains three components: a core library, local and remote discovery
+hwsd contains three components: a core library, local and remote discovery
 modules as well as a ZeroConf daemon. The daemon uses the appropriate module to
-query local GPUs and announces them using ZeroConf on the local network.
+query local GPUs and network interfaces and announces them using ZeroConf on the
+local network.
 
 \begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/gpu-sd.pdf}
-  {\caption{\label{fGPUSD}GPU discovery for auto-configuration}}
+  \includegraphics[width=.618\textwidth]{images/gpu-sd.pdf} % TODO: update image (hwsd)
+  {\caption{\label{fHWSD}GPU discovery for auto-configuration}}
 \end{wrapfigure}
 Equalizer uses the library with the dns\_sd discovery module to gather the
 information announced by all daemons on the local network, as well as the local
 discovery modules for standalone auto-configuration. The default configuration
-is using all locally discovered GPUs.
+is using all locally discovered GPUs and network interfaces.
 
-\fig{fGPUSD} shows how GPU-SD is used to discover four remote GPUs on two
+\fig{fHWSD} shows how hwsd is used to discover four remote GPUs on two
 different machines to use them to render a single view on a laptop.
 
-\subsubsection{\label{sGPUSDUsage}Usage}
+\subsubsection{\label{sHWSDUsage}Usage}
 
-On each node contributing to the configuration, install and start the GPU-SD
+On each node contributing to the configuration, install and start the hwsd
 daemon. If multiple, disjoint configurations are used on the same network,
 provide the session name as a parameter when starting the daemon. Verify that
-all GPUs are visible on the application host using the \textsf{gpu\_sd\_list}
-tool. When starting the application, use the command-line parameter
-\textsf{--eq-config}:
+all GPUs and network interfaces are visible on the application host using
+the \textsf{hw\_sd\_list} tool. When starting the application, use the
+command-line parameter \textsf{--eq-config}:
 
 \begin{itemize}
-\item The default value is \textsf{local} which uses all local GPUs queried
-  using the cgl, glx or wgl GPU-SD module.
+\item The default value is \textsf{local} which uses all local GPUs and network
+  interfaces queried using the cgl, glx, or wgl GPU module and the sys network
+  module.
 \item \textsf{--eq-config sessionname} uses the dns\_sd ZeroConf module of
-  GPU-SD to query all GPUs in the subnet for the given session. The default
-  session of the GPU-SD daemon is \textsf{default}. The hostname provided by
-  ZeroConf is used to connect the nodes.
+  hwsd to query all GPUs and network interfaces in the subnet for the given
+  session. The default session of the hwsd daemon is \textsf{default}. The
+  found network interfaces are used to connect the nodes.
 \item \textsf{--eq-config filename.eqc} loads a static configuration from the
   given ASCII file. The following sections describe how to write configuration
   files.
@@ -634,12 +637,23 @@ modes:
   across all GPUs.
 \item [Dynamic DB] A dynamically load-balanced sort-last configuration using all
   GPUs as sources.
+\item [DB Direct Send] A direct send sort-last configuration using all GPUs as
+  sources.
+\item [DB 2D] A direct send sort-last configuration using all nodes together
+  with a dynamically load-balanced sort-first configuration using local GPUs.
 \end{description}
 
-The ZeroConf hostname is used to configure the node, that is, the launch command
-has to be able to resolve this hostname for starting the render client
-processes. Given a properly set up ZeroConf installation, the default launch
-command \textsf{ssh} should be able to start the render client correctly.
+All suitable network interfaces are used to configure the nodes, that is, the
+launch command has to be able to resolve one hostname for starting the render
+client processes. Suitable interfaces have to be up and match optional given
+values which can be specified by the following command-line parameters:
+
+\begin{description}
+\item[--eq-config-flags \textless ethernet\textbar infiniband\textgreater]
+  Limit the selection of network interfaces to one of those types.
+\item[--eq-config-prefixes \textless CIDR-prefixes\textgreater] Limit the
+  selection of network interfaces that match the given prefix.
+\end{description}
 
 \subsection{Preparation}
 
@@ -1521,11 +1535,11 @@ following name\-spa\-ces:
   blocking FIFO. Classes in this namespace are fully documented in the API
   documentation on the Equalizer website, and are not subject of this
   Programming Guide.
-\item[hwloc, boost, vmmlib, gpu-sd] External libraries providing manual and
+\item[hwloc, boost, vmmlib, hwsd] External libraries providing manual and
   automatic thread affinity, serialization and the foundation for RSP multicast,
-  vector and matrix mathematics as well as local and remote GPU discovery,
-  respectively. The hwloc and gpu-sd libraries are used only internally and not
-  exposed through the API.
+  vector and matrix mathematics as well as local and remote hardware (GPU,
+  network interfaces) discovery, respectively. The hwloc and hwsd libraries are
+  used only internally and are not exposed through the API.
 \item[eq::server] The server namespace, implementing the functionality of the
   Equalizer server, which is an internal namespace not to be used by application
   developers. The \textsf{eq::admin} namespace enables run-time administration
@@ -1534,7 +1548,7 @@ following name\-spa\-ces:
 \end{description}
 
 \begin{wrapfigure}{r}{.618\textwidth}
-  \includegraphics[width=.618\textwidth]{images/namespaces}
+  \includegraphics[width=.618\textwidth]{images/namespaces} % TODO: update image (hwsd)
   {\caption{\label{fNamespaces}Namespaces}}
 \end{wrapfigure}
 The Equalizer examples are implemented in their own namespaces, e.g.,
@@ -1867,8 +1881,8 @@ The application's main loop starts by connecting the application to an Equalizer
 server. If no server is specified, \textsf{Client::connectServer} tries first to
 connect to a server on the local machine using the default port. If that fails,
 it will create a server running within the application process using
-auto-configuration as described in \sref{sGPUSDUsage}. The command line
-parameter \textsf{--eq-config} can be used to specify a gpu-sd session or
+auto-configuration as described in \sref{sHWSDUsage}. The command line
+parameter \textsf{--eq-config} can be used to specify a hwsd session or
 configuration file, and \textsf{--eq-server} to explicitly specify a server
 address.
 
@@ -4405,16 +4419,17 @@ programming interface.
 
 \subsubsection{CUDA Memory Management}
 
-Equalizer does not provide any facility to perform memory transfer from and to the CUDA
-devices. This is entirely left to the programmer.
+Equalizer does not provide any facility to perform memory transfer from and to
+the CUDA devices. This is entirely left to the programmer.
+
 
 \section{\label{sNetwork}The Collage Network Library}
 
 The Collage networking library provides a peer-to-peer communication
 infrastructure. It is used by Equalizer to communicate between the application
 node, the server and the render clients. It can also be used by applications to
-implement distributed processing independently or complementary to the Equalizer
-functionality.
+implement distributed processing independently or complementary to the
+Equalizer functionality.
 
 The network library is a separate project on github, implemented in the
 \textsf{co} namespace. It provides networking functionality of different
@@ -4423,23 +4438,24 @@ programmer. The main primitives in Collage are:
 
 \begin{description}
 \item[Connection] A stream-oriented point-to-point communication
-  line. Different implementations of a connection exist. The connections
+  line. Different implementations of a connection exists. The connections
   transmit raw data reliably between two endpoints for unicast connections, and
   between a set of endpoints for multicast connections.
-\item[DataOStream] Abstracts the output of C++ data types onto a
-  set of connections by implementing output stream operators. Uses buffering to
+\item[DataOStream] Abstracts the output of C++ data types onto a set of
+  connections by implementing output stream operators. Uses buffering to
   aggregate data for network transmission.
 \item[OCommand] Extends DataOStream, implements the protocol between Collage
   nodes.
 \item[DataIStream] Decodes a buffer of received data into C++ objects and PODs
   by implementing input stream operators. Performs endian swapping if requested.
-\item[ICommand]
 \item[Node/LocalNode] The abstraction of a process in the cluster. Nodes
   communicate with each other using connections. A LocalNode listens on various
   connections and processes requests for a given process. A Node is a proxy for
   a remote LocalNode.
 \item[Object] Provides object-oriented data distribution of C++ objects between
   nodes within a session. Objects are registered or mapped on a LocalNode.
+\item[ICommand] The other side of OCommand. Is dispatched to Object or Node to
+  execute a specific task.
 \end{description}
 
 \begin{figure}[ht!]\center
@@ -4456,8 +4472,8 @@ between processes in Equalizer. It provides a stream-oriented communication
 between two endpoints.
 
 A connection is either closed, connected or listening. A closed connection
-cannot be used for communications. A connected connection can be used to read or
-write data to the communication peer. A listening connection can accept
+cannot be used for communications. A connected connection can be used to read
+or write data to the communication peer. A listening connection can accept
 connection requests.
 
 A \textsf{co::ConnectionSet} is used to manage multiple connections. The
@@ -4465,20 +4481,20 @@ typical use case is to have one or more listening connections for the local
 process, and a number of connected connections for communicating with other
 processes.
 
-The connection set is used to select one connection which requires some
-action. This can be a connection request on a listening connection, pending data
-on a connected connection or the notification of a disconnect.
+The connection set is used to select one connection which requires some action.
+This can be a connection request on a listening connection, pending data on a
+connected connection or the notification of a disconnect.
 
-The connection and connection set can be used by applications to implement other
-network-related functionality, e.g., to communicate with a sound server on a
-different machine.
+The connection and connection set can be used by applications to implement
+other network-related functionality, e.g., to communicate with a sound server
+on a different machine.
 
 
 \subsection{Packet Handling}
 
-Nodes and objects communicate using packets derived from
-\textsf{co::Packet}. The basic packet dispatch is implemented in the
-\textsf{co::Dispatcher} class, from which \textsf{co::Node} and \textsf{co::Object} is sub-classed.
+Nodes and objects communicate using packets derived from \textsf{co::Packet}.
+The basic packet dispatch is implemented in the \textsf{co::Dispatcher} class,
+from which \textsf{co::Node} and \textsf{co::Object} is sub-classed.
 
 The dispatcher allows the registration of a packets with a dispatch queue and an
 invocation method. Each packet has a type and command identifier, which is used
@@ -4871,6 +4887,29 @@ as well as custom command packets to implement the barrier logics. A
 barrier is a versioned object. Each version can have a different height,
 and enter requests are automatically grouped together by version.
 
+\subsection{ObjectMap}
+
+The \textsf{co::ObjectMap} is a specialized \textsf{co::Serializable} which
+provides automatic distribution and synchronization of \textsf{co::Object}s.
+All changed objects are committed when \textsf{co::ObjectMap} is committed, and
+sync() on slave instances updates mapped objects to their respective versions.
+
+The objects on slave ObjectMap instances are mapped explicitly, either by
+providing an already constructed instance or using an implicit object creation
+using \textsf{co::ObjectFactory}. The factory needs to be supplied upon
+construction of \textsf{co::ObjectMap} and the implementation for creating the
+desired object types. Implicitly created objects are owned by the object which
+affects the lifetime of those objects considering unmapping operations caused
+by deregister(), explicit unmapping or destruction of the slave instance
+ObjectMap.
+
+In Sequel, the \textsf{co::ObjectMap} is used to distribute and synchronize the
+InitData and FrameData objects. Sequel adds the object IDs for both objects in
+addition to the default ObjectMap for automatic mapping during first access.
+The main advantage comes from the one point commit and synchronization which
+automatically updates changed objects to their correct version.
+
+
 
 \newpage
 \appendix
@@ -4901,7 +4940,7 @@ with \textsf{--eq-}. The following options are recognized:
   description when using a separate server process.
 \item[--eq-config \textless sessionName\textbar filename.eqc\textgreater] is
   used to configure an application-local server, as described in
-  \sref{sGPUSDUsage}.
+  \sref{sHWSDUsage}.
 \item[--eq-config-flags \textless multiprocess\textbar multiprocess\_db\textbar
   ethernet\textbar infiniband\textbar 2D\_horizontal\textbar
   2D\_vertical\textbar 2D\_tiles\textgreater] is used as input for the
