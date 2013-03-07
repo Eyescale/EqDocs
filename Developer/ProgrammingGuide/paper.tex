@@ -4419,16 +4419,17 @@ programming interface.
 
 \subsubsection{CUDA Memory Management}
 
-Equalizer does not provide any facility to perform memory transfer from and to the CUDA
-devices. This is entirely left to the programmer.
+Equalizer does not provide any facility to perform memory transfer from and to
+the CUDA devices. This is entirely left to the programmer.
+
 
 \section{\label{sNetwork}The Collage Network Library}
 
 The Collage networking library provides a peer-to-peer communication
 infrastructure. It is used by Equalizer to communicate between the application
 node, the server and the render clients. It can also be used by applications to
-implement distributed processing independently or complementary to the Equalizer
-functionality.
+implement distributed processing independently or complementary to the
+Equalizer functionality.
 
 The network library is a separate project on github, implemented in the
 \textsf{co} namespace. It provides networking functionality of different
@@ -4437,23 +4438,24 @@ programmer. The main primitives in Collage are:
 
 \begin{description}
 \item[Connection] A stream-oriented point-to-point communication
-  line. Different implementations of a connection exist. The connections
+  line. Different implementations of a connection exists. The connections
   transmit raw data reliably between two endpoints for unicast connections, and
   between a set of endpoints for multicast connections.
-\item[DataOStream] Abstracts the output of C++ data types onto a
-  set of connections by implementing output stream operators. Uses buffering to
+\item[DataOStream] Abstracts the output of C++ data types onto a set of
+  connections by implementing output stream operators. Uses buffering to
   aggregate data for network transmission.
 \item[OCommand] Extends DataOStream, implements the protocol between Collage
   nodes.
 \item[DataIStream] Decodes a buffer of received data into C++ objects and PODs
   by implementing input stream operators. Performs endian swapping if requested.
-\item[ICommand]
 \item[Node/LocalNode] The abstraction of a process in the cluster. Nodes
   communicate with each other using connections. A LocalNode listens on various
   connections and processes requests for a given process. A Node is a proxy for
   a remote LocalNode.
 \item[Object] Provides object-oriented data distribution of C++ objects between
   nodes within a session. Objects are registered or mapped on a LocalNode.
+\item[ICommand] The other side of OCommand. Is dispatched to Object or Node to
+  execute a specific task.
 \end{description}
 
 \begin{figure}[ht!]\center
@@ -4470,8 +4472,8 @@ between processes in Equalizer. It provides a stream-oriented communication
 between two endpoints.
 
 A connection is either closed, connected or listening. A closed connection
-cannot be used for communications. A connected connection can be used to read or
-write data to the communication peer. A listening connection can accept
+cannot be used for communications. A connected connection can be used to read
+or write data to the communication peer. A listening connection can accept
 connection requests.
 
 A \textsf{co::ConnectionSet} is used to manage multiple connections. The
@@ -4479,20 +4481,20 @@ typical use case is to have one or more listening connections for the local
 process, and a number of connected connections for communicating with other
 processes.
 
-The connection set is used to select one connection which requires some
-action. This can be a connection request on a listening connection, pending data
-on a connected connection or the notification of a disconnect.
+The connection set is used to select one connection which requires some action.
+This can be a connection request on a listening connection, pending data on a
+connected connection or the notification of a disconnect.
 
-The connection and connection set can be used by applications to implement other
-network-related functionality, e.g., to communicate with a sound server on a
-different machine.
+The connection and connection set can be used by applications to implement
+other network-related functionality, e.g., to communicate with a sound server
+on a different machine.
 
 
 \subsection{Packet Handling}
 
-Nodes and objects communicate using packets derived from
-\textsf{co::Packet}. The basic packet dispatch is implemented in the
-\textsf{co::Dispatcher} class, from which \textsf{co::Node} and \textsf{co::Object} is sub-classed.
+Nodes and objects communicate using packets derived from \textsf{co::Packet}.
+The basic packet dispatch is implemented in the \textsf{co::Dispatcher} class,
+from which \textsf{co::Node} and \textsf{co::Object} is sub-classed.
 
 The dispatcher allows the registration of a packets with a dispatch queue and an
 invocation method. Each packet has a type and command identifier, which is used
