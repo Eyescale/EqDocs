@@ -572,20 +572,20 @@ Equalizers are described in more detail in \sref{sEqualizers}.
 
 \subsubsection{Hardware Service Discovery}
 
-Equalizer uses the hwsd library for discovering local and remote GPUs and
+Equalizer uses the hwsd library for discovering local and remote GPUs as well as
 network interfaces. Based on this information, a typical configuration is
 dynamically compiled during the initialization of the application. The
 auto-configuration uses the same format as the static configuration files. It
 can be used to create template configurations by running a test application or
-the eqServer binary and using the generated configuration, saved as
-\textless session\textgreater.auto.eqc.
+the eqServer binary and using the generated configuration, saved as \textless
+session\textgreater.auto.eqc.
 
 Please note that both hwsd and the hwsd ZeroConf module are optional and
-requires hwsd and a ZeroConf implementation when Equalizer is compiled.
+require hwsd and a ZeroConf implementation when Equalizer is compiled.
 
 hwsd contains three components: a core library, local and remote discovery
 modules as well as a ZeroConf daemon. The daemon uses the appropriate module to
-query local GPUs and network interfaces and announces them using ZeroConf on the
+query local GPUs and network interfaces to announce them using ZeroConf on the
 local network.
 
 \begin{wrapfigure}{r}{.618\textwidth}
@@ -611,7 +611,7 @@ command-line parameter \textsf{--eq-config}:
 
 \begin{itemize}
 \item The default value is \textsf{local} which uses all local GPUs and network
-  interfaces queried using the cgl, glx, or wgl GPU module and the sys network
+  interfaces queried using the cgl, glx, or wgl GPU modules and the sys network
   module.
 \item \textsf{--eq-config sessionname} uses the dns\_sd ZeroConf module of
   hwsd to query all GPUs and network interfaces in the subnet for the given
@@ -4895,20 +4895,20 @@ All changed objects are committed when \textsf{co::ObjectMap} is committed, and
 sync() on slave instances updates mapped objects to their respective versions.
 
 The objects on slave ObjectMap instances are mapped explicitly, either by
-providing an already constructed instance or using an implicit object creation
-using \textsf{co::ObjectFactory}. The factory needs to be supplied upon
-construction of \textsf{co::ObjectMap} and the implementation for creating the
-desired object types. Implicitly created objects are owned by the object which
-affects the lifetime of those objects considering unmapping operations caused
-by deregister(), explicit unmapping or destruction of the slave instance
-ObjectMap.
+providing an already constructed instance or using implicit object creation
+through the \textsf{co::ObjectFactory}. The factory needs to be supplied upon
+construction of the \textsf{co::ObjectMap} and implement creation of the desired
+object types. Implicitly created objects are owned by the object map which
+limits their lifetime. They are released upon unmapping caused by deregister(),
+explicit unmapping or destruction of the slave instance ObjectMap.
 
-In Sequel, the \textsf{co::ObjectMap} is used to distribute and synchronize the
-InitData and FrameData objects. Sequel adds the object IDs for both objects in
-addition to the default ObjectMap for automatic mapping during first access.
-The main advantage comes from the one point commit and synchronization which
-automatically updates changed objects to their correct version.
-
+In Sequel, the \textsf{co::ObjectMap} is used to distribute and synchronize all
+objects to the rendering frames. The InitData and FrameData objects are
+implicitely known and managed by Sequel, and other objects might be used in
+addition. The commit and synchronization of the object map, and consequently all
+its objects, is automatically performed in the correct places, most importantly
+the commit at the beginning of the frame, and the sync when accessing an object
+from the renderer.
 
 
 \newpage
