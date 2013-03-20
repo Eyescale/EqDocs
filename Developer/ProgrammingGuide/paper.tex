@@ -66,7 +66,7 @@ Lucas Peetz Dulley.
 
 \subsection*{Copyright}
 
-\textcopyright 2007-2012 \htmladdnormallink{Eyescale Software GmbH}
+\textcopyright 2007-2013 \htmladdnormallink{Eyescale Software GmbH}
 {http://www.eyescale.ch}. All rights reserved. No permission is
 granted to copy, distribute, or create derivative works from the
 contents of this electronic documentation in any manner, in whole or in
@@ -132,6 +132,7 @@ Subpixel (FSAA) [top left], DPlex [middle left], Pixel [middle center],
     1.8     & Mar 21, 2011 & Revision for Equalizer 1.0\\
     1.10    & Feb 17, 2012 & Revision for Equalizer 1.2\\
     1.12    & Jul 20, 2012 & Revision for Equalizer 1.4\\
+    1.11.1  & Mar 20, 2013 & Adapt to new head tracking event\\
     \hline
   \end{tabularx}}
 \clearpage
@@ -2271,23 +2272,11 @@ and can cache the data:
 {\footnotesize\lstinputlisting[firstline=92, lastline=93]
   {../../../Equalizer/examples/eqPly/config.cpp}}
 
-The configuration tries to set up a tracking device for head tracking. Equalizer
-does not provide extensive support for tracking devices, as this is an
-orthogonal problem to parallel rendering. Tracking device support has already
-been solved by a number of implementations, such as VRCO Trackd, VRPN and
-others, which have proven to be easily integrated with Equalizer. The example
-code in \textsf{eqPly} provides a reference implementation for the integration
-of such a tracking library. \sref{sTracking} provides more background on head
-tracking.
-
-{\footnotesize\lstinputlisting[firstline=96, lastline=113]
-  {../../../Equalizer/examples/eqPly/config.cpp}}
-
 The exit function of the configuration stops the render clients by calling
 \textsf{eq::Con\-fig::exit}, and then de-registers the initialization and
 frame data objects with the session:
 
-{\footnotesize\lstinputlisting[firstline=125, lastline=133]
+{\footnotesize\lstinputlisting[firstline=106, lastline=114]
   {../../../Equalizer/examples/eqPly/config.cpp}}
 
 \subsubsection{Frame Control}
@@ -3559,6 +3548,23 @@ the server to compute the eye positions, and consequently the view frusta.
     \includegraphics[width=.382\textwidth]{images/hmd}}
   {\caption{\label{fImmersive}Tracked (a) and HMD (b) Immersive Frusta}}
 \end{figure}
+
+Tracking events are often delivered asynchronously by an external source. The
+recommended way to integrate them into Equalizer is to emit an
+\textsf{OBSERVER\_MOTION} event, which has to contain the observer's object
+identifier and a \textsf{Matrix4f} head matrix. Equalizer optionally implements
+camera-based head tracking using OpenCV, and uses this mechanism to inject the
+asynchronously computed tracking matrix:
+
+{\footnotesize\lstinputlisting[firstline=194, lastline=195]
+  {../../../Equalizer/eq/client/cvTracker.cpp}}
+
+This event will be dispatched to the given observer instance in the application
+process during the next \textsf{Config::handleEvents}. The observer will update
+its head matrix based on the event data:
+
+{\footnotesize\lstinputlisting[firstline=92, lastline=97]
+  {../../../Equalizer/eq/client/observer.cpp}}
 
 Projection surfaces which are not X/Y-planar create frusta which are not
 oriented along the Z axis, as shown in \fig{fFixed}. These frusta are positioned
