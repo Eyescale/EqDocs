@@ -1,0 +1,75 @@
+\NeedsTeXFormat{LaTeX2e}
+\documentclass[10pt,a4]{scrartcl}
+
+\usepackage{tabularx,longtable,graphicx,a4,listings,wrapfig,subfigure,textcomp,ccaption,latexsym,setspace,algorithm,algorithmic,esvect,color}
+\usepackage[absolute]{textpos}
+
+\ifx\pdfoutput\undefined
+  % We're not running pdftex
+  % european (better) fonts -- does not look good with pdflatex
+  \usepackage[T1]{fontenc}
+  \newcommand{\href}[2]{#2\\{\hspace*{5mm}\scriptsize <#1>}\\}
+\else
+  \pdfcompresslevel=9
+  \def\pdfBorderAttrs{/Border [0 0 0] } % No border around Links
+  \usepackage{hyperref}
+\fi
+
+\title{Project, Virtual Reality}
+\author{Stefan Eilemann, Benjamin Long}
+
+\newcommand{\tm}{\texttrademark~}
+\newcommand{\rc}{\raise 1ex\hbox{{\tiny\textregistered}}~}
+\newcommand{\fig}[1]{Figure~\ref{#1}}
+\newcommand{\sref}[1]{Section~\ref{#1}}
+\newcommand{\aref}[1]{Appendix~\ref{#1}}
+\newcommand{\link}[1]{\htmladdnormallink{#1}{#1}}
+\newcommand{\fix}[1]{\textbf{\color{red}{#1}}}
+\indentcaption{2em}
+
+% suppress  single floating lines on top (widow) and bottom(club)
+%  10000 is infinity
+%  tradeoff: maybe underfull vboxes
+\clubpenalty=10000
+\widowpenalty=10000
+
+\begin{document}
+\maketitle
+
+\section{Project Description}
+
+The project builds upon the Equalizer parallel rendering framework and one of
+its example programs, eqPly. It adds the following features to either the
+core framework, where it is generic, or to the application, where it is not:
+\begin{itemize}
+\item Render any 3D object in the ply file format on any display system
+  supported by Equalizer (LCD, stereo screen, CAVE, display wall) using
+  monoscopic and stereoscopic (active, passive and anaglyphic) rendering.
+\item Generic, transparent head tracking in the core framework, based on
+  OpenCV. The tracking will provide X,Y translation, an estimation of the
+  observer's Z distance, and when possible, roll estimation using the eye
+  positions.
+\item Object manipulation using the Logitech 3D Spacemouse. The Spacemouse
+  delivers relative sensor data for six degrees of freedom (rotation and
+  translation), which will be used to move an object in the scene accordingly.
+\item create a waterfall modeled using a particle system based on a physics
+  library, which will flow around the displayed model. A spatial data structure
+  is used to ply model the interaction between the model and the particle
+  system.
+\end{itemize}
+
+\fix{screenshots}
+
+\section{Tools and Methods}
+
+\fix{How the 3D scene was built and which tools were used. Libraries used for
+  the head tracking, fiducial marker tracking, physics simulation and any
+  additional feature.}
+
+\section{Installation}
+\fix{Share your experience. What were the difficulties? What you liked and/or
+  disliked while developing this project? What you have learned?}
+
+\section{Conclusion}
+
+\end{document}
