@@ -62,14 +62,58 @@ core framework, where it is generic, or to the application, where it is not:
 
 \section{Tools and Methods}
 
-\fix{How the 3D scene was built and which tools were used. Libraries used for
-  the head tracking, fiducial marker tracking, physics simulation and any
-  additional feature.}
+The project is integrated into the Equalizer parallel rendering framework, where
+possible in the core library. The non-generic parts of the work are build into
+\textsf{eqPly}, the polygonal rendering example shipped with Equalizer. The
+Equalizer programming and user guide has a detailed description on the structure
+of \textsf{eqPly}
+
+OpenCV is used for head tracking. The support of OpenCV is generic in Equalizer,
+a new field configures the camera index used for each observer. The support is
+conditional on the availability of the OpenCV library and headers at compile
+time, as well as on the presence of a camera at runtime. A face and eye
+detection filter continuously estimates the 3D position in space, and if eyes
+are detected, the roll of the observer. Head and pitch are not estimated due to
+the limited amount of freedom given by a single camera input. Since the computer
+vision is computationally expensive, the OpenCV head tracker runs asynchronous
+in a separate thread from the main application loop. After each detection, it
+injects an observer event into Equalizer, which is processed by the normal event
+handling flow.
+
+For interaction, a 3D space mouse is used. This device reports relative values
+for six degrees of freedom. Again, the spacemouse support is fully integrated
+into the Equalizer event handling code, and the events are processed by
+\textsf{eqPly} to manipulate the model matrix applying the six delta values in a
+one-to-one mapping onto the model. Three different backend implementations
+receive and convert the event from the device into a generic representation: a
+\textsf{spnav} implementation for GLX (X11, Linux), an implementation based on
+the official driver for AGL (Carbon, Mac OS X) and a raw message-based
+implemenation for WGL (Windows).
+
+\fix{Physics:}
 
 \section{Installation}
+
+\section{Discussion}
+
+This project contributed new functionality into an existing open source
+project. While this added requirements to the project, this work immediately
+benefits the existing users. Furthermore, building unto an existing framework
+also facilitates the implementation due to the reuse of existing infrastructure
+and functionality, e.g., the already-build rendering application. The resulting
+demo is also rich in features and can easily be deployed on virtually all types
+of display systems.
+
+Due to the previous knowledge with Equalizer, the integration of the spacemouse
+and OpenCV was relatively straightforward. The correct design of integrating
+camera-based tracking took some time to figure o out. At first, a synchronous
+approach polling the camera each frame was used, where the actual detection was
+used to another thread. This proved too complex and hard to integrate cleanly
+into the existing design, which was finally solved by an asynchronous approach
+injecting events into the already distributed event processing. The chosen
+design is simple in its implementation and robust in execution.
+
 \fix{Share your experience. What were the difficulties? What you liked and/or
   disliked while developing this project? What you have learned?}
-
-\section{Conclusion}
 
 \end{document}
