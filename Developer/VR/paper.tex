@@ -15,7 +15,7 @@
   \usepackage{hyperref}
 \fi
 
-\title{Project, Virtual Reality}
+\title{Project, Virtual Reality\\Group 8}
 \author{Stefan Eilemann, Benjamin Long}
 
 \newcommand{\tm}{\texttrademark~}
@@ -58,8 +58,6 @@ core framework, where it is generic, or to the application, where it is not:
   system.
 \end{itemize}
 
-\fix{screenshots}
-
 \section{Tools and Methods}
 
 The project is integrated into the Equalizer parallel rendering framework, where
@@ -90,20 +88,49 @@ receive and convert the event from the device into a generic representation: a
 the official driver for AGL (Carbon, Mac OS X) and a raw message-based
 implemenation for WGL (Windows).
 
-\fix{Physics:}
+%\fix{Physics:}
 
 \section{Installation}
+
+Since our project is embedded in a larger software, building it may be a bit
+more complex. The build and functionality has been test on Mac OS X 10.8 using
+the command line XCode utilities and MacPorts. Equalizer and all its
+dependencies is build using the Buildyard multi-project CMake build tool, which
+will download, configure, compile and install all projects in the correct
+order. The only other dependencies to be installed are MacPort and the official
+Mac OS X drivers for the SpaceMouse, and then the example can be build as
+follows:
+
+\begin{lstlisting}
+sudo port install bullet +universal
+sudo port install boost +universal
+sudo port install opencv +universal
+sudo port install cmake
+cd Buildyard
+make Equalizer
+\end{lstlisting}
+
+Afterwards everything is installed in \textsf{Build}, and the \textsf{eqPly}
+example application can be launched:
+
+\begin{lstlisting}
+./Build/Equalizer/bin/eqPly.app/Contents/MacOS/eqPly
+\end{lstlisting}
 
 \section{Discussion}
 
 This project contributed new functionality into an existing open source
-project. While this added requirements to the project, this work immediately
-benefits the existing users. Furthermore, building unto an existing framework
-also facilitates the implementation due to the reuse of existing infrastructure
-and functionality, e.g., the already-build rendering application. The resulting
-demo is also rich in features and can easily be deployed on virtually all types
-of display systems.
+project. While this added additional requirements to the project, this work
+immediately benefits the existing users of the Equalizer parallel rendering
+framework. Furthermore, building unto an existing framework also facilitates the
+implementation due to the reuse of existing infrastructure and functionality,
+e.g., the already-build rendering application. The resulting demo is rich in
+features and can easily be deployed on virtually all types of display systems.
 
+\begin{wrapfigure}{r}{.312\textwidth}
+  \includegraphics[width=.312\textwidth]{screenshot}
+  {\caption{\label{fScreenshot}eqPly running in a five-sided cave emulation}}
+\end{wrapfigure}
 Due to the previous knowledge with Equalizer, the integration of the spacemouse
 and OpenCV was relatively straightforward. The correct design of integrating
 camera-based tracking took some time to figure o out. At first, a synchronous
@@ -112,8 +139,5 @@ used to another thread. This proved too complex and hard to integrate cleanly
 into the existing design, which was finally solved by an asynchronous approach
 injecting events into the already distributed event processing. The chosen
 design is simple in its implementation and robust in execution.
-
-\fix{Share your experience. What were the difficulties? What you liked and/or
-  disliked while developing this project? What you have learned?}
 
 \end{document}
